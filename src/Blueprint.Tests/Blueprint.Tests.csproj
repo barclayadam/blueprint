@@ -24,14 +24,6 @@
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\..\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
-    <ProjectReference Include="..\..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-    <ProjectReference Include="..\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
-    <ProjectReference Include="..\Blueprint.Testing\Blueprint.Testing.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.8.0" />
     <PackageReference Include="Hangfire.Core" Version="1.7.6" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
@@ -41,9 +33,15 @@
     <PackageReference Include="NHibernate" Version="4.1.1.4000" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
-    <PackageReference Include="Owin" Version="1.0" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
+    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
+    <ProjectReference Include="..\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings.StyleCop" />

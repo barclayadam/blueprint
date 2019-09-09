@@ -29,10 +29,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="NVelocity" Version="1.0.3" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-    
-    <PackageReference Include="NVelocity" Version="1.0.3" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Rules.ruleset">

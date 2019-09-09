@@ -17,15 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.NHibernate", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Notifications", "src\Blueprint.Notifications\Blueprint.Notifications.csproj", "{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.SqlServer", "Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.SqlServer", "src\Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "src\Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api", "Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api", "src\Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ApplicationInsights", "Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ApplicationInsights", "src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ServiceProvider", "Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ServiceProvider", "src\Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

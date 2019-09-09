@@ -21,9 +21,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Hangfire.Azure.ServiceBusQueue" Version="4.1.0" />
     <PackageReference Include="Hangfire.Core" Version="1.7.6" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
@@ -33,6 +30,9 @@
     <PackageReference Include="Owin" Version="1.0" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="StructureMap" />
