@@ -6,7 +6,6 @@ using System.Reflection;
 
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
-using NHibernate.Util;
 
 namespace Blueprint.Core.Api
 {
@@ -120,12 +119,10 @@ namespace Blueprint.Core.Api
 
             dataModel.RegisterOperation(o);
 
-            o.OperationType
-                .GetCustomAttributes<LinkAttribute>()
-                .ForEach(l => dataModel.RegisterLink(new ApiOperationLink(o, l.Url, l.Rel ?? o.Name)
-                {
-                    ResourceType = l.ResourceType
-                }));
+            foreach (var l in o.OperationType.GetCustomAttributes<LinkAttribute>())
+            {
+                dataModel.RegisterLink(new ApiOperationLink(o, l.Url, l.Rel ?? o.Name) {ResourceType = l.ResourceType});
+            }
         }
 
         private static ApiOperationDescriptor CreateApiOperationDescriptor(Type t)

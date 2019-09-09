@@ -2,7 +2,7 @@
 using NHibernate;
 using NLog;
 
-namespace Blueprint.Core.Data.NHibernate
+namespace Blueprint.NHibernate.Data.NHibernate
 {
     /// <summary>
     /// Provides an <see cref="ILoggerFactory" /> that bridges NHibernate logging to
@@ -15,7 +15,7 @@ namespace Blueprint.Core.Data.NHibernate
 
         /// <summary>
         /// Gets a <see cref="NLogLogger"/> for the specified type, which will be
-        /// the single logger with the name of <c>nhibernate</c>.
+        /// the single logger with the name of <c>NHibernate</c>.
         /// </summary>
         /// <param name="type">The type for the logger, currently ignored.</param>
         /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/></returns>
@@ -26,7 +26,7 @@ namespace Blueprint.Core.Data.NHibernate
 
         /// <summary>
         /// Gets a <see cref="NLogLogger"/> for the specified type, which will be
-        /// the single logger with the name of <c>nhibernate</c>.
+        /// the single logger with the name of <c>NHibernate</c>.
         /// </summary>
         /// <param name="keyName">The key for the logger, currently ignored.</param>
         /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/></returns>

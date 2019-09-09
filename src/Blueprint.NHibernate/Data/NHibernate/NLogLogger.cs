@@ -2,7 +2,7 @@
 using NHibernate;
 using NLog;
 
-namespace Blueprint.Core.Data.NHibernate
+namespace Blueprint.NHibernate.Data.NHibernate
 {
     /// <summary>
     /// An implementation of an <see cref="IInternalLogger" /> that allows NHibernate logging
