@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Caching;
+
 using Blueprint.Core.Utilities;
 
 namespace Blueprint.Core.Caching
@@ -19,15 +21,16 @@ namespace Blueprint.Core.Caching
         private CacheOptions()
         {
             Priority = CacheItemPriority.Medium;
-            AbsoluteExpiration = System.Web.Caching.Cache.NoAbsoluteExpiration;
-            SlidingExpiration = System.Web.Caching.Cache.NoSlidingExpiration;
+
+            AbsoluteExpiration = ObjectCache.InfiniteAbsoluteExpiration;
+            SlidingExpiration = ObjectCache.NoSlidingExpiration;
         }
 
         /// <summary>
         /// Gets the absolute expiration time for a cache item, the latest time in which
         /// the item can still be retrieved from the cache before it is automatically discarded.
         /// </summary>
-        public DateTime AbsoluteExpiration { get; private set; }
+        public DateTimeOffset AbsoluteExpiration { get; private set; }
 
         /// <summary>
         /// Gets the priority at which a item should be entered into a cache, providing
@@ -59,7 +62,7 @@ namespace Blueprint.Core.Caching
         {
             return new CacheOptions
             {
-                Priority = priority, 
+                Priority = priority,
                 AbsoluteExpiration = SystemTime.UtcNow.Add(absoluteExpiration)
             };
         }
@@ -93,7 +96,7 @@ namespace Blueprint.Core.Caching
         /// <returns>The string representation of this CacheOptions instance.</returns>
         public override string ToString()
         {
-            if (SlidingExpiration != System.Web.Caching.Cache.NoSlidingExpiration)
+            if (SlidingExpiration != ObjectCache.NoSlidingExpiration)
             {
                 return "[Sliding] Expiration = {0}; Priority = {1}".Fmt(SlidingExpiration, Priority);
             }

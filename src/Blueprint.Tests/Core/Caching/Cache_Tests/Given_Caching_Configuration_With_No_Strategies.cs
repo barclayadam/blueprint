@@ -13,16 +13,11 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         [SetUp]
         public void CreateConfiguration()
         {
-            var configFile =
-                    ConfigCreator.CreateTemporaryConfiguration(
-                @"<configSections>
-                        <section name='caching' type='Blueprint.Core.Caching.Configuration.CachingConfiguration, Blueprint.Core' />
-                  </configSections>
-
-                  <caching enabled='true' provider='Blueprint.Tests.Fakes.FakeCacheProvider, Blueprint.Tests' />");
-
-            // Act
-            CachingConfiguration.Current = (CachingConfiguration)configFile.GetSection("caching");
+            CachingConfiguration.Current = new CachingConfiguration
+            {
+                IsEnabled = true,
+                ProviderType = typeof(Blueprint.Tests.Fakes.FakeCacheProvider)
+            };
         }
 
         [Test]
@@ -30,7 +25,6 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         {
             // Arrange
             var cache = new Cache(new Container());
-            cache.Add("Default", "My Key", "My Value");
 
             // Act
             cache.Add("Default", "My Key", "My Value");

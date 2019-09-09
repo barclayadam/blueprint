@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using Blueprint.Core.ThirdParty;
 
@@ -24,7 +25,7 @@ namespace Blueprint.Core.Caching.Configuration
     ///      <caching enabled="true" provider="Blueprint.Core.Caching.WebCache, Blueprint.Core">
     ///        <rules>
     ///            <sliding type="*" timeSpan="20:00:00" itemPriority="Low" rulePriority="-1000"/>
-    ///    
+    ///
     ///            <sliding type="QueryResult1" timeSpan="5:00:00"/>
     ///            <fixed category="Content" timeSpan="45:00:00"/>
     ///        </rules>
@@ -32,11 +33,8 @@ namespace Blueprint.Core.Caching.Configuration
     ///    </configuration>
     /// </code>
     /// </example>
-    [UsedImplicitly]
-    public class CachingConfiguration : ConfigurationSection
+    public class CachingConfiguration
     {
-        private static CachingConfiguration currentConfiguration;
-
         /// <summary>
         /// Gets or sets the current configuration of the caching components, as retrieved from the
         /// current <see cref="CachingConfiguration"/>.
@@ -45,53 +43,21 @@ namespace Blueprint.Core.Caching.Configuration
         /// If this value is set to a non-null value that will be used instead of the configuration loaded
         /// from the app or web config files, to be used mainly for testing purposes.
         /// </remarks>
-        public static CachingConfiguration Current
-        {
-            get { return currentConfiguration ?? (ConfigurationManager.GetSection("caching") as CachingConfiguration) ?? new CachingConfiguration(); }
-
-            set { currentConfiguration = value; }
-        }
+        public static CachingConfiguration Current { get; set; } = new CachingConfiguration();
 
         /// <summary>
         /// Gets a value indicating whether caching should be enabled.
         /// </summary>
-        [ConfigurationProperty("enabled", IsRequired = false, DefaultValue = true)]
-        public bool IsEnabled { get { return (bool)this["enabled"]; } }
+        public bool IsEnabled { get; set; }
 
         /// <summary>
         /// Gets the type of the provider that should be used for caching.
         /// </summary>
-        public Type ProviderType { get { return Type.GetType(Provider); } }
+        public Type ProviderType { get; set; } = typeof(NoCacheProvider);
 
         /// <summary>
-        /// Gets the priority at which a item should be entered into a cache, providing
-        /// a hint to the cache as to what items can be discarded first if required.
+        /// Gets the strategies that have been defined, used to decide how (and if) an item will be cached;
         /// </summary>
-        [ConfigurationProperty("rules", IsRequired = false, IsDefaultCollection = true)]
-        public CachingConfigurationCollection Rules { get { return (CachingConfigurationCollection)this["rules"]; } }
-
-        /// <summary>
-        /// Gets the type of the provider that should be used for caching.
-        /// </summary>
-        [ConfigurationProperty("provider", IsRequired = false, DefaultValue = "Blueprint.Core.Caching.NoCacheProvider, Blueprint.Core")]
-        private string Provider { get { return (string)this["provider"]; } }
-
-        /// <summary>
-        /// Indicates whether or not to allow an unrecognized attribute, in this case allowing only
-        /// the xmlns attribute to be declared to get intellisense to work.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the unrecognised attrinute.
-        /// </param>
-        /// <param name="value">
-        /// The value of the unrecognised attrinute.
-        /// </param>
-        /// <returns>
-        /// Whether ot allow the unrecognised attribute.
-        /// </returns>
-        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
-        {
-            return name == "xmlns";
-        }
+        public List<ICachingStrategy> Strategies { get; set; } = new List<ICachingStrategy>();
     }
 }

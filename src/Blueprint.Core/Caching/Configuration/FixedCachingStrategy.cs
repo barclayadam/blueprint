@@ -8,14 +8,13 @@ namespace Blueprint.Core.Caching.Configuration
     /// expiration time which is a timespan from when the cache element is <strong>First added</strong>
     /// to the cache.
     /// </summary>
-    public class FixedCachingOptionsElement : CachingOptionsElement
+    public class FixedCachingStrategy : CachingStrategy
     {
         /// <summary>
         /// Gets the time span that determines the length of time that an item will be stored
         /// in a cache from the moment it is first inserted.
         /// </summary>
-        [ConfigurationProperty("timeSpan", IsRequired = true)]
-        public TimeSpan TimeSpan { get { return (TimeSpan)this["timeSpan"]; } }
+        public TimeSpan TimeSpan { get; set; }
 
         /// <summary>
         /// Gets the options for the specified value, which will be an absolute cache

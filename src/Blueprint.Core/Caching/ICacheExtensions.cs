@@ -11,7 +11,7 @@ namespace Blueprint.Core.Caching
     /// </summary>
     public static class CacheExtensions
     {
-        private static readonly Logger Log = LogManager.GetLogger("Blueprint.Caching");
+        private static readonly Logger Log = LogManager.GetLogger("Caching");
 
         /// <summary>
         /// Gets a value from this cache, constructing and storing a value should the cache

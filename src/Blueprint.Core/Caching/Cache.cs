@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace Blueprint.Core.Caching
             var cachingConfiguration = CachingConfiguration.Current;
 
             Log.Info("Caching enabled = {0}.", cachingConfiguration.IsEnabled);
-            Log.Info("Found {0} caching strategies.", cachingConfiguration.Rules.Strategies.Count());
+            Log.Info("Found {0} caching strategies.", cachingConfiguration.Strategies.Count);
             Log.Info("Using caching provider {0}.", cachingConfiguration.ProviderType);
 
             if (cachingConfiguration.ProviderType == null)
@@ -42,7 +42,7 @@ namespace Blueprint.Core.Caching
                 throw new InvalidOperationException("Cannot create a Cache without specifing ProviderType");
             }
 
-            orderedStrategies = cachingConfiguration.Rules.Strategies.OrderBy(s => s.Priority).ToArray();
+            orderedStrategies = cachingConfiguration.Strategies.OrderBy(s => s.Priority).ToArray();
             enabled = cachingConfiguration.IsEnabled;
             cacheProvider = (ICacheProvider)container.GetInstance(cachingConfiguration.ProviderType);
         }
@@ -50,8 +50,8 @@ namespace Blueprint.Core.Caching
         /// <summary>
         /// Gets the provider of this cache, which may be null should a provider type not be specified.
         /// </summary>
-        public ICacheProvider Provider { get { return cacheProvider; } }
-        
+        public ICacheProvider Provider => cacheProvider;
+
         /// <summary>
         /// Adds a value to this cache using the specified unique key.
         /// </summary>
@@ -72,13 +72,13 @@ namespace Blueprint.Core.Caching
         {
             if (enabled)
             {
-                Log.Trace("Attempting to add a new entry to the cache. type={0} category={1}  key={2}.", typeof(T), category, key);
+                Log.Trace("Attempting to add a new entry to the cache. category={0}  key={1}.", category, key);
 
                 var strategy = orderedStrategies.FirstOrDefault(s => s.AppliesTo(category, value));
 
                 if (strategy == null)
                 {
-                    Log.Debug("No strategy found, the item will not be added to the cache. type={0} category={1}  key={2}.", typeof(T), category, key);
+                    Log.Debug("No strategy found, the item will not be added to the cache.");
                     return;
                 }
 

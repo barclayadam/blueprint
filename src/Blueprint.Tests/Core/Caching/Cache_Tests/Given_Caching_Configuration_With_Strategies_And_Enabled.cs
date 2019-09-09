@@ -1,4 +1,6 @@
-﻿using Blueprint.Core.Caching;
+﻿using System;
+
+using Blueprint.Core.Caching;
 using Blueprint.Core.Caching.Configuration;
 using Blueprint.Testing;
 using Blueprint.Tests.Fakes;
@@ -13,20 +15,21 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         [SetUp]
         public void CreateConfiguration()
         {
-            var configFile =
-                    ConfigCreator.CreateTemporaryConfiguration(
-                                                               @"<configSections>
-                                                                <section name='caching' type='Blueprint.Core.Caching.Configuration.CachingConfiguration, Blueprint.Core' />
-                                                           </configSections>
-                                                           
-                                                           <caching enabled='true' provider='Blueprint.Tests.Fakes.FakeCacheProvider, Blueprint.Tests'>
-                                                             <rules>
-                                                                 <fixed type='*' timeSpan='00:05:00' itemPriority='Low' rulePriority='-1000' />
-                                                             </rules>
-                                                           </caching>");
-
-            // Act
-            CachingConfiguration.Current = (CachingConfiguration)configFile.GetSection("caching");
+            CachingConfiguration.Current = new CachingConfiguration
+            {
+                IsEnabled = true,
+                ProviderType = typeof(Blueprint.Tests.Fakes.FakeCacheProvider),
+                Strategies =
+                {
+                    new FixedCachingStrategy
+                    {
+                        TypeName = "*",
+                        TimeSpan = TimeSpan.FromMinutes(5),
+                        ItemPriority = CacheItemPriority.Low,
+                        Priority = -1000
+                    }
+                }
+            };
         }
 
         [Test]

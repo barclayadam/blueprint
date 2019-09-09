@@ -7,14 +7,13 @@ namespace Blueprint.Core.Caching.Configuration
     /// A caching element that represents a sliding expiration, such that an item will expire a certain time
     /// after its <strong>Last</strong> access.
     /// </summary>
-    public class SlidingCachingOptionsElement : CachingOptionsElement
+    public class SlidingCachingStrategy : CachingStrategy
     {
         /// <summary>
         /// Gets the time span that determines for how long an item stays in the cache after its
         /// last access.
         /// </summary>
-        [ConfigurationProperty("timeSpan", IsRequired = true)]
-        public TimeSpan TimeSpan { get { return (TimeSpan)this["timeSpan"]; } }
+        public TimeSpan TimeSpan { get; set; }
 
         /// <summary>
         /// Gets the options for the specified value, which will be a sliding cache
