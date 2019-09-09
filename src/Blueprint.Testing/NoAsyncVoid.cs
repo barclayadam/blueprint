@@ -10,8 +10,6 @@
 
     using Shouldly;
 
-    using StructureMap.TypeRules;
-
     public class NoAsyncVoid
     {
         public static void Check(Assembly assembly, params Type[] typesToExclude)

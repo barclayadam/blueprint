@@ -1,8 +1,6 @@
-namespace Blueprint.Testing
+﻿namespace Blueprint.Testing
 {
     using Moq;
-
-    using StructureMap;
 
     public static class ContainerExtensions
     {

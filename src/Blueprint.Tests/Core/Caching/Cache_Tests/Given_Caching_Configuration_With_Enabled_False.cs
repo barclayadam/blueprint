@@ -5,7 +5,6 @@ using Blueprint.Core.Caching.Configuration;
 using Blueprint.Tests.Fakes;
 using FluentAssertions;
 using NUnit.Framework;
-using StructureMap;
 
 namespace Blueprint.Tests.Core.Caching.Cache_Tests
 {

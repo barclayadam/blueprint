@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using Blueprint.Core.ThirdParty;
 
 namespace Blueprint.Core.Caching.Configuration
 {

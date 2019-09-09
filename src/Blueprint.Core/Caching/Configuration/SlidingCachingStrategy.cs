@@ -1,5 +1,4 @@
-using System;
-using System.Configuration;
+﻿using System;
 
 namespace Blueprint.Core.Caching.Configuration
 {
