@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// An exception raised when the sending of email fails.

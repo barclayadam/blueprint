@@ -1,6 +1,6 @@
 ﻿using System.Net.Mail;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// A class which is able to send emails.

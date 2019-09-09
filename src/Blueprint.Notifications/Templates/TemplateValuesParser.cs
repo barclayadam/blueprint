@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Blueprint.Core.Templates
+namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// A parser which can take an IDictionary{string, object} and construct a new

@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Core.Notifications
+﻿namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// Notification service that can send out any notifications and perform the necessary logging and tracking.

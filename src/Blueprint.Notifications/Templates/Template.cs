@@ -1,4 +1,6 @@
-﻿namespace Blueprint.Core.Templates
+﻿using Blueprint.Core;
+
+namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// Represents a loaded template.

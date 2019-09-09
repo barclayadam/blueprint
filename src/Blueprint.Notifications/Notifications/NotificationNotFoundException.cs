@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// An exception that is raised when a notification cannot be found.

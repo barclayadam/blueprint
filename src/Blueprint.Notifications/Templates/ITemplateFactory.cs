@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Core.Templates
+﻿namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// A factory which is used to construct a concrete implementation of 

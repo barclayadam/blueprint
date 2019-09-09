@@ -4,12 +4,10 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
-
 using Blueprint.Core.Utilities;
-
 using NLog;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// The repository class for Embedded Resource Notification templates.

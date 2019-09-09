@@ -1,7 +1,7 @@
 using System.Net.Mail;
 using NLog;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// An <see cref="IEmailSender" /> that performs no real sending of any email messages, will only log

@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using System.Net.Mail;
+using Blueprint.Core;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// Used for attaching documents or streams of data to an email.

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using Blueprint.Core.Notifications.Handlers;
+using Blueprint.Core;
 using Blueprint.Core.Utilities;
+using Blueprint.Notifications.Notifications.Handlers;
 using NLog;
 
-namespace Blueprint.Core.Notifications
+namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// Notification service that can, given <see cref="NotificationOptions"/>,

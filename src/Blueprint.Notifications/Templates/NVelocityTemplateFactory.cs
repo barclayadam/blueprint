@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Core.Templates
+﻿namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// An <see cref="ITemplateFactory"/> which will use NVelocity as the template

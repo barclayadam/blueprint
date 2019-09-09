@@ -1,12 +1,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Mail;
-using Blueprint.Core.Templates;
+using Blueprint.Core;
 using Blueprint.Core.Utilities;
-
+using Blueprint.Notifications.Templates;
 using NLog;
 
-namespace Blueprint.Core.Notifications.Handlers
+namespace Blueprint.Notifications.Notifications.Handlers
 {
     /// <summary>
     /// Handles notifications that have an EmailTemplate attached, merging the

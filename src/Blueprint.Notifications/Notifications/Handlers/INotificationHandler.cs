@@ -1,4 +1,4 @@
-namespace Blueprint.Core.Notifications.Handlers
+namespace Blueprint.Notifications.Notifications.Handlers
 {
     /// <summary>
     /// A handler of a notification.

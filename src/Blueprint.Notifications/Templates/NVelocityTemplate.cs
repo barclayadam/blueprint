@@ -1,12 +1,13 @@
 ﻿using System.Globalization;
 using System.IO;
+using Blueprint.Core;
 using Commons.Collections;
 using NLog;
 using NVelocity;
 using NVelocity.App;
 using NVelocity.Exception;
 
-namespace Blueprint.Core.Templates
+namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// An implementation of an <see cref="ITemplateFactory"/> which uses NVelocity as its

@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tests", "src\Blue
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.NHibernate", "src\Blueprint.NHibernate\Blueprint.NHibernate.csproj", "{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Notifications", "src\Blueprint.Notifications\Blueprint.Notifications.csproj", "{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

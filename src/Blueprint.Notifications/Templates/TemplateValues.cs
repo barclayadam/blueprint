@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Blueprint.Core;
 
-namespace Blueprint.Core.Templates
+namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// Represents the values which can be used within a template.

@@ -43,7 +43,6 @@
     <PackageReference Include="Npgsql" Version="4.0.9" />
     <PackageReference Include="NJsonSchema" Version="9.10.42" />
     <PackageReference Include="NLog" Version="4.5.8" />
-    <PackageReference Include="NVelocity" Version="1.0.3" />
     <PackageReference Include="StackifyLib" Version="1.25.4" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
