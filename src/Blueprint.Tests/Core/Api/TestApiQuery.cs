@@ -1,7 +1,5 @@
-using System.Net.Http;
-
-using Blueprint.Core.Api;
-
+﻿using System.Net.Http;
+using Blueprint.Api;
 using StructureMap;
 
 namespace Blueprint.Tests.Core.Api 

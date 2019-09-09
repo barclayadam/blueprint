@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace Blueprint.Core.Apm
 {
-    internal class NulloApmDependencyOperation : IApmDependencyOperation
+    public class NulloApmDependencyOperation : IApmDependencyOperation
     {
-        internal static readonly NulloApmDependencyOperation Instance = new NulloApmDependencyOperation();
+        public static readonly NulloApmDependencyOperation Instance = new NulloApmDependencyOperation();
 
         public void MarkSuccess(string resultCode)
         {

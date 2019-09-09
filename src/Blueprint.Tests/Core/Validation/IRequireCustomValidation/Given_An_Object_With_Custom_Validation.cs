@@ -1,4 +1,6 @@
-﻿namespace Blueprint.Tests.Core.Validation.IRequireCustomValidation
+﻿using Blueprint.Api.Validation;
+
+namespace Blueprint.Tests.Core.Validation.IRequireCustomValidation
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;

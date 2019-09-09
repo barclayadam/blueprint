@@ -15,7 +15,7 @@ namespace Blueprint.Tests
         private const string ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint;Integrated Security=True";
 
         protected IDatabaseConnectionFactory CreateFactory() =>
-            new MssqlDatabaseConnectionFactory(ConnectionString);
+            new SqlServerDatabaseConnectionFactory(ConnectionString);
 
         [SetUp]
         public void SetUpDatabase()

@@ -17,9 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.NHibernate", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Notifications", "src\Blueprint.Notifications\Blueprint.Notifications.csproj", "{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.SqlServer", "Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.SqlServer", "Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Postgres", "Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api", "Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ApplicationInsights", "Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ServiceProvider", "Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +69,18 @@ Global
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

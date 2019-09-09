@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-
+using Blueprint.Api.Validation;
 using Blueprint.Core.Validation;
 
 using NUnit.Framework;

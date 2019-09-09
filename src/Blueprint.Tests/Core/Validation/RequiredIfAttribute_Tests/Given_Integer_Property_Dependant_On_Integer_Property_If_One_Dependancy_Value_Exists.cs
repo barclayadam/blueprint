@@ -1,11 +1,9 @@
-﻿namespace Blueprint.Tests.Core.Validation.RequiredIfAttribute_Tests
+﻿using System.Threading.Tasks;
+using Blueprint.Api.Validation;
+using NUnit.Framework;
+
+namespace Blueprint.Tests.Core.Validation.RequiredIfAttribute_Tests
 {
-    using System.Threading.Tasks;
-
-    using Blueprint.Core.Validation;
-
-    using NUnit.Framework;
-
     public class GivenIntegerPropertyRequiredIfOtherIntegerPropertyIsSpecifiedValue
     {
         public class Validatable

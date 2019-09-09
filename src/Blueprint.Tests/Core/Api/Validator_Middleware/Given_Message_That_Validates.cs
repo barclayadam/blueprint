@@ -1,9 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-
+using Blueprint.Api;
+using Blueprint.Api.Middleware;
 using Blueprint.Core;
-using Blueprint.Core.Api;
-using Blueprint.Core.Api.Middleware;
 
 using NUnit.Framework;
 

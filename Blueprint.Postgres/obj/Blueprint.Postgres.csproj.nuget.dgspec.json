@@ -211,43 +211,11 @@
               "target": "Package",
               "version": "[0.1.4, )"
             },
-            "CompareNETObjects": {
-              "target": "Package",
-              "version": "[3.8.0, )"
-            },
-            "Dapper": {
-              "target": "Package",
-              "version": "[2.0.4, )"
-            },
             "Hangfire.Core": {
               "target": "Package",
               "version": "[1.7.6, )"
             },
-            "Microsoft.ApplicationInsights": {
-              "target": "Package",
-              "version": "[2.10.0, )"
-            },
-            "Microsoft.AspNet.WebApi.Client": {
-              "target": "Package",
-              "version": "[5.2.7, )"
-            },
-            "Microsoft.AspNet.WebApi.Core": {
-              "target": "Package",
-              "version": "[5.2.7, )"
-            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
-              "target": "Package",
-              "version": "[2.0.1, )"
-            },
-            "Microsoft.AspNetCore.Http.Abstractions": {
-              "target": "Package",
-              "version": "[2.0.1, )"
-            },
-            "Microsoft.AspNetCore.Routing": {
-              "target": "Package",
-              "version": "[2.0.1, )"
-            },
-            "Microsoft.AspNetCore.WebUtilities": {
               "target": "Package",
               "version": "[2.0.1, )"
             },
@@ -257,10 +225,6 @@
               "version": "[2.0.3, )",
               "autoReferenced": true
             },
-            "NJsonSchema": {
-              "target": "Package",
-              "version": "[9.10.42, )"
-            },
             "NLog": {
               "target": "Package",
               "version": "[4.6.7, )"
@@ -268,10 +232,6 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[12.0.1, )"
-            },
-            "StackifyLib": {
-              "target": "Package",
-              "version": "[1.25.4, )"
             },
             "StructureMap": {
               "target": "Package",
@@ -285,6 +245,10 @@
               "target": "Package",
               "version": "[4.5.0, )"
             },
+            "System.Diagnostics.DiagnosticSource": {
+              "target": "Package",
+              "version": "[4.5.1, )"
+            },
             "System.Net.Http": {
               "target": "Package",
               "version": "[4.3.4, )"
@@ -294,10 +258,6 @@
               "version": "[4.3.0, )"
             },
             "System.Runtime.Caching": {
-              "target": "Package",
-              "version": "[4.5.0, )"
-            },
-            "System.ValueTuple": {
               "target": "Package",
               "version": "[4.5.0, )"
             }

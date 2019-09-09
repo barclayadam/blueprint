@@ -4,1282 +4,6 @@
         <name>Blueprint.Core</name>
     </assembly>
     <members>
-        <member name="T:Blueprint.Core.Api.AnonymousUserAuthorisationContext">
-            <inheritdoc />
-        </member>
-        <member name="F:Blueprint.Core.Api.AnonymousUserAuthorisationContext.Instance">
-            <summary>
-            The single instance of <see cref="T:Blueprint.Core.Api.AnonymousUserAuthorisationContext"/> that can be used to indicate
-            there is no current user.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.IsActive">
-            <summary>
-            Returns <c>false</c>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.IsAnonymous">
-            <summary>
-            Returns <c>true</c>.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.AnonymousUserAuthorisationContext.PopulateMetadata(System.Action{System.String,System.Object})">
-            <summary>
-            Does nothing as no metadata to populate, given this is an anonymous user.
-            </summary>
-            <param name="add"></param>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.Id">
-            <summary>
-            Returns <c>null</c>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.AccountId">
-            <summary>
-            Returns <c>null</c>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.Email">
-            <summary>
-            Returns <c>null</c>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.AnonymousUserAuthorisationContext.Name">
-            <summary>
-            Returns <c>null</c>.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiConfiguration">
-            <summary>
-            Configuration object for Blueprint API, will be a singleton throughout the site.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiConfiguration.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Api.ApiConfiguration" /> class with empty
-            data.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiConfiguration.BaseApiUrl">
-            <summary>
-            Gets or sets the Base URL for the API, the fully-qualified URL that represents where the
-            root of the API can be accessed from (i.e. https://api.somewhere.com/api/).
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiDataModel">
-            <summary>
-            Provides a data model for an exposed API, a description of the resources that are being exposed, plus
-            the service and entity operations that have been registered.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiDataModel.Links">
-            <summary>
-            Gets all registered links for this model, with a link representing the association between a resource and a different
-            operation (for example a link between the resource 'Jobs' and the operation 'Apply')
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiDataModel.Operations">
-            <summary>
-            Gets all registered operations.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.CreateOperationContext(StructureMap.IContainer,System.Type)">
-            <summary>
-            Given a type that represents an API operation will construct a new <see cref="T:Blueprint.Core.Api.ApiOperationContext"/> that represents
-            that operation.
-            </summary>
-            <param name="container">The container under which the operation will execute.</param>
-            <param name="type">The API operation to construct a context for.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.ApiOperationContext"/> representing the given type.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.CreateOperationContext``1(StructureMap.IContainer,``0)">
-            <summary>
-            Given a configured <see cref="T:Blueprint.Core.Api.IApiOperation"/> instance will create a new <see cref="T:Blueprint.Core.Api.ApiOperationContext" />.
-            </summary>
-            <param name="container">The container under which the operation will execute.</param>
-            <param name="operation">The configured operation instance.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.ApiOperationContext"/> representing the given operation.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.RegisterOperation(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <summary>
-            Registers the given operation descriptor.
-            </summary>
-            <param name="descriptor">The descriptor to register, must be non-null.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.RegisterLink(Blueprint.Core.Api.ApiOperationLink)">
-            <summary>
-            Registers the specified link, checking that the link represents a unique combination of HTTP method
-            and URL format to avoid clashes.
-            </summary>
-            <remarks>
-            In addition the link <see cref="P:Blueprint.Core.Api.ApiOperationLink.Rel" /> property will be checked to ensure no two links with
-            the same rel can be associated with a single resource type.
-            </remarks>
-            <param name="link">The link to register.</param>
-            <exception cref="T:System.InvalidOperationException">If the link is not unique.</exception>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.GetLinksForOperation(System.Type)">
-            <summary>
-            Gets all registered links for the given operation type. Multiple links (routes) can be specified for a single
-            for a single operation as it is possible to access via different URLs depending on link association (i.e.
-            could be /api/issues and /api/users/3/issues where the second one fills in a UserId property).
-            </summary>
-            <param name="operationType">The type of operation to get links for.</param>
-            <returns>All associated links (routes) for the operation type.</returns>
-            <exception cref="T:System.InvalidOperationException">If no operation of the specified type has been registered.</exception>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.GetLinksForResource(System.Type)">
-            <summary>
-            Gets all registered links for the given resource type. Links can be associated with a resource so that they get
-            generated and returned in the $links properties of an <see cref="T:Blueprint.Core.Api.ApiResource"/> return value.
-            </summary>
-            <param name="resourceType">The resource type to load links for.</param>
-            <returns>The (potentially empty) enumeration of registered links.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.GetLinkFor(System.Type,System.String)">
-            <summary>
-            Gets the link that has been registered for the given resource type with the specified 'rel'
-            property.
-            </summary>
-            <param name="resourceType">The resource type to load for.</param>
-            <param name="rel">The rel of the link to load.</param>
-            <returns>The associated link, or <c>null</c> if no such link exists.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiDataModel.GetRootLinks">
-            <summary>
-            Gets all registered links that are not associated with any particular resource.
-            </summary>
-            <returns>All non-resource associated registered links.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.BlueprintApiOptions">
-            <summary>
-            Serves as the central configuration point for the Blueprint API, providing the options for
-            configuring behaviour as well as creating an <see cref="T:Blueprint.Core.Api.ApiDataModel" /> that represents the operations
-            that can be executed.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.BlueprintApiOptions.NotFoundMode">
-            <summary>
-            Gets or sets what should happen if a request comes in and cannot be handled by any
-            known handlers.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.BlueprintApiOptions.Middlewares">
-            <summary>
-            Gets the list of middleware builder that will be used by the pipeline generation, added in the
-            order that they will be configured.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.BlueprintApiOptions.ApplicationName">
-            <summary>
-            Gets or sets the name of the application, which is used when generating the DLL for the pipeline
-            executors.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.BlueprintApiOptions.WithApplicationName(System.String)">
-            <summary>
-            Sets  the name of the application, which is used when generating the DLL for the pipeline
-            executors.
-            </summary>
-            <param name="appName">The name of the application.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.BlueprintApiOptions.Scan(System.Reflection.Assembly[],System.Func{System.Type,System.Boolean})">
-            <summary>
-            Scans the given assemblies for operations to register, with an optional filter function to exclude
-            found types.
-            </summary>
-            <param name="assemblies">The assemblies to scan.</param>
-            <param name="filter">The optional filter over found operations.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.BlueprintApiOptions.Scan(System.Reflection.Assembly,System.Func{System.Type,System.Boolean})">
-            <summary>
-            Scans the given assembly for operations to register, with an optional filter function to exclude
-            found types.
-            </summary>
-            <param name="assembly">The assembly to scan.</param>
-            <param name="filter">The optional filter over found operations.</param>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiLinkGenerator">
-            <summary>
-            The API link generator is responsible for creating the URLs that would be used, for example, to generate
-            the $links properties of returned resources from registered <see cref="T:Blueprint.Core.Api.ApiOperationLink"/>s.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiLinkGenerator.#ctor(Blueprint.Core.Api.ApiConfiguration,Blueprint.Core.Api.ApiDataModel)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Api.ApiLinkGenerator"/> class.
-            </summary>
-            <param name="apiConfiguration">The configuration of the API we are generating links for.</param>
-            <param name="apiDataModel">The data model used to find links and operations to create URLs for.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiLinkGenerator.CreateSelfLink``1(System.Object)">
-            <summary>
-            Creates the "self" link for the resource type represented by <typeparamref name="T" />, filling in
-            the URL placeholders with values from the <paramref name="idDefinition" /> parameter.
-            </summary>
-            <param name="idDefinition">An object that contains properties used to fill the link (typically the ApiResource represented by the links'
-            <see cref="P:Blueprint.Core.Api.ApiOperationLink.ResourceType"/> property specified as <typeparamref name="T" />).
-            </param>
-            <typeparam name="T">The resource type.</typeparam>
-            <returns>A Link representing 'self' for the given resource type.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiLinkGenerator.CreateUrlFromLink(Blueprint.Core.Api.ApiOperationLink,System.Object)">
-            <summary>
-            Creates a fully qualified URL (using <see cref="P:Blueprint.Core.Api.ApiConfiguration.BaseApiUrl" />) for the specified link
-            and "result" object that is used to fill the placeholders of the link.
-            </summary>
-            <param name="link">The link to generate URL for.</param>
-            <param name="result">The "result" object used to populate placeholder values of the specified link route.</param>
-            <returns>A fully-qualified URL</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiLinkGenerator.CreateUrl(Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Given a populated <see cref="T:Blueprint.Core.Api.IApiOperation" /> will generate a fully-qualified URL that, when hit, would execute the operation
-            with the specified values.
-            </summary>
-            <remarks>
-            This will use the <em>first</em> link (route) specified for the operation.
-            </remarks>
-            <param name="operation">The operation to generate a URL for.</param>
-            <returns>A fully-qualified URL that, if hit, would execute the passed in operation with the same values.</returns>
-            <exception cref="T:System.InvalidOperationException">If the URL link has a malformed placeholder (i.e. the property it names cannot be found)</exception>
-            <exception cref="T:System.InvalidOperationException">If no links / routes have been specified for the given operation.</exception>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiOperationContext">
-            <summary>
-            The context of an API operation, the object that is passed to all middleware and final operation handlers
-            to allow sharing of state, for example the operation being executed, or an authentication context that
-            gets created.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationContext.DataModel">
-            <summary>
-            Gets or sets the data model for this operation.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationContext.Descriptor">
-            <summary>
-            Gets the operation descriptor that described the operation that is currently being executed.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationContext.Operation">
-            <summary>
-            Gets the operation that is currently being executed.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationContext.Request">
-            <summary>
-            Gets or sets the <see cref="T:Microsoft.AspNetCore.Http.HttpRequest" /> that initiated this API call.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationContext.Response">
-            <summary>
-            Gets the <see cref="T:Microsoft.AspNetCore.Http.HttpResponse" /> that will eventually be written back to the client, the result
-            of this API request.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiOperationDescriptor">
-            <summary>
-            A descriptor of an <see cref="T:Blueprint.Core.Api.IApiOperation" />, containing details such as the URL from
-            which the operation can be executed, and the type that represents the actual operation.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.Name">
-            <summary>
-            Gets the name of the operation, which is the class name of the operation with Query and Command removed.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.OperationType">
-            <summary>
-            Gets the type that represents this operation, a type that defines the parameters required (or
-            optional paramaters), plus any other metadata that is used by middleware components to
-            decide what action to take (for example any declarative permissions in the form of
-            attributes).
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.TypeAttributes">
-            <summary>
-            Gets the custom attributes that have been applied to the type, stored once to avoid having to
-            re-query the type system whenever extra information is required.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.Properties">
-            <summary>
-            Gets the public properties declared for the operation type, stored once to avoid having to
-            re-query the type system whenever extra information is required.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.PropertyAttributes">
-            <summary>
-            Gets the public properties attributes, indexed such that the attributes for Properties[i] can be
-            found at PropertyAttributes[i].
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.HttpMethod">
-            <summary>
-            Gets the HTTP method that this operation is required to be executed using, i.e. one of GET, POST,
-            PUT, DELETE.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.AnonymousAccessAllowed">
-            <summary>
-            Gets a value indicating whether anonymous access is allowed to this API operation, typically determined
-            by the presence of an <see cref="T:Blueprint.Core.Authorisation.AllowAnonymousAttribute"/> decorating the operation.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.IsExposed">
-            <summary>
-            Gets or sets a value indicating whether this operation is exposed, that it will be included in the generation
-            of links to attach to resource results, defaults to <c>true</c>.
-            </summary>
-            <remarks>
-            This value is typically determined conventionally by looking for an <see cref="T:Blueprint.Core.Api.UnexposedOperationAttribute"/>, which
-            its presence setting this value to <c>false</c>.
-            </remarks>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.ShouldAudit">
-            <summary>
-            Gets or sets a value indicating whether this operation should be audited, which will also be used to
-            determine the level of logging &amp; detail of logging that occurs, defaults to <c>true</c>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationDescriptor.RecordPerformanceMetrics">
-            <summary>
-            Gets or sets a value indicating whether performance metrics should be recorded for this operation.
-            </summary>
-            <remarks>
-            This value should typically be <c>true</c>, the default value, although in some cases the performance metrics
-            can be noise (e.g. for a health endpoint that is hit every minute).
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationDescriptor.CreateInstance">
-            <summary>
-            Creates a new instance of the API operation this descriptor describes, with the default implementation
-            to simply be to use <see cref="T:System.Activator"/>, which means operations must have a public, parameterless
-            constructor.
-            </summary>
-            <returns>A new instance of operation this descriptor describes.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationExecutorBuilder.Use(Blueprint.Core.Api.IMiddlewareBuilder)">
-            <summary>
-            Uses the given <see cref="T:Blueprint.Core.Api.IMiddlewareBuilder" />, placing it at the end of the
-            current list and adding the assembly from where it comes from as a reference.
-            </summary>
-            <remarks>
-            This method is not normally used directly, as the building is directed by the options
-            present in <see cref="T:Blueprint.Core.Api.BlueprintApiOptions" />.
-            </remarks>
-            <param name="middlewareBuilder">The builder to add, must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationExecutorBuilder.Reference(System.Reflection.Assembly)">
-            <summary>
-            References the given <see cref="T:System.Reflection.Assembly" /> when compiling the pipelines in <see cref="M:Blueprint.Core.Api.ApiOperationExecutorBuilder.Build(Blueprint.Core.Api.BlueprintApiOptions,StructureMap.IContainer)"/>.
-            </summary>
-            <param name="assembly">The assembly to reference, must not be <c>null</c>.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationExecutorBuilder.Build(Blueprint.Core.Api.BlueprintApiOptions,StructureMap.IContainer)">
-            <summary>
-            Given the specified <see cref="T:Blueprint.Core.Api.BlueprintApiOptions" /> will generate and compiler an
-            <see cref="T:Blueprint.Core.Api.IApiOperationExecutor" /> that can be used to execute any operation that
-            has been identified by the model of the options passed.
-            </summary>
-            <param name="options"></param>
-            <param name="container"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiOperationExecutorBuilder.ConcreteOperationCastFrame">
-            <summary>
-            A frame that will output the code to create a variable of the "proper" operation type, meaning that
-            we do not need to constantly perform a cast on <see cref="P:Blueprint.Core.Api.ApiOperationContext.Operation" /> whenever we need
-            the concrete type.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationLink.#ctor(Blueprint.Core.Api.ApiOperationDescriptor,System.String,System.String)">
-            <summary>
-            Constructs a link that applies at a 'system' level, can be overriden by setting
-            <see cref="P:Blueprint.Core.Api.ApiOperationLink.ResourceType"/>.
-            </summary>
-            <param name="operationDescriptor">The operation this link represents.</param>
-            <param name="urlFormat">The URL from which this link is accessed, may be templated.</param>
-            <param name="rel">The <strong>rel</strong>ationship this link represents.</param>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationLink.UrlFormat">
-            <summary>
-            Gets the format of the URL for this link, which will <b>not</b> start with a forward
-            slash.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiOperationLink.IsRootLink">
-            <summary>
-            Gets a value indicating whether this is a 'root' link, one that does not belong to
-            a particular resource.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationLink.HasPlaceholders">
-            <summary>
-            Gets a value indicating whether this link has any placeholders, meaning they would need to be filled in
-            by the routing engine.
-            </summary>
-            <returns>Whether any placeholders exist.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiOperationLink.GetFormatForRouting">
-            <summary>
-            Creates a URL that can be used for routing, trimming the definitions
-            of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details)
-            </summary>
-            <returns>A URL representation of the link used in routing.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.ApiResource">
-            <summary>
-            An ApiResource that can be returned from an operation that has a standard format
-            to be consumed by clients, including resource type ($object), links ($links) and whether this
-            represents a 'partial' response ($partial).
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiResource.#ctor">
-            <summary>
-            Initializes a new instance of ApiResource, setting the <see cref="P:Blueprint.Core.Api.ApiResource.Object"/> property
-            to a conventional name of the implementing class being passed to <see cref="M:Blueprint.Core.Api.ApiResource.GetTypeName(System.Type)"/>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiResource.Object">
-            <summary>
-            Gets the object type of this resource, used to indicate to clients what they
-            are dealing with.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiResource.Links">
-            <summary>
-            Gets the links that have currently been defined for this resource.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ApiResource.IsPartial">
-            <summary>
-            Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been
-            populated for performance reasons and a client should reload from the 'self' link to retrieve all values.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiResource.GetTypeName(System.Type)">
-            <summary>
-            Gets the type name (exposed as 'object' from the API) of the given resource type, applying
-            default conventions of removing 'Resource' and 'DTO' string from the type name.
-            </summary>
-            <param name="resourceType"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiResource.AddLink(System.String,Blueprint.Core.Api.Link)">
-            <summary>
-            Adds a new link with the specific rel (relation) and <see cref="T:Blueprint.Core.Api.Link"/>
-            definition, throwing an exception if a link with the specific relation already
-            exists.
-            </summary>
-            <param name="rel">The relation the link has to this resource.</param>
-            <param name="link">The link to be added.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.Authorisation.IApiAuthoriser.AppliesTo(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <summary>
-            Indicates whether or not this authoriser applies to the specified operation, used to narrow
-            down which authorisers should be executed and checked for each operation.
-            </summary>
-            <param name="descriptor"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Authorisation.IApiAuthoriser.CanExecuteOperationAsync(Blueprint.Core.Api.ApiOperationContext,Blueprint.Core.Api.ApiOperationDescriptor,Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Indicates whether an operation can be executed given the user executing the operation, the descriptor
-            of that operation and the instantiated and populated operation itself.
-            </summary>
-            <param name="operationContext">The operation requested to be executed.</param>
-            <param name="descriptor">The descriptor of the operation.</param>
-            <param name="operation">The populated operation.</param>
-            <returns>Whether the operation link is available based on the current state of the resource.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Authorisation.IApiAuthoriser.CanShowLinkAsync(Blueprint.Core.Api.ApiOperationContext,Blueprint.Core.Api.ApiOperationDescriptor,System.Object)">
-            <summary>
-            Indicates whether a link is available for the operation given the specified resource and
-            current state.
-            </summary>
-            <param name="operationContext">The operation currently being executed, returning the given resource.</param>
-            <param name="descriptor">The descriptor of the operation.</param>
-            <param name="resource">The resource to check against.</param>
-            <returns>Whether the operation link is available based on the current state of the resource.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.ApiOperationContextVariableSource">
-             <summary>
-             An <see cref="T:Blueprint.Compiler.Model.IVariableSource" /> that can creates variables for the major properties of an
-             <see cref="T:Blueprint.Core.Api.ApiOperationContext" /> that has been previously registered.
-             </summary>
-             <remarks>
-             The given properties can be matched:
-            
-              * <see cref="T:Blueprint.Core.Api.ApiDataModel" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.DataModel" />
-              * <see cref="T:Blueprint.Core.Api.ApiOperationDescriptor" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Descriptor" />
-              * <see cref="T:Blueprint.Core.Api.IApiOperation" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Operation" />
-              * The specific type of IApiOperation for the context. Casted from from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Operation" />
-              * <see cref="T:StructureMap.IContainer" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Container" />
-              * <see cref="T:Blueprint.Core.Api.IUserAuthorisationContext" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.UserAuthorisationContext" />
-              * <see cref="T:Microsoft.AspNetCore.Http.HttpRequest" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Request" />
-              * <see cref="T:Microsoft.AspNetCore.Http.HttpResponse" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.Response" />
-              * <see cref="T:System.Security.Claims.ClaimsIdentity" /> from <see cref="P:Blueprint.Core.Api.ApiOperationContext.ClaimsIdentity" />
-             </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.ApiOperationContextVariableSource.Get(System.Type)">
-            <summary>
-            Gets a <see cref="T:Blueprint.Compiler.Model.Variable" /> that represents access to a property of an <see cref="T:Blueprint.Core.Api.ApiOperationContext" />.
-            </summary>
-            <param name="type">The type of variable requested.</param>
-            <returns>The corresponding <see cref="T:Blueprint.Compiler.Model.Variable"/> for the type.</returns>
-        </member>
-        <member name="P:Blueprint.Core.Api.CodeGen.ApiOperationContextVariableSource.OperationVariable">
-            <summary>
-            Gets the variable that represents the actual property for this context, casted from the <see cref="T:Blueprint.Core.Api.IApiOperation" /> property
-            of the <see cref="T:Blueprint.Core.Api.ApiOperationContext" />.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.BaseExceptionCatchFrame">
-            <summary>
-            A frame that is output when catching all unhandled exceptions, logging as much information about
-            the operation, request, exception and user through the use of <see cref="T:Blueprint.Core.Errors.IErrorLogger" />.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.ErrorHandlerFrame">
-            <summary>
-            A frame that will output try/catch where the catch frames and defined externally on the <see cref="T:Blueprint.Core.Api.MiddlewareBuilderContext"/>,
-            defined per exception type to catch (see <see cref="M:Blueprint.Core.Api.MiddlewareBuilderContext.RegisterUnhandledExceptionHandler(System.Type,System.Func{Blueprint.Compiler.Model.Variable,System.Collections.Generic.IEnumerable{Blueprint.Compiler.Frames.Frame}})" />.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.ErrorHandlerFrame.CatchClauseComparer">
-            <summary>
-            A comparer that will order a list of Types (should be <see cref="T:System.Exception"/>-derived) such that
-            the most-specific type is first, as would be expected for a list of catch clauses.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.CodeGen.LoggerVariable.Logger">
-            <summary>
-            Gets the <see cref="P:Blueprint.Core.Api.CodeGen.LoggerVariable.Logger"/> that would be instantiated in the <see cref="!:LoggerInitialisationFrame" />, useful in order
-            to completely remove logging if the log level is not enabled (which assumes the levels are static at build time).
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.LogFrame">
-            <summary>
-            A <see cref="T:Blueprint.Compiler.Frames.SyncFrame" /> that will output a log message to the configured NLog <see cref="T:NLog.Logger"/>
-            at the specified level.
-            </summary>
-            <remarks>
-            The Logger used in output code is found by searching for a configured <see cref="T:Blueprint.Core.Api.CodeGen.LoggerVariable"/> from a <see cref="!:LoggerInitialisationFrame"/>
-            and will be used to check whether the log level is enabled, <b>not</b> outputting any logging in the case of
-            the log level being turned off.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Trace(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Trace" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Debug(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Debug" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <param name="s"></param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Info(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Info" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Warn(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Warn" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Error(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Error" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.Fatal(System.String,System.String[])">
-            <summary>
-            Constructs a new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame" /> with the <see cref="F:NLog.LogLevel.Fatal" /> level and given
-            message.
-            </summary>
-            <param name="message">The message to output.</param>
-            <returns>A new <see cref="T:Blueprint.Core.Api.CodeGen.LogFrame"/> </returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.GenerateCode(Blueprint.Compiler.GeneratedMethod,Blueprint.Compiler.ISourceWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.LogFrame.FindVariables(Blueprint.Compiler.Model.IMethodVariables)">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1">
-            <summary>
-            A <see cref="T:Blueprint.Compiler.Frames.SyncFrame" /> that will resolve, from the registered <see cref="T:StructureMap.IContainer"/>, an instance
-            of a given type and store in a new <see cref="P:Blueprint.Core.Api.CodeGen.GetInstanceFrame`1.InstanceVariable"/>.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1.#ctor(System.Type)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1"/> class with the specified
-            variable type, which is the type that will be requested from the container at runtime.
-            </summary>
-            <param name="variableType">The type of variable and request container type.</param>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1.#ctor(System.Type,System.Type)" -->
-        <member name="M:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1.GenerateCode(Blueprint.Compiler.GeneratedMethod,Blueprint.Compiler.ISourceWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Api.CodeGen.TransientInstanceFrame`1.FindVariables(Blueprint.Compiler.Model.IMethodVariables)">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Api.IApiAuthoriserAggregator.CanShowLinkAsync(Blueprint.Core.Api.ApiOperationContext,Blueprint.Core.Api.ApiOperationDescriptor,System.Object)">
-            <see cref="M:Blueprint.Core.Api.Authorisation.IApiAuthoriser.CanShowLinkAsync(Blueprint.Core.Api.ApiOperationContext,Blueprint.Core.Api.ApiOperationDescriptor,System.Object)"/>
-        </member>
-        <member name="T:Blueprint.Core.Api.IApiOperation">
-            <summary>
-            A simple marker interface that is used to identify operations that can be executed in the system, an
-            operation being defined as a simple property bag with parameters, metadata in the form of attributes, and
-            an association <see cref="T:Blueprint.Core.Api.IApiOperationHandler`1"/>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.IApiOperationExecutor.DataModel">
-            <summary>
-            Gets the <see cref="T:Blueprint.Core.Api.ApiDataModel" /> that this operation executor has been configured for. Any operations
-            that are not registered with this model <strong>cannot</strong> be executed by this <see cref="T:Blueprint.Core.Api.IApiOperationExecutor"/>.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.IApiOperationHandler`1">
-            <summary>
-            A handler for a specific <see cref="T:Blueprint.Core.Api.IApiOperation"/>.
-            </summary>
-            <typeparam name="T">The type of API operation this component handles.</typeparam>
-        </member>
-        <member name="T:Blueprint.Core.Api.ICommand">
-            <summary>
-            Identifies a command that can be executed within the system to read data from it, the
-            write side of a CQRS system.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.ILinkableResource">
-            <summary>
-            Represents a linkable resource, a resource that can have links attached that direct users
-            of the API to other actions or resources related to this one.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ILinkableResource.Links">
-            <summary>
-            Gets the links that have currently been defined for this resource.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ILinkableResource.AddLink(System.String,Blueprint.Core.Api.Link)">
-            <summary>
-            Adds a new link with the specific rel (relation) and <see cref="T:Blueprint.Core.Api.Link"/>
-            definition, throwing an exception if a link with the specific relation already
-            exists.
-            </summary>
-            <param name="rel">The relation the link has to this resource.</param>
-            <param name="link">The link to be added.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.IMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <summary>
-            Indicates whether this <see cref="T:Blueprint.Core.Api.IMiddlewareBuilder" /> should be applied to the given description.
-            </summary>
-            <remarks>
-            This decision is made separately to allow tracking of what middleware components were actually applied for
-            any given generated pipeline for diagnostic purposes.
-            </remarks>
-            <param name="operation">The operation to check.</param>
-            <returns>Whether this builder should / could generate any coe for the given <paramref name="operation"/>.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.IOperationExecutorPipeline">
-            <summary>
-            The interface that will be implemented for each operation that exists within an <see cref="T:Blueprint.Core.Api.ApiDataModel" />
-            when constructing an <see cref="T:Blueprint.Core.Api.IApiOperationExecutor" />, with the <see cref="M:Blueprint.Core.Api.IOperationExecutorPipeline.Execute(Blueprint.Core.Api.ApiOperationContext)"/> method having been
-            generated from registered <see cref="T:Blueprint.Core.Api.IMiddlewareBuilder"/>s.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.IPropertyValidatorProvider">
-            <summary>
-            Provides conversion from server-side validation attributes for a property to a client-side
-            representation to provide the same validation at a client level to improve experience and
-            avoid having to go all the way through to the server to detect simple validation
-            problems.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.IPropertyValidatorProvider.GetClientSideValidators(System.Reflection.PropertyInfo)">
-            <summary>
-            Given a property converts the validation attributes defined on that property
-            into the necessary metadata for the client-side validation framework to implement
-            the equivalent validation checks.
-            </summary>
-            <param name="propertyInfo">The property to convert.</param>
-            <returns>The, potentially empty, list of client-side property validators for the
-            given property.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.IQuery">
-            <summary>
-            Identifies a query that can be executed within the system to read data from it, the
-            read side of a CQRS system.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.IResourceLinkGenerator">
-            <summary>
-            A resource link generator provides the means to generate the links that are presented with
-            a resource, which would contain the actions that could be performed to change state, in addition
-            to links to related entities (e.g. the members of an account).
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.IUserAuthorisationContext.IsActive">
-            <summary>
-            Gets a value indicating whether the user can be considered 'active', which means that
-            have access to the site (even if not a particular section due to their privileges).
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.IUserAuthorisationContext.IsAnonymous">
-            <summary>
-            Gets a value indicating whether the user is using the site without being logged in
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.IUserAuthorisationContext.PopulateMetadata(System.Action{System.String,System.Object})">
-            <summary>
-            Populates metadata about this user using the given action which adds data to the destination
-            store.
-            </summary>
-            <param name="add">The action to call to add data about this user to.</param>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.ApiContextVariableSource">
-            <summary>
-            An <see cref="T:Blueprint.Compiler.Model.IVariableSource" /> that should be used to grab any variables that would
-            be found on the <see cref="T:Blueprint.Core.Api.ApiOperationContext" />.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.GeneratedType">
-            <summary>
-            Gets the generated type that contains the execution method and implements <see cref="T:Blueprint.Core.Api.IOperationExecutorPipeline" />.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.ExecuteMethod">
-            <summary>
-            Gets the <see cref="T:Blueprint.Compiler.GeneratedMethod" /> that is being built to handle the execution of
-            an operation of the type described in the <see cref="P:Blueprint.Core.Api.MiddlewareBuilderContext.Descriptor"/>.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.Descriptor">
-            <summary>
-            Gets the descriptor for the operation that a method is currently being generated for.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.Container">
-            <summary>
-            Gets the root container under which operations will execute. This value represents a configured container,
-            and _not_ the one that is passed on each execution as that will be a nested container.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.Model">
-            <summary>
-            Gets the model that represents the API.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.MiddlewareBuilderContext.ExceptionHandlers">
-            <summary>
-            Gets the currently registered exception handlers.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.AppendFrames(Blueprint.Compiler.Frames.Frame[])">
-            <summary>
-            Appends the given <see cref="T:Blueprint.Compiler.Frames.Frame"/>s to the execution method (at <see cref="P:Blueprint.Core.Api.MiddlewareBuilderContext.ExecuteMethod"/>).
-            </summary>
-            <param name="frames">The frames to be appended.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.RegisterUnhandledExceptionHandler(System.Type,System.Func{Blueprint.Compiler.Model.Variable,System.Collections.Generic.IEnumerable{Blueprint.Compiler.Frames.Frame}})">
-            <summary>
-            Registers a handler for a given exception type, a set of frames that will make up the catch clause
-            of an all-surrounding try-block for the whole operation pipeline.
-            </summary>
-            <param name="exceptionType">The type of exception to handle.</param>
-            <param name="create">A method to create the frames, passed a <see cref="T:Blueprint.Compiler.Model.Variable"/> that will be of the
-            specified exception type and represents the caught exception.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.VariableFromContext(System.Type)">
-            <summary>
-            Gets the variable of the given type that is a property of the <see cref="T:Blueprint.Core.Api.ApiOperationContext" /> variable
-            passed in to the pipeline handler method.
-            </summary>
-            <param name="type">The type of the variable to grab.</param>
-            <returns>The <see cref="T:Blueprint.Compiler.Model.Variable"/> representing the given type.</returns>
-            <seealso cref="T:Blueprint.Core.Api.CodeGen.ApiOperationContextVariableSource" />
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.VariableFromContext``1">
-            <summary>
-            Gets the variable of the given type that is a property of the <see cref="T:Blueprint.Core.Api.ApiOperationContext" /> variable
-            passed in to the pipeline handler method.
-            </summary>
-            <typeparam name="T">The type of the variable to grab.</typeparam>
-            <returns>The <see cref="T:Blueprint.Compiler.Model.Variable"/> representing the given type.</returns>
-            <seealso cref="T:Blueprint.Core.Api.CodeGen.ApiOperationContextVariableSource" />
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.VariableFromContainer``1">
-            <summary>
-            Generates a <see cref="T:Blueprint.Core.Api.CodeGen.GetInstanceFrame`1" /> and associated <see cref="T:Blueprint.Compiler.Model.Variable" /> for getting
-            an instance from the current request container.
-            </summary>
-            <remarks>
-            This method attempts to optimise the output by looking at the registrations in the container, checking
-            for singletons etc. and turning them in to injected fields to avoid the lookup per request.
-            </remarks>
-            <typeparam name="T">The type of the instance to load.</typeparam>
-            <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.MiddlewareBuilderContext.VariableFromContainer(System.Type)">
-            <summary>
-            Generates a <see cref="T:Blueprint.Core.Api.CodeGen.GetInstanceFrame`1" /> and associated <see cref="T:Blueprint.Compiler.Model.Variable" /> for getting
-            an instance from the current request container.
-            </summary>
-            <remarks>
-            This method attempts to optimise the output by looking at the registrations in the container, checking
-            for singletons etc. and turning them in to injected fields to avoid the lookup per request.
-            </remarks>
-            <param name="type">The type of the instance to load.</param>
-            <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.FormatterMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <inheritdoc />
-            <returns><c>true</c></returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.FormatterMiddlewareBuilder.Build(Blueprint.Core.Api.MiddlewareBuilderContext)">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.LoggingMiddlewareBuilder">
-            <summary>
-            A middleware that performs logging of API operation executions.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.LoggingMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <inheritdoc />
-            <returns><see cref="P:Blueprint.Core.Api.ApiOperationDescriptor.ShouldAudit"/></returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.LoggingMiddlewareBuilder.Build(Blueprint.Core.Api.MiddlewareBuilderContext)">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.MessagePopulationMiddlewareBuilder">
-            <summary>
-            A middleware that will populate the API operation that is being passed through with information
-            from the <see cref="T:System.Net.Http.HttpRequestMessage" />.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.MessagePopulationMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <summary>
-            Returns <c>true</c> if <paramref name="operation"/>.<see cref="P:Blueprint.Core.Api.ApiOperationDescriptor.OperationType"/> has any
-            properties, <c>false</c> otherwise (as no properties == nothing to set).
-            </summary>
-            <param name="operation"></param>
-            <returns>Whether to apply this middleware</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.OperationExecutorMiddlewareBuilder">
-            <summary>
-            An <see cref="T:Blueprint.Core.Api.IMiddlewareBuilder"/> that will be last in the chain for a pipeline that will call out to a
-            new instance (from registered container) of <see cref="T:Blueprint.Core.Api.IApiOperationHandler`1"/> for the current operation.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.OperationExecutorMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <inheritdoc />
-            <returns>true</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.OperationExecutorMiddlewareBuilder.OperationResultCastFrame">
-            <summary>
-            A <see cref="T:Blueprint.Compiler.Frames.SyncFrame" /> that will, given the result from executing the individual handler for an operation,
-            ensure it is of type <see cref="T:Blueprint.Core.Api.OperationResult" /> (wrapping anything that is not with <see cref="T:Blueprint.Core.Api.OkResult"/>).
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.QueryStringParamParsingException">
-            <summary>
-            An exception to be thrown when there is a problem with a query string parameter, that it is invalid
-            and cannot be parsed (e.g. trying to pass "not_an_int" for an int32 property)
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.ResourceEventHandler">
-            <summary>
-            A middleware component that will take any <see cref="T:Blueprint.Core.Api.ResourceEvent" /> objects returned from
-            API operations and populate the return with extra information such as the resource itself
-            an it's canonical 'self' link for consumption elsewhere.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder">
-            <summary>
-            A middleware component that will validate the operation that is being executed.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <summary>
-            Always returns true as global exception handlers are added, although no actual validation code will
-            be output in the case that no validation attributes exist on the operation.
-            </summary>
-            <param name="operation"><inheritdoc /></param>
-            <returns><c>true</c> as we always need to handle unexpected validation exceptions.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder.Build(Blueprint.Core.Api.MiddlewareBuilderContext)">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder.ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException)">
-            <summary>
-            Given a <see cref="T:System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
-            equivalent <see cref="T:Blueprint.Core.Errors.ValidationErrorResponse" /> to be output to the user.
-            </summary>
-            <param name="validationException">The exception to be converted.</param>
-            <returns>The response to send back to the client.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.NotFoundMode">
-            <summary>
-            Determiens what should happen when a URL is hit within the 'subsection' defined for the
-            API.
-            </summary>
-        </member>
-        <member name="F:Blueprint.Core.Api.NotFoundMode.Handle">
-            <summary>
-            Handle all URLs prefixed with the specified path segment.
-            </summary>
-        </member>
-        <member name="F:Blueprint.Core.Api.NotFoundMode.Fallthrough">
-            <summary>
-            <b>Does not</b> handle not-found URLs, allowing them to fall through the middleware and
-            routing components to potentially be handled elsewhere, useful for integrating with
-            existing applications that already have endpoints under the same path segment.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ObjectComparer.DateTimeOffsetComparer.#ctor(KellermanSoftware.CompareNetObjects.RootComparer)">
-            <summary>
-            Constructor that takes a root comparer
-            </summary>
-            <param name="rootComparer"></param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ObjectComparer.DateTimeOffsetComparer.IsTypeMatch(System.Type,System.Type)">
-            <summary>
-            Returns true if the type is a simple type
-            </summary>
-            <param name="type1">The type of the first object</param>
-            <param name="type2">The type of the second object</param>
-            <returns></returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ObjectComparer.DateTimeOffsetComparer.CompareType(KellermanSoftware.CompareNetObjects.CompareParms)">
-            <summary>
-            Compare two simple types
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.ObjectComparer.GetPreviousValues(System.Object,System.Object)">
-            <summary>
-            Given an 'old' object and a 'new' one gets a dictionary of property changes, indicating values that
-            have been added / updated in the new object that are different from the old.
-            </summary>
-            <remarks>
-            In cases where certain properties should be excluded the `newPropertyPredicate` function should return `false`
-            to indicate a property should not be included in the comparison.
-            </remarks>
-            <param name="oldObject">The 'old' object to check.</param>
-            <param name="newObject">The 'new' object to check.</param>
-            <returns>A dictionary of changes between the old and new objects.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.OkResult">
-            <summary>
-            Represents a known result, a well-handled result of executing an operation that will use conneg to
-            determine _how_ to output a value and also set the status code of the HTTP response.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.OkResult.#ctor(System.Object)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Api.OkResult" /> class with the given content
-            and status code of <see cref="F:System.Net.HttpStatusCode.OK" />.
-            </summary>
-            <param name="content">The content to write to the body of the output.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.OkResult.#ctor(System.Net.HttpStatusCode,System.Object)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Api.OkResult" /> class with the given content
-            and status code.
-            </summary>
-            <param name="statusCode">The HTTP status code to set.</param>
-            <param name="content">The content to write to the body of the output.</param>
-        </member>
-        <member name="P:Blueprint.Core.Api.OkResult.Content">
-            <summary>
-            Gets the content that will be output when this result is executed.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.OkResult`1">
-            <summary>
-            A specialisation of <see cref="T:Blueprint.Core.Api.OkResult" /> that has the content it expects typed to a
-            known type.
-            </summary>
-            <typeparam name="T">The type of content that will be used as the body of this result.</typeparam>
-        </member>
-        <member name="T:Blueprint.Core.Api.OperationHandlerNotFoundResult">
-            <summary>
-            A result that is used when no handle could be found for a given API operation. In general usage this should 
-            never be used, as there should be no client using an <see cref="!:ApiOperationExecutor"/> with an API operation
-            that has not had a handle registered.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.OperationResult">
-            <summary>
-            Represents the result of an operation that has passed through the API pipeline, providing a means
-            of execution against an output destination (i.e. HTTP output stream) depending on what
-            is to be achieved.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.OperationResult.Execute(Blueprint.Core.Api.ApiOperationContext)">
-            <summary>
-            Executes this result.
-            </summary>
-            <param name="context">The context representing the request and response.</param>
-        </member>
-        <member name="T:Blueprint.Core.Api.PropertyValidator">
-            <summary>
-            Represents a property validator, a simple description of a validator that could
-            be persisted for a client-side validation library to consume.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.PropertyValidator.Message">
-            <summary>
-            Gets or sets the validation message, which may be <c>null</c>, that
-            should be shown in the case of a validation failure.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.PropertyValidator.Name">
-            <summary>
-            Gets or sets the name of the validator (e.g. 'regex', 'stringLength').
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.PropertyValidator.Parameter">
-            <summary>
-            Gets or sets the parameter for this validator, used to provide further options
-            to the client-side validator (e.g. the maximum length when specifying a
-            string length validator).
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.PropertyValidatorProvider">
-            <summary>
-            An <see cref="T:Blueprint.Core.Api.IPropertyValidatorProvider"/> that generates the required property validator
-            rules for client-side consumption.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Api.PropertyValidatorProvider.GetClientSideValidators(System.Reflection.PropertyInfo)">
-            <summary>
-            Gets all supported <see cref="T:Blueprint.Core.Api.PropertyValidator"/>s for the Blackout client side
-            application framework.
-            </summary>
-            <param name="propertyInfo">The property to get validators for.</param>
-            <returns>A (potentially empty) list of supported property validators for the given property.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ApiConfigurationLinkExtensions.LinkFor``1(Blueprint.Core.Api.ApiConfiguration,System.Int32)">
-            <summary>
-            Given a resource type and it's Id generates a <see cref="T:Blueprint.Core.Api.Link"/> that maps to it and can be output to
-            <see cref="P:Blueprint.Core.Api.ApiResource.Links"/>.
-            </summary>
-            <param name="configuration">The configuration of the API, used to grab <see cref="P:Blueprint.Core.Api.ApiConfiguration.BaseApiUrl"/></param>
-            <param name="id">The id of the resource being linked to.</param>
-            <typeparam name="T">The <see cref="T:Blueprint.Core.Api.ApiResource"/> type.</typeparam>
-            <returns>A new <see cref="T:Blueprint.Core.Api.Link"/> that references the given resource.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Api.ResourceCreated`1.#ctor(Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Creates a new <see cref="T:Blueprint.Core.Api.ResourceCreated`1" /> instance, creating a default
-            event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
-            </summary>
-            <param name="selfQuery">An object with properties required to create a canonical link
-            of the given resource type, as defined by it's 'self' link.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ResourceCreated`1.#ctor(System.String,Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Creates a new <see cref="T:Blueprint.Core.Api.ResourceCreated`1" /> instance, creating a default
-            event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
-            </summary>
-            <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
-            should represent the action taken (for example 'timer.started')</param>
-            <param name="selfQuery">An object with properties required to create a canonical link
-            of the given resource type, as defined by it's 'self' link.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ResourceUpdated`1.#ctor(System.String,Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Creates a new <see cref="T:Blueprint.Core.Api.ResourceCreated`1" /> instance, setting the event type
-            to '`resourceTypeName`.`eventName`' with a ChangeType of 'updated'.
-            </summary>
-            <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
-            should represent the action taken (for example 'approved', or 'rate.updated')</param>
-            <param name="selfQuery">An object with properties required to create a canonical link
-            of the given resource type, as defined by it's 'self' link.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ResourceDeleted`1.#ctor(Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Creates a new <see cref="T:Blueprint.Core.Api.ResourceDeleted`1" /> instance, creating a default
-            event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
-            </summary>
-            <param name="selfQuery">An object with properties required to create a canonical link
-            of the given resource type, as defined by it's 'self' link.</param>
-        </member>
-        <member name="M:Blueprint.Core.Api.ResourceDeleted`1.#ctor(System.String,Blueprint.Core.Api.IApiOperation)">
-            <summary>
-            Creates a new <see cref="T:Blueprint.Core.Api.ResourceDeleted`1" /> instance, creating a default
-            event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
-            </summary>
-            <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
-            <param name="selfQuery">An object with properties required to create a canonical link
-            of the given resource type, as defined by it's 'self' link.</param>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Object">
-            <summary>
-            Gets the object of this 'resource', which is "event".
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Type">
-            <summary>
-            Gets the type of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'.
-            </summary>
-            <remarks>
-            The type should be a dot-delimited string with the first part being the resource type of
-            the object that has been altered.
-            </remarks>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.ChangeType">
-            <summary>
-            Gets a the change type of this event, which is a higher-level version of the Type property,
-            indicating whether the resource was updated, created or deleted.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Created">
-            <summary>
-            Gets the created date of this event.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.SelfQuery">
-            <summary>
-            Gets the query that represents the query that will load the resource this
-            event represents.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.ResourceType">
-            <summary>
-            Gets the type of resource represented.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.ResourceObject">
-            <summary>
-            Gets the type of resource represented.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Href">
-            <summary>
-             Gets the href of the resource this event represents, to be populated by the ResourceEventMiddleware
-             component from the resource type and id definition object.
-             </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Data">
-            <summary>
-            Gets or sets the payload of this event, the actual resource that this represents, to be populated by the ResourceEventMiddleware
-            component from the resource type and id definition object.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.ChangedValues">
-            <summary>
-            Gets or sets a dictionary of previous values, used to identify what has actually changed
-            between two resources, keyed on the property name with the previous value of the resource
-            being the value.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Metadata">
-            <summary>
-            Gets the metadata dictionary of this resource event, a simple bag of key value pairs
-            of useful information that can be stored freeform against an event.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.CorrelationId">
-            <summary>
-            Gets the correlation id for this event, which can be used to tie it back to
-            the initial request that resulted in an event.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Api.ResourceEvent.Operation">
-            <summary>
-            Gets or sets the operation that triggered the generation of this resource event.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.RootMetadataOperation">
-            <summary>
-            An operation that, when executed, will return the metadata for a given <see cref="T:Blueprint.Core.Api.ApiDataModel"/>.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Api.StateBasedLinkChecker`2">
-            <summary>
-            A state based link checker is used to enable the exclusion of operation links based on
-            the state of the resource for which the link is for, for example removing a 'Deactivate' link from
-            an already deactivated entity.
-            </summary>
-            <typeparam name="TOperation">The type of operation this checker is for.</typeparam>
-            <typeparam name="TResource">The resource that is represented by the operation.</typeparam>
-        </member>
-        <member name="M:Blueprint.Core.Api.StateBasedLinkChecker`2.IsLinkAvailableForOperation(Blueprint.Core.Api.ApiOperationContext,`1)">
-            <summary>
-            Indicates whether a link is available for the the operation (as identitified by the
-            <typeparam name="TOperation"></typeparam> type parameter) given the specified resource and current state.
-            </summary>
-            <param name="operationContext">The context of the currently executing operation.</param>
-            <param name="resource">The resource to check against.</param>
-            <returns>Whether the operation link is available based on the current state of the resource.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Api.SyncApiOperationHandler`1">
-            <summary>
-            Provides an implementation of the async Invoke method of <see cref="T:Blueprint.Core.Api.IApiOperationHandler`1"/> that
-            will call an <see cref="M:Blueprint.Core.Api.SyncApiOperationHandler`1.InvokeSync(`0,Blueprint.Core.Api.ApiOperationContext)" /> method which returns an object in a synchronous fashion.
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:Blueprint.Core.Apm.ApplicationInsightsApmTool">
-            <summary>
-            An <see cref="T:Blueprint.Core.Apm.IApmTool" /> that will push operations to Application Insights.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Apm.ApplicationInsightsApmTool.#ctor(Microsoft.ApplicationInsights.TelemetryClient)">
-            <summary>
-            Initializes a new instance of the ApplicationInsightsApmOperationTracker class that will
-            use the given <see cref="T:Microsoft.ApplicationInsights.TelemetryClient"/> for tracking operation.s
-            </summary>
-            <param name="telemetryClient"></param>
-        </member>
-        <member name="M:Blueprint.Core.Apm.ApplicationInsightsApmTool.InvokeAsync(System.String,System.Func{System.Threading.Tasks.Task})">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Apm.ApplicationInsightsApmTool.TrackDependencyAsync(System.String,System.String,System.String,System.String,System.Func{Blueprint.Core.Apm.IApmDependencyOperation,System.Threading.Tasks.Task})">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Apm.ApplicationInsightsMiddleware">
-            <summary>
-            A middleware component that will set data on the current <see cref="T:Microsoft.ApplicationInsights.DataContracts.RequestTelemetry" /> that
-            ApplicationInsights has created.
-            </summary>
-            <remarks>
-            This middleware is optional but provides better naming (by using the operation type instead of
-            the default full name), and will set AuthenticatedUserId and AccountId for the current user.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Apm.ApplicationInsightsMiddleware.Matches(Blueprint.Core.Api.ApiOperationDescriptor)">
-            <inheritdoc />
-            <returns><c>true</c></returns>
-        </member>
-        <member name="M:Blueprint.Core.Apm.ApplicationInsightsMiddleware.Build(Blueprint.Core.Api.MiddlewareBuilderContext)">
-            <inheritdoc />
-        </member>
         <member name="T:Blueprint.Core.Apm.IApmDependencyOperation">
             <summary>
             Represents a dependency that is being tracked for APM purposes. An instance can be created
@@ -1375,28 +99,6 @@
         <member name="P:Blueprint.Core.Auditing.AuditItem.WasSuccessful">
             <summary>
             Gets a value indicating whether the action was successful.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Auditing.Auditor">
-            <summary>
-            Provides the ability to persist <see cref="T:Blueprint.Core.Auditing.AuditItem"/>s to a database.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Auditing.Auditor.#ctor(Blueprint.Core.Data.IDatabaseConnectionFactory)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Auditing.Auditor"/> class. 
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Auditing.Auditor.Write(Blueprint.Core.Auditing.AuditItem)">
-            <summary>
-            Insert the audit item into the database.
-            </summary>
-            <param name="auditItem">The audit item to insert.</param>
-        </member>
-        <member name="T:Blueprint.Core.Auditing.Auditor.AuditDetailsResolver">
-            <summary>
-            A contract resolver that will filter out properties that have <see cref="T:Blueprint.Core.Auditing.DoNotAuditAttribute"/> 
-            or <see cref="T:Blueprint.Core.Auditing.SensitiveAttribute"/> applied.
             </summary>
         </member>
         <member name="T:Blueprint.Core.Auditing.DoNotAuditAttribute">
@@ -2363,18 +1065,6 @@
             The key to remove the value for.
             </param>
         </member>
-        <member name="T:Blueprint.Core.Data.DbConnectionExtensions">
-            <summary>
-            Provides simple extension methods to IDbConnection.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Data.DbConnectionExtensions.SplitAndExecuteSql(System.Data.IDbConnection,System.String)">
-            <summary>
-            Splits and executes a SQL block that may contain multiple statements.
-            </summary>
-            <param name="connection">The <strong>open</strong> database connection to use.</param>
-            <param name="sql">The SQL that may contain mutliple statements.</param>
-        </member>
         <member name="T:Blueprint.Core.Data.IDatabaseConnectionFactory">
             <summary>
             Represents a small facade over the creation &amp; opening of a database
@@ -2747,6 +1437,24 @@
             <param name="value">Byte array value to be encrypted.</param>
             <returns>Encrypted byte array.</returns>
         </member>
+        <member name="P:Blueprint.Core.Security.IUserAuthorisationContext.IsActive">
+            <summary>
+            Gets a value indicating whether the user can be considered 'active', which means that
+            have access to the site (even if not a particular section due to their privileges).
+            </summary>
+        </member>
+        <member name="P:Blueprint.Core.Security.IUserAuthorisationContext.IsAnonymous">
+            <summary>
+            Gets a value indicating whether the user is using the site without being logged in
+            </summary>
+        </member>
+        <member name="M:Blueprint.Core.Security.IUserAuthorisationContext.PopulateMetadata(System.Action{System.String,System.Object})">
+            <summary>
+            Populates metadata about this user using the given action which adds data to the destination
+            store.
+            </summary>
+            <param name="add">The action to call to add data about this user to.</param>
+        </member>
         <member name="T:Blueprint.Core.Security.KeyIVPair">
             <summary>
             A Key / Initialisation Vector pair which is to be provided to an encryption service to
@@ -2913,34 +1621,6 @@
             a production environment would simply delegate to <see cref="P:System.DateTime.Now"/>.
             </summary>
         </member>
-        <member name="T:Blueprint.Core.Tasks.ActivityTrackingBackgroundTaskScheduleProvider">
-            <summary>
-            A wrapper for a <see cref="T:Blueprint.Core.Tasks.IBackgroundTaskScheduleProvider" /> implementation that will use <see cref="T:System.Diagnostics.Activity" /> to
-            track the scheduling of a task in a request, to give a new ID to each task enqueued (see <see cref="P:Blueprint.Core.Tasks.BackgroundTaskMetadata.RequestId" />) and
-            add any <see cref="P:System.Diagnostics.Activity.Baggage" /> to <see cref="P:Blueprint.Core.Tasks.BackgroundTaskMetadata.RequestBaggage" />.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Tasks.ActivityTrackingBackgroundTaskScheduleProvider.EnqueueAsync(Blueprint.Core.Tasks.BackgroundTask)">
-            <inheritdoc />
-            <remarks>
-            This method will set the request ID and baggage from the current ambient <see cref="T:System.Diagnostics.Activity" /> on to the
-            background task.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Tasks.ActivityTrackingBackgroundTaskScheduleProvider.ScheduleAsync(Blueprint.Core.Tasks.BackgroundTask,System.TimeSpan)">
-            <inheritdoc />
-            <remarks>
-            This method will set the request ID and baggage from the current ambient <see cref="T:System.Diagnostics.Activity" /> on to the
-            background task.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Tasks.ActivityTrackingBackgroundTaskScheduleProvider.EnqueueChildAsync(Blueprint.Core.Tasks.BackgroundTask,System.String,Blueprint.Core.Tasks.JobContinuationOptions)">
-            <inheritdoc />
-            <remarks>
-            This method will set the request ID and baggage from the current ambient <see cref="T:System.Diagnostics.Activity" /> on to the
-            background task.
-            </remarks>
-        </member>
         <member name="T:Blueprint.Core.Tasks.BackgroundTask">
             <summary>
             Represents a task, a unit of work that is typically executed out of process, such
@@ -3052,17 +1732,6 @@
             <summary>
             Gets or sets the identifier of the user that triggered the associated background task.
             </summary>
-        </member>
-        <member name="T:Blueprint.Core.Tasks.ChildScheduledBackgroundTask">
-            <summary>
-            A child scheduled background task is one that will be executed after the completion of a "parent" task, one that has
-            been created from <see cref="M:Blueprint.Core.Tasks.IScheduledBackgroundTask.ContinueWith(Blueprint.Core.Tasks.BackgroundTask,Blueprint.Core.Tasks.JobContinuationOptions)" />.
-            </summary>
-            <remarks>
-            This is similar in scope to <see cref="T:Blueprint.Core.Tasks.ScheduledBackgroundTask" /> but expects a parent id when pushing to the
-            <see cref="T:Blueprint.Core.Tasks.IBackgroundTaskScheduleProvider" /> which would have been created from the parent (which would be either another
-            instance of <see cref="T:Blueprint.Core.Tasks.ChildScheduledBackgroundTask" /> or a "root" instance of <see cref="T:Blueprint.Core.Tasks.ScheduledBackgroundTask" />.
-            </remarks>
         </member>
         <member name="T:Blueprint.Core.Tasks.IBackgroundTaskContextProvider">
             <summary>
@@ -3228,15 +1897,6 @@
             The context.
             </param>
         </member>
-        <member name="T:Blueprint.Core.Tasks.ScheduledBackgroundTask">
-            <summary>
-            Represents a "root" scheduled / enqeueued task from <see cref="T:Blueprint.Core.Tasks.BackgroundTaskScheduler" />, one that has no parent but supports
-            continuation through <see cref="M:Blueprint.Core.Tasks.IScheduledBackgroundTask.ContinueWith(Blueprint.Core.Tasks.BackgroundTask,Blueprint.Core.Tasks.JobContinuationOptions)" />.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Tasks.ScheduledBackgroundTask.ContinueWith(Blueprint.Core.Tasks.BackgroundTask,Blueprint.Core.Tasks.JobContinuationOptions)">
-            <inheritdoc />
-        </member>
         <member name="T:Blueprint.Core.Tasks.TaskExecutor">
             <summary>
             Resolves an appropriate task handler and allows it to perform the required action for the task.
@@ -3267,6 +1927,23 @@
             database context should be new every time a scheduler is called)
             </remarks>
             <returns></returns>
+        </member>
+        <member name="T:Blueprint.Core.TemporalCheck">
+            <summary>
+            Used with the four diffnt time based attributes. 
+            This is used to specify weather the Date or DateTime 
+            should be used for checking where the provided date falls.
+            </summary>
+        </member>
+        <member name="F:Blueprint.Core.TemporalCheck.Date">
+            <summary>
+            Only look at the Date part of a DateTime.
+            </summary>
+        </member>
+        <member name="F:Blueprint.Core.TemporalCheck.DateTime">
+            <summary>
+            Use the whole DateTime.
+            </summary>
         </member>
         <member name="T:Blueprint.Core.ThirdParty.LocalizationRequiredAttribute">
             <summary>
@@ -3697,7 +2374,7 @@
             <param name="dateTime">The date time from which to get the end of the day</param>
             <returns>The 'end of the day' of the given DateTime instance.</returns>
         </member>
-        <member name="M:Blueprint.Core.Utilities.DateTimeExtensions.IsInFuture(System.DateTime,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Utilities.DateTimeExtensions.IsInFuture(System.DateTime,Blueprint.Core.TemporalCheck)">
             <summary>
             Returns a value indicating whether of not this date is in the future, based on the
             value of <see cref="P:Blueprint.Core.SystemTime.UtcNow"/>.
@@ -3708,7 +2385,7 @@
             <param name="temporalCheckType">The type of check to perform.</param>
             <returns>Whether the given date is in the future.</returns>
         </member>
-        <member name="M:Blueprint.Core.Utilities.DateTimeExtensions.IsInPast(System.DateTime,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Utilities.DateTimeExtensions.IsInPast(System.DateTime,Blueprint.Core.TemporalCheck)">
             <summary>
             Returns a value indicating whether of not this date is in the past, based on the
             value of <see cref="P:Blueprint.Core.SystemTime.UtcNow"/>.
@@ -4379,59 +3056,6 @@
             <param name="type">The type to get the name from.</param>
             <returns>A 'simple' qualified name</returns>
         </member>
-        <member name="M:Blueprint.Core.Validation.BlueprintValidationSourceBuilder.GetFrames(Blueprint.Compiler.Model.Variable,System.Collections.Generic.List{Blueprint.Core.Validation.OperationProperty})">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Validation.BlueprintValidator">
-            <summary>
-            An implementation of <see cref="T:Blueprint.Core.Validation.IValidator"/> that uses the .NET DataAnnotations framework
-            to validate the public properties of the object being validated.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.BlueprintValidator.GetValidationResultsAsync(System.Object,Blueprint.Core.Api.ApiOperationContext)">
-            <inheritdoc />
-        </member>
-        <member name="M:Blueprint.Core.Validation.DataAnnotationsValidationSourceBuilder.GetFrames(Blueprint.Compiler.Model.Variable,System.Collections.Generic.List{Blueprint.Core.Validation.OperationProperty})">
-            <inheritdoc />
-        </member>
-        <member name="T:Blueprint.Core.Validation.EmailAddressAttribute">
-            <summary>
-            Provides a validator which will check for a valid email address, using the pre-built regular expressions found
-            in the RegularExpressions class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.EmailAddressAttribute.#ctor">
-            <summary>
-            Initializes a new instance of the EmailAddressAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.EmailAddressAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the EmailAddressAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.EmailAddressAttribute.#ctor(System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the EmailAddressAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">
-            A function which will return the error message
-            to be shown on failure.
-            </param>
-        </member>
-        <member name="T:Blueprint.Core.Validation.FileSizeAttribute">
-            <summary>
-            Causes a validation error if a file is over a given size or zero bytes
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Validation.FileTypesAttribute">
-            <summary>
-            Causes a validation error if a file is over a given size or zero bytes
-            </summary>
-        </member>
         <member name="T:Blueprint.Core.Validation.GreaterThanAttribute">
             <summary>
             Requires the property this attribute is assigned to, to be a number greater than the specified minimum value.
@@ -4574,20 +3198,20 @@
             future.
             </summary>
         </member>
-        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InFutureAttribute"/> class.
             </summary>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(System.String,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(System.String,Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InFutureAttribute"/> class.
             </summary>
             <param name="errorMessage">The error message.</param>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(System.Func{System.String},Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InFutureAttribute.#ctor(System.Func{System.String},Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InFutureAttribute"/> class.
             </summary>
@@ -4612,20 +3236,20 @@
             past.
             </summary>
         </member>
-        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InPastAttribute"/> class.
             </summary>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(System.String,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(System.String,Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InPastAttribute"/> class.
             </summary>
             <param name="errorMessage">The error message.</param>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(System.Func{System.String},Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.InPastAttribute.#ctor(System.Func{System.String},Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.InPastAttribute"/> class.
             </summary>
@@ -4643,45 +3267,6 @@
             <returns>
             True if the date is in the future.
             </returns>
-        </member>
-        <member name="T:Blueprint.Core.Validation.IValidationSourceBuilder">
-            <summary>
-            Represents a builder that can perform code generation at a property and class level to build efficient
-            validation of operations.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.IValidationSourceBuilder.GetFrames(Blueprint.Compiler.Model.Variable,System.Collections.Generic.List{Blueprint.Core.Validation.OperationProperty})">
-            <summary>
-            Gets frames that should be added to perform validation of a property represented by the given
-            parameters.
-            </summary>
-            <remarks>
-            Typically this method will return 0 or 1 <see cref="T:Blueprint.Compiler.Frames.Frame"/> instances, 0 in the case that the property does
-            not actually have any validatable attributes, or 1 to perform the validation.
-            </remarks>
-            <param name="operationVariable">The variable that represents the overall operation being validated.</param>
-            <param name="properties">All properties of the operation, with variables that can be used to access the property and it's value at runtime.</param>
-            <returns>0 or more frames used to validate an operation.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Validation.IValidator">
-            <summary>
-            A validator that can, given an object, validate its current state to ensure that it
-            is considered 'valid', whatever that may represent in the context of using a validator.
-            </summary>
-            <remarks>
-            Typically DataAnnotations will be used to specify the validation rules for an object (e.g.
-            a <see cref="T:Blueprint.Core.Api.IApiOperation"/>, using the concrete of implementation
-            of this interface of <see cref="T:Blueprint.Core.Validation.BlueprintValidator"/>.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Validation.IValidator.GetValidationResultsAsync(System.Object,Blueprint.Core.Api.ApiOperationContext)">
-            <summary>
-            Given an object will get the validation failures based on its current state, with
-            implementers of this method determing how the validation rules are to be specified.
-            </summary>
-            <param name="value">The value to be checked.</param>
-            <param name="apiOperationContext">The current API context.</param>
-            <returns>The validation results.</returns>
         </member>
         <member name="T:Blueprint.Core.Validation.LessThanAttribute">
             <summary>
@@ -4809,16 +3394,6 @@
             <param name="value">An IEnumerable instance.</param>
             <returns><c>true</c> if the passed object contains fewer than the speficied number of items.</returns>
         </member>
-        <member name="T:Blueprint.Core.Validation.MustBeGreaterThanOrEqualAttribute">
-            <summary>
-            Ensures the property has a greater value than the 'dependant property'.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Validation.MustBeGreaterThanOrEqualAttribute.DependentProperty">
-            <summary>
-            Gets the property to check for one of the dependant values.
-            </summary>
-        </member>
         <member name="T:Blueprint.Core.Validation.MustBeTrueAttribute">
             <summary>
             The property this attribute is attached to must be <c>true</c>.
@@ -4879,20 +3454,20 @@
             future.
             </summary>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInFutureAttribute"/> class.
             </summary>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(System.String,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(System.String,Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInFutureAttribute"/> class.
             </summary>
             <param name="errorMessage">The error message.</param>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(System.Func{System.String},Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInFutureAttribute.#ctor(System.Func{System.String},Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInFutureAttribute"/> class.
             </summary>
@@ -4913,20 +3488,20 @@
             past.
             </summary>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInPastAttribute"/> class.
             </summary>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(System.String,Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(System.String,Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInPastAttribute"/> class.
             </summary>
             <param name="errorMessage">The error message.</param>
             <param name="temporalCheckType">The type of check to perform.</param>
         </member>
-        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(System.Func{System.String},Blueprint.Core.Validation.TemporalCheck)">
+        <member name="M:Blueprint.Core.Validation.NotInPastAttribute.#ctor(System.Func{System.String},Blueprint.Core.TemporalCheck)">
             <summary>
             Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.NotInPastAttribute"/> class.
             </summary>
@@ -4941,191 +3516,6 @@
             <param name="value">The date to evaluate.</param>
             <returns><c>true</c> if the date is in the past.</returns>
         </member>
-        <member name="T:Blueprint.Core.Validation.PasswordAttribute">
-            <summary>
-            Requires that a string is of sufficent complexity to be classed as a valid password.
-            </summary>
-        </member>
-        <member name="F:Blueprint.Core.Validation.PasswordAttribute.StrongPassword">
-            <summary>
-            A regular expression that matches any string that contains at least
-                +one lower case letter,
-                +one upper case letter,
-                +one number and one character that isn't a letter or number,
-                +if the string is 8 characters or more.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PasswordAttribute.#ctor">
-            <summary>
-            Initializes a new instance of the PasswordAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PasswordAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the PasswordAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PasswordAttribute.#ctor(System.String,System.Boolean)">
-            <summary>
-            Initializes a new instance of the PasswordAttribute class.
-            </summary>
-            <param name="errorMessage">The error message to be shown on validation failure.</param>
-            <param name="appendInvalidPasswordDescription">Determines whether the invalid password description should be appended to the error message.</param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PasswordAttribute.#ctor(System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the PasswordAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">
-            A function which will return the error message
-            to be shown on failure.
-            </param>
-        </member>
-        <member name="T:Blueprint.Core.Validation.PhoneNumberAttribute">
-            <summary>
-            Provides a validator which will check for a valid phone number, using the pre-built regular expressions found
-            in the RegularExpressions class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PhoneNumberAttribute.#ctor">
-            <summary>
-            Initializes a new instance of the PhoneNumberAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PhoneNumberAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the PhoneNumberAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PhoneNumberAttribute.#ctor(System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the PhoneNumberAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">
-            A function which will return the error message
-            to be shown on failure.
-            </param>
-        </member>
-        <member name="T:Blueprint.Core.Validation.PropertyInfoVariable">
-            <summary>
-            A <see cref="T:Blueprint.Compiler.Model.Variable"/> that represents access to a <see cref="T:System.Reflection.PropertyInfo"/> value at runtime, carrying
-            the actual info to be inspected at code build time.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.PropertyInfoVariable.#ctor(System.Reflection.PropertyInfo,System.String)">
-            <summary>
-            Constructs a new instance of the <see cref="T:Blueprint.Core.Validation.PropertyInfoVariable"/> class.
-            </summary>
-            <param name="property">The property this variable represents at both runtime and compile time.</param>
-            <param name="usage">How to access the property info at runtime.</param>
-        </member>
-        <member name="P:Blueprint.Core.Validation.PropertyInfoVariable.Property">
-            <summary>
-            Gets the <see cref="T:System.Reflection.PropertyInfo"/> this variable represents.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Validation.RegexAttribute">
-            <summary>
-            An attribute that is designed to be subclassed when creating a custom validation attribute that
-            uses regular expressions.
-            </summary>
-            <remarks>
-            The standard <see cref="T:System.ComponentModel.DataAnnotations.RegularExpressionAttribute" /> only allows passing in a string pattern, which
-            limits usefulness slightly as <see cref="T:System.Text.RegularExpressions.RegexOptions"/> cannot be passed down, forcing the use of
-            'inline' modifiers which are not compatible with JavaScript and therefore deserialising those patterns
-            causes page failures.
-            </remarks>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RegexAttribute.#ctor(System.Text.RegularExpressions.Regex)">
-            <summary>
-            Initializes a new instance of the RegexAttribute class.
-            </summary>
-            <param name="regex">The regular expression to check.</param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RegexAttribute.#ctor(System.Text.RegularExpressions.Regex,System.String)">
-            <summary>
-            Initializes a new instance of the RegexAttribute class.
-            </summary>
-            <param name="regex">The regular expression to check.</param>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RegexAttribute.#ctor(System.Text.RegularExpressions.Regex,System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the RegexAttribute class.
-            </summary>
-            <param name="regex">The regular expression to check.</param>
-            <param name="errorMessageAccessor">
-            A function which will return the error message to be shown on failure.
-            </param>
-        </member>
-        <member name="P:Blueprint.Core.Validation.RegexAttribute.Regex">
-            <summary>
-            Gets the regular expression used by this validation attribute.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RegexAttribute.IsValid(System.Object)">
-            <summary>
-            Determines whether or not the specified value is valid, which means that is matches
-            fully the regular expression this attribute represents when converted to a string.
-            </summary>
-            <param name="value">The value to check.</param>
-            <returns>Whether the value is valid according to the regular expression of this attribute.</returns>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RegexAttribute.FormatErrorMessage(System.String)">
-            <summary>
-            Formats the error message for this attribute, inserting the name and pattern of this
-            regular expression to be placed into the message.
-            </summary>
-            <param name="name">The name of the property this attribute has been applied to.</param>
-            <returns>A formatted error message.</returns>
-        </member>
-        <member name="T:Blueprint.Core.Validation.RequiredIfAttribute">
-            <summary>
-            Makes the property required if the 'dependant property' has a value that exists in the 'dependant value'.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RequiredIfAttribute.#ctor(System.String,System.Object)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.RequiredIfAttribute"/> class.
-            </summary>
-            <param name="dependentProperty">The dependant property.</param>
-            <param name="dependentValue">The dependant value(s).</param>
-        </member>
-        <member name="P:Blueprint.Core.Validation.RequiredIfAttribute.DependentProperty">
-            <summary>
-            Gets the property to check for one of the dependant values.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Validation.RequiredIfAttribute.DependentValue">
-            <summary>
-            Gets the dependant value.
-            </summary>
-        </member>
-        <member name="P:Blueprint.Core.Validation.RequiredIfAttribute.DependentValues">
-            <summary>
-            Gets the collection of values that will trigger this property to be required.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.RequiredIfAttribute.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
-            <summary>
-            Validates the specified value.
-            If the dependant property contains one of the values inside dependant values then value
-            must not be null.
-            </summary>
-            <param name="value">The value to validate.</param>
-            <param name="validationContext">The context information about the validation operation.</param>
-            <returns>
-            An instance of the <see cref="T:System.ComponentModel.DataAnnotations.ValidationResult"/> class.
-            </returns>
-        </member>
         <member name="T:Blueprint.Core.Validation.RequiredIfNotAttribute">
             <summary>
             Makes the property required if the 'dependant property' has a value that doesn't exists in the 'dependant value'.
@@ -5133,7 +3523,7 @@
         </member>
         <member name="M:Blueprint.Core.Validation.RequiredIfNotAttribute.#ctor(System.String,System.Object)">
             <summary>
-            Initializes a new instance of the <see cref="T:Blueprint.Core.Validation.RequiredIfAttribute"/> class.
+            Initializes a new instance of the <see cref="!:RequiredIfAttribute"/> class.
             </summary>
             <param name="dependantProperty">The dependant property.</param>
             <param name="dependantValue">The dependant value(s).</param>
@@ -5164,109 +3554,6 @@
             <returns>
             An instance of the <see cref="T:System.ComponentModel.DataAnnotations.ValidationResult"/> class.
             </returns>
-        </member>
-        <member name="T:Blueprint.Core.Validation.ResourceKeyAttribute">
-            <summary>
-            A validation expression that indicates the value must represent a resource key, a string that
-            has a type and a GUID id (e.g. Something/5C65D124-F856-46A4-BB3F-19764429BA1F).
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.ResourceKeyAttribute.#ctor">
-            <summary>
-            Initializes a new instance of the ResourceKeyAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.ResourceKeyAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the ResourceKeyAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.ResourceKeyAttribute.#ctor(System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the ResourceKeyAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">A function which will return the error message to be shown on failure.</param>
-        </member>
-        <member name="T:Blueprint.Core.Validation.TemporalCheck">
-            <summary>
-            Used with the four diffnt time based attributes. 
-            This is used to specify weather the Date or DateTime 
-            should be used for checking where the provided date falls.
-            </summary>
-        </member>
-        <member name="F:Blueprint.Core.Validation.TemporalCheck.Date">
-            <summary>
-            Only look at the Date part of a DateTime.
-            </summary>
-        </member>
-        <member name="F:Blueprint.Core.Validation.TemporalCheck.DateTime">
-            <summary>
-            Use the whole DateTime.
-            </summary>
-        </member>
-        <member name="T:Blueprint.Core.Validation.UKPostcodeAttribute">
-            <summary>
-            Provides a validator which will check for a valid UK postcode, using the pre-built regular expressions found
-            in the RegularExpressions class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UKPostcodeAttribute.#ctor">
-            <summary>
-            Initializes a new instance of the UKPostcodeAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UKPostcodeAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the UKPostcodeAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UKPostcodeAttribute.#ctor(System.Func{System.String})">
-            <summary>
-            Initializes a new instance of the UKPostcodeAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">
-            A function which will return the error message to be shown on failure.
-            </param>
-        </member>
-        <member name="T:Blueprint.Core.Validation.UrlAttribute">
-            <summary>
-            Provides a validator which will check for a valid URL, using the pre-built regular expressions found
-            in the RegularExpressions class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UrlAttribute.#ctor(Blueprint.Core.Validation.UrlProtocol)">
-            <summary>
-            Initializes a new instance of the UrlAttribute class.
-            </summary>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UrlAttribute.#ctor(System.String,Blueprint.Core.Validation.UrlProtocol)">
-            <summary>
-            Initializes a new instance of the UrlAttribute class.
-            </summary>
-            <param name="errorMessage">
-            The error message to be shown on validation failure.
-            </param>
-            <param name="urlProtocol">
-            The format to validate.
-            </param>
-        </member>
-        <member name="M:Blueprint.Core.Validation.UrlAttribute.#ctor(System.Func{System.String},Blueprint.Core.Validation.UrlProtocol)">
-            <summary>
-            Initializes a new instance of the UrlAttribute class.
-            </summary>
-            <param name="errorMessageAccessor">
-            A function which will return the error message
-            to be shown on failure.
-            </param>
-            <param name="urlProtocol">
-            The format to validate.
-            </param>
         </member>
         <member name="T:Blueprint.Core.Validation.ValidationException">
             <summary>

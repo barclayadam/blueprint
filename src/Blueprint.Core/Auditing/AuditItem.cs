@@ -1,4 +1,4 @@
-namespace Blueprint.Core.Auditing
+﻿namespace Blueprint.Core.Auditing
 {
     /// <summary>
     /// Defines the information used to audit actions.
@@ -25,26 +25,26 @@ namespace Blueprint.Core.Auditing
         /// <summary>
         /// Gets the object that was passed as the action, denormalised.
         /// </summary>
-        public object Details { get; private set; }
+        public object Details { get; }
         
         /// <summary>
         /// Gets the context of the request.
         /// </summary>
-        public string CorrelationId { get; private set; }
+        public string CorrelationId { get; }
 
         /// <summary>
         /// Gets the result of the action.
         /// </summary>
-        public string ResultMessage { get; private set; }
+        public string ResultMessage { get; }
 
         /// <summary>
         /// Gets the username of the actioning user.
         /// </summary>
-        public string Username { get; private set; }
+        public string Username { get; }
 
         /// <summary>
         /// Gets a value indicating whether the action was successful.
         /// </summary>
-        public bool WasSuccessful { get; private set; }
+        public bool WasSuccessful { get; }
     }
 }

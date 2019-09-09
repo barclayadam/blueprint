@@ -33,7 +33,6 @@
     <PackageReference Include="Owin" Version="1.0" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-    <PackageReference Include="WindowsAzure.ServiceBus" Version="4.1.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="StructureMap" />

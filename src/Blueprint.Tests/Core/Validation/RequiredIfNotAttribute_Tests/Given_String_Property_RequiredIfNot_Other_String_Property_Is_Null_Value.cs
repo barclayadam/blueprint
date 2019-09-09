@@ -1,3 +1,5 @@
+﻿using Blueprint.Api.Validation;
+
 namespace Blueprint.Tests.Core.Validation.RequiredIfNotAttribute_Tests
 {
     using System.Threading.Tasks;

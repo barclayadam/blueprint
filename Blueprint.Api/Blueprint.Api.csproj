@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CompareNETObjects" Version="3.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="NJsonSchema" Version="9.10.42" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Blueprint.Compiler\Blueprint.Compiler.csproj" />
+    <ProjectReference Include="..\src\Blueprint.Core\Blueprint.Core.csproj" />
+  </ItemGroup>
+</Project>

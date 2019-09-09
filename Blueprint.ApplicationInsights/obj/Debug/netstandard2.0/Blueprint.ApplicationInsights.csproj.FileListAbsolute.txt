@@ -1,0 +1,17 @@
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.ApplicationInsights.deps.json
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.ApplicationInsights.dll
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.ApplicationInsights.pdb
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Api.dll
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Compiler.dll
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Core.dll
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Api.pdb
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Compiler.pdb
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Core.pdb
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\bin\Debug\netstandard2.0\Blueprint.Core.xml
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.csprojAssemblyReference.cache
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.csproj.CoreCompileInputs.cache
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.AssemblyInfoInputs.cache
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.AssemblyInfo.cs
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.csproj.CopyComplete
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.dll
+C:\Mike\Projects\blueprint\Blueprint.ApplicationInsights\obj\Debug\netstandard2.0\Blueprint.ApplicationInsights.pdb

@@ -2,7 +2,7 @@
 using System.Linq;
 
 using Blueprint.Core.Auditing;
-
+using Blueprint.SqlServer;
 using FluentAssertions;
 
 using NUnit.Framework;
@@ -24,7 +24,7 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
 
             var auditItem = new AuditItem(
                 correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new Auditor(CreateFactory());
+            var auditor = new SqlServerAuditor(CreateFactory());
 
             // Act
             auditor.Write(auditItem);
@@ -63,7 +63,7 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
 
             var auditItem = new AuditItem(
                 correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new Auditor(CreateFactory());
+            var auditor = new SqlServerAuditor(CreateFactory());
 
             // Act
             auditor.Write(auditItem);
@@ -102,7 +102,7 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
 
             var auditItem = new AuditItem(
                 correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new Auditor(CreateFactory());
+            var auditor = new SqlServerAuditor(CreateFactory());
 
             // Act
             auditor.Write(auditItem);

@@ -1,15 +1,15 @@
-﻿namespace Blueprint.Tests.Core.Validation.Validator_Tests
+﻿using Blueprint.Api;
+using Blueprint.Api.Validation;
+
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+
+using FluentAssertions;
+
+using NUnit.Framework;
+
+namespace Blueprint.Tests.Core.Validation.Validator_Tests
 {
-    using System.ComponentModel.DataAnnotations;
-    using System.Threading.Tasks;
-
-    using Blueprint.Core.Api;
-    using Blueprint.Core.Validation;
-
-    using FluentAssertions;
-
-    using NUnit.Framework;
-
     public class Given_Message_With_Required_Nullable_Value_Type_Property
     {
         private BlueprintValidator validator;
@@ -18,8 +18,8 @@
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            this.validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
-            this.apiOperationContext = null;
+            validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
+            apiOperationContext = null;
         }
 
         [Test]
@@ -29,7 +29,7 @@
             var invalidMessage = new MessageWithNullabeProperty { RequiredIntProperty = null };
 
             // Act
-            var result = await validator.GetValidationResultsAsync(invalidMessage, this.apiOperationContext);
+            var result = await validator.GetValidationResultsAsync(invalidMessage, apiOperationContext);
 
             // Assert
             result.Count.Should().Be(1);
@@ -42,7 +42,7 @@
             var validMessage = new MessageWithNullabeProperty { RequiredIntProperty = 666 };
 
             // Act
-            var result = await validator.GetValidationResultsAsync(validMessage, this.apiOperationContext);
+            var result = await validator.GetValidationResultsAsync(validMessage, apiOperationContext);
 
             // Assert
             result.Count.Should().Be(0);

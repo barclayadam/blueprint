@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-
-using Blueprint.Core.Api;
+﻿using System.Threading.Tasks;
+using Blueprint.Api;
 
 namespace Blueprint.Tests.Core.Api.Validator_Middleware
 {

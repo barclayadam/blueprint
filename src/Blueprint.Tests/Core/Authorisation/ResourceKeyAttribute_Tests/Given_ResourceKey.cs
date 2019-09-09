@@ -1,4 +1,4 @@
-﻿using Blueprint.Core.Validation;
+﻿using Blueprint.Api.Validation;
 using FluentAssertions;
 using NUnit.Framework;
 

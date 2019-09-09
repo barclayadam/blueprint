@@ -1,15 +1,13 @@
-﻿namespace Blueprint.Tests.Core.Validation.Validator_Tests
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Blueprint.Api.Validation;
+using FluentAssertions;
+
+using NUnit.Framework;
+
+namespace Blueprint.Tests.Core.Validation.Validator_Tests
 {
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    using Blueprint.Core.Validation;
-
-    using FluentAssertions;
-
-    using NUnit.Framework;
-
     public class Given_Thing_With_DataAnnotation_Validation_Attributes
     {
         private BlueprintValidator validator;
@@ -17,7 +15,7 @@
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            this.validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
+            validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
         }
 
         [Test]

@@ -1,4 +1,6 @@
-﻿namespace Blueprint.Tests.Core.Validation.GreaterThanPropertyAttribute_Tests
+﻿using Blueprint.Api.Validation;
+
+namespace Blueprint.Tests.Core.Validation.GreaterThanPropertyAttribute_Tests
 {
     using System;
     using System.Threading.Tasks;

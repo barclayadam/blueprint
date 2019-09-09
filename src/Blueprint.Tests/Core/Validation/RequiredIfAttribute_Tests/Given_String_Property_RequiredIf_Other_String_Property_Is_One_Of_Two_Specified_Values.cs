@@ -1,11 +1,11 @@
-﻿namespace Blueprint.Tests.Core.Validation.RequiredIfAttribute_Tests
+﻿using Blueprint.Api.Validation;
+
+using System.Threading.Tasks;
+
+using NUnit.Framework;
+
+namespace Blueprint.Tests.Core.Validation.RequiredIfAttribute_Tests
 {
-    using System.Threading.Tasks;
-
-    using Blueprint.Core.Validation;
-
-    using NUnit.Framework;
-
     public class Given_String_Property_RequiredIf_Other_String_Property_Is_One_Of_Two_Specified_Values
     {
         public class Validatable

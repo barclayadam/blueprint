@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-
-using Blueprint.Core.Api;
-using Blueprint.Core.Api.Middleware;
+using Blueprint.Api;
+using Blueprint.Api.Middleware;
 
 using FluentAssertions;
 

@@ -2,7 +2,6 @@
 
 using Blueprint.Core.Caching;
 using Blueprint.Core.Caching.Configuration;
-using Blueprint.Testing;
 using Blueprint.Tests.Fakes;
 using FluentAssertions;
 using NUnit.Framework;
@@ -18,7 +17,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
             CachingConfiguration.Current = new CachingConfiguration
             {
                 IsEnabled = true,
-                ProviderType = typeof(Blueprint.Tests.Fakes.FakeCacheProvider),
+                ProviderType = typeof(FakeCacheProvider),
                 Strategies =
                 {
                     new FixedCachingStrategy

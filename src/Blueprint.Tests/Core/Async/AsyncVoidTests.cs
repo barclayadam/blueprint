@@ -9,8 +9,8 @@
         [Test]
         public void EnsureNoAsyncVoidTests()
         {
-            Blueprint.Testing.NoAsyncVoid.Check(typeof(AsyncVoidTests).Assembly);
-            Blueprint.Testing.NoAsyncVoid.Check(typeof(BlueprintCoreNamespace).Assembly);
+            Testing.NoAsyncVoid.Check(typeof(AsyncVoidTests).Assembly);
+            Testing.NoAsyncVoid.Check(typeof(BlueprintCoreNamespace).Assembly);
         }
     }
 }

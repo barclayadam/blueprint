@@ -72,7 +72,7 @@ namespace Blueprint.Testing
         {
             var withoutInitialCatalog = InitialCatalogRegex.Replace(connectionString, "");
 
-            return new MssqlDatabaseConnectionFactory(withoutInitialCatalog).Open();
+            return new SqlServerDatabaseConnectionFactory(withoutInitialCatalog).Open();
         }
     }
 }

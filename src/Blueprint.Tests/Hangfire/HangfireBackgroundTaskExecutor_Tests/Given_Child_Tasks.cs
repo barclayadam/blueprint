@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
-
+using Blueprint.ApplicationInsights.Tasks;
 using Blueprint.Core.Tasks;
 using Blueprint.Core.Tracing;
 using Blueprint.Hangfire;
 
-using global::Hangfire;
-using global::Hangfire.Common;
-using global::Hangfire.States;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 
 using Moq;
 
@@ -17,7 +17,7 @@ using Shouldly;
 
 using StructureMap;
 
-using JobContinuationOptions = global::Hangfire.JobContinuationOptions;
+using JobContinuationOptions = Hangfire.JobContinuationOptions;
 
 namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
 {

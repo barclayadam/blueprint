@@ -1,7 +1,5 @@
 ﻿using System.Net.Http;
-
-using Blueprint.Core.Api;
-
+using Blueprint.Api;
 using FluentAssertions;
 
 using NUnit.Framework;

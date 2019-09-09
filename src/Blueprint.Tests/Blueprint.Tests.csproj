@@ -24,6 +24,8 @@
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
     <ProjectReference Include="..\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />

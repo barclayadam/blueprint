@@ -2,7 +2,6 @@
 
 using Blueprint.Core.Caching;
 using Blueprint.Core.Caching.Configuration;
-using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 using StructureMap;

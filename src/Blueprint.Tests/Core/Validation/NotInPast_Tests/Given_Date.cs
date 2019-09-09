@@ -1,7 +1,6 @@
 ﻿using System;
 using Blueprint.Core;
 using Blueprint.Core.Utilities;
-using Blueprint.Core.Validation;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Core.Validation.NotInPast_Tests

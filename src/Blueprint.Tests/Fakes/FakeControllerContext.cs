@@ -1,33 +1,33 @@
-using System.Text;
-using System.Web;
-using System.Web.Mvc;
-using Moq;
+﻿//using System.Text;
+//using System.Web.Mvc;
+//using Microsoft.AspNetCore.Http;
+//using Moq;
 
-namespace Blueprint.Tests.Fakes
-{
-    public class FakeControllerContext : Mock<ControllerContext>
-    {
-        private readonly Mock<HttpResponseBase> response;
-        private readonly StringBuilder writtenContext;
+//namespace Blueprint.Tests.Fakes
+//{
+//    public class FakeControllerContext : Mock<ControllerContext>
+//    {
+//        private readonly Mock<HttpResponse> response;
+//        private readonly StringBuilder writtenContext;
 
-        public FakeControllerContext()
-        {
-            writtenContext = new StringBuilder();
-            response = new Mock<HttpResponseBase>();
+//        public FakeControllerContext()
+//        {
+//            writtenContext = new StringBuilder();
+//            response = new Mock<HttpResponse>();
 
-            response.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(y => writtenContext.Append(y));
-            response.SetupAllProperties();
+//            response.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(y => writtenContext.Append(y));
+//            response.SetupAllProperties();
 
-            Setup(x => x.HttpContext.Response).Returns(response.Object);
-        }
+//            Setup(x => x.HttpContext.Response).Returns(response.Object);
+//        }
 
-        public Encoding ContentEncoding { get { return response.Object.ContentEncoding; } }
+//        public Encoding ContentEncoding => response.Object.ContentEncoding;
 
-        public string ResponseText { get { return writtenContext.ToString(); } }
+//        public string ResponseText => writtenContext.ToString();
 
-        public static implicit operator ControllerContext(FakeControllerContext controllerContext)
-        {
-            return controllerContext.Object;
-        }
-    }
-}
+//        public static implicit operator ControllerContext(FakeControllerContext controllerContext)
+//        {
+//            return controllerContext.Object;
+//        }
+//    }
+//}

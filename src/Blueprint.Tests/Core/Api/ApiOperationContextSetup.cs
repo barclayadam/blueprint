@@ -1,9 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
-
-using Blueprint.Core.Api;
-
+using Blueprint.Api;
 using Microsoft.AspNetCore.Http;
 
 using StructureMap;

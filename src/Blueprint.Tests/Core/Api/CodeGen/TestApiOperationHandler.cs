@@ -1,8 +1,8 @@
+﻿using Blueprint.Api;
+
 namespace Blueprint.Tests.Core.Api.CodeGen
 {
     using System.Threading.Tasks;
-
-    using Blueprint.Core.Api;
 
     public class TestApiOperationHandler : IApiOperationHandler<TestApiOperation>
     {
