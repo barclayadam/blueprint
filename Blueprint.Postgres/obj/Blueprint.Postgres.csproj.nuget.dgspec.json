@@ -120,7 +120,7 @@
             },
             "NLog": {
               "target": "Package",
-              "version": "[4.5.8, )"
+              "version": "[4.6.7, )"
             }
           }
         },
@@ -146,7 +146,7 @@
             },
             "NLog": {
               "target": "Package",
-              "version": "[4.5.8, )"
+              "version": "[4.6.7, )"
             },
             "System.Reflection.Emit.Lightweight": {
               "target": "Package",
@@ -263,7 +263,7 @@
             },
             "NLog": {
               "target": "Package",
-              "version": "[4.5.8, )"
+              "version": "[4.6.7, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -275,7 +275,7 @@
             },
             "StructureMap": {
               "target": "Package",
-              "version": "[4.7.0, )"
+              "version": "[4.7.1, )"
             },
             "System.ComponentModel.Annotations": {
               "target": "Package",

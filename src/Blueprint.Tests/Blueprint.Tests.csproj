@@ -30,10 +30,8 @@
     <ProjectReference Include="..\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.1.1" />
     <PackageReference Include="FluentAssertions" Version="5.8.0" />
     <PackageReference Include="Hangfire.Core" Version="1.7.6" />
-    <PackageReference Include="Iesi.Collections" Version="4.0.1.4000" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.1" />
     <PackageReference Include="Moq" Version="4.7.99" />
@@ -42,7 +40,7 @@
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
     <PackageReference Include="Owin" Version="1.0" />
-    <PackageReference Include="StructureMap" Version="4.7.0" />
+    <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>

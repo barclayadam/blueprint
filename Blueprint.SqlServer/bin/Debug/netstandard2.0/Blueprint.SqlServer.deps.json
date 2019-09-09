@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v2.0/",
-    "signature": "7cd2230e8625c7d67f8e88cf610780cae6482862"
+    "signature": "a9497de9c6b751dbace85437bdb6f7401924198a"
   },
   "compilationOptions": {},
   "targets": {
@@ -1040,11 +1040,11 @@
           }
         }
       },
-      "NLog/4.5.8": {
+      "NLog/4.6.7": {
         "runtime": {
           "lib/netstandard2.0/NLog.dll": {
             "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.5.8.8046"
+            "fileVersion": "4.6.7.10445"
           }
         }
       },
@@ -1132,7 +1132,7 @@
           }
         }
       },
-      "StructureMap/4.7.0": {
+      "StructureMap/4.7.1": {
         "dependencies": {
           "System.Collections.Concurrent": "4.3.0",
           "System.Reflection.Emit.Lightweight": "4.3.0",
@@ -2394,7 +2394,7 @@
           "Microsoft.CodeAnalysis": "2.10.0",
           "Microsoft.CodeAnalysis.CSharp": "2.10.0",
           "Microsoft.CodeAnalysis.Scripting": "2.10.0",
-          "NLog": "4.5.8",
+          "NLog": "4.6.7",
           "System.Reflection.Emit.Lightweight": "4.3.0",
           "System.Runtime.Loader": "4.3.0"
         },
@@ -2417,10 +2417,10 @@
           "Microsoft.AspNetCore.Routing": "2.0.1",
           "Microsoft.AspNetCore.WebUtilities": "2.0.1",
           "NJsonSchema": "9.10.42",
-          "NLog": "4.5.8",
+          "NLog": "4.6.7",
           "Newtonsoft.Json": "12.0.1",
           "StackifyLib": "1.25.4",
-          "StructureMap": "4.7.0",
+          "StructureMap": "4.7.1",
           "System.ComponentModel.Annotations": "4.5.0",
           "System.Configuration.ConfigurationManager": "4.5.0",
           "System.Net.Http": "4.3.4",
@@ -2832,12 +2832,12 @@
       "path": "njsonschema/9.10.42",
       "hashPath": "njsonschema.9.10.42.nupkg.sha512"
     },
-    "NLog/4.5.8": {
+    "NLog/4.6.7": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-t0NJVxerdU9QYgQQLa4XA3v1eLDBnJ5MF7AyoMxmJu38iAzrB4hVZYcCH3j0tKFKm7fOIx5jNbnAd9GD4mRTEA==",
-      "path": "nlog/4.5.8",
-      "hashPath": "nlog.4.5.8.nupkg.sha512"
+      "sha512": "sha512-xSIzXrIF89Ww6yoJPvyBcu4JLgNiDiEaTT4GyVltZEeVIvkgSm9J/srUy1Yz0EXwbTv502l8knoCFrgNc/MUMA==",
+      "path": "nlog/4.6.7",
+      "hashPath": "nlog.4.6.7.nupkg.sha512"
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "type": "package",
@@ -2986,12 +2986,12 @@
       "path": "stackifylib/1.25.4",
       "hashPath": "stackifylib.1.25.4.nupkg.sha512"
     },
-    "StructureMap/4.7.0": {
+    "StructureMap/4.7.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-nRw8YXeyCpWGBC2/pOPxReYurCaJ9MRyCZYsqUSm7JYG4e4ExHbJywuboHikVHq3XAnoCuSImMjaB0r1t3g7tw==",
-      "path": "structuremap/4.7.0",
-      "hashPath": "structuremap.4.7.0.nupkg.sha512"
+      "sha512": "sha512-ePJIef6IFpQ+WmDoH2Xr4EFrnbI1z79Z8ukt5ZhlsjKgK47giEJmqnym9BXJ91meBj1dl/7Hn6Nw1amsLFbHJA==",
+      "path": "structuremap/4.7.1",
+      "hashPath": "structuremap.4.7.1.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

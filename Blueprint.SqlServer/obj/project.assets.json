@@ -1118,7 +1118,7 @@
           "lib/netstandard1.0/NJsonSchema.dll": {}
         }
       },
-      "NLog/4.5.8": {
+      "NLog/4.6.7": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/NLog.dll": {}
@@ -1360,7 +1360,7 @@
           "lib/netstandard1.3/StackifyLib.dll": {}
         }
       },
-      "StructureMap/4.7.0": {
+      "StructureMap/4.7.1": {
         "type": "package",
         "dependencies": {
           "System.Collections.Concurrent": "4.3.0",
@@ -2993,7 +2993,7 @@
           "Microsoft.CodeAnalysis": "2.10.0",
           "Microsoft.CodeAnalysis.CSharp": "2.10.0",
           "Microsoft.CodeAnalysis.Scripting": "2.10.0",
-          "NLog": "4.5.8",
+          "NLog": "4.6.7",
           "System.Reflection.Emit.Lightweight": "4.3.0",
           "System.Runtime.Loader": "4.3.0"
         },
@@ -3021,10 +3021,10 @@
           "Microsoft.AspNetCore.Routing": "2.0.1",
           "Microsoft.AspNetCore.WebUtilities": "2.0.1",
           "NJsonSchema": "9.10.42",
-          "NLog": "4.5.8",
+          "NLog": "4.6.7",
           "Newtonsoft.Json": "12.0.1",
           "StackifyLib": "1.25.4",
-          "StructureMap": "4.7.0",
+          "StructureMap": "4.7.1",
           "System.ComponentModel.Annotations": "4.5.0",
           "System.Configuration.ConfigurationManager": "4.5.0",
           "System.Net.Http": "4.3.4",
@@ -4210,10 +4210,10 @@
         "njsonschema.nuspec"
       ]
     },
-    "NLog/4.5.8": {
-      "sha512": "t0NJVxerdU9QYgQQLa4XA3v1eLDBnJ5MF7AyoMxmJu38iAzrB4hVZYcCH3j0tKFKm7fOIx5jNbnAd9GD4mRTEA==",
+    "NLog/4.6.7": {
+      "sha512": "xSIzXrIF89Ww6yoJPvyBcu4JLgNiDiEaTT4GyVltZEeVIvkgSm9J/srUy1Yz0EXwbTv502l8knoCFrgNc/MUMA==",
       "type": "package",
-      "path": "nlog/4.5.8",
+      "path": "nlog/4.6.7",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4239,7 +4239,7 @@
         "lib/wp8/NLog.xml",
         "lib/xamarinios10/NLog.dll",
         "lib/xamarinios10/NLog.xml",
-        "nlog.4.5.8.nupkg.sha512",
+        "nlog.4.6.7.nupkg.sha512",
         "nlog.nuspec"
       ]
     },
@@ -4540,10 +4540,10 @@
         "stackifylib.nuspec"
       ]
     },
-    "StructureMap/4.7.0": {
-      "sha512": "nRw8YXeyCpWGBC2/pOPxReYurCaJ9MRyCZYsqUSm7JYG4e4ExHbJywuboHikVHq3XAnoCuSImMjaB0r1t3g7tw==",
+    "StructureMap/4.7.1": {
+      "sha512": "ePJIef6IFpQ+WmDoH2Xr4EFrnbI1z79Z8ukt5ZhlsjKgK47giEJmqnym9BXJ91meBj1dl/7Hn6Nw1amsLFbHJA==",
       "type": "package",
-      "path": "structuremap/4.7.0",
+      "path": "structuremap/4.7.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4555,7 +4555,7 @@
         "lib/netstandard1.5/StructureMap.xml",
         "lib/netstandard2.0/StructureMap.dll",
         "lib/netstandard2.0/StructureMap.xml",
-        "structuremap.4.7.0.nupkg.sha512",
+        "structuremap.4.7.1.nupkg.sha512",
         "structuremap.nuspec"
       ]
     },
