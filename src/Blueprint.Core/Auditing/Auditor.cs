@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Blueprint.Core.Dapper;
 using Blueprint.Core.Data;
-
+using Dapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -51,7 +50,7 @@ namespace Blueprint.Core.Auditing
             using (var transaction = cn.BeginTransaction())
             {
                 cn.Execute(
-                    @"INSERT INTO AuditTrail ( CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
+                    @"INSERT INTO AuditTrail (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
                                       VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
                     new
                     {

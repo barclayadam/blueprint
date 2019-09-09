@@ -1,0 +1,314 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Mike\\Projects\\blueprint\\Blueprint.Postgres\\Blueprint.Postgres.csproj": {}
+  },
+  "projects": {
+    "C:\\Mike\\Projects\\blueprint\\Blueprint.Postgres\\Blueprint.Postgres.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Mike\\Projects\\blueprint\\Blueprint.Postgres\\Blueprint.Postgres.csproj",
+        "projectName": "Blueprint.Postgres",
+        "projectPath": "C:\\Mike\\Projects\\blueprint\\Blueprint.Postgres\\Blueprint.Postgres.csproj",
+        "packagesPath": "C:\\Users\\MXTaylor\\.nuget\\packages\\",
+        "outputPath": "C:\\Mike\\Projects\\blueprint\\Blueprint.Postgres\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\MXTaylor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {
+              "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\Blueprint.Core.csproj": {
+                "projectPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\Blueprint.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[4.0.9, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    },
+    "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\Blueprint.Compiler.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\Blueprint.Compiler.csproj",
+        "projectName": "Blueprint.Compiler",
+        "projectPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\Blueprint.Compiler.csproj",
+        "packagesPath": "C:\\Users\\MXTaylor\\.nuget\\packages\\",
+        "outputPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\MXTaylor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net462",
+          "netstandard2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net462": {
+            "projectReferences": {}
+          },
+          "netstandard2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net462": {
+          "dependencies": {
+            "Microsoft.CodeAnalysis": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "Microsoft.CodeAnalysis.Scripting": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.5.8, )"
+            }
+          }
+        },
+        "netstandard2.0": {
+          "dependencies": {
+            "Microsoft.CodeAnalysis": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "Microsoft.CodeAnalysis.Scripting": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.5.8, )"
+            },
+            "System.Reflection.Emit.Lightweight": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Runtime.Loader": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    },
+    "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\Blueprint.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\Blueprint.Core.csproj",
+        "projectName": "Blueprint.Core",
+        "projectPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\Blueprint.Core.csproj",
+        "packagesPath": "C:\\Users\\MXTaylor\\.nuget\\packages\\",
+        "outputPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\MXTaylor\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {
+              "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\Blueprint.Compiler.csproj": {
+                "projectPath": "C:\\Mike\\Projects\\blueprint\\src\\Blueprint.Compiler\\Blueprint.Compiler.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "Ben.Demystifier": {
+              "target": "Package",
+              "version": "[0.1.4, )"
+            },
+            "CompareNETObjects": {
+              "target": "Package",
+              "version": "[3.8.0, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.0.4, )"
+            },
+            "Hangfire.Core": {
+              "target": "Package",
+              "version": "[1.7.6, )"
+            },
+            "Microsoft.ApplicationInsights": {
+              "target": "Package",
+              "version": "[2.10.0, )"
+            },
+            "Microsoft.AspNet.WebApi.Client": {
+              "target": "Package",
+              "version": "[5.2.7, )"
+            },
+            "Microsoft.AspNet.WebApi.Core": {
+              "target": "Package",
+              "version": "[5.2.7, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "Microsoft.AspNetCore.Routing": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "Microsoft.AspNetCore.WebUtilities": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "NJsonSchema": {
+              "target": "Package",
+              "version": "[9.10.42, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.5.8, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "StackifyLib": {
+              "target": "Package",
+              "version": "[1.25.4, )"
+            },
+            "StructureMap": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            },
+            "System.ComponentModel.Annotations": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "System.Net.Http": {
+              "target": "Package",
+              "version": "[4.3.4, )"
+            },
+            "System.Reflection.Emit.Lightweight": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    }
+  }
+}

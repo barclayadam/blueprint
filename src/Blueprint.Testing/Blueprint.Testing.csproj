@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -27,11 +27,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Blueprint.Postgres\Blueprint.Postgres.csproj" />
+    <ProjectReference Include="..\..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.4" />
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="NLog" Version="4.5.8" />
     <PackageReference Include="Shouldly" Version="2.8.2" />

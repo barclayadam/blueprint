@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Blueprint.Core.Dapper;
 using Blueprint.Core.Utilities;
+using Dapper;
 
 namespace Blueprint.Core.Data
 {

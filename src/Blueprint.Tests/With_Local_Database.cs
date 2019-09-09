@@ -1,11 +1,10 @@
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Collections.Generic;
 using System.Transactions;
-using Blueprint.Core.Dapper;
 using Blueprint.Core.Data;
 using Blueprint.Core.Utilities;
+using Blueprint.SqlServer;
 using Blueprint.Testing;
-
+using Dapper;
 using NUnit.Framework;
 
 namespace Blueprint.Tests

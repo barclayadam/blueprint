@@ -19,14 +19,9 @@ namespace Blueprint.Core.ThirdParty
         /// <summary>
         /// Gets the current configuration of the ReCaptcha component.
         /// </summary>
-        public static ReCaptchaConfiguration Current
-        {
-            get
-            {
-                return (ConfigurationManager.GetSection("reCaptcha") as ReCaptchaConfiguration)
-                       ?? new ReCaptchaConfiguration();
-            }
-        }
+        public static ReCaptchaConfiguration Current =>
+            (ConfigurationManager.GetSection("reCaptcha") as ReCaptchaConfiguration)
+            ?? new ReCaptchaConfiguration();
 
         /// <summary>
         /// Gets the private key.

@@ -1,16 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Blueprint.Core.Api;
+using Blueprint.Core.OpenApi;
+using NJsonSchema;
 
 namespace Blueprint.Core.Validation
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    using Api;
-
-    using NJsonSchema;
-
-    using OpenApi;
-
     /// <summary>
     /// Causes a validation error if a file is over a given size or zero bytes
     /// </summary>
@@ -46,9 +42,11 @@ namespace Blueprint.Core.Validation
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
         }
 
-        public async ValueTask PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {
-            schema.ExtensionData[this.ValidatorKeyword] = maxSize;
+            schema.ExtensionData[ValidatorKeyword] = maxSize;
+
+            return Task.CompletedTask;
         }
     }
 }

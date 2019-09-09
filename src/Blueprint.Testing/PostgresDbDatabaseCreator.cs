@@ -3,10 +3,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-
-using Blueprint.Core.Dapper;
 using Blueprint.Core.Data;
-
+using Dapper;
 using NLog;
 
 namespace Blueprint.Testing

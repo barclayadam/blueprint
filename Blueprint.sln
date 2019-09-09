@@ -1,18 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler", "src\Blueprint.Compiler\Blueprint.Compiler.csproj", "{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Compiler", "src\Blueprint.Compiler\Blueprint.Compiler.csproj", "{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Core", "src\Blueprint.Core\Blueprint.Core.csproj", "{C7A422DB-A037-4F15-BD0C-FADD08DEEADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Core", "src\Blueprint.Core\Blueprint.Core.csproj", "{C7A422DB-A037-4F15-BD0C-FADD08DEEADC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Hangfire", "src\Blueprint.Hangfire\Blueprint.Hangfire.csproj", "{6EC8053C-6A69-4103-9663-711E42E9EADB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Hangfire", "src\Blueprint.Hangfire\Blueprint.Hangfire.csproj", "{6EC8053C-6A69-4103-9663-711E42E9EADB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Testing", "src\Blueprint.Testing\Blueprint.Testing.csproj", "{1ADB1F40-BD86-43D4-84A3-23C524060314}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Testing", "src\Blueprint.Testing\Blueprint.Testing.csproj", "{1ADB1F40-BD86-43D4-84A3-23C524060314}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tests", "src\Blueprint.Tests\Blueprint.Tests.csproj", "{F469E40C-B0F3-4645-9344-1F4F35717958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tests", "src\Blueprint.Tests\Blueprint.Tests.csproj", "{F469E40C-B0F3-4645-9344-1F4F35717958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.NHibernate", "src\Blueprint.NHibernate\Blueprint.NHibernate.csproj", "{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.NHibernate", "src\Blueprint.NHibernate\Blueprint.NHibernate.csproj", "{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Notifications", "src\Blueprint.Notifications\Blueprint.Notifications.csproj", "{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Notifications", "src\Blueprint.Notifications\Blueprint.Notifications.csproj", "{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.SqlServer", "Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Postgres", "Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,5 +55,19 @@ Global
 		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}
 	EndGlobalSection
 EndGlobal

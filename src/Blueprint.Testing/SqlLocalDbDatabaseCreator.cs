@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Blueprint.Core.Dapper;
-using Blueprint.Core.Data;
 using Blueprint.Core.Utilities;
+using Blueprint.SqlServer;
+using Dapper;
 
 namespace Blueprint.Testing
 {

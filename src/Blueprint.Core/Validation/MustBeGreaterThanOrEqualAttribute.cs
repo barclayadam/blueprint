@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Blueprint.Core.Api;
 
@@ -62,12 +62,14 @@ namespace Blueprint.Core.Validation
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
         }
 
-        public async ValueTask PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {
-            schema.ExtensionData[this.ValidatorKeyword] = new Dictionary<string, object>
+            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
             {
                 ["$data"] = $"1/{DependentProperty.Camelize()}"
             };
+
+            return Task.CompletedTask;
         }
     }
 }

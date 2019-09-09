@@ -106,7 +106,7 @@ namespace Blueprint.Core.Validation
 
         public string ValidatorKeyword => "pattern";
 
-        public virtual async ValueTask PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        public virtual Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {
             if (regex.Options.HasFlag(RegexOptions.IgnoreCase))
             {
@@ -114,6 +114,8 @@ namespace Blueprint.Core.Validation
             }
 
             schema.Pattern = regex.ToString();
+
+            return Task.CompletedTask;
         }
     }
 }

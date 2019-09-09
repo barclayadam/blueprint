@@ -95,13 +95,15 @@ namespace Blueprint.Core.Validation
 
         public string ValidatorKeyword => "x-validator-required-if";
 
-        public async ValueTask PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {
             schema.ExtensionData[this.ValidatorKeyword] = new Dictionary<string, object>
             {
                 ["$data"] = $"1/{DependentProperty.Camelize()}",
                 ["dependentValues"] = DependentValues
             };
+
+            return Task.CompletedTask;
         }
     }
 }
