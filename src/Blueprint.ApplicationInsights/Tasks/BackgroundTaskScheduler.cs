@@ -7,7 +7,6 @@ using Blueprint.Core.Apm;
 using Blueprint.Core.Tasks;
 using Blueprint.Core.Tracing;
 using NLog;
-using StructureMap;
 
 namespace Blueprint.ApplicationInsights.Tasks
 {
@@ -15,7 +14,6 @@ namespace Blueprint.ApplicationInsights.Tasks
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         
-        private readonly IContainer container;
         private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
         private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
@@ -23,16 +21,13 @@ namespace Blueprint.ApplicationInsights.Tasks
         private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
 
         public BackgroundTaskScheduler(
-            IContainer container,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
             IVersionInfoProvider versionInfoProvider,
             IApmTool apmTool)
         {
-            Guard.NotNull(nameof(container), container);
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
             Guard.NotNull(nameof(versionInfoProvider), versionInfoProvider);
 
-            this.container = container;
             this.backgroundTaskScheduleProvider = new ActivityTrackingBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider);
             this.versionInfoProvider = versionInfoProvider;
             this.apmTool = apmTool;

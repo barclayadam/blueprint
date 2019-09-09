@@ -1,6 +1,4 @@
-﻿using Blueprint.Core.Tracing;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Blueprint.Core.Tasks
 {

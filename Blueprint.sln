@@ -21,11 +21,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.SqlServer", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "src\Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api", "src\Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Api", "src\Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ApplicationInsights", "src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.ApplicationInsights", "src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.ServiceProvider", "src\Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.ServiceProvider", "src\Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.StructureMap", "src\Blueprint.StructureMap\Blueprint.StructureMap.csproj", "{2A11A316-1F23-4FED-B480-2DC55B9C4A31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

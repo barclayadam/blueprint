@@ -1,10 +1,9 @@
 ﻿using System.Net.Http;
 using Blueprint.Api;
+using StructureMap;
 
 namespace Blueprint.Tests.Core.Api 
 {
-    using StructureMap;
-
     public class TestApiCommand : ICommand
     {
         public static ApiOperationDescriptor NewDescriptor(string url = "/any")
@@ -12,7 +11,7 @@ namespace Blueprint.Tests.Core.Api
             return new ApiOperationDescriptor(typeof(TestApiCommand), HttpMethod.Post);
         }
 
-        public static ApiOperationContext NewOperationContext(Container container)
+        public static ApiOperationContext NewOperationContext(IContainer container)
         {
             return ApiOperationContextSetup.CreateFromDescriptor(container, NewDescriptor());
         }

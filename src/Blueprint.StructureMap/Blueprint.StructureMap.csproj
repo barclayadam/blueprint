@@ -3,12 +3,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lamar" Version="3.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
+    <PackageReference Include="StructureMap" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
+    <ProjectReference Include="..\Blueprint.Notifications\Blueprint.Notifications.csproj" />
   </ItemGroup>
 </Project>

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using Blueprint.Api;
 using Microsoft.AspNetCore.Http;
-
 using StructureMap;
 
 namespace Blueprint.Tests.Core.Api
@@ -35,7 +34,7 @@ namespace Blueprint.Tests.Core.Api
 
             dataModel.RegisterOperation(descriptor);
 
-            var context = new ApiOperationContext(container, dataModel, descriptor);
+            var context = new ApiOperationContext(dataModel, descriptor);
 
             context.SetUpTestRequest("https://blueprintapi.com/" + descriptor.Name);
 

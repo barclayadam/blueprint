@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Blueprint.Core.Caching.Configuration;
 using NLog;
-using StructureMap;
 
 namespace Blueprint.Core.Caching
 {
@@ -22,14 +21,13 @@ namespace Blueprint.Core.Caching
 
         private static readonly Logger Log = LogManager.GetLogger("Blueprint.Caching");
 
-        private readonly ICacheProvider cacheProvider;
         private readonly bool enabled;
         private readonly IEnumerable<ICachingStrategy> orderedStrategies;
 
         /// <summary>
         /// Initializes a new instance of the Cache class.
         /// </summary>
-        public Cache(IContainer container)
+        public Cache(ICacheProvider[] cacheProviders)
         {
             var cachingConfiguration = CachingConfiguration.Current;
 
@@ -44,13 +42,14 @@ namespace Blueprint.Core.Caching
 
             orderedStrategies = cachingConfiguration.Strategies.OrderBy(s => s.Priority).ToArray();
             enabled = cachingConfiguration.IsEnabled;
-            cacheProvider = (ICacheProvider)container.GetInstance(cachingConfiguration.ProviderType);
+
+            Provider = cacheProviders.SingleOrDefault(c => c.GetType() == cachingConfiguration.ProviderType);
         }
 
         /// <summary>
         /// Gets the provider of this cache, which may be null should a provider type not be specified.
         /// </summary>
-        public ICacheProvider Provider => cacheProvider;
+        public ICacheProvider Provider { get; }
 
         /// <summary>
         /// Adds a value to this cache using the specified unique key.
@@ -90,11 +89,11 @@ namespace Blueprint.Core.Caching
 
                     if (value == null)
                     {
-                        cacheProvider.Add(GenerateStorageKey<T>(key), NullValue<T>.Instance, options);
+                        Provider.Add(GenerateStorageKey<T>(key), NullValue<T>.Instance, options);
                     }
                     else
                     {
-                        cacheProvider.Add(GenerateStorageKey<T>(key), value, options);
+                        Provider.Add(GenerateStorageKey<T>(key), value, options);
                     }
                 }
             }
@@ -116,7 +115,7 @@ namespace Blueprint.Core.Caching
                 Justification = "Type is used to avoid key naming conflicts")]
         public bool ContainsKey<T>(object key)
         {
-            return enabled && cacheProvider.ContainsKey(GenerateStorageKey<T>(key));
+            return enabled && Provider.ContainsKey(GenerateStorageKey<T>(key));
         }
 
         /// <summary>
@@ -136,7 +135,7 @@ namespace Blueprint.Core.Caching
         {
             if (enabled)
             {
-                var storedItem = cacheProvider.GetValue(GenerateStorageKey<T>(key));
+                var storedItem = Provider.GetValue(GenerateStorageKey<T>(key));
 
                 if (storedItem is NullValue<T>)
                 {
@@ -175,7 +174,7 @@ namespace Blueprint.Core.Caching
         {
             if (enabled)
             {
-                cacheProvider.Remove(GenerateStorageKey<T>(key));
+                Provider.Remove(GenerateStorageKey<T>(key));
             }
         }
 

@@ -1,19 +1,18 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Caching;
-
-using Blueprint.Core.Auditing;
+using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
+using Blueprint.Core.Errors;
 using Blueprint.Core.Tasks;
-
 using StructureMap;
 
-namespace Blueprint.Core
+namespace Blueprint.StructureMap
 {
-    public class BlueprintRegistry : Registry
+    public class BlueprintCoreRegistry : Registry
     {
         [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "StructureMap registry by definition has high class coupling")]
-        public BlueprintRegistry()
+        public BlueprintCoreRegistry()
         {
             Scan(
                  s =>
@@ -21,9 +20,14 @@ namespace Blueprint.Core
                      s.AssemblyContainingType<BlueprintCoreNamespace>();
                      s.WithDefaultConventions();
 
-                     s.AddAllTypesOf<IResourceKeyExpander>();
+                     s.AddAllTypesOf<IExceptionSink>();
+                     s.AddAllTypesOf<IExceptionFilter>();
 
+                     s.AddAllTypesOf<IResourceKeyExpander>();
                      s.AddAllTypesOf<ITaskScheduler>();
+
+                     s.AddAllTypesOf<IExceptionSink>();
+                     s.AddAllTypesOf<IExceptionFilter>();
                  });
 
             For<ICache>().Use<Cache>().Singleton();

@@ -5,17 +5,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
-
 using Blueprint.Core.Apm;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
-
-using NLog;
-
 using Hangfire;
 using Hangfire.Server;
-
-using IContainer = StructureMap.IContainer;
+using NLog;
 
 namespace Blueprint.Core.Tasks
 {

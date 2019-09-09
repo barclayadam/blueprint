@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Core;
 using Blueprint.Core.Utilities;
-using StructureMap;
 
 namespace Blueprint.Api
 {
@@ -40,11 +39,11 @@ namespace Blueprint.Api
         /// <param name="container">The container under which the operation will execute.</param>
         /// <param name="type">The API operation to construct a context for.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given type.</returns>
-        public ApiOperationContext CreateOperationContext(IContainer container, Type type)
+        public ApiOperationContext CreateOperationContext(Type type)
         {
             if (allOperations.TryGetValue(type, out var operation))
             {
-                return new ApiOperationContext(container, this, operation);
+                return new ApiOperationContext(this, operation);
             }
 
             throw new InvalidOperationException("Cannot find a registered operation of the type '{0}'.".Fmt(type.Name));
@@ -56,11 +55,11 @@ namespace Blueprint.Api
         /// <param name="container">The container under which the operation will execute.</param>
         /// <param name="operation">The configured operation instance.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
-        public ApiOperationContext CreateOperationContext<T>(IContainer container, T operation) where T : IApiOperation
+        public ApiOperationContext CreateOperationContext<T>(T operation) where T : IApiOperation
         {
             if (allOperations.TryGetValue(typeof(T), out var operationDescriptor))
             {
-                return new ApiOperationContext(container, this, operationDescriptor, operation);
+                return new ApiOperationContext(this, operationDescriptor, operation);
             }
 
             throw new InvalidOperationException("Cannot find a registered operation of the type '{0}'.".Fmt(typeof(T).Name));

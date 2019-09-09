@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -11,7 +11,7 @@ namespace Blueprint.Api.CodeGen
 
         public MethodCall Method(Expression<Action<T>> expression)
         {
-            return MethodCall.For<T>(expression);
+            return MethodCall.For(expression);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_ContainsKey_Is_False()
         {
             // Arrange
-            var cache = new Cache(new Container());
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
 
             // Act
             cache.Add("Default", "My Key", "My Value");
@@ -36,7 +36,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_GetValue_Returns_Default_Value()
         {
             // Arrange
-            var cache = new Cache(new Container());
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
 
             // Act
             cache.Add("Default", "My Key", "My Value");
@@ -49,7 +49,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_Value_Not_Added_To_Provider()
         {
             // Arrange
-            var cache = new Cache(new Container());
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
 
             // Act
             cache.Add("Default", "My Key", "My Value");
@@ -62,7 +62,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Key_Removed_Then_Nothing_Happens()
         {
             // Arrange
-            var cache = new Cache(new Container());
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
             cache.Add("Default", "My Key", "My Value");
 
             // Act

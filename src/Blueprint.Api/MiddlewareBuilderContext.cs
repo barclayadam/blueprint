@@ -1,12 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Blueprint.Api.CodeGen;
+using Blueprint.Api.Validation;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using StructureMap;
-using StructureMap.Pipeline;
 
 namespace Blueprint.Api
 {
@@ -14,20 +12,22 @@ namespace Blueprint.Api
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
 
-        internal MiddlewareBuilderContext(
+        public MiddlewareBuilderContext(
             ApiOperationContextVariableSource apiContextVariableSource,
             GeneratedType generatedType,
             GeneratedMethod executeMethod,
             ApiOperationDescriptor descriptor,
-            IContainer container,
-            ApiDataModel model)
+            ApiDataModel model,
+            IInstanceFrameProvider instanceFrameProvider,
+            IValidationSourceBuilder[] validationSourceBuilders)
         {
             ApiContextVariableSource = apiContextVariableSource;
             GeneratedType = generatedType;
             ExecuteMethod = executeMethod;
             Descriptor = descriptor;
-            Container = container;
             Model = model;
+            InstanceFrameProvider = instanceFrameProvider;
+            ValidationSourceBuilders = validationSourceBuilders;
         }
 
         /// <summary>
@@ -53,16 +53,20 @@ namespace Blueprint.Api
         public ApiOperationDescriptor Descriptor { get; }
 
         /// <summary>
-        /// Gets the root container under which operations will execute. This value represents a configured container,
-        /// and _not_ the one that is passed on each execution as that will be a nested container.
-        /// </summary>
-        public IContainer Container { get; }
-
-        /// <summary>
         /// Gets the model that represents the API.
         /// </summary>
         public ApiDataModel Model { get; }
 
+        /// <summary>
+        /// Gets the instance frame provider.
+        /// </summary>
+        public IInstanceFrameProvider InstanceFrameProvider { get; }
+
+        /// <summary>
+        /// Gets the validation source builders.
+        /// </summary>
+        public IValidationSourceBuilder[] ValidationSourceBuilders { get; set; }
+        
         /// <summary>
         /// Gets the currently registered exception handlers.
         /// </summary>
@@ -125,7 +129,7 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
-            return VariableFromContainer<T>(typeof(T));
+            return InstanceFrameProvider.VariableFromContainer<T>(GeneratedType, typeof(T));
         }
 
         /// <summary>
@@ -140,54 +144,7 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
-            return VariableFromContainer<object>(type);
-        }
-
-        private GetInstanceFrame<T> VariableFromContainer<T>(Type toLoad)
-        {
-            var config = Container.Model.For(toLoad);
-
-            if (config.HasImplementations() && config.Instances.Count() == 1)
-            {
-                // When there is only one possible type that could be created from the IoC container
-                // we can do a little more optimisation.
-                var instanceRef = config.Instances.Single();
-
-                if (instanceRef.Lifecycle is SingletonLifecycle)
-                {
-                    // We have a singleton object, which means we can have this injected at build time of the
-                    // pipeline executor which will only be constructed once.
-                    var injected = new InjectedField(toLoad);
-
-                    GeneratedType.AllInjectedFields.Add(injected);
-
-                    return new InjectedFrame<T>(injected);
-                }
-
-                // Small tweak to resolve the actual known type. Makes generated code a little nicer as it
-                // makes it obvious what is _actually_ going to be built without knowledge of the container
-                // setup
-                return new TransientInstanceFrame<T>(toLoad, instanceRef.ReturnedType);
-            }
-
-            return new TransientInstanceFrame<T>(toLoad);
-        }
-
-        private class InjectedFrame<T> : GetInstanceFrame<T>
-        {
-            public InjectedFrame(InjectedField field)
-            {
-                InstanceVariable = field;
-            }
-
-            public override IEnumerable<Variable> Creates => new[] { InstanceVariable };
-
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
-            {
-                // DO nothing here, we need to have this class so we can return a GetInstanceFrame
-                // instance, but the actual variable is injected and therefore we need no code output
-                Next?.GenerateCode(method, writer);
-            }
+            return InstanceFrameProvider.VariableFromContainer<object>(GeneratedType, type);
         }
     }
 }

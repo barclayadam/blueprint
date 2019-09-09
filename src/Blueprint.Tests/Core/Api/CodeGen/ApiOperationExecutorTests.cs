@@ -2,11 +2,9 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
-
+using Blueprint.StructureMap;
 using FluentAssertions;
-
 using NUnit.Framework;
-
 using StructureMap;
 
 namespace Blueprint.Tests.Core.Api.CodeGen
@@ -34,7 +32,7 @@ namespace Blueprint.Tests.Core.Api.CodeGen
             var ctx = TestApiOperation.NewOperationContext(container);
 
             // Act
-            await apiOperationExecutor.Execute(ctx);
+            await apiOperationExecutor.ExecuteAsync(ctx);
 
             // Assert
             handler.WasCalled.Should().BeTrue();

@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using StructureMap;
 
-namespace Blueprint.ServiceProvider
+namespace Blueprint.StructureMap.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
@@ -108,13 +108,13 @@ namespace Blueprint.ServiceProvider
 
                     using (var nestedContainer = rootContainer.GetNestedContainer())
                     {
-                        var apiContext = new ApiOperationContext(nestedContainer, apiOperationExecutor.DataModel, operation)
+                        var apiContext = new ApiOperationContext(apiOperationExecutor.DataModel, operation)
                         {
                             RouteData = context.RouteData.Values,
                             HttpContext = context.HttpContext
                         };
 
-                        var result = await apiOperationExecutor.Execute(apiContext);
+                        var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
                         result.Execute(apiContext);

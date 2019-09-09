@@ -4,7 +4,7 @@ using Blueprint.Notifications.Notifications.Handlers;
 using Blueprint.Notifications.Templates;
 using StructureMap;
 
-namespace Blueprint.Notifications
+namespace Blueprint.StructureMap
 {
     public class BlueprintNotificationRegistry : Registry
     {

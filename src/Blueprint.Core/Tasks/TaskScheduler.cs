@@ -1,38 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
-
 using Newtonsoft.Json;
-
 using NLog;
-
-using StructureMap;
-
 using Blueprint.Core.Utilities;
 
 namespace Blueprint.Core.Tasks
 {
-
     public class TaskScheduler
     {
         private const char IdSplitter = ':';
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private readonly IContainer container;
+        private readonly ITaskScheduler[] taskSchedulers;
         private readonly RecurringJobManager recurringJobManager;
-
-        public TaskScheduler(IContainer container)
+        
+        public TaskScheduler(ITaskScheduler[] taskSchedulers)
         {
-            Guard.NotNull(nameof(container), container);
-
-            this.container = container;
-
-            recurringJobManager = new RecurringJobManager();
+            this.taskSchedulers = taskSchedulers;
+            this.recurringJobManager = new RecurringJobManager();
         }
 
         [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -84,14 +74,12 @@ namespace Blueprint.Core.Tasks
                 return Enumerable.Empty<ITaskScheduler>();
             }
 
-            return this.container.GetAllInstances<ITaskScheduler>()
-                .Where(
-                    s =>
-                    {
-                        var enableConfigKey = $"Scheduler.{s.GetType().Name}.Enabled";
+            return taskSchedulers.Where(s =>
+            {
+                var enableConfigKey = $"Scheduler.{s.GetType().Name}.Enabled";
 
-                        return !enableConfigKey.TryGetAppSetting(out bool isEnabled) || isEnabled;
-                    });
+                return !enableConfigKey.TryGetAppSetting(out bool isEnabled) || isEnabled;
+            });
         }
 
         private static string GetGroupNameFromScheduler(ITaskScheduler scheduler)

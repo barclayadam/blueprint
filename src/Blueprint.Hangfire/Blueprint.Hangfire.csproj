@@ -34,7 +34,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="StructureMap" />
-  </ItemGroup>
 </Project>

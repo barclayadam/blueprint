@@ -1,10 +1,9 @@
 ﻿using System.Net.Http;
 using Blueprint.Api;
+using StructureMap;
 
 namespace Blueprint.Tests.Core.Api
 {
-    using StructureMap;
-
     public class TestApiOperation : IApiOperation
     {
         public int Id { get; set; }

@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Blueprint.Core;
 using Blueprint.Core.Security;
 using Microsoft.AspNetCore.Http;
-using StructureMap;
 
 namespace Blueprint.Api
 {
@@ -16,11 +15,9 @@ namespace Blueprint.Api
     public class ApiOperationContext
     {
         public ApiOperationContext(
-            IContainer container,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor)
         {
-            Container = container;
             DataModel = dataModel;
             Descriptor = operationDescriptor;
 
@@ -30,7 +27,6 @@ namespace Blueprint.Api
         }
 
         public ApiOperationContext(
-            IContainer container,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor,
             IApiOperation instance)
@@ -42,7 +38,6 @@ namespace Blueprint.Api
                 throw new InvalidOperationException($"Instance of type {instance.GetType().Name} is not compatible with descriptor {operationDescriptor}");
             }
 
-            Container = container;
             DataModel = dataModel;
             Descriptor = operationDescriptor;
 
@@ -65,8 +60,6 @@ namespace Blueprint.Api
         /// Gets the operation that is currently being executed.
         /// </summary>
         public IApiOperation Operation { get; }
-
-        public IContainer Container { get; }
 
         public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
@@ -95,7 +88,7 @@ namespace Blueprint.Api
         {
             Guard.NotNull(nameof(type), type);
 
-            var context = DataModel.CreateOperationContext(Container, type);
+            var context = DataModel.CreateOperationContext(type);
 
             context.Data = Data;
             context.HttpContext = HttpContext;

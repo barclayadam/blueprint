@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using StructureMap;
 
-namespace Blueprint.Api.CodeGen
+namespace Blueprint.StructureMap.CodeGen
 {
     /// <summary>
     /// A <see cref="SyncFrame" /> that will resolve, from the registered <see cref="IContainer"/>, an instance

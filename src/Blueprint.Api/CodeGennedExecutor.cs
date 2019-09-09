@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,9 +32,9 @@ namespace Blueprint.Api
             return builder.ToString();
         }
 
-        public Task<OperationResult> Execute(ApiOperationContext ctx)
+        public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
-            return operationTypeToPipelineType[ctx.Descriptor.OperationType].Execute(ctx);
+            return operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteAsync(context);
         }
     }
 }

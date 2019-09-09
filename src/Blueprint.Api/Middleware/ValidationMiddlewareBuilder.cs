@@ -33,7 +33,7 @@ namespace Blueprint.Api.Middleware
             var apiOperationDescriptorVariable = context.VariableFromContext<ApiOperationDescriptor>();
             var resultsCreator = new ConstructorFrame<ValidationFailures>(() => new ValidationFailures());
             var hasValidationFrames = false;
-            var sources = context.Container.GetAllInstances<IValidationSourceBuilder>();
+            var sources = context.ValidationSourceBuilders;
 
             void AddValidatorFrame(Frame f)
             {

@@ -1,10 +1,8 @@
 ﻿using System;
-
-using global::StructureMap;
-
 using Hangfire;
+using StructureMap;
 
-namespace Blueprint.Hangfire.StructureMap
+namespace Blueprint.StructureMap.Hangfire
 {
     /// <summary>
     /// StructureMap Job Activator.

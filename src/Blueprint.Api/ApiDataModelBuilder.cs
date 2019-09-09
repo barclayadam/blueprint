@@ -48,10 +48,7 @@ namespace Blueprint.Api
         /// </summary>
         public string ApplicationName { get; set; }
 
-        public ApiDataModel Model
-        {
-            get { return dataModel; }
-        }
+        public ApiDataModel Model => dataModel;
 
         /// <summary>
         /// Sets  the name of the application, which is used when generating the DLL for the pipeline
@@ -78,9 +75,9 @@ namespace Blueprint.Api
         /// <param name="filter">The optional filter over found operations.</param>
         public void Scan(Assembly[] assemblies, Func<Type, bool> filter = null)
         {
-            foreach (var a in assemblies)
+            foreach (var assembly in assemblies)
             {
-                Scan(a, filter);
+                Scan(assembly, filter);
             }
         }
 
@@ -92,13 +89,13 @@ namespace Blueprint.Api
         /// <param name="filter">The optional filter over found operations.</param>
         public void Scan(Assembly assembly, Func<Type, bool> filter = null)
         {
-            filter = filter ?? ((t) => true);
+            filter = filter ?? (t => true);
 
-            foreach (var t in GetExportedTypesOfInterface(assembly, typeof(IApiOperation)))
+            foreach (var type in GetExportedTypesOfInterface(assembly, typeof(IApiOperation)))
             {
-                if (filter(t))
+                if (filter(type))
                 {
-                    AddOperation(t);
+                    AddOperation(type);
                 }
             }
         }
@@ -108,28 +105,28 @@ namespace Blueprint.Api
             AddOperation(typeof(T));
         }
 
-        public void AddOperation(Type t)
+        public void AddOperation(Type type)
         {
-            if (!typeof(IApiOperation).IsAssignableFrom(t))
+            if (!typeof(IApiOperation).IsAssignableFrom(type))
             {
-                throw new ArgumentException($"Type {t.FullName} does not implement {nameof(IApiOperation)}, cannot register.");
+                throw new ArgumentException($"Type {type.FullName} does not implement {nameof(IApiOperation)}, cannot register.");
             }
 
-            var o = CreateApiOperationDescriptor(t);
+            var apiOperationDescriptor = CreateApiOperationDescriptor(type);
 
-            dataModel.RegisterOperation(o);
+            dataModel.RegisterOperation(apiOperationDescriptor);
 
-            foreach (var l in o.OperationType.GetCustomAttributes<LinkAttribute>())
+            foreach (var linkAttribute in apiOperationDescriptor.OperationType.GetCustomAttributes<LinkAttribute>())
             {
-                dataModel.RegisterLink(new ApiOperationLink(o, l.Url, l.Rel ?? o.Name) {ResourceType = l.ResourceType});
+                dataModel.RegisterLink(new ApiOperationLink(apiOperationDescriptor, linkAttribute.Url, linkAttribute.Rel ?? apiOperationDescriptor.Name) {ResourceType = linkAttribute.ResourceType});
             }
         }
 
-        private static ApiOperationDescriptor CreateApiOperationDescriptor(Type t)
+        private static ApiOperationDescriptor CreateApiOperationDescriptor(Type type)
         {
             HttpMethod supportedMethod;
 
-            var httpMethodAttribute = t.GetCustomAttribute<HttpMethodAttribute>(true);
+            var httpMethodAttribute = type.GetCustomAttribute<HttpMethodAttribute>(true);
 
             if (httpMethodAttribute != null)
             {
@@ -138,15 +135,15 @@ namespace Blueprint.Api
             else
             {
                 // By default, command are POST and everything else GET
-                supportedMethod = typeof(ICommand).IsAssignableFrom(t) ? HttpMethod.Post : HttpMethod.Get;
+                supportedMethod = typeof(ICommand).IsAssignableFrom(type) ? HttpMethod.Post : HttpMethod.Get;
             }
 
-            return new ApiOperationDescriptor(t, supportedMethod)
+            return new ApiOperationDescriptor(type, supportedMethod)
             {
-                AnonymousAccessAllowed = t.HasAttribute<AllowAnonymousAttribute>(true),
-                IsExposed = t.HasAttribute<UnexposedOperationAttribute>(true) == false,
-                ShouldAudit = !t.HasAttribute<DoNotAuditOperationAttribute>(true),
-                RecordPerformanceMetrics = !t.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true)
+                AnonymousAccessAllowed = type.HasAttribute<AllowAnonymousAttribute>(true),
+                IsExposed = type.HasAttribute<UnexposedOperationAttribute>(true) == false,
+                ShouldAudit = !type.HasAttribute<DoNotAuditOperationAttribute>(true),
+                RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true)
             };
         }
 

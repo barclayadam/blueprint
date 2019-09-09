@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
 using Blueprint.Core;
-
+using Blueprint.StructureMap;
 using NUnit.Framework;
 
 using Shouldly;
@@ -100,9 +100,9 @@ namespace Blueprint.Tests.Core.Api.Validator_Middleware
 
             var container = ConfigureContainer(handler);
             var executor = new ApiOperationExecutorBuilder().Build(options, container);
-            var context = options.Model.CreateOperationContext<T>(container, operation);
+            var context = options.Model.CreateOperationContext(operation);
 
-            var result = await executor.Execute(context);
+            var result = await executor.ExecuteAsync(context);
 
             return (result, handler);
         }
@@ -111,7 +111,7 @@ namespace Blueprint.Tests.Core.Api.Validator_Middleware
         {
             return new Container(c =>
             {
-                c.AddRegistry<BlueprintRegistry>();
+                c.AddRegistry<BlueprintCoreRegistry>();
                 c.For<IApiOperationHandler<T>>().Use(handler).Singleton();
             });
         }

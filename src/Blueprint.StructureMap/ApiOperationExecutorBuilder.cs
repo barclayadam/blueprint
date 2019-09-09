@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Blueprint.Api;
 using Blueprint.Api.CodeGen;
+using Blueprint.Api.Validation;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -11,7 +13,7 @@ using Microsoft.CodeAnalysis;
 using NLog;
 using StructureMap;
 
-namespace Blueprint.Api
+namespace Blueprint.StructureMap
 {
     public class ApiOperationExecutorBuilder
     {
@@ -69,10 +71,9 @@ namespace Blueprint.Api
 
             using (var nestedContainer = container.GetNestedContainer())
             {
-
-                foreach (var m in options.Middlewares)
+                foreach (var middleware in options.Middlewares)
                 {
-                    Use((IMiddlewareBuilder)Activator.CreateInstance(m));
+                    Use((IMiddlewareBuilder)Activator.CreateInstance(middleware));
                 }
 
                 var model = options.Model;
@@ -106,7 +107,7 @@ namespace Blueprint.Api
                         $"{GetLastNamespaceSegment(operation)}{operation.OperationType.Name}Executor",
                         typeof(IOperationExecutorPipeline));
 
-                    var executeMethod = executor.MethodFor(nameof(IOperationExecutorPipeline.Execute));
+                    var executeMethod = executor.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
 
                     var operationContextVariable = executeMethod.Arguments[0];
 
@@ -115,15 +116,19 @@ namespace Blueprint.Api
                     var apiOperationContextSource =
                         new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
 
+                    var instanceFrameProvider = container.GetInstance<IInstanceFrameProvider>();
+                    var validationSourceBuilders = container.GetAllInstances<IValidationSourceBuilder>().ToArray();
+
                     var context = new MiddlewareBuilderContext(
                         apiOperationContextSource,
                         executor,
                         executeMethod,
                         operation,
-                        nestedContainer,
-                        model);
+                        model,
+                        instanceFrameProvider,
+                        validationSourceBuilders);
 
-                    context.RegisterUnhandledExceptionHandler(typeof(Exception), (e) => new[] { new BaseExceptionCatchFrame(context, e) });
+                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[] { new BaseExceptionCatchFrame(context, e) });
 
                     executeMethod.Sources.Add(apiOperationContextSource);
 
@@ -143,12 +148,12 @@ namespace Blueprint.Api
                             {
                                 behaviour.Build(context);
                             }
-                            catch (Exception e)
+                            catch (Exception ex)
                             {
-                                Log.Fatal(e, $"An unhandled exception occurred in middleware builder {behaviour.GetType()}");
+                                Log.Fatal(ex, $"An unhandled exception occurred in middleware builder {behaviour.GetType()}");
 
                                 throw new InvalidOperationException(
-                                    $"An unhandled exception occurred in middleware builder {behaviour.GetType()}", e);
+                                    $"An unhandled exception occurred in middleware builder {behaviour.GetType()}", ex);
                             }
 
                             executeMethod.Frames.Add(new BlankLineFrame());

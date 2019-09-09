@@ -8,7 +8,7 @@ namespace Blueprint.Api.Validation
     /// Represents a builder that can perform code generation at a property and class level to build efficient
     /// validation of operations.
     /// </summary>
-    interface IValidationSourceBuilder
+    public interface IValidationSourceBuilder
     {
         /// <summary>
         /// Gets frames that should be added to perform validation of a property represented by the given

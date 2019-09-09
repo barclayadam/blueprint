@@ -10,6 +10,6 @@ namespace Blueprint.Api
         /// </summary>
         ApiDataModel DataModel { get; }
 
-        Task<OperationResult> Execute(ApiOperationContext ctx);
+        Task<OperationResult> ExecuteAsync(ApiOperationContext context);
     }
 }
