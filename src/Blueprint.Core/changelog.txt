@@ -1,0 +1,655 @@
+﻿3.7.7
+=====
+
+ * [Fix] Allow 63 characters in the TLD of a URL using CommonRegularExpressions
+
+3.6.6
+=====
+
+  * [Change] Improve logging messages. Use KVP formatting
+
+3.6.5
+=====
+
+ * [New] Add simple way of logging time it takes to execute operations, add this to stored task
+         processor to track individual task execution times
+
+3.6.4
+=====
+
+ * [New] ClaimRequiredAttribute supports 'alternate' property name (e.g Account/{AccountId:Id}) to support
+         API when property coming in and property going out is different
+
+3.6.3
+=====
+
+ * [Fix] MaximumRetryCount attribute needs to support 0 as maximum retry count
+
+3.6.2
+=====
+
+ * [New] Introduce MaximumRetryCount and NeverRetry attributes to allow more fine grained control
+         over how many times a task will be retried after failure.
+
+3.6.1
+=====
+
+  * [Dependencies, Change] Update all nuget dependencies
+  
+3.6.0
+=====
+
+  * [Breaking, Change] Update StructureMap dependency to 3.0
+  
+3.5.4
+=====
+
+ * [Fix] Fatal error in StoredTaskProcessor on task failure due to invalid format string.
+
+3.5.3
+=====
+
+ * [Change] Very small changes to logging in task subsystem for better readability
+
+3.5.2
+=====
+
+ * [New] ValidationException has new constructor to make single-property failures easier to create.
+
+3.5.1
+=====
+
+ * [Change] Auditor now ignores null values when serializing
+ * [New] IsTrue, IsFalse and AreEqual Guard methods added
+
+3.5.0
+=====
+
+ * [Change, Breaking] Introduce IStoredTask.TaskType to get the type of task without deserialising, used
+                      to ensure logging continues to work when a failure to deserialize task happens
+
+ * [Fix] If a task cannot be deserialized (e.g. it could not be found, bad data) the task processor
+         will handle it gracefully.
+
+3.4.2
+=====
+
+ * [Fix] RequiredIf attribute will handle null values now
+
+3.4.1
+=====
+
+ * [New] Handle wildcard resource keys in ClaimInspector. They are not expanded, and will match any claim that has the
+         same ValueType and Type.
+
+3.4.0
+=====
+
+ * [Change, Breaking] Audit items no longer track time (better done via. performance tracking tools). This means that the
+                      MillisecondsTaken column of the AuditTrail database table has been removed.
+
+ * [Change, Breaking] Audit items no longer use denormalisers. These were not being used, and as the audit trail is
+                      for internal use only (end-user version would need more work than just a JSON string!) no need
+					  for the overhead of using custom JSON writer.
+
+3.3.0
+=====
+
+ * [Change, Breaking] Guard.* no longer takes Expression<T>, instead taking a string. Getting name of argument from expression
+     takes unnecessary cycles, particularly in tight loops
+
+ * [Deleted, Breaking] Removed TreeItem and Path, not being used anywhere
+
+ * [Change, New] ResourceKey is now typed, allowing both Guid and ints (as key use-cases) as ids, plus any other
+    type that can be converted with TypeDescriptor.GetConverter(typeof (T)).ConvertFromInvariantString(...)
+
+3.2.0
+=====
+
+ * [Change, Dependencies] Upgrade dependencies
+
+ * [Change, Breaking] Removed old Query / Command infrastructure, which will be replaced with API from
+                      Timestamp in future versions
+
+3.1.0
+=====
+
+ * [Perf] Improved performance of ReflectionUtilities.CallGenericMethodWithExplicitTypes. Given 25000 iterations
+          time taken has gone from ~13s to ~.7s (0.5ms vs 0.03ms per iteration)
+ 
+ * [Change, Breaking] The authorisation submodule has been rewritten to simplify and increase performance:
+     * ClaimInspectionResults are no longer created, to avoid object allocation
+	 * AttributeBasedResourceClaimProvider no longer does resource key expansion, that is the job of the ClaimInspector
+	 * ClaimInspector is not responsible for using an IResourceClaimProvider, that is the job of the client (e.g. AuthorisationMiddleware)
+	 * Only the actual ResourceKey is expanded, not actual claim objects (e.g. Task/4 becomes Account/3/Project/8/Task/4), with checks for
+	   authorisation looking for substrings (e.g. with claim for Account/3 the previous example would be satisfied)
+	 * Added ClaimTypes.Role
+
+3.0.5
+=====
+
+ * [Change] Added the GreaterThanProperty attribute to allow cross field date validation.
+
+3.0.4
+=====
+
+ * [Change] ImmediateTaskExecutor now uses a nested StructureMap container to allow more control over the control
+		over the scope of items within a transaction.
+		  
+3.0.3
+=====
+
+ * [Change] Simplified authorisation module by removing the ability to specify multiple 'groups' of claims that
+          are required. SatisficingClaimSet now just ExpandedClaimSet, with DemandedClaims having a list of
+		  these.
+		  
+		  Main API into authorisation unchanged, these were more internal details that were not being used.
+
+ * [Change] Reduce the level of some logging statements that add noise in production logs, mainly around caching.
+
+3.0.2
+=====
+
+  * [Change] Improved the logging of the task module.
+
+  * [Change] Unescape common XML characters when applying template in TemplatedEmailHandler. Allows nice e-mail addresses in the format
+      'Support <support@example.com>' when specifying 'Support &lt;support@example.com&gt;' in XML.
+
+3.0.1
+=====
+
+  * [Change] Added trace logging to successful claim inspection.
+  * [Change, Breaking] Added ClaimTypes definition class.
+
+3.0.0
+=====
+
+ * New, Red Sequence fork.
+ * Remove references to AMT. Just Blueprint.* now.
+ * All classes from Core.Extensions moved to Core.Utilities. 
+
+2.9.1
+=====
+
+ * [Fix] AttributeBasedResourceClaimProvider: A SelectMany iterator was being cached for resource key expansion, causing problems when
+    it was executed subsequently with disposed data contexts / connections. Now immediately convert to array to avoid deferred execution.
+
+2.9.0
+=====
+
+ * [Fix] Caching of claim expansion was not specific enough, having a cache key include all claim details instead
+    of just value (e.g. two different entries for claims [Permission, Account/123, Manager] & [Permission, Account/123, Owner]
+	instead of one). Now only the expansion of resource keys is cached.
+
+ * [Change] Update downstream references.
+
+2.8.2
+=====
+
+ * [Fix] Some logging statements in caching and auditing subsystems.
+ * [Change] Add abilty to cache claim expansion values in AttributeBasedResourceClaimProvider, using category 'Claim Expansion'
+ * [New] Add NoCache implementation of ICache, and static field Cache.NoCache as an instance to provide ability
+   to explictly register no cache as dependencies, particularly useful in tests.
+
+2.8.1
+=====
+
+ * [Change] Improve logging in the Caching module
+ * [Change] Improve logging for query and command lifecycle (e.g. on the behaviours in a default chain)
+
+2.8.0
+=====
+
+  * [Change, Breaking] IClaimChecker is now IClaimInspector, a change in semantics to provide a means of
+      checking whether claims are fulfilled by the current user, but without throwing an exception which
+	  is left to the client (e.g. ClaimAuthorisationBehaviour now throws the exception).
+
+2.7.1
+=====
+
+  * [Fix] Fix ExpressionUtilities.GetValue to work with UnaryExpressions, which makes
+          ReflectionUtilities.CallGenericMethodWithExplicitTypes useful in more situations
+
+2.7.0
+====
+
+ * [Change, Breaking] ICommand.Execute now returns a value. New class added, `Command` that implements
+     `Execute` to call `ExecuteAsync`, which does not require a return value, to avoid having to `return null`
+	 in commands that have no return value (they will override `ExecuteAsync`)
+
+ * [Change, Breaking] ICommand and IQuery no longer inherit from IMessage - no need for this inheritance, 
+     there is nothing common between the two that requires the interface.
+
+ * [New] Add DictionaryExtensions.MergeLeft method, which can merge any number of dictionaries
+    into a one.
+
+ * [Change, Breaking] Removed CommandMetadata + cousins, leaving just a 'client-side' provider. Web APIs
+     that are to be used from now have metadata support.
+
+	 - Change IClientSideValidatorProvider to IPropertyValidatorProvider
+	 - Change BlackoutClientSideProvider to PropertyValidatorProvider
+
+ * [Fix] StoredTaskProcessor will now output actual task type in logs, not the wrapper class type
+
+ * [Change] PasswordHash marked as Serializable. Without this, saving using NHibernate will result in WARN
+            messages being logged.
+
+2.6.3
+=====
+
+ * [Fix] ScheduledTaskRepository will catch ReflectionTypeLoadException when scanning for scheduled tasks to avoid
+         potential problems when scanning outside of a fully-loaded AppDomain.
+
+2.6.2
+=====
+
+ * [Breaking, Change] Entity no longer generates an id, this has to be done by NHibinate now.
+
+2.6.1
+=====
+
+ * [Change] Updated the NHibernateRepository get by id to take an int, not a GUID.
+
+2.6.0
+=====
+
+ * [Breaking, Change] Entity Id is now an integer, not a GUID.
+
+2.5.4
+=====
+
+ * [New] Added an extension method to DateTime which will return the previous day. This takes a list of valid days which can be 
+	     returned. If the previous day isn't a valid day, then it will go back until it finds a valid day.
+
+2.5.3
+=====
+
+ * [Change] TaskScheduleDetails now includes a 'SafeName' property which returns the task full name, with full stops replaced 
+		    with underscores.
+
+2.5.2
+=====
+ 
+ * [New] Added a ISheduledTaskRepository, this will return a collection of Types that implement ITask and are attributed with
+		 the ScheduledTaskAttribute which defines a CRON schedule.
+
+2.5.1
+=====
+
+ * [Change] QueryHandlerBehaviour now allows IQueryable results from queries, in anticipation of this support
+            for use in OData query endpoints.
+
+2.5.0
+=====
+
+ * [Breaking, Change] Renaming of various task execution related classes and a small refactoring to stored task processor
+					  and task repository to accommodate new Azure-backed task processor.
+
+ * [Breaking, Change] IAuditPropertyDenormaliser contract has changed to take just property name and value. This 
+                      was done as part of larger change to audit item denormalisation to simplify and enhance functionality.
+
+					  Denormalisation happens within a JSON.Net converter now, allowing it to handle the traversal of an object
+					  graph and then primitive types being denormalised, meaning that complex sub objects, lists and
+					  dictionaries can now all be handled and denormalised.					
+
+ * [Breaking, Change] Removed the ability of commands to return a value from their execution. Had only been
+                      used on login, which should not be done as a command. Commands should be fire and forget
+					  as much as possible, return codes do not encourage this.
+
+ * [Change] Small change to the logging in StoredTaskProcessor to include type of task being executed to aid
+            identifying task execution in logs. Small formatting change
+
+ * [Change] Make NoCache into a NoCacheProvider, one that is configured to be used by default if it has not
+            been configured explicitly.
+
+			Log enabled, strategy count and provider type used at startup, plus some trace-level information
+			when adding items to a cache.
+
+ * [Breaking, Change] Configuration of caching block no longer takes full assembly-qualified type name, but
+                      instead matches only on the 'FullName' property of the type (e.g. namespace and type name).
+
+					  A case insensitive comparison will be made with an 'EndsWith' operation (e.g. type='MyType'
+					  will match My.NameSpace.MyType).
+
+ * Merge from R1:
+
+	* [Change] The task repository now returns items up to one second ago.
+
+	* [Add] Added GetNow to SystemTime to return the current datetime in the local time zone.
+
+	* [Change] The Auditor now creates audit items with timestamp in the local time zone.
+ 
+	* [Change] Added extra property to NotificationAttachment class to cater for streamed data. Also altered TemplatedEmailHandler to cater for streamed attachment data.
+ 
+	* [Change] Changed Attachment property in NotificationOptions from a list of strings to a list of NotificationAttachment objects to provide friendly filenames for the attachments.
+	
+	* [Fix] Handle the case of the attachments enumerable containing an empty string within TemplatedEmailHandler,
+            ensuring an exception is not thrown; the empty string is ignored.
+
+	* [Change] Lowered level of identifying next task being loaded from Debug to Trace as output *a lot*
+			
+2.4.2
+=====
+
+ * [Change] Updated Structuremap to 2.6.4.1
+
+2.4.1
+=====
+
+ * [Change] `NLogFactory` now uses the type and key information send through from NHibernate to generate
+		     the name of the logger used from NLog to allow more fine grained control of the logging
+		     output
+
+2.4.0
+=====
+
+ * [Change, Breaking] The authorisation namespace has been converted to make use of the .NET 4.5
+      Claims infrastructure (e.g. System.Security.Claims).
+
+	  Applications will now have a `ClaimsAuthenticationManager` that adds the claims to the
+	  principal (`AddClaims`), with this `ClaimsPrincipal` being used to provide the claims a
+	  user has, as opposed to separate `IIdentityClaimIssuer`.
+
+ * [Changes, Breaking] The notifications namespace has had a number of changes and clean-up of interfaces:
+
+          + The `Notification` class no longer exists. Repositories and handlers handle INotificationTemplates only
+		  + The `INotificationTemplate` interface no longer has a `From` property.
+		  + The notification handlers have been reworked to handle a single `INotificationTemplate`, only affects
+		    custom handler types, not clients of the `INotificationService`.
+		  
+ * [Change] All loggers used in the notifications namespace now have a single name, `Notifications`.
+ 
+ * [Fix] Handle the case of the attachments enumerable containing an empty string within TemplatedEmailHandler,
+         ensuring an exception is not thrown; the empty string is ignored.
+
+ * [New] `LoggingOnlyEmailSender` added, useful for testing and development purposes.
+
+ * [Change, Internal] Begin to inline use of resources for exceptions and logging.
+
+2.3.1
+=====
+
+ * [New] Add NLogFactory & NLogLogger to Core.Data.NHibernate to provide integration of NHibernate and
+         NLog.
+
+2.3.0
+=====
+
+ * [Change, Breaking] Authorisation changes. RequiredClaimSet -> SatisficingClaimSet. IIdentityClaimProvider -> IIdentityClaimIssuer.
+
+ * [Remove, Breaking] Removed IAuditableIdentity.
+
+2.2.0
+=====
+
+ * [Change, Breaking] ConnectionStringSettingsExtensions moved from Blueprint.Core.Extensions to Blueprint.Core.Data.
+
+ * [New] Added DbConnectionExtensions to Blueprint.Core.Data.
+
+2.1.0
+=====
+
+ * [Change, Breaking] IIdentityClaimProvider now returns an IEnumerable<Claim> as opposed to a ClaimSet to allow
+                      use of yield and simplify the interface.
+
+ * [Change, New] ClaimChecker now allows multiple IClaimProviders to be registered, meaning multiple claim providers
+                 for different types of IIdentity can be registered to separate out the concerns of loading
+				 the claims.
+
+ * [Change, Breaking] Moved common behaviours from Blueprint.Core.Cqrs.Behaviours to more appropriate locations,
+                      made them more generic by dealing with `object`s, not just `IMessage` instances:
+
+					  * Blueprint.Core.Validation.ValidationBehaviour
+					  * Blueprint.Core.Authorisation.ClaimAuthorisationBehaviour
+					  * Blueprint.Core.Auditing.AuditBehaviour
+
+ * [Change, Breaking] RequestIdentifier has been renamed to CorrelationId, to more align with its use, particularly when
+                      used outside of the context of a web request (e.g. task execution).
+
+					  In addition the type is now just string, allowing potentially more information to be included
+					  (for example a prefix to differentiate between a web request, and a task being handled).
+
+ * [New] Tasks that are stored for later execution will have (if available) a CorrelationId stored, allowing tying up
+         the tasks that are created during a web request.
+
+ * [Change, Breaking] Authorisation namespace classes have had a small reorganisation, with the main change to have an IIdentity
+                      passed explicitly to a IClaimChecker and IIdentityClaimProvider to avoid them having know about 'current'
+					  users.
+
+					  In addition the claim checker looks for the AllowAnonymous attribute, not the behaviour which delegates
+					  all work to the claim checker.
+
+ * [Change] Lowered the level of message indicating next task is being fetched to Trace, as this can be output
+            *very* frequently.
+
+2.0.1
+=====
+
+ * [Change] Upgrade project to use .NET 4.5.
+ 
+2.0.0
+======
+
+ * [Remove, Breaking] Removed IStringHasher and ISaltGenerator in favour of simpler PasswordHash class.
+
+ * [Add] PasswordHash class provided that allows hashed passwords / strings to be stored as a single
+         string value, and also implements a slower hashing algorithm designed to make leaked
+		 passwords securer.
+
+1.9.13
+======
+
+ * [Change, Breaking] Changed AggregateRoot to abstract.
+
+
+1.9.12
+======
+
+ * [Change] Updated the RequiredIfNot attribute to allow null as a dependant value.
+
+1.9.11
+======
+
+ * [Change] Updated the RequiredIf and RequiredIfNot attributes to have a default error message.
+
+1.9.10
+======
+
+ * [Add] Added the RequiredIfNotAttribute. This will make a field required if its dependency doesn't contain one of the 
+         values specified.
+
+1.9.9
+=====
+
+ * [Change] Included GreaterThanOrEqualToAttribute and LessThanOrEqualToAttribute to the BlackoutClientSideProvider
+            to allow blackout to validate client side.
+
+1.9.8
+=====
+
+ * [Add] GreaterThanOrEqualToAttribute to validate that a value is greater than or equal to a specified value.
+
+ * [Add] LessThanOrEqualToAttribute to validate that a value is less than or equal to a specified value.
+
+1.9.7
+=====
+
+ * [Add] TemplateValues can now be constructed with an initializer, like a dictionary.
+
+ * [Change] Fixed command metadata provider to always include a formatted error message for each attribute.
+
+1.9.6
+=====
+
+ * [Change] Updated the MustBeTrue attribute to pass as valid if null is passed.
+
+1.9.5
+=====
+
+ * [Change] Updated the CommandMetadataProvider to include a DisplayName property.
+
+1.9.4
+=====
+ 
+ * [Change] The BlackoutClientSideProvider now adds ErrorMessage to the PropertyValidator.
+
+1.9.3
+=====
+
+ * [New] Adding the MustBeTrue validation attribute. Also adding client side output.
+
+1.9.2
+=====
+
+ * [Change] Auditor now uses IsoDateFormat when serialising dates, for readability in audit log.
+
+1.9.1
+=====
+
+ * [Change] int properties now use integer instead of numeric client-side validator from provider.
+
+1.9.0
+=====
+
+ * [New, Breaking] The stored task processor now takes into accounts a maximum number of retry attempts (configurable, 
+                   defaulting to 3). Requires a new NON NULL column, FailedAttempts, in Tasks table.
+
+ * [Change] The full stack trace is now stored in the failure message column for task execution failures.
+
+1.8.0
+=====
+
+ * [Remove, Breaking] CqrsConfiguration changes to remove commandQualifiedAssembly and queryQualifiedAssembly
+
+1.7.0
+=====
+
+ * [Change, Breaking] ICommandMetadataProvider works at level of types, not assemblies to allow finer-grained
+                      control from client's usage.
+
+1.6.9
+=====
+
+ * [Misc] Update NuGet references.
+
+1.6.8
+=====
+
+ * [Fix] Do not convert the values of RequiredIf DependentValues to string on construction to allow
+         Blackout validation provider to correctly output values of booleans.
+		 
+1.6.7
+=====
+
+ * [New] Added the 'IRequireCustomValidation' interface. Any class that implements this interface can provide custom validation rules
+         that will be evaluated along side other server side validation.
+
+1.6.6
+=====
+
+ * [New] Added the RequiredIf Validator. This will make a field required based on the content of another property.
+
+1.6.5
+=====
+
+ * [New] Added ability to add files to notifications & the built-in email handler.
+
+ * [New] Added properties to FileSize that allow converting between different file
+         sizes (e.g. Gigabyte -> [Byte | Kilobyte | Megabyte etc.]).
+
+ * [Change] ICommand and IQuery interfaces marked with [UsedImplicitly] as these types tend not
+            to be directly used (e.g. exposed to client-side only).
+
+1.6.4
+=====
+
+ * [Fix] Updated the Data Annotations Validator to return correct value from GetValidationResult.
+
+1.6.3
+=====
+
+ * [Change] Updated Data Annotations Validator to call GetValidationResult rather than TryValidateObject.
+
+1.6.2
+=====
+
+ * [Change] Including the pdb files in nuget.
+
+1.6.1
+=====
+
+ * [Change] Use built-in Validator for DataAnnotations instead of custom-rolled code.
+
+1.6.0
+=====
+
+ * [Change, Breaking] Renamed UkPostcodeAttribute to UKPostcodeAttribute.
+
+ * [Change, Breaking] Renamed Uk* in CommonRegularExpressions to UK*
+
+ * [Remove, Breaking] Removed ConnectionStringSettings WithOpenConnection methods
+
+ * [New] Added OpenConnection extension method to ConnectionStringSettings (previous methods were given no benefit and were harder to read)
+
+1.5.0
+=====
+
+ * [Change, Breaking] Renamed UKPostcodeAttribute to UkPostcodeAttribute.
+
+ * [Change, Breaking] Renamed UK* in CommonRegularExpressions to Uk*
+
+ * [New] RegexAttribute introduced, allowing better control of regular expression validation attributes
+         for custom validation attributes. Used in BlackoutClientSideProvider.
+
+ * [Change] All validation attributes using Regex now inherit from new RegexAttribute
+
+1.4.1
+=====
+
+ * [New] Subclasses of RegularExpressionAttribute will now be available client-side in auto-generated command definitions
+ 
+ * [Change] Do not depend on the minor version of dependencies in NuGet packages
+
+1.4.0
+=====
+
+ * [Change] Notifications API changed, passing down a NotificationOptions class instead of multiple parameters. 
+ 
+ * [New] Notifications now support a 'To' address to be populated by content editors
+ 
+1.3.0
+=====
+
+ * [Change, Breaking] TaskId in tasks table renamed to just Id
+ 
+ * [Change, Breaking] Moved interfaces for Content into EktronFacade.
+ 
+ * [Change, Breaking] Moved INotificationRepository to Blueprint.Core.Notifications
+ 
+ * [New] Build and include documentation XML files in NuGet package
+ 
+ * [New] PermissionAttribute / PermissionFor attribute copied from BEC, use is generic enough to warrant use on multiple projects. 
+ 
+ * [New, Change, Breaking] Introduced concept of AggregateRoot, a specialisation of Entity used to mark particular entities and limit the use of IRepository. 
+ 
+ * [Change, Breaking] Moved Entity into Domain. 
+ 
+ * [Remove, Breaking] Removed ILinqSession as not envisioning using, can be reinstated if required.
+
+1.2.0
+=====
+
+ * Command / Query handlers are no longer separate. The command and query interfaces now define an
+   Execute method that will be implemented:
+
+   class MyCommand : ICommand
+   {
+       public MyCommand(... [injected dependencies]) { ... }
+
+       [Required]
+       public string MyProperty { get; set; }
+
+       public void Execute() {
+          ... [do something with MyProperty]
+       }
+   }

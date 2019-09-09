@@ -1,0 +1,118 @@
+using System;
+using System.Globalization;
+using System.Text;
+
+using Blueprint.Core.ThirdParty;
+
+namespace Blueprint.Core.Utilities
+{
+    /// <summary>
+    /// Provides a number of extension methods to the built-in <see cref="string"/> class.
+    /// </summary>
+    public static class StringExtensions
+    {
+        /// <summary>
+        /// A small shim over <see cref="string.Format(string,object[])"/> that uses
+        /// <see cref="CultureInfo.CurrentCulture"/> and provides a slightly nicer
+        /// syntax by taking advantage of the extension method syntax.
+        /// </summary>
+        /// <param name="format">The format string.</param>
+        /// <param name="args">The arguments to inject into the format string.</param>
+        /// <returns>A formatted string.</returns>
+        [StringFormatMethod("format")]
+        public static string Fmt(this string format, params object[] args)
+        {
+            Guard.NotNull(nameof(format), format);
+            Guard.NotNull(nameof(args), args);
+
+            return string.Format(CultureInfo.CurrentCulture, format, args);
+        }
+
+        public static string Truncate(this string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
+
+        public static TEnumType AsEnum<TEnumType>(this string value) where TEnumType : struct
+        {
+            Guard.NotNullOrEmpty("value", value);
+
+            return (TEnumType) Enum.Parse(typeof(TEnumType), value);
+        }
+
+        public static TEnumType? AsNullableEnum<TEnumType>(this string value) where TEnumType : struct
+        {
+            return value?.AsEnum<TEnumType>();
+        }
+
+        public static string ToPascalCase(this string s)
+        {
+            var sb = new StringBuilder(s.Length);
+            var toUpper = true;
+
+            for (var i = 0; i < s.Length; i++)
+            {
+                var curChar = s[i];
+
+                switch (curChar)
+                {
+                    // Next should be uppercase, do NOT append " ", "-", "_"
+                    case ' ':
+                    case '-':
+                    case '_':
+                        toUpper = true;
+                        continue;
+
+                    // A digit will always be appended, next character should be uppercase (i.e. 8ball -> 8Ball)
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        toUpper = true;
+                        sb.Append(curChar);
+                        continue;
+
+                    default:
+                        if (toUpper)
+                        {
+                            sb.Append(char.ToUpper(curChar));
+                            toUpper = false;
+                        }
+                        else
+                        {
+                            var nextIsUpper = i < s.Length - 1 && char.IsLower(s[i + 1]);
+                            var prevIsLower = i > 0 && char.IsLower(s[i - 1]);
+
+                            if (nextIsUpper)
+                            {
+                                sb.Append(curChar);
+                            }
+                            else if (prevIsLower && !nextIsUpper && (curChar == 'A' || curChar == 'I'))
+                            {
+                                sb.Append(curChar);
+                            }
+                            else
+                            {
+                                sb.Append(char.ToLower(curChar));
+                            }
+                        }
+
+                        break;
+                }
+            }
+
+            return sb.ToString();
+        }
+    }
+}

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Runtime Roslyn Compiler</Description>
+    <Authors>Adam Barclay</Authors>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Blueprint.Compiler</AssemblyName>
+    <PackageId>Blueprint.Compiler</PackageId>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.10.0" />
+    <PackageReference Include="NLog" Version="4.5.8" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <DefineConstants>$(DefineConstants);NET462</DefineConstants>
+  </PropertyGroup>
+</Project>

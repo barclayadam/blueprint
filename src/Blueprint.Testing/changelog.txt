@@ -1,0 +1,92 @@
+﻿3.0.2
+=====
+
+  * [Fix] SqlLocalDbDatabaseCreator not creating the correct connection string, was missing initial catalog
+	      setting
+
+3.0.1
+=====
+
+  * [Dependencies, Change] Update all nuget dependencies
+  
+3.0.0
+=====
+
+ * New, Red Sequence fork.
+ * Remove references to AMT. Just Blueprint.* now.
+ * [Change] Remove SqlCe database creator capability
+ 
+2.2.0
+=====
+
+ * [Change, Breaking] SqlLocalDbDatabaseCreator.CreateLocalDbDatabase no longer recreates the database, only
+                      creates new ones. To recreate the database use RecreateLocalDbDatabase instead.
+
+ * [New] DatabaseDataDeleter added that allows for automatic deletion of table data, typically used between
+         tests to strip back an existing database to a clean slate without having to recreate the actual
+		 database.
+
+2.1.3
+=====
+
+ * [Fix] SqlLocalDbDatabaseCreator rewritten to actually work, as was failing in the case of having no database
+         at present.
+
+2.1.2
+=====
+
+ * [Fix] SqlLocalDbDatabaseCreator now alters the database to single user mode before attempting to drop.
+
+2.1.1
+=====
+
+ * [Fix] SqlLocalDbDatabaseCreator returns a ConnectionStringSettings with the Initial Catalog set correctly.
+
+2.1.0
+=====
+
+ * [Change] InMemoryTaskRetainer will now, by default, override any existing retainer that has been installed,
+            unless a new boolean parameter `replaceExisting` is passed as `false.
+
+ * [Remove, Breaking] Removed SqlServerHelper and replaced with ConnectionStringSettingsExtesnions.SplitAnExecuteSql found Blueprint.Core.
+
+ * [Change, Breaking] Renamed SqlCeTestDatabaseCreator to SqlCeDatabaseCreator.
+ 
+ * [Change, Breaking] Removed SqlData params from SqlCeDatabaseCreator.
+ 
+ * [New] Added SqlLocalDbDatabaseCreator.
+
+2.0.1
+=====
+
+ * [Change] Upgrade project to use .NET 4.5.
+ 
+1.1.5
+=====
+
+ * [Fix] When splitting large SQL commands to execute be more strict finding GO statements by using 
+         word-boundaries instead of just splitting on the text 'GO'.
+
+1.1.4
+=====
+
+ * [Change] Including the pdb files in nuget.
+
+1.1.3
+=====
+
+ * [Change] Add dependency to Blueprint.Core v1.6 to match changes in ConnectionStringSettings methods.
+
+1.1.2
+=====
+
+ * [New] SqlCeTestDatabaseCreator CreateDatabase has been made public and 
+         will delete the existing database if it exists.
+
+1.1.1
+=====
+
+ * [New] Build and include documentation XML files in NuGet package.
+
+ * [Fix] SqlCeTestDatabaseCreator now creates correct SqlCeTestDatabaseInfo 
+         such that file is deleted when disposed.

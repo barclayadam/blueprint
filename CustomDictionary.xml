@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Dictionary>
+    <Words>
+        <Recognized>
+            <Word>Authorisation</Word>
+            <Word>Api</Word>
+            <Word>Behaviour</Word>
+            <Word>Behaviours</Word>
+            <Word>Captcha</Word>
+            <Word>Cqrs</Word>
+            <Word>Denormalise</Word>
+            <Word>Denormalised</Word>
+            <Word>Denormaliser</Word>
+            <Word>Denormalisers</Word>
+            <Word>Deserialised</Word>
+            <Word>Dr</Word>
+            <Word>Ektron</Word>
+            <Word>Encryptor</Word>
+            <Word>Mr</Word>
+            <Word>Ms</Word>
+            <Word>Mvc</Word>
+            <Word>Petabytes</Word>
+            <Word>Prepended</Word>
+            <Word>Re</Word>
+            <Word>Validators</Word>
+            <Word>Xero</Word>
+        </Recognized>
+        
+        <DiscreteExceptions>
+            <Term>Username</Term>
+        </DiscreteExceptions>
+    </Words>
+</Dictionary>

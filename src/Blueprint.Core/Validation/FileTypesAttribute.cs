@@ -1,0 +1,64 @@
+﻿using System.Threading.Tasks;
+
+namespace Blueprint.Core.Validation
+{
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.IO;
+    using System.Linq;
+
+    using Api;
+
+    using NJsonSchema;
+
+    using OpenApi;
+
+    /// <summary>
+    /// Causes a validation error if a file is over a given size or zero bytes
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class FileTypesAttribute : ValidationAttribute, IOpenApiValidationAttribute
+    {
+        private readonly string[] validExtensions;
+
+        public FileTypesAttribute(params string[] validExtensions)
+        {
+            this.validExtensions = validExtensions ?? throw new ArgumentException(nameof(validExtensions));;
+        }
+
+        public string ValidatorKeyword => "x-validator-file-types";
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value == null)
+            {
+                return ValidationResult.Success;
+            }
+
+            if (value.GetType() != typeof(Base64FileData))
+            {
+                throw new InvalidOperationException($"This attribute can only be applied to {nameof(Base64FileData)}");
+            }
+
+            if (validExtensions == null || validExtensions.Length == 0)
+            {
+                throw new ArgumentException(nameof(validExtensions));
+            }
+
+            var file = (Base64FileData)value;
+            var extension = Path.GetExtension(file.FileName);
+
+            if (validExtensions.Contains(extension))
+            {
+                return ValidationResult.Success;
+            }
+
+            return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
+        }
+
+        public async ValueTask PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        {
+            schema.ExtensionData[ValidatorKeyword] = validExtensions;
+        }
+    }
+}
