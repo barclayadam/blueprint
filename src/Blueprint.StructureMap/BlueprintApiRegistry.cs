@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Caching;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Formatters;
@@ -34,8 +33,6 @@ namespace Blueprint.StructureMap
 
             For<IValidator>().Use<BlueprintValidator>();
             For<IInstanceFrameProvider>().Use<StructureMapInstanceFrameProvider>();
-
-            For<MemoryCache>().Use(MemoryCache.Default);
         }
     }
 }
