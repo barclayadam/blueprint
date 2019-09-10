@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blueprint.Core.Security
+namespace Blueprint.Core.Authorisation
 {
     public interface IUserAuthorisationContext
     {

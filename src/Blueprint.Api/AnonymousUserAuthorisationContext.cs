@@ -1,5 +1,5 @@
 ﻿using System;
-using Blueprint.Core.Security;
+using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Api
 {

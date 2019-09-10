@@ -3,7 +3,7 @@ using Blueprint.Api;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Security;
+using Blueprint.Core.Authorisation;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 

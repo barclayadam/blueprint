@@ -1,4 +1,5 @@
 ﻿using System;
+using Blueprint.Core.Authorisation;
 using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Core.Errors

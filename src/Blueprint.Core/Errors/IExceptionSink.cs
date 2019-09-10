@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Core.Errors
 {

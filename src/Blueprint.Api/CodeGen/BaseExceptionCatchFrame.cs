@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Auditing;
+using Blueprint.Core.Authorisation;
 using Blueprint.Core.Errors;
 
 namespace Blueprint.Api.CodeGen

@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.ApplicationInsigh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.ServiceProvider", "src\Blueprint.ServiceProvider\Blueprint.ServiceProvider.csproj", "{34F90935-7BDC-4FE8-BE22-F4A13ABF0012}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.StructureMap", "src\Blueprint.StructureMap\Blueprint.StructureMap.csproj", "{2A11A316-1F23-4FED-B480-2DC55B9C4A31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.StructureMap", "src\Blueprint.StructureMap\Blueprint.StructureMap.csproj", "{2A11A316-1F23-4FED-B480-2DC55B9C4A31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Stackify", "src\Blueprint.Stackify\Blueprint.Stackify.csproj", "{8AA96541-267F-42FD-8399-37952881347F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A11A316-1F23-4FED-B480-2DC55B9C4A31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AA96541-267F-42FD-8399-37952881347F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AA96541-267F-42FD-8399-37952881347F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AA96541-267F-42FD-8399-37952881347F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AA96541-267F-42FD-8399-37952881347F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

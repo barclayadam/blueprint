@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using Blueprint.Core;
-using Blueprint.Core.Security;
+using Blueprint.Core.Authorisation;
 using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Api

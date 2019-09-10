@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 
-namespace Blueprint.ApplicationInsights
+namespace Blueprint.Stackify
 {
     public class StackifyApmTool : IApmTool
     {

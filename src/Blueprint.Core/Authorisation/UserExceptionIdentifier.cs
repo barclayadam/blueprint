@@ -1,6 +1,4 @@
-﻿using Blueprint.Core.Security;
-
-namespace Blueprint.Core.Errors
+﻿namespace Blueprint.Core.Authorisation
 {
     public class UserExceptionIdentifier
     {
