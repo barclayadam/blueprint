@@ -31,7 +31,7 @@
                     | BindingFlags.Static
                     | BindingFlags.DeclaredOnly))
                 .Where(method => !typesToExclude.Contains(GetTopDeclaringType(method.DeclaringType)))
-                .Where(method => method.HasAttribute<AsyncStateMachineAttribute>())
+                .Where(method => method.HasAttribute<AsyncStateMachineAttribute>(true))
                 .Where(method => method.ReturnType == typeof(void));
         }
 

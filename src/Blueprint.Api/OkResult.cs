@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using Blueprint.Api.Formatters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace Blueprint.Api
@@ -91,7 +92,7 @@ namespace Blueprint.Api
 
         private ITypeFormatter GetFormatter(ApiOperationContext context, string requestedFormat)
         {
-            var typeFormatters = context.Container.GetAllInstances<ITypeFormatter>();
+            var typeFormatters = context.ServiceProvider.GetServices<ITypeFormatter>();
 
             // PERF: Do not use LINQ to avoid allocating closure
             foreach (var formatter in typeFormatters)

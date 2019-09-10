@@ -2,33 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Core;
 using Blueprint.Core.Apm;
-using Blueprint.Core.Tasks;
 using Blueprint.Core.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
-namespace Blueprint.ApplicationInsights.Tasks
+namespace Blueprint.Core.Tasks
 {
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         
         private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
+        private readonly IServiceProvider serviceProvider;
         private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
 
         private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
 
         public BackgroundTaskScheduler(
+            IServiceProvider serviceProvider,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
             IVersionInfoProvider versionInfoProvider,
             IApmTool apmTool)
         {
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
             Guard.NotNull(nameof(versionInfoProvider), versionInfoProvider);
+            Guard.NotNull(nameof(apmTool), apmTool);
 
             this.backgroundTaskScheduleProvider = new ActivityTrackingBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider);
+            this.serviceProvider = serviceProvider;
             this.versionInfoProvider = versionInfoProvider;
             this.apmTool = apmTool;
         }
@@ -105,7 +109,7 @@ namespace Blueprint.ApplicationInsights.Tasks
             task.Metadata.System = versionInfoProvider.Value.AppName;
             task.Metadata.SystemVersion = versionInfoProvider.Value.Version;
 
-            foreach (var p in this.container.GetAllInstances<IBackgroundTaskPreprocessor<T>>())
+            foreach (var p in serviceProvider.GetServices<IBackgroundTaskPreprocessor<T>>())
             {
                 p.Preprocess(task);
             }

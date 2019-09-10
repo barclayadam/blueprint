@@ -1,8 +1,7 @@
 ﻿using System;
 using Hangfire;
-using StructureMap;
 
-namespace Blueprint.StructureMap.Hangfire
+namespace Blueprint.NHibernate
 {
     /// <summary>
     /// Global Configuration extensions.
@@ -13,19 +12,19 @@ namespace Blueprint.StructureMap.Hangfire
         /// Tells global configuration to use the specified StructureMap container as a job activator.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="container">The container.</param>
-        /// <returns>An instance of <see cref="IGlobalConfiguration{StructureMapJobActivator}"/>.</returns>
+        /// <param name="serviceProvider">The root service provider.</param>
+        /// <returns>An instance of <see cref="ServiceProviderJobActivator"/>.</returns>
         /// <exception cref="System.ArgumentNullException">
         /// configuration
         /// or
         /// container
         /// </exception>
-        public static IGlobalConfiguration<StructureMapJobActivator> UseStructureMapActivator(this IGlobalConfiguration configuration, IContainer container)
+        public static IGlobalConfiguration<ServiceProviderJobActivator> UseServiceProviderActivator(this IGlobalConfiguration configuration, IServiceProvider serviceProvider)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-            if (container == null) throw new ArgumentNullException(nameof(container));
+            if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-            return configuration.UseActivator(new StructureMapJobActivator(container));
+            return configuration.UseActivator(new ServiceProviderJobActivator(serviceProvider));
         }
     }
 }

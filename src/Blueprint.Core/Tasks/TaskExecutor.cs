@@ -10,6 +10,7 @@ using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Server;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace Blueprint.Core.Tasks
@@ -24,26 +25,26 @@ namespace Blueprint.Core.Tasks
         private static readonly MethodInfo InvokeTaskHandlerMethod = typeof(TaskExecutor)
             .GetMethod(nameof(InvokeTaskHandlerAsync), BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private readonly IContainer container;
+        private readonly IServiceProvider serviceProvider;
         private readonly IErrorLogger errorLogger;
         private readonly IApmTool apmTool;
 
         /// <summary>
         /// Instantiates a new instance of the class TaskExecutor.
         /// </summary>
-        /// <param name="container">The parent container.</param>
+        /// <param name="serviceProvider">The parent container.</param>
         /// <param name="errorLogger">Error logger to track thrown exceptions.</param>
         /// <param name="apmTool">APM operation tracker to track individual task executions.</param>
         public TaskExecutor(
-            IContainer container,
+            IServiceProvider serviceProvider,
             IErrorLogger errorLogger,
             IApmTool apmTool)
         {
-            Guard.NotNull(nameof(container), container);
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(errorLogger), errorLogger);
             Guard.NotNull(nameof(apmTool), apmTool);
 
-            this.container = container;
+            this.serviceProvider = serviceProvider;
             this.errorLogger = errorLogger;
             this.apmTool = apmTool;
         }
@@ -89,11 +90,11 @@ namespace Blueprint.Core.Tasks
                 activity.Start();
 
                 using (MappedDiagnosticsLogicalContext.SetScoped("Hangfire_JobId", context.BackgroundJob.Id))
-                using (var nestedContainer = container.GetNestedContainer())
+                using (var nestedContainer = serviceProvider.CreateScope())
                 {
                     await apmTool.InvokeAsync(GetOperationName(backgroundTask), async () =>
                     {
-                        var handler = nestedContainer.GetInstance<IBackgroundTaskHandler<TTask>>();
+                        var handler = nestedContainer.ServiceProvider.GetService<IBackgroundTaskHandler<TTask>>();
 
                         if (handler == null)
                         {
@@ -118,7 +119,7 @@ namespace Blueprint.Core.Tasks
                                 handler.GetType().Name);
                         }
 
-                        var contextProvider = nestedContainer.GetInstance<IBackgroundTaskContextProvider>();
+                        var contextProvider = nestedContainer.ServiceProvider.GetRequiredService<IBackgroundTaskContextProvider>();
                         var contextKey = typeName;
                         var backgroundContext = new BackgroundTaskContext(contextKey, contextProvider);
 
@@ -126,7 +127,7 @@ namespace Blueprint.Core.Tasks
 
                         await backgroundContext.SaveAsync();
 
-                        var postProcessor = nestedContainer.GetInstance<IBackgroundTaskExecutionPostProcessor>();
+                        var postProcessor = nestedContainer.ServiceProvider.GetRequiredService<IBackgroundTaskExecutionPostProcessor>();
                         await postProcessor.PostProcessAsync(backgroundTask);
                     });
                 }
@@ -172,16 +173,24 @@ namespace Blueprint.Core.Tasks
             return categorisedTask != null ? taskType.Name + "-" + categorisedTask.Category : taskType.Name;
         }
 
+        /// <summary>
+        /// Gets the maximum number of attempts allowed, which is the minimum <see cref="AutomaticRetryAttribute.Attempts" />
+        /// of all registered filters of type <see cref="AutomaticRetryAttribute"/>
+        /// </summary>
+        /// <returns>Maximum number of retry attempts allowed.</returns>
         private static int GetMaxAttempts()
         {
-            var autoRetryAttributes = GlobalJobFilters.Filters.OfType<AutomaticRetryAttribute>();
+            int? attempts = null;
 
-            if (!autoRetryAttributes.Any())
+            foreach (var att in GlobalJobFilters.Filters.OfType<AutomaticRetryAttribute>())
             {
-                return 0;
+                if (att.Attempts < (attempts ?? int.MaxValue))
+                {
+                    attempts = att.Attempts;
+                }
             }
 
-            return autoRetryAttributes.OrderBy(a => a.Attempts).First().Attempts;
+            return attempts ?? 0;
         }
     }
 }

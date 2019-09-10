@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace Blueprint.Api.Middleware
@@ -105,7 +106,7 @@ namespace Blueprint.Api.Middleware
 
         private static Task<object> GetById<T>(ApiOperationContext context, T operation) where T : IApiOperation
         {
-            var handler = context.Container.GetInstance<IApiOperationHandler<T>>();
+            var handler = context.ServiceProvider.GetRequiredService<IApiOperationHandler<T>>();
 
             return handler.Invoke(operation, context);
         }

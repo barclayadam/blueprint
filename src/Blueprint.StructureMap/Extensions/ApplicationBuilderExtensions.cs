@@ -31,7 +31,7 @@ namespace Blueprint.StructureMap.Extensions
             var apiExecutor = apiExecutorBuilder.Build(options, container);
 
             var routeBuilder = new RouteBuilder(applicationBuilder);
-            var routeHandler = new BlueprintApiRouter(apiExecutor, container);
+            var routeHandler = new BlueprintApiRouter(apiExecutor, applicationBuilder.ApplicationServices);
             var inlineConstraintResolver =
                 applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
 
@@ -77,14 +77,14 @@ namespace Blueprint.StructureMap.Extensions
             private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
             private readonly IApiOperationExecutor apiOperationExecutor;
-            private readonly IContainer rootContainer;
+            private readonly IServiceProvider rootServiceProvider;
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
-                IContainer rootContainer)
+                IServiceProvider rootServiceProvider)
             {
                 this.apiOperationExecutor = apiOperationExecutor;
-                this.rootContainer = rootContainer;
+                this.rootServiceProvider = rootServiceProvider;
             }
 
             public Task RouteAsync(RouteContext context)
@@ -106,9 +106,9 @@ namespace Blueprint.StructureMap.Extensions
                         return;
                     }
 
-                    using (var nestedContainer = rootContainer.GetNestedContainer())
+                    using (var nestedContainer = rootServiceProvider.CreateScope())
                     {
-                        var apiContext = new ApiOperationContext(apiOperationExecutor.DataModel, operation)
+                        var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation)
                         {
                             RouteData = context.RouteData.Values,
                             HttpContext = context.HttpContext

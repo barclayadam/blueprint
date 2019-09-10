@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Core.Tasks;
 
-namespace Blueprint.ApplicationInsights.Tasks
+namespace Blueprint.Core.Tasks
 {
     /// <summary>
     /// A child scheduled background task is one that will be executed after the completion of a "parent" task, one that has

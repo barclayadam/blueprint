@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Blueprint.Core.Tasks;
 
-namespace Blueprint.ApplicationInsights.Tasks
+namespace Blueprint.Core.Tasks
 {
     /// <summary>
     /// Represents a "root" scheduled / enqeueued task from <see cref="BackgroundTaskScheduler" />, one that has no parent but supports

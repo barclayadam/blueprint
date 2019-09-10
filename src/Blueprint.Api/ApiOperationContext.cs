@@ -15,9 +15,14 @@ namespace Blueprint.Api
     public class ApiOperationContext
     {
         public ApiOperationContext(
+            IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor)
         {
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
+            Guard.NotNull(nameof(dataModel), dataModel);
+            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
+
             DataModel = dataModel;
             Descriptor = operationDescriptor;
 
@@ -27,10 +32,14 @@ namespace Blueprint.Api
         }
 
         public ApiOperationContext(
+            IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor,
             IApiOperation instance)
         {
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
+            Guard.NotNull(nameof(dataModel), dataModel);
+            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
             Guard.NotNull(nameof(instance), instance);
 
             if (!operationDescriptor.OperationType.IsInstanceOfType(instance))
@@ -40,6 +49,8 @@ namespace Blueprint.Api
 
             DataModel = dataModel;
             Descriptor = operationDescriptor;
+
+            ServiceProvider = serviceProvider;
 
             Operation = instance;
 
@@ -60,6 +71,12 @@ namespace Blueprint.Api
         /// Gets the operation that is currently being executed.
         /// </summary>
         public IApiOperation Operation { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
+        /// handlers to get runtime dependencies out of the correctly scoped container.
+        /// </summary>
+        public IServiceProvider ServiceProvider { get; }
 
         public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
@@ -88,7 +105,7 @@ namespace Blueprint.Api
         {
             Guard.NotNull(nameof(type), type);
 
-            var context = DataModel.CreateOperationContext(type);
+            var context = DataModel.CreateOperationContext(ServiceProvider, type);
 
             context.Data = Data;
             context.HttpContext = HttpContext;

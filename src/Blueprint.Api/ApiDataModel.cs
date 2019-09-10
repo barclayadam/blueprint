@@ -36,14 +36,14 @@ namespace Blueprint.Api
         /// Given a type that represents an API operation will construct a new <see cref="ApiOperationContext"/> that represents
         /// that operation.
         /// </summary>
-        /// <param name="container">The container under which the operation will execute.</param>
+        /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="type">The API operation to construct a context for.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given type.</returns>
-        public ApiOperationContext CreateOperationContext(Type type)
+        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, Type type)
         {
             if (allOperations.TryGetValue(type, out var operation))
             {
-                return new ApiOperationContext(this, operation);
+                return new ApiOperationContext(serviceProvider, this, operation);
             }
 
             throw new InvalidOperationException("Cannot find a registered operation of the type '{0}'.".Fmt(type.Name));
@@ -52,14 +52,14 @@ namespace Blueprint.Api
         /// <summary>
         /// Given a configured <see cref="IApiOperation"/> instance will create a new <see cref="ApiOperationContext" />.
         /// </summary>
-        /// <param name="container">The container under which the operation will execute.</param>
+        /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="operation">The configured operation instance.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
-        public ApiOperationContext CreateOperationContext<T>(T operation) where T : IApiOperation
+        public ApiOperationContext CreateOperationContext<T>(IServiceProvider serviceProvider, T operation) where T : IApiOperation
         {
             if (allOperations.TryGetValue(typeof(T), out var operationDescriptor))
             {
-                return new ApiOperationContext(this, operationDescriptor, operation);
+                return new ApiOperationContext(serviceProvider, this, operationDescriptor, operation);
             }
 
             throw new InvalidOperationException("Cannot find a registered operation of the type '{0}'.".Fmt(typeof(T).Name));

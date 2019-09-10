@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Blueprint.ApplicationInsights.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Tasks;
 using Blueprint.Core.Tracing;

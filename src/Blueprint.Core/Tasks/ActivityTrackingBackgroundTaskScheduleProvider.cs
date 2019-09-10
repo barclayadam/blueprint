@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Blueprint.Core.Tasks;
 
-namespace Blueprint.ApplicationInsights.Tasks
+namespace Blueprint.Core.Tasks
 {
     /// <summary>
     /// A wrapper for a <see cref="IBackgroundTaskScheduleProvider" /> implementation that will use <see cref="Activity" /> to
