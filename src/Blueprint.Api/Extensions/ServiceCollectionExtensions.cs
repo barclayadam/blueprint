@@ -8,6 +8,7 @@ using Blueprint.Api.Formatters;
 using Blueprint.Api.Validation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
+using Blueprint.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Extensions
@@ -19,6 +20,13 @@ namespace Blueprint.Api.Extensions
             services.AddSingleton(options);
             services.AddSingleton(options.Model);
             services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder().Build(options, s));
+
+            services.AddScoped<IErrorLogger, ErrorLogger>();
+
+            services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+
+            // Tasks: services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
+            // Tasks: Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
 
             services.AddScoped<ITypeFormatter, JsonTypeFormatter>();
             services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();

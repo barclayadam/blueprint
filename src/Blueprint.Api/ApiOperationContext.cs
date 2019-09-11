@@ -26,6 +26,8 @@ namespace Blueprint.Api
             DataModel = dataModel;
             Descriptor = operationDescriptor;
 
+            ServiceProvider = serviceProvider;
+
             Operation = operationDescriptor.CreateInstance();
 
             Data = new Dictionary<string, object>();
@@ -35,11 +37,9 @@ namespace Blueprint.Api
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor,
-            IApiOperation instance)
+            IApiOperation instance) :
+            this(serviceProvider, dataModel, operationDescriptor)
         {
-            Guard.NotNull(nameof(serviceProvider), serviceProvider);
-            Guard.NotNull(nameof(dataModel), dataModel);
-            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
             Guard.NotNull(nameof(instance), instance);
 
             if (!operationDescriptor.OperationType.IsInstanceOfType(instance))
@@ -47,14 +47,7 @@ namespace Blueprint.Api
                 throw new InvalidOperationException($"Instance of type {instance.GetType().Name} is not compatible with descriptor {operationDescriptor}");
             }
 
-            DataModel = dataModel;
-            Descriptor = operationDescriptor;
-
-            ServiceProvider = serviceProvider;
-
             Operation = instance;
-
-            Data = new Dictionary<string, object>();
         }
 
         /// <summary>

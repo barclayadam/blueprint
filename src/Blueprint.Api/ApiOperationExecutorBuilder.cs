@@ -155,8 +155,12 @@ namespace Blueprint.Api
                         }
                     }
 
-                    dictionary.Add(operation.OperationType,
-                        () => (IOperationExecutorPipeline)serviceProvider.GetService(executor.CompiledType));
+                    Func<IOperationExecutorPipeline> get = () =>
+                    {
+                        return (IOperationExecutorPipeline)serviceProvider.GetRequiredService(executor.CompiledType);
+                    };
+
+                    dictionary.Add(operation.OperationType, get);
                 }
 
                 try

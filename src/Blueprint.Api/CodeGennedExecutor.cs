@@ -13,7 +13,11 @@ namespace Blueprint.Api
         private readonly GeneratedAssembly assembly;
         private readonly Dictionary<Type, IOperationExecutorPipeline> operationTypeToPipelineType;
 
-        internal CodeGennedExecutor(IServiceProvider serviceProvider, ApiDataModel dataModel, GeneratedAssembly assembly, Dictionary<Type, IOperationExecutorPipeline> operationTypeToPipelineType)
+        internal CodeGennedExecutor(
+            IServiceProvider serviceProvider,
+            ApiDataModel dataModel,
+            GeneratedAssembly assembly,
+            Dictionary<Type, IOperationExecutorPipeline> operationTypeToPipelineType)
         {
             DataModel = dataModel;
 

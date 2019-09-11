@@ -4,6 +4,8 @@ using System.Security;
 using Blueprint.Api.Errors;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api
 {
@@ -15,6 +17,19 @@ namespace Blueprint.Api
         }
 
         public Exception Exception { get; }
+
+        public override void Execute(ApiOperationContext context)
+        {
+            var configuration = context.ServiceProvider.GetService<IConfiguration>();
+            var shouldExpose = Convert.ToBoolean(configuration["Api.ExposeErrorMessage"] ?? "true");
+
+            if (!shouldExpose)
+            {
+                Content.Error.Message = "Something has gone wrong, please try again";
+            }
+
+            base.Execute(context);
+        }
 
         private static HttpStatusCode ToStatusCode(Exception exception)
         {
@@ -71,9 +86,7 @@ namespace Blueprint.Api
             {
                 Code = "unknown_error",
 
-                Message = "Api.ExposeErrorMessage".GetConfigValue<bool>(IfEmpty.ShouldThrow)
-                    ? e.ToString()
-                    : "Something has gone wrong, please try again"
+                Message = e.ToString()
             };
         }
     }

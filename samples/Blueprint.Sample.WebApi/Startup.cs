@@ -27,7 +27,7 @@ namespace Blueprint.Sample.WebApi
                 o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
                 //o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<BackgroundTaskRunnerMiddleware>();
+//                o.UseMiddlewareBuilder<BackgroundTaskRunnerMiddleware>();
                 o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
