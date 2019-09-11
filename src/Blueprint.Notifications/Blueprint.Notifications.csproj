@@ -32,6 +32,7 @@
     <PackageReference Include="NVelocity" Version="1.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>

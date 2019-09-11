@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
+using Blueprint.Api.Validation;
 using Blueprint.Core.Errors;
-using Blueprint.Core.Validation;
+using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
 
 namespace Blueprint.Api.Middleware
 {

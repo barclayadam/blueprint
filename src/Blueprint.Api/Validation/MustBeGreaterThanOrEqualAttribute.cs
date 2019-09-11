@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Blueprint.Api.OpenApi;
 using Blueprint.Core.ThirdParty;
 using NJsonSchema;
 

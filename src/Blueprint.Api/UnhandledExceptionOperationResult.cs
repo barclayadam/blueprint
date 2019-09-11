@@ -45,7 +45,7 @@ namespace Blueprint.Api
         {
             switch (e)
             {
-                case IApiErrorDescriptionProvider errorCodeProvider:
+                case IApiErrorDescriptor errorCodeProvider:
                     return new ErrorResponseDetail
                     {
                         Code = errorCodeProvider.ErrorCode,

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Blueprint.Api.OpenApi;
 using NJsonSchema;
 
 namespace Blueprint.Api.Validation

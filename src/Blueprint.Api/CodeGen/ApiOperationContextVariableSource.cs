@@ -18,6 +18,7 @@ namespace Blueprint.Api.CodeGen
     ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />
     ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />
     ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />
+    ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />
     ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />
     ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />
     ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />
@@ -66,6 +67,7 @@ namespace Blueprint.Api.CodeGen
             return type == typeof(ApiDataModel) ||
                    type == typeof(ApiOperationDescriptor) ||
                    type == typeof(IApiOperation) ||
+                   type == typeof(IServiceProvider) ||
                    type == typeof(IUserAuthorisationContext) ||
                    type == typeof(HttpContext) ||
                    type == typeof(HttpRequest) ||
@@ -89,6 +91,11 @@ namespace Blueprint.Api.CodeGen
             if (type == typeof(IApiOperation))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation));
+            }
+
+            if (type == typeof(IServiceProvider))
+            {
+                return operationContextVariable.GetProperty(nameof(ApiOperationContext.ServiceProvider));
             }
 
             if (type == typeof(IUserAuthorisationContext))

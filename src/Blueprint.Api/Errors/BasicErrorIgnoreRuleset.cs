@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security;
+using Blueprint.Api.Validation;
 using Blueprint.Core.Errors;
-using Blueprint.Core.Validation;
 using NLog;
 
 namespace Blueprint.Api.Errors
@@ -14,7 +14,6 @@ namespace Blueprint.Api.Errors
         private static readonly Type TypeNotFoundException = typeof(NotFoundException);
         private static readonly Type TypeSecurityException = typeof(SecurityException);
         private static readonly Type TypeForbiddenException = typeof(ForbiddenException);
-        //private static readonly Type TypeHttpException = typeof(HttpException);
 
         public bool ShouldIgnore(Type exceptionType, Exception exception)
         {
@@ -45,15 +44,6 @@ namespace Blueprint.Api.Errors
 
                 return true;
             }
-
-            //if (exceptionType == TypeHttpException)
-            //{
-            //    Logger.Info("HTTP error response. status_code={0} message='{1}'",
-            //                ((HttpException)exception).GetHttpCode(),
-            //                exception.Message);
-
-            //    return true;
-            //}
 
             return false;
         }

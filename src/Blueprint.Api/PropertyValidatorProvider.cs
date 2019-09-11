@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Blueprint.Api.Validation;
 using Blueprint.Core.ThirdParty;
 using Blueprint.Core.Utilities;
-using Blueprint.Core.Validation;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api

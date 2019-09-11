@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Runtime.Serialization;
 using Blueprint.Api.Errors;
@@ -6,7 +6,7 @@ using Blueprint.Api.Errors;
 namespace Blueprint.Api
 {
     [Serializable]
-    public class ApiException : Exception, IApiErrorDescriptionProvider
+    public class ApiException : Exception, IApiErrorDescriptor
     {
         public ApiException(string message, string code, HttpStatusCode httpStatus)
                 : base(message)

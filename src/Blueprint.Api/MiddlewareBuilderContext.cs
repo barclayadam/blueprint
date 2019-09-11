@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blueprint.Api.CodeGen;
-using Blueprint.Api.Validation;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -12,22 +11,25 @@ namespace Blueprint.Api
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
 
-        public MiddlewareBuilderContext(
+        private readonly IInstanceFrameProvider instanceFrameProvider;
+
+        internal MiddlewareBuilderContext(
             ApiOperationContextVariableSource apiContextVariableSource,
             GeneratedType generatedType,
             GeneratedMethod executeMethod,
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
-            IInstanceFrameProvider instanceFrameProvider,
-            IValidationSourceBuilder[] validationSourceBuilders)
+            IServiceProvider serviceProvider,
+            IInstanceFrameProvider instanceFrameProvider)
         {
             ApiContextVariableSource = apiContextVariableSource;
             GeneratedType = generatedType;
             ExecuteMethod = executeMethod;
             Descriptor = descriptor;
             Model = model;
-            InstanceFrameProvider = instanceFrameProvider;
-            ValidationSourceBuilders = validationSourceBuilders;
+            ServiceProvider = serviceProvider;
+
+            this.instanceFrameProvider = instanceFrameProvider;
         }
 
         /// <summary>
@@ -58,14 +60,9 @@ namespace Blueprint.Api
         public ApiDataModel Model { get; }
 
         /// <summary>
-        /// Gets the instance frame provider.
+        /// Gets the service provider.
         /// </summary>
-        public IInstanceFrameProvider InstanceFrameProvider { get; }
-
-        /// <summary>
-        /// Gets the validation source builders.
-        /// </summary>
-        public IValidationSourceBuilder[] ValidationSourceBuilders { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
         
         /// <summary>
         /// Gets the currently registered exception handlers.
@@ -129,7 +126,7 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
-            return InstanceFrameProvider.VariableFromContainer<T>(GeneratedType, typeof(T));
+            return instanceFrameProvider.VariableFromContainer<T>(GeneratedType, typeof(T));
         }
 
         /// <summary>
@@ -144,7 +141,7 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
-            return InstanceFrameProvider.VariableFromContainer<object>(GeneratedType, type);
+            return instanceFrameProvider.VariableFromContainer<object>(GeneratedType, type);
         }
     }
 }

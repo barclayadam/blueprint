@@ -1,0 +1,11 @@
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\NLog.config
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.deps.json
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.runtimeconfig.json
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.runtimeconfig.dev.json
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.dll
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\bin\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.pdb
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\obj\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.csproj.CoreCompileInputs.cache
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\obj\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.AssemblyInfoInputs.cache
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\obj\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.AssemblyInfo.cs
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\obj\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.dll
+C:\Mike\Projects\blueprint\samples\Blueprint.Sample.ConsoleApp\obj\Debug\netcoreapp2.2\Blueprint.Sample.ConsoleApp.pdb

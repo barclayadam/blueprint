@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Blueprint.Api
 {
@@ -11,5 +11,7 @@ namespace Blueprint.Api
         ApiDataModel DataModel { get; }
 
         Task<OperationResult> ExecuteAsync(ApiOperationContext context);
+
+        Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation) where T : IApiOperation;
     }
 }

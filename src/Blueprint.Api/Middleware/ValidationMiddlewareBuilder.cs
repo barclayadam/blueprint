@@ -4,8 +4,9 @@ using Blueprint.Api.Validation;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Errors;
-using Blueprint.Core.Validation;
-using ValidationException = Blueprint.Core.Validation.ValidationException;
+using Microsoft.Extensions.DependencyInjection;
+using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
+using ValidationException = Blueprint.Api.Validation.ValidationException;
 
 namespace Blueprint.Api.Middleware
 {
@@ -33,9 +34,9 @@ namespace Blueprint.Api.Middleware
             var apiOperationDescriptorVariable = context.VariableFromContext<ApiOperationDescriptor>();
             var resultsCreator = new ConstructorFrame<ValidationFailures>(() => new ValidationFailures());
             var hasValidationFrames = false;
-            var sources = context.ValidationSourceBuilders;
+            var sources = context.ServiceProvider.GetServices<IValidationSourceBuilder>();
 
-            void AddValidatorFrame(Frame f)
+            void AddValidatorFrame(Frame frame)
             {
                 if (!hasValidationFrames)
                 {
@@ -45,7 +46,7 @@ namespace Blueprint.Api.Middleware
                     hasValidationFrames = true;
                 }
 
-                context.ExecuteMethod.Frames.Add(f);
+                context.ExecuteMethod.Frames.Add(frame);
             }
 
             var operationProperties = new List<OperationProperty>();

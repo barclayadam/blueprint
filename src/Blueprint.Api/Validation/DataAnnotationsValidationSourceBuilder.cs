@@ -5,7 +5,6 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Utilities;
-using Blueprint.Core.Validation;
 
 namespace Blueprint.Api.Validation
 {

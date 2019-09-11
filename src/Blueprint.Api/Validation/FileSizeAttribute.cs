@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Blueprint.Api.OpenApi;
 using NJsonSchema;
 
 namespace Blueprint.Api.Validation
