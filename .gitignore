@@ -2,6 +2,8 @@ src/**/bin
 src/**/obj
 tests/**/bin
 tests/**/obj
+samples/**/bin
+samples/**/obj
 
 .vs/
 
