@@ -7,6 +7,7 @@ using Blueprint.Hangfire;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
@@ -29,7 +30,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             var parentId = Guid.NewGuid().ToString();
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
             var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object));
-            var backgroundTaskScheduler = new BackgroundTaskScheduler(backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool());
+            var backgroundTaskScheduler = new BackgroundTaskScheduler(new ServiceCollection().BuildServiceProvider(),  backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool());
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)))
                 .Returns(parentId).Verifiable();
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)))

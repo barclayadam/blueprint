@@ -15,7 +15,9 @@ namespace Blueprint.Tests.Api.CodeGen
         {
             // Arrange
             var handler = new TestApiOperationHandler();
-            var serviceProvider = new ServiceProvider(e => { e.For<IApiOperationHandler<TestApiOperation>>().Use(handler); });
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IApiOperationHandler<TestApiOperation>>(handler);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var apiOperationExecutor = CreateApiOperationExecutor(serviceProvider, (o) =>
             {

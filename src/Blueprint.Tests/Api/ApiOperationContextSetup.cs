@@ -3,12 +3,26 @@ using System.Collections.Generic;
 using System.Net;
 using Blueprint.Api;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tests.Api
 {
     public static class ApiOperationContextSetup
     {
-        public static void SetUpTestRequest(this ApiOperationContext context, string url)
+        public static ApiOperationContext CreateFromDescriptor(IServiceProvider serviceProvider, ApiOperationDescriptor descriptor)
+        {
+            var dataModel = new ApiDataModel();
+
+            dataModel.RegisterOperation(descriptor);
+
+            var context = new ApiOperationContext(serviceProvider, dataModel, descriptor);
+
+            SetUpTestRequest(context, "https://blueprintapi.com/" + descriptor.Name);
+
+            return context;
+        }
+
+        private static void SetUpTestRequest(ApiOperationContext context, string url)
         {
             var uri = new Uri(url);
 
@@ -24,20 +38,7 @@ namespace Blueprint.Tests.Api
             context.HttpContext = httpContext;
             context.RouteData = new Dictionary<string, object>();
 
-            context.Container.Inject(typeof(IHttpContextAccessor), new HttpContextAccessor { HttpContext = httpContext });
-        }
-
-        public static ApiOperationContext CreateFromDescriptor(IServiceProvider serviceProvider, ApiOperationDescriptor descriptor)
-        {
-            var dataModel = new ApiDataModel();
-
-            dataModel.RegisterOperation(descriptor);
-
-            var context = new ApiOperationContext(serviceProvider, dataModel, descriptor);
-
-            context.SetUpTestRequest("https://blueprintapi.com/" + descriptor.Name);
-
-            return context;
+            context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
         }
     }
 }

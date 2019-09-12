@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 using StructureMap;
@@ -96,19 +97,19 @@ namespace Blueprint.Tests.Api.Validator_Middleware
 
             var container = ConfigureContainer(handler);
             var executor = new ApiOperationExecutorBuilder().Build(options, container);
-            var context = options.Model.CreateOperationContext(operation);
 
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteWithNewScopeAsync(operation);
 
             return (result, handler);
         }
 
-        private static Container ConfigureContainer<T>(IApiOperationHandler<T> handler) where T : IApiOperation
+        private static ServiceProvider ConfigureContainer<T>(IApiOperationHandler<T> handler) where T : IApiOperation
         {
-            return new Container(c =>
-            {
-                c.For<IApiOperationHandler<T>>().Use(handler).Singleton();
-            });
+            var collection = new ServiceCollection();
+
+            collection.AddSingleton(handler);
+
+            return collection.BuildServiceProvider();
         }
     }
 }
