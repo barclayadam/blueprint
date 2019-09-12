@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
+using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Errors;
 using Blueprint.Api.Formatters;
 using Blueprint.Api.Validation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
-using Blueprint.Core.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.Api.Extensions
+// This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {

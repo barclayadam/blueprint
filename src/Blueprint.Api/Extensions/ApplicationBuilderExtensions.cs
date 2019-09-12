@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+using Blueprint.Api;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
-namespace Blueprint.Api.Extensions
+// This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
+// ReSharper disable once CheckNamespace
+namespace Microsoft.AspNetCore.Builder
 {
     public static class ApplicationBuilderExtensions
     {
