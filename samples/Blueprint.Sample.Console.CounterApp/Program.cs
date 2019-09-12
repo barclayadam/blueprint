@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Blueprint.Api;
-using Blueprint.Api.Extensions;
 using Blueprint.Api.Middleware;
 using Lamar;
 using Lamar.Microsoft.DependencyInjection;
@@ -51,7 +50,7 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.Configure<CounterConfiguration>(context.Configuration);
 
                     // Configure Blueprint
-                    services.AddBlueprintApi(new BlueprintApiOptions(o =>
+                    services.AddBlueprintApi(o =>
                     {
                         o.WithApplicationName(AppName);
 
@@ -61,7 +60,7 @@ namespace Blueprint.Sample.Console.CounterApp
                         o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
                         o.Scan(typeof(Program).Assembly);
-                    }));
+                    });
 
                     // Configure Hosted Services
                     services.AddHostedService<CounterService>();

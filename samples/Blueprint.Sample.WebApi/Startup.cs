@@ -1,6 +1,5 @@
 ﻿using System;
 using Blueprint.Api;
-using Blueprint.Api.Extensions;
 using Blueprint.Api.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,7 +18,7 @@ namespace Blueprint.Sample.WebApi
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvcCore();
-            services.AddBlueprintApi(new BlueprintApiOptions(o =>
+            services.AddBlueprintApi(o =>
             {
                 o.WithApplicationName("SampleWebApi");
 
@@ -33,7 +32,7 @@ namespace Blueprint.Sample.WebApi
                 o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
                 o.Scan(typeof(Startup).Assembly);
-            }));
+            });
 
             var container = new Container();
 

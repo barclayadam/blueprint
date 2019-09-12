@@ -16,8 +16,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static BlueprintConfigurer AddBlueprintApi(this IServiceCollection services, BlueprintApiOptions options)
+        public static BlueprintConfigurer AddBlueprintApi(this IServiceCollection services, Action<BlueprintApiOptions> optionsFunc)
         {
+            var options = new BlueprintApiOptions(optionsFunc);
+
             services.AddSingleton(options);
             services.AddSingleton(options.Model);
             services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder().Build(options, s));
