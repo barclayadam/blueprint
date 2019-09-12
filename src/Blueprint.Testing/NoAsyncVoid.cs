@@ -21,7 +21,7 @@
             messages.Any().ShouldBeFalse("Async void methods found!" + Environment.NewLine + string.Join(Environment.NewLine, messages));
         }
 
-        public static IEnumerable<MethodInfo> GetAsyncVoidMethods(Assembly assembly, params Type[] typesToExclude)
+        private static IEnumerable<MethodInfo> GetAsyncVoidMethods(Assembly assembly, params Type[] typesToExclude)
         {
             return assembly.GetLoadableTypes()
                 .SelectMany(type => type.GetMethods(
