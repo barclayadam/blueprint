@@ -8,7 +8,7 @@ namespace Blueprint.Compiler
 {
     public class GeneratedAssembly
     {
-        public readonly List<GeneratedType> GeneratedTypes = new List<GeneratedType>();
+        private readonly HashSet<Assembly> assemblies = new HashSet<Assembly>();
 
         public GeneratedAssembly(GenerationRules generationRules)
         {
@@ -16,8 +16,8 @@ namespace Blueprint.Compiler
         }
 
         public GenerationRules GenerationRules { get; }
-        
-        private readonly HashSet<Assembly> assemblies = new HashSet<Assembly>();
+
+        public readonly List<GeneratedType> GeneratedTypes = new List<GeneratedType>();
 
         public void ReferenceAssembly(Assembly assembly)
         {

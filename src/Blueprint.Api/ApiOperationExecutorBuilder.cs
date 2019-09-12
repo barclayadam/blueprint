@@ -115,6 +115,7 @@ namespace Blueprint.Api
                     var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>();
 
                     var context = new MiddlewareBuilderContext(
+                        assembly,
                         apiOperationContextSource,
                         executor,
                         executeMethod,
@@ -155,12 +156,7 @@ namespace Blueprint.Api
                         }
                     }
 
-                    Func<IOperationExecutorPipeline> get = () =>
-                    {
-                        return (IOperationExecutorPipeline)serviceProvider.GetRequiredService(executor.CompiledType);
-                    };
-
-                    dictionary.Add(operation.OperationType, get);
+                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)serviceProvider.GetRequiredService(executor.CompiledType));
                 }
 
                 try

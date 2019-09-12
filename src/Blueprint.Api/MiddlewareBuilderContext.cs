@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Core;
 
 namespace Blueprint.Api
 {
@@ -11,9 +13,11 @@ namespace Blueprint.Api
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
 
+        private readonly GeneratedAssembly generatedAssembly;
         private readonly IInstanceFrameProvider instanceFrameProvider;
 
         internal MiddlewareBuilderContext(
+            GeneratedAssembly generatedAssembly,
             ApiOperationContextVariableSource apiContextVariableSource,
             GeneratedType generatedType,
             GeneratedMethod executeMethod,
@@ -29,6 +33,7 @@ namespace Blueprint.Api
             Model = model;
             ServiceProvider = serviceProvider;
 
+            this.generatedAssembly = generatedAssembly;
             this.instanceFrameProvider = instanceFrameProvider;
         }
 
@@ -70,6 +75,18 @@ namespace Blueprint.Api
         public IReadOnlyDictionary<Type, Func<Variable, IEnumerable<Frame>>> ExceptionHandlers => exceptionHandlers;
 
         /// <summary>
+        /// Adds a reference to the given <see cref="Assembly" /> to the generated assembly, ensuring that any types that are used
+        /// within the generated source code is available.
+        /// </summary>
+        /// <param name="assembly">The assembly to reference</param>
+        public void AddAssemblyReference(Assembly assembly)
+        {
+            Guard.NotNull(nameof(assembly), assembly);
+
+            generatedAssembly.ReferenceAssembly(assembly);
+        }
+
+        /// <summary>
         /// Appends the given <see cref="Frame"/>s to the execution method (at <see cref="ExecuteMethod"/>).
         /// </summary>
         /// <param name="frames">The frames to be appended.</param>
@@ -87,6 +104,8 @@ namespace Blueprint.Api
         /// specified exception type and represents the caught exception.</param>
         public void RegisterUnhandledExceptionHandler(Type exceptionType, Func<Variable, IEnumerable<Frame>> create)
         {
+            AddAssemblyReference(exceptionType.Assembly);
+
             exceptionHandlers[exceptionType] = create;
         }
 
@@ -122,10 +141,16 @@ namespace Blueprint.Api
         /// This method attempts to optimise the output by looking at the registrations in the container, checking
         /// for singletons etc. and turning them in to injected fields to avoid the lookup per request.
         /// </remarks>
+        /// <remarks>
+        /// Note that this will automatically add a reference to the assembly of the specified type to the generated
+        /// assembly.
+        /// </remarks>
         /// <typeparam name="T">The type of the instance to load.</typeparam>
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
+            AddAssemblyReference(typeof(T).Assembly);
+
             return instanceFrameProvider.VariableFromContainer<T>(GeneratedType, typeof(T));
         }
 
@@ -141,6 +166,8 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
+            AddAssemblyReference(type.Assembly);
+
             return instanceFrameProvider.VariableFromContainer<object>(GeneratedType, type);
         }
     }
