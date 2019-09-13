@@ -1,5 +1,7 @@
 ﻿using Blueprint.Core;
+using Blueprint.Core.Data;
 using Blueprint.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
 
 // This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -13,18 +15,26 @@ namespace Blueprint.Api.Configuration
         public static void StoreInSqlServer(
             this BlueprintAuditConfigurer configurer,
             string connectionString,
-            string auditTableName)
+            string tableName,
+            bool automaticallyCreateTables = true)
         {
             Guard.NotNull(nameof(configurer), configurer);
             Guard.NotNullOrEmpty(nameof(connectionString), connectionString);
-            Guard.NotNullOrEmpty(nameof(auditTableName), auditTableName);
 
-            var databaseConnectionFactory = new SqlServerDatabaseConnectionFactory(connectionString);
-
-            configurer.Use(new SqlServerAuditor(databaseConnectionFactory)
+            configurer.Services.AddOptions();
+            configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
             {
-                TableName = auditTableName
+                if (string.IsNullOrEmpty(tableName))
+                {
+                    return;
+                }
+
+                c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
             });
+
+            configurer.Services.AddScoped<IDatabaseConnectionFactory>(s => new SqlServerDatabaseConnectionFactory(connectionString));
+
+            configurer.UseAuditor<SqlServerAuditor>();
         }
     }
 }

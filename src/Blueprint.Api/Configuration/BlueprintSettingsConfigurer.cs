@@ -11,14 +11,14 @@ namespace Blueprint.Api.Configuration
             this.options = options;
         }
 
-        public void SetAppName(string applicationName)
+        public void SetAppName(string appName)
         {
-            options.WithApplicationName(applicationName);
+            options.WithAppName(appName);
         }
 
-        public void ScanAssemblies(params Assembly[] assemblies)
+        public void AssembliesToScanForOperations(params Assembly[] assemblies)
         {
-            options.Scan(assemblies);
+            options.ScanForOperations(assemblies);
         }
     }
 }

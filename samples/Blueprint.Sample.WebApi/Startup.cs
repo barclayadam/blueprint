@@ -20,7 +20,7 @@ namespace Blueprint.Sample.WebApi
             services.AddMvcCore();
             services.AddBlueprintApi(o =>
             {
-                o.WithApplicationName("SampleWebApi");
+                o.WithAppName("SampleWebApi");
 
                 o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();

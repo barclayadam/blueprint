@@ -16,10 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(nameof(configureApi), configureApi);
 
-            if (services.FirstOrDefault(d => d.ServiceType == typeof(IApiOperationExecutor)) != null)
-            {
-                throw new InvalidOperationException("Blueprint has already been configured.");
-            }
+            CheckBlueprintRegistration(services);
 
             var blueprintConfigurer = configureApi(new BlueprintConfigurer(services));
 
@@ -32,10 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(nameof(optionsFunc), optionsFunc);
 
-            if (services.FirstOrDefault(d => d.ServiceType == typeof(IApiOperationExecutor)) != null)
-            {
-                throw new InvalidOperationException("Blueprint has already been configured.");
-            }
+            CheckBlueprintRegistration(services);
 
             var options = new BlueprintApiOptions(optionsFunc);
             var blueprintConfigurer = new BlueprintConfigurer(services, options);
@@ -43,6 +37,14 @@ namespace Microsoft.Extensions.DependencyInjection
             blueprintConfigurer.Build();
 
             return services;
+        }
+
+        private static void CheckBlueprintRegistration(IServiceCollection services)
+        {
+            if (services.FirstOrDefault(d => d.ServiceType == typeof(IApiOperationExecutor)) != null)
+            {
+                throw new InvalidOperationException("Blueprint has already been configured.");
+            }
         }
     }
 }

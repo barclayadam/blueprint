@@ -22,7 +22,7 @@ namespace Blueprint.Tests.Api.CodeGen
 
             var apiOperationExecutor = CreateApiOperationExecutor(serviceProvider, (o) =>
             {
-                o.WithApplicationName("Blueprint.Tests");
+                o.WithAppName("Blueprint.Tests");
 
                 o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();

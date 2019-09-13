@@ -28,18 +28,6 @@ namespace Blueprint.Api.Configuration
 
         public IServiceCollection Services { get; }
 
-        public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder
-        {
-            if (middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
-            {
-                middlewareTypes.Add(typeof(T));
-            }
-            else
-            {
-                middlewareStages.Add(middlewareStage, new List<Type> { typeof(T) });
-            }
-        }
-
         public BlueprintConfigurer Settings(Action<BlueprintSettingsConfigurer> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
@@ -60,6 +48,11 @@ namespace Blueprint.Api.Configuration
 
         public void Build()
         {
+            if (options.AppName == null)
+            {
+                throw new InvalidOperationException("An app name MUST be set");
+            }
+
             ComposeMiddlewareBuilders();
 
             Services.AddSingleton(options);
@@ -104,6 +97,18 @@ namespace Blueprint.Api.Configuration
             }
         }
 
+        public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder
+        {
+            if (middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
+            {
+                middlewareTypes.Add(typeof(T));
+            }
+            else
+            {
+                middlewareStages.Add(middlewareStage, new List<Type> { typeof(T) });
+            }
+        }
+
         private void ComposeMiddlewareBuilders()
         {
             if (options.Middlewares.Any())
@@ -111,17 +116,17 @@ namespace Blueprint.Api.Configuration
                 return;
             }
 
-            AddMiddlewareBuilder(MiddlewareStage.OperationChecks);
-            AddMiddlewareBuilder(MiddlewareStage.PreExecute);
+            AddMiddlewareBuilders(MiddlewareStage.OperationChecks);
+            AddMiddlewareBuilders(MiddlewareStage.PreExecute);
 
             // Execute
             options.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
             options.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
-            AddMiddlewareBuilder(MiddlewareStage.PostExecute);
+            AddMiddlewareBuilders(MiddlewareStage.PostExecute);
         }
 
-        private void AddMiddlewareBuilder(MiddlewareStage middlewareStage)
+        private void AddMiddlewareBuilders(MiddlewareStage middlewareStage)
         {
             if (!middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
             {

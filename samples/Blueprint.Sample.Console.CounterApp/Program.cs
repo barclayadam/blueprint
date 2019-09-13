@@ -55,7 +55,7 @@ namespace Blueprint.Sample.Console.CounterApp
                         .Settings(s =>
                         {
                             s.SetAppName(AppName);
-                            s.ScanAssemblies(typeof(Program).Assembly);
+                            s.AssembliesToScanForOperations(typeof(Program).Assembly);
                         })
                         .Middlewares(m => m
                             .Logging()
@@ -64,13 +64,13 @@ namespace Blueprint.Sample.Console.CounterApp
                                 .UseDataAnnotationSource()
                             )
                             .Auditing(a => a
-                                .StoreInSqlServer("connectionString", "AuditTrail")
+                                .StoreInSqlServer("connectionString", "[counter].[AuditTrail]")
                             )
                         ));
 
                     //services.AddBlueprintApi(o =>
                     //{
-                    //    o.WithApplicationName(AppName);
+                    //    o.WithAppName(AppName);
 
                     //    o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
                     //    o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();

@@ -18,21 +18,11 @@ namespace Blueprint.Api.Configuration
     {
         private readonly ApiDataModel dataModel = new ApiDataModel();
 
-        public BlueprintApiOptions()
-        {
-            AddOperation<RootMetadataOperation>();
-        }
-
-        public BlueprintApiOptions(Action<BlueprintApiOptions> configure)
+        public BlueprintApiOptions(Action<BlueprintApiOptions> configure = null)
         {
             AddOperation<RootMetadataOperation>();
 
-            configure(this);
-
-            if (ApplicationName == null)
-            {
-                throw new InvalidOperationException("An application name MUST be set");
-            }
+            configure?.Invoke(this);
         }
 
         /// <summary>
@@ -51,7 +41,7 @@ namespace Blueprint.Api.Configuration
         /// Gets or sets the name of the application, which is used when generating the DLL for the pipeline
         /// executors.
         /// </summary>
-        public string ApplicationName { get; set; }
+        public string AppName { get; set; }
 
         public ApiDataModel Model => dataModel;
 
@@ -60,11 +50,11 @@ namespace Blueprint.Api.Configuration
         /// executors.
         /// </summary>
         /// <param name="appName">The name of the application.</param>
-        public void WithApplicationName(string appName)
+        public void WithAppName(string appName)
         {
             Guard.NotNullOrEmpty(nameof(appName), appName);
 
-            ApplicationName = appName;
+            AppName = appName;
         }
 
         public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
@@ -78,11 +68,11 @@ namespace Blueprint.Api.Configuration
         /// </summary>
         /// <param name="assemblies">The assemblies to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
-        public void Scan(Assembly[] assemblies, Func<Type, bool> filter = null)
+        public void ScanForOperations(Assembly[] assemblies, Func<Type, bool> filter = null)
         {
             foreach (var assembly in assemblies)
             {
-                Scan(assembly, filter);
+                ScanForOperations(assembly, filter);
             }
         }
 
@@ -92,7 +82,7 @@ namespace Blueprint.Api.Configuration
         /// </summary>
         /// <param name="assembly">The assembly to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
-        public void Scan(Assembly assembly, Func<Type, bool> filter = null)
+        public void ScanForOperations(Assembly assembly, Func<Type, bool> filter = null)
         {
             filter = filter ?? (t => true);
 

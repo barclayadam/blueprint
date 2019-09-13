@@ -78,7 +78,7 @@ namespace Blueprint.Api
                 var rules = new GenerationRules("Blueprint.Pipelines")
                 {
                     OptimizationLevel = OptimizationLevel.Release,
-                    AssemblyName = options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty)
+                    AssemblyName = options.AppName.Replace(" ", string.Empty).Replace("-", string.Empty)
                 };
 
                 // Start the definition for a new generated assembly
@@ -181,7 +181,7 @@ namespace Blueprint.Api
 
         private static Logger CreateLoggerForExecutor(BlueprintApiOptions options, ApiOperationDescriptor operation)
         {
-            return LogManager.GetLogger($"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor");
+            return LogManager.GetLogger($"{options.AppName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor");
         }
 
         private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)

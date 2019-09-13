@@ -6,6 +6,7 @@ using Blueprint.Core;
 using Blueprint.Core.Auditing;
 using Blueprint.Core.Data;
 using Dapper;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -16,8 +17,6 @@ namespace Blueprint.SqlServer
     /// </summary>
     public class SqlServerAuditor : IAuditor
     {
-        private readonly IDatabaseConnectionFactory databaseConnectionFactory;
-
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -25,17 +24,21 @@ namespace Blueprint.SqlServer
             ContractResolver = new AuditDetailsResolver()
         };
 
+        private readonly IDatabaseConnectionFactory databaseConnectionFactory;
+        private readonly IOptions<SqlServerAuditorConfiguration> configuration;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class. 
         /// </summary>
-        public SqlServerAuditor(IDatabaseConnectionFactory databaseConnectionFactory)
+        public SqlServerAuditor(
+            IDatabaseConnectionFactory databaseConnectionFactory,
+            IOptions<SqlServerAuditorConfiguration> configuration)
         {
             Guard.NotNull(nameof(databaseConnectionFactory), databaseConnectionFactory);
 
             this.databaseConnectionFactory = databaseConnectionFactory;
+            this.configuration = configuration;
         }
-
-        public string TableName { get; set; } = "AuditTrail";
 
         /// <summary>
         /// Insert the audit item into the database.
@@ -54,7 +57,7 @@ namespace Blueprint.SqlServer
             using (var transaction = cn.BeginTransaction())
             {
                 cn.Execute(
-                    $@"INSERT INTO {TableName} (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
+                    $@"INSERT INTO {configuration.Value.QualifiedTableName} (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
                            VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
                     new
                     {

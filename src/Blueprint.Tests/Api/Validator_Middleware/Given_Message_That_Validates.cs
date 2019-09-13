@@ -87,7 +87,7 @@ namespace Blueprint.Tests.Api.Validator_Middleware
 
             var options = new BlueprintApiOptions(o =>
             {
-                o.WithApplicationName("Blueprint.Tests");
+                o.WithAppName("Blueprint.Tests");
 
                 o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
