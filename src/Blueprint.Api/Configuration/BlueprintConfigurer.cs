@@ -76,25 +76,7 @@ namespace Blueprint.Api.Configuration
 
             Services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
 
-            var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
-
-            foreach (var operation in options.Model.Operations)
-            {
-                var apiOperationHandlerType = typeof(IApiOperationHandler<>).MakeGenericType(operation.OperationType);
-                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType);
-
-                if (apiOperationHandler == null)
-                {
-                    missingApiOperationHandlers.Add(operation);
-                }
-
-                Services.AddScoped(apiOperationHandlerType, apiOperationHandler);
-            }
-
-            if (missingApiOperationHandlers.Any())
-            {
-                throw new MissingApiOperationHandlerException(missingApiOperationHandlers.ToArray());
-            }
+            AddApiOperationHandlers();
         }
 
         public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder
@@ -136,6 +118,29 @@ namespace Blueprint.Api.Configuration
             foreach (var middlewareType in middlewareTypes)
             {
                 options.Middlewares.Add(middlewareType);
+            }
+        }
+
+        private void AddApiOperationHandlers()
+        {
+            var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
+
+            foreach (var operation in options.Model.Operations)
+            {
+                var apiOperationHandlerType = typeof(IApiOperationHandler<>).MakeGenericType(operation.OperationType);
+                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType);
+
+                if (apiOperationHandler == null)
+                {
+                    missingApiOperationHandlers.Add(operation);
+                }
+
+                Services.AddScoped(apiOperationHandlerType, apiOperationHandler);
+            }
+
+            if (missingApiOperationHandlers.Any())
+            {
+                throw new MissingApiOperationHandlerException(missingApiOperationHandlers.ToArray());
             }
         }
 
