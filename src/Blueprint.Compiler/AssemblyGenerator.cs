@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Text;
 
 using NLog;
 
-#if !NET462
+#if !NET472
 using System.Runtime.Loader;
 #endif
 
@@ -32,13 +32,13 @@ namespace Blueprint.Compiler
         private readonly List<Assembly> assemblies = new List<Assembly>();
 
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
+        private readonly List<SourceFile> files = new List<SourceFile>();
 
         public AssemblyGenerator(GenerationRules rules)
         {
             this.rules = rules;
 
             ReferenceAssemblyContainingType<object>();
-            // ReferenceAssemblyContainingType<Enumerable>();
             ReferenceAssemblyContainingType<AssemblyGenerator>();
             ReferenceAssemblyContainingType<Task>();
 
@@ -108,35 +108,40 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Compile the code passed into this method to a new assembly
         /// </summary>
-        /// <param name="code"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Assembly Generate(string code)
+        public Assembly Generate()
         {
             // TODO: Switch based on environment?
             var compileStrategy = new ToFileCompileStrategy();
-
             var encoding = Encoding.UTF8;
-
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
-            var sourceCodePath = "generated.cs";
 
-            var buffer = encoding.GetBytes(code);
-            var sourceText = SourceText.From(buffer, buffer.Length, encoding, canBeEmbedded: true);
+            var syntaxTrees = new List<SyntaxTree>();
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(
-                sourceText,
-                new CSharpParseOptions(),
-                path: sourceCodePath);
+            foreach (var f in files)
+            {
+                var sourceCodePath = f.FileName;
 
-            var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
-            var encoded = CSharpSyntaxTree.Create(syntaxRootNode, null, sourceCodePath, encoding);
+                var buffer = encoding.GetBytes(f.Code);
+                var sourceText = SourceText.From(buffer, buffer.Length, encoding, canBeEmbedded: true);
+
+                var syntaxTree = CSharpSyntaxTree.ParseText(
+                    sourceText,
+                    new CSharpParseOptions(),
+                    path: sourceCodePath);
+
+                var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
+                var encodedSyntaxTree = CSharpSyntaxTree.Create(syntaxRootNode, null, sourceCodePath, encoding);
+
+                syntaxTrees.Add(encodedSyntaxTree);
+            }
 
             Log.Debug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
 
             var compilation = CSharpCompilation.Create(
                 assemblyName,
-                syntaxTrees: new[] { encoded },
+                syntaxTrees: syntaxTrees,
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithOptimizationLevel(rules.OptimizationLevel)
@@ -177,7 +182,10 @@ namespace Blueprint.Compiler
                             exceptionMessage.AppendLine();
                         }
 
-                        throw new CompilationException(exceptionMessage.ToString()) { Code = code };
+                        throw new CompilationException(exceptionMessage.ToString())
+                        {
+                            Code = string.Join("\n\n", files.Select(f => f.Code))
+                        };
                     }
                 });
         }
@@ -203,16 +211,11 @@ namespace Blueprint.Compiler
             {
                 Log.Info("Compiling source to an in-memory DLL with embedded source");
 
-                var sourceText = compilation.SyntaxTrees[0].GetText();
-                var sourceCodePath = compilation.SyntaxTrees[0].FilePath;
-
                 using (var assemblyStream = new MemoryStream())
                 using (var symbolsStream = new MemoryStream())
                 {
-                    var emitOptions = new EmitOptions(
-                        debugInformationFormat: DebugInformationFormat.Embedded);
-
-                    var embeddedTexts = new List<EmbeddedText> { EmbeddedText.FromSource(sourceCodePath, sourceText), };
+                    var emitOptions = new EmitOptions(debugInformationFormat: DebugInformationFormat.Embedded);
+                    var embeddedTexts = compilation.SyntaxTrees.Select(s => EmbeddedText.FromSource(s.FilePath, s.GetText()));
 
                     var result = compilation.Emit(
                         peStream: assemblyStream,
@@ -225,7 +228,7 @@ namespace Blueprint.Compiler
                     assemblyStream.Seek(0, SeekOrigin.Begin);
                     symbolsStream.Seek(0, SeekOrigin.Begin);
 
-#if !NET462
+#if !NET472
                     return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
 #else
                     return Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
@@ -238,9 +241,8 @@ namespace Blueprint.Compiler
         {
             public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
             {
-                var sourceText = compilation.SyntaxTrees[0].GetText();
-                var sourceTextHash = GetSha256Hash(sourceText.ToString());
-                var sourceCodePath = compilation.SyntaxTrees[0].FilePath;
+                var sourceTexts =  compilation.SyntaxTrees.Select(s => s.GetText());
+                var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
 
                 var assemblyName = compilation.AssemblyName + ".dll";
                 var symbolsName = Path.ChangeExtension(assemblyName, "pdb");
@@ -275,12 +277,12 @@ namespace Blueprint.Compiler
                 {
                     Log.Info("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
-                    Compile(compilation, check, sourceCodePath, sourceText, outputFolder, assemblyFile, symbolsFile);
+                    Compile(compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
 
                     File.WriteAllText(manifestFile, sourceTextHash);
                 }
 
-#if !NET462
+#if !NET472
                     return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
                     return Assembly.LoadFrom(assemblyFile);
@@ -307,8 +309,7 @@ namespace Blueprint.Compiler
             private static void Compile(
                 CSharpCompilation compilation,
                 Action<EmitResult> check,
-                string sourceCodePath,
-                SourceText sourceText,
+                IEnumerable<SyntaxTree> syntaxTrees,
                 string outputFolder,
                 string assemblyFile,
                 string symbolsFile)
@@ -319,7 +320,7 @@ namespace Blueprint.Compiler
                     var emitOptions = new EmitOptions(
                         debugInformationFormat: DebugInformationFormat.PortablePdb);
 
-                    var embeddedTexts = new List<EmbeddedText> { EmbeddedText.FromSource(sourceCodePath, sourceText), };
+                    var embeddedTexts = syntaxTrees.Select(s => EmbeddedText.FromSource(s.FilePath, s.GetText()));
 
                     var result = compilation.Emit(
                         peStream: assemblyStream,
@@ -346,6 +347,24 @@ namespace Blueprint.Compiler
                     File.WriteAllBytes(symbolsFile, symbolBytes);
                 }
             }
+        }
+
+        public void AddFile(string fileName, string code)
+        {
+            this.files.Add(new SourceFile(fileName, code));
+        }
+
+        private class SourceFile
+        {
+            public SourceFile(string fileName, string code)
+            {
+                FileName = fileName;
+                Code = code;
+            }
+
+            public string FileName { get; }
+
+            public string Code { get; }
         }
     }
 }
