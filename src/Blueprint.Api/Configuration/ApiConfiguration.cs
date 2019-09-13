@@ -1,4 +1,4 @@
-namespace Blueprint.Api
+﻿namespace Blueprint.Api.Configuration
 {
     /// <summary>
     /// Configuration object for Blueprint API, will be a singleton throughout the site.

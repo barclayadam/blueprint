@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Runtime Roslyn Compiler</Description>
     <Authors>Adam Barclay</Authors>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>Blueprint.Compiler</AssemblyName>
     <PackageId>Blueprint.Compiler</PackageId>
@@ -16,8 +16,8 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <DefineConstants>$(DefineConstants);NET462</DefineConstants>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <DefineConstants>$(DefineConstants);NET472</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />

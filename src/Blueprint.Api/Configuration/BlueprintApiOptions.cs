@@ -7,7 +7,7 @@ using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Configuration
 {
     /// <summary>
     /// Serves as the central configuration point for the Blueprint API, providing the options for
@@ -17,6 +17,11 @@ namespace Blueprint.Api
     public class BlueprintApiOptions
     {
         private readonly ApiDataModel dataModel = new ApiDataModel();
+
+        public BlueprintApiOptions()
+        {
+            AddOperation<RootMetadataOperation>();
+        }
 
         public BlueprintApiOptions(Action<BlueprintApiOptions> configure)
         {

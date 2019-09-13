@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Configuration;
 using Blueprint.Api.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;

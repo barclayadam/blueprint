@@ -9,12 +9,14 @@
     /// it in a fashion that allows the audit trail to be queried to determine the action
     /// performed within a system.
     /// </remarks>
-    public interface IAuditor
+    public class NullAuditor : IAuditor
     {
         /// <summary>
         /// Writes an <see cref="AuditItem"/> to the persistent data store.
         /// </summary>
         /// <param name="auditItem">The audit item to persist.</param>
-        void Write(AuditItem auditItem);
+        public void Write(AuditItem auditItem)
+        {
+        }
     }
 }

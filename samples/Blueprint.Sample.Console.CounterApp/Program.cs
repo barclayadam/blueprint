@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Middleware;
+using Blueprint.Api.Configuration;
 using Lamar;
 using Lamar.Microsoft.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -33,14 +32,16 @@ namespace Blueprint.Sample.Console.CounterApp
                 .UseDotNetCore2Environment()
                 .ConfigureHostConfiguration(config =>
                 {
-                    config.AddEnvironmentVariables();
                     config.SetBasePath(Directory.GetCurrentDirectory());
+
+                    config.AddEnvironmentVariables();
                     config.AddCommandLine(args);
                 })
                 .ConfigureAppConfiguration((context, config) =>
                 {
                     context.HostingEnvironment.ApplicationName = AppName;
 
+                    config.AddEnvironmentVariables();
                     config.AddCommandLine(args);
                 })
                 .ConfigureServices((context, services) =>
@@ -50,17 +51,34 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.Configure<CounterConfiguration>(context.Configuration);
 
                     // Configure Blueprint
-                    services.AddBlueprintApi(o =>
-                    {
-                        o.WithApplicationName(AppName);
+                    services.AddBlueprintApi(b => b
+                        .Settings(s =>
+                        {
+                            s.SetAppName(AppName);
+                            s.ScanAssemblies(typeof(Program).Assembly);
+                        })
+                        .Middlewares(m => m
+                            .Logging()
+                            .Validation(v => v
+                                .UseBlueprintSource()
+                                .UseDataAnnotationSource()
+                            )
+                            .Auditing(a => a
+                                .StoreInSqlServer("connectionString", "AuditTrail")
+                            )
+                        ));
 
-                        o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                        o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
-                        o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                        o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
+                    //services.AddBlueprintApi(o =>
+                    //{
+                    //    o.WithApplicationName(AppName);
 
-                        o.Scan(typeof(Program).Assembly);
-                    });
+                    //    o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
+                    //    o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
+                    //    o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
+                    //    o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
+
+                    //    o.Scan(typeof(Program).Assembly);
+                    //});
 
                     // Configure Hosted Services
                     services.AddHostedService<CounterService>();

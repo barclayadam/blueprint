@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Configuration;
 using Blueprint.Api.Middleware;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

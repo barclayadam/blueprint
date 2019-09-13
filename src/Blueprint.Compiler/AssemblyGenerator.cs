@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Text;
 
 using NLog;
 
-#if !NET462
+#if !NET472
 using System.Runtime.Loader;
 #endif
 
@@ -225,7 +225,7 @@ namespace Blueprint.Compiler
                     assemblyStream.Seek(0, SeekOrigin.Begin);
                     symbolsStream.Seek(0, SeekOrigin.Begin);
 
-#if !NET462
+#if !NET472
                     return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
 #else
                     return Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
@@ -280,7 +280,7 @@ namespace Blueprint.Compiler
                     File.WriteAllText(manifestFile, sourceTextHash);
                 }
 
-#if !NET462
+#if !NET472
                     return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
                     return Assembly.LoadFrom(assemblyFile);

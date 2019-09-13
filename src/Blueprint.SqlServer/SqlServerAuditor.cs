@@ -35,6 +35,8 @@ namespace Blueprint.SqlServer
             this.databaseConnectionFactory = databaseConnectionFactory;
         }
 
+        public string TableName { get; set; } = "AuditTrail";
+
         /// <summary>
         /// Insert the audit item into the database.
         /// </summary>
@@ -52,8 +54,8 @@ namespace Blueprint.SqlServer
             using (var transaction = cn.BeginTransaction())
             {
                 cn.Execute(
-                    @"INSERT INTO AuditTrail (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
-                                      VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
+                    $@"INSERT INTO {TableName} (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
+                           VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
                     new
                     {
                         auditItem.CorrelationId,
