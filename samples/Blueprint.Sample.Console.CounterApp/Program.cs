@@ -58,7 +58,7 @@ namespace Blueprint.Sample.Console.CounterApp
                             s.AssembliesToScanForOperations(typeof(Program).Assembly);
                         })
                         .Middlewares(m => m
-                            .Logging()
+                            .Logging(l => l.UseNLog())
                             .Validation(v => v
                                 .UseBlueprintSource()
                                 .UseDataAnnotationSource()

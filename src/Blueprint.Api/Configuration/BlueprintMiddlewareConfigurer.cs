@@ -1,5 +1,4 @@
 ﻿using System;
-using Blueprint.Api.Middleware;
 using Blueprint.Core;
 
 namespace Blueprint.Api.Configuration
@@ -13,9 +12,11 @@ namespace Blueprint.Api.Configuration
             this.blueprintConfigurer = blueprintConfigurer;
         }
 
-        public BlueprintMiddlewareConfigurer Logging(MiddlewareStage? middlewareStage = null)
+        public BlueprintMiddlewareConfigurer Logging(Action<BlueprintLoggingConfigurer> configurer, MiddlewareStage? middlewareStage = null)
         {
-            blueprintConfigurer.AddMiddlewareBuilderToStage<LoggingMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
+            Guard.NotNull(nameof(configurer), configurer);
+
+            configurer(new BlueprintLoggingConfigurer(blueprintConfigurer, middlewareStage));
 
             return this;
         }

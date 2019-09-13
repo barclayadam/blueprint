@@ -1,28 +1,24 @@
-﻿using Blueprint.Core;
-using Blueprint.Core.Auditing;
+﻿using Blueprint.Api.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Configuration
 {
     public class BlueprintLoggingConfigurer
     {
-        private readonly IServiceCollection services;
+        private readonly BlueprintConfigurer blueprintConfigurer;
+        private readonly MiddlewareStage? middlewareStage;
 
-        public BlueprintLoggingConfigurer(IServiceCollection services)
+        public BlueprintLoggingConfigurer(BlueprintConfigurer blueprintConfigurer, MiddlewareStage? middlewareStage = null)
         {
-            this.services = services;
+            this.blueprintConfigurer = blueprintConfigurer;
+            this.middlewareStage = middlewareStage;
         }
 
-        public void None()
-        {
-            Use(new NullAuditor());
-        }
+        public IServiceCollection Services => blueprintConfigurer.Services;
 
-        public void Use(IAuditor auditor)
+        public void UseNLog()
         {
-            Guard.NotNull(nameof(auditor), auditor);
-
-            services.AddTransient(typeof(IAuditor), auditor.GetType());
+            blueprintConfigurer.AddMiddlewareBuilderToStage<LoggingMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
         }
     }
 }
