@@ -46,6 +46,15 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
+        public BlueprintConfigurer BackgroundTasks(Action<BlueprintBackgroundTasksConfigurer> configurer)
+        {
+            Guard.NotNull(nameof(configurer), configurer);
+
+            configurer(new BlueprintBackgroundTasksConfigurer(this));
+
+            return this;
+        }
+
         public void Build()
         {
             if (options.AppName == null)
@@ -59,16 +68,15 @@ namespace Blueprint.Api.Configuration
             Services.AddSingleton(options.Model);
             Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder().Build(options, s));
 
+            // Logging only?
             Services.AddScoped<IErrorLogger, ErrorLogger>();
 
+            // Auth only?
+            Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
             Services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-
-            // Tasks: services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
-            // Tasks: Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
 
             Services.AddScoped<ITypeFormatter, JsonTypeFormatter>();
             Services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
-            Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
 
             Services.AddSingleton<ICache, Cache>();
             Services.AddSingleton(MemoryCache.Default);

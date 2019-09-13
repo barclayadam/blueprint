@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
   </ItemGroup>
 </Project>

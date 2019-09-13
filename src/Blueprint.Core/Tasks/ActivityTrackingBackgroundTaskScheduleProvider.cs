@@ -9,7 +9,7 @@ namespace Blueprint.Core.Tasks
     /// track the scheduling of a task in a request, to give a new ID to each task enqueued (see <see cref="BackgroundTaskMetadata.RequestId" />) and
     /// add any <see cref="Activity.Baggage" /> to <see cref="BackgroundTaskMetadata.RequestBaggage" />.
     /// </summary>
-    internal class ActivityTrackingBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
+    public class ActivityTrackingBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
         private readonly IBackgroundTaskScheduleProvider innerProvider;
 

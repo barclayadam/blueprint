@@ -66,7 +66,7 @@ namespace Blueprint.Sample.Console.CounterApp
                             .Auditing(a => a
                                 .StoreInSqlServer("connectionString", "[counter].[AuditTrail]")
                             )
-                        ));
+                        ).BackgroundTasks(t => t.UseHangfire()));
 
                     //services.AddBlueprintApi(o =>
                     //{
