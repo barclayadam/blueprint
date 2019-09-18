@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Blueprint.Compiler;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
+using Microsoft.CodeAnalysis;
 
 namespace Blueprint.Api
 {
@@ -22,13 +24,22 @@ namespace Blueprint.Api
         {
             AddOperation<RootMetadataOperation>();
 
+            Rules = new GenerationRules("Blueprint.Pipelines")
+            {
+                OptimizationLevel = OptimizationLevel.Release
+            };
+
             configure(this);
 
             if (ApplicationName == null)
             {
                 throw new InvalidOperationException("An application name MUST be set");
             }
+
+            Rules.AssemblyName = Rules.AssemblyName ?? ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
         }
+
+        public GenerationRules Rules { get; }
 
         /// <summary>
         /// Gets or sets what should happen if a request comes in and cannot be handled by any

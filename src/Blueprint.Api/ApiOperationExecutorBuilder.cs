@@ -74,14 +74,9 @@ namespace Blueprint.Api
 
                 var model = options.Model;
                 var dictionary = new Dictionary<Type, Func<IOperationExecutorPipeline>>();
-                var rules = new GenerationRules("Blueprint.Pipelines")
-                {
-                    OptimizationLevel = OptimizationLevel.Release,
-                    AssemblyName = options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty)
-                };
 
                 // Start the definition for a new generated assembly
-                var assembly = new GeneratedAssembly(rules);
+                var assembly = new GeneratedAssembly(options.Rules);
 
                 foreach (var operation in model.Operations)
                 {

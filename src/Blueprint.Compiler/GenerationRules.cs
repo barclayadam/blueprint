@@ -19,5 +19,7 @@ namespace Blueprint.Compiler
         public string AssemblyName { get; set; }
 
         public readonly IList<Assembly> Assemblies = new List<Assembly>();
+
+        public ICompileStrategy CompileStrategy { get; set; } = new ToFileCompileStrategy();
     }
 }

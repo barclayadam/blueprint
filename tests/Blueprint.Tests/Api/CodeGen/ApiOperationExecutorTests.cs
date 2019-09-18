@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
+using Blueprint.Compiler;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -20,6 +21,8 @@ namespace Blueprint.Tests.Api.CodeGen
 
             serviceCollection.AddBlueprintApi((o) =>
             {
+                o.Rules.CompileStrategy = new InMemoryOnlyCompileStrategy();
+
                 o.WithApplicationName("Blueprint.Tests");
 
                 o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();

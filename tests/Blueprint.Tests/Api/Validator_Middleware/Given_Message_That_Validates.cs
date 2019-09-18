@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
+using Blueprint.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
@@ -89,6 +90,8 @@ namespace Blueprint.Tests.Api.Validator_Middleware
 
             collection.AddBlueprintApi(o =>
             {
+                o.Rules.CompileStrategy = new InMemoryOnlyCompileStrategy();
+
                 o.WithApplicationName("Blueprint.Tests");
 
                 o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
