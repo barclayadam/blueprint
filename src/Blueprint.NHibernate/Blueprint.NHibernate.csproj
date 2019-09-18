@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <Title>Blueprint - NHibernate Provider</Title>
     <Description>Blueprint: Integration package with NHibernate</Description>
     <PackageTags>NHibernate;$(PackageBaseTags)</PackageTags>

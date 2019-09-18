@@ -30,8 +30,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Stackify", "src\Blueprint.Stackify\Blueprint.Stackify.csproj", "{8AA96541-267F-42FD-8399-37952881347F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EACE4109-A1D6-4FAE-846D-98A171871FF6}"
+ProjectSection(SolutionItems) = preProject
+	samples\Directory.Build.props = samples\Directory.Build.props
+EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9500564D-5E23-471A-BE6E-EA9051177CE1}"
+ProjectSection(SolutionItems) = preProject
+	tests\Directory.Build.props = tests\Directory.Build.props
+EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.WebApi", "samples\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj", "{8C575F82-1372-485C-83C1-67C359CF9273}"
 EndProject
