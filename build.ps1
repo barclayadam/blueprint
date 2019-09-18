@@ -35,7 +35,7 @@ if ($PullRequestNumber) {
 }
 
 Write-Host "Building solution..." -ForegroundColor "Magenta"
-dotnet restore ".\Blueprint.sln" -v detailed /p:CI=true
+dotnet restore ".\Blueprint.sln" -v minimal /p:CI=true
 dotnet build ".\Blueprint.sln" -c Release /p:CI=true
 Write-Host "Done building." -ForegroundColor "Green"
 
