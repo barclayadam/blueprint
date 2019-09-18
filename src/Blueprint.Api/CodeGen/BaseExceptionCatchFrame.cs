@@ -34,13 +34,13 @@ namespace Blueprint.Api.CodeGen
             getErrorLoggerFrame.GenerateCode(method, writer);
 
             writer.Write($"var errorData = new {typeof(Dictionary<string, string>).FullNameInCode()}();");
-            writer.Write($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
+            writer.Write($"var userAuthorisationContext = {contextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
             writer.Write($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
 
             writer.BlankLine();
 
             // 1. Allow user context to populate metadata to the error data dictionary if it exists
-            writer.Write("userAuthorisationContext?.PopulateMetadata((k, v) => errorData[k] = v?.ToString());");
+            writer.Write($"userAuthorisationContext?.{nameof(IUserAuthorisationContext.PopulateMetadata)}((k, v) => errorData[k] = v?.ToString());");
 
             // 2. For every property of the operation output a value to the errorData dictionary. ALl properties that are
             // not considered sensitive
@@ -52,7 +52,7 @@ namespace Blueprint.Api.CodeGen
                 }
 
                 // If the type is primitive we need to leave off the '?' null-coalesce method call operator
-                var shouldHandleNull = prop.PropertyType.IsClass;
+                var shouldHandleNull = !prop.PropertyType.IsValueType;
 
                 writer.Write($"errorData[\"{context.Descriptor.Name}.{prop.Name}\"] = " +
                              $"{context.ApiContextVariableSource.OperationVariable}.{prop.Name}{(shouldHandleNull ? "?" : "")}.ToString();");
@@ -60,7 +60,7 @@ namespace Blueprint.Api.CodeGen
 
             // 3. Use IErrorLogger to push all details to exception sinks
             writer.BlankLine();
-            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.Log({exceptionVariable}, errorData, {contextVariable}.HttpContext, identifier);");
+            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.{nameof(IErrorLogger.Log)}({exceptionVariable}, errorData, {contextVariable}.{nameof(ApiOperationContext.HttpContext)}, identifier);");
             writer.BlankLine();
 
             // 4. Return UnhandledExceptionOperationResult that will attempt to determine best status code etc. depending
