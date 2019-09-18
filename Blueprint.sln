@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Hangfire", "src\B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Testing", "src\Blueprint.Testing\Blueprint.Testing.csproj", "{1ADB1F40-BD86-43D4-84A3-23C524060314}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tests", "src\Blueprint.Tests\Blueprint.Tests.csproj", "{F469E40C-B0F3-4645-9344-1F4F35717958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tests", "tests\Blueprint.Tests\Blueprint.Tests.csproj", "{F469E40C-B0F3-4645-9344-1F4F35717958}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.NHibernate", "src\Blueprint.NHibernate\Blueprint.NHibernate.csproj", "{EA6AC8CB-F249-48E8-B530-7B86EAB8163D}"
 EndProject
@@ -36,6 +36,21 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.WebApi", "samples\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj", "{8C575F82-1372-485C-83C1-67C359CF9273}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.Console.CounterApp", "samples\Blueprint.Sample.Console.CounterApp\Blueprint.Sample.Console.CounterApp.csproj", "{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1607A208-63F6-4816-BD68-CBAE9B703157}"
+ProjectSection(SolutionItems) = preProject
+	build.ps1 = build.ps1
+	build.cmd = build.cmd
+	azure-pipelines.yml = azure-pipelines.yml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{44E38BE8-9648-4112-920F-2A0EE10A6F8C}"
+ProjectSection(SolutionItems) = preProject
+	src\CustomDictionary.xml = src\CustomDictionary.xml
+	src\Directory.Build.props = src\Directory.Build.props
+	src\Rules.ruleset = src\Rules.ruleset
+	src\Settings.StyleCop = src\Settings.StyleCop
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +126,18 @@ Global
 		{F469E40C-B0F3-4645-9344-1F4F35717958} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
 		{8C575F82-1372-485C-83C1-67C359CF9273} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
 		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
+		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{C7A422DB-A037-4F15-BD0C-FADD08DEEADC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{6EC8053C-6A69-4103-9663-711E42E9EADB} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{EA6AC8CB-F249-48E8-B530-7B86EAB8163D} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{8AA96541-267F-42FD-8399-37952881347F} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{1ADB1F40-BD86-43D4-84A3-23C524060314} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}

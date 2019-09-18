@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <Title>Blueprint -</Title>
+    <Description>Blueprint: Extensions and helpers for ASP.NET MVC 5+ (non-.NET Core)</Description>
+    <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="3.8.0" />

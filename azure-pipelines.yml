@@ -1,0 +1,60 @@
+pool:
+  vmImage: 'ubuntu-16.04'
+
+# Build Variables
+variables:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  system.debug: true
+
+# CI Trigger on master branch
+trigger:
+  batch: false
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+# Trigger builds for PR's targeting master
+pr:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'runtime'
+      version: '2.2.5'
+
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '3.0.100-preview9-014004'
+
+  - task: PowerShell@2
+    displayName: 'Build / Test / Create Packages'
+    inputs:
+      targetType: inline
+      script: .\build.ps1 -CreatePackages $true -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/*.trx'
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
+
+  # PR doesn't create nuget packages. So publish artifact step disabled for PR's
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: packages'
+    inputs:
+      PathtoPublish: .nupkgs
+      ArtifactName: packages
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))

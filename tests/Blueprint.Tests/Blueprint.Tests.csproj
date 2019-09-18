@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net462</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
@@ -17,13 +18,13 @@
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
-    <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-    <ProjectReference Include="..\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
-    <ProjectReference Include="..\Blueprint.StructureMap\Blueprint.StructureMap.csproj" />
-    <ProjectReference Include="..\Blueprint.Testing\Blueprint.Testing.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.StructureMap\Blueprint.StructureMap.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings.StyleCop" />

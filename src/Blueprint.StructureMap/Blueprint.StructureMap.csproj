@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <Title>Blueprint - StructureMap Provider</Title>
+    <Description>Blueprint: StructureMap provider</Description>
+    <PackageTags>StructureMap;DI;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StructureMap" Version="4.7.1" />
