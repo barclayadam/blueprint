@@ -8,6 +8,7 @@ param(
 Write-Host "Run Parameters:" -ForegroundColor Cyan
 Write-Host "  CreatePackages: $CreatePackages"
 Write-Host "  RunTests: $RunTests"
+Write-Host "  PullRequestNumber: $PullRequestNumber"
 Write-Host "  dotnet --version:" (dotnet --version)
 
 $packageOutputFolder = "$PSScriptRoot\.nupkgs"
@@ -34,7 +35,7 @@ if ($PullRequestNumber) {
 }
 
 Write-Host "Building solution..." -ForegroundColor "Magenta"
-dotnet restore ".\Blueprint.sln" /p:CI=true
+dotnet restore ".\Blueprint.sln" -v detailed /p:CI=true
 dotnet build ".\Blueprint.sln" -c Release /p:CI=true
 Write-Host "Done building." -ForegroundColor "Green"
 
