@@ -86,7 +86,7 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var collection = new ServiceCollection();
 
             var handler = new TestApiOperationHandler<T>(toReturn);
-            collection.AddSingleton(handler);
+            collection.AddSingleton<IApiOperationHandler<T>>(handler);
 
             collection.AddBlueprintApi(o =>
             {
@@ -101,7 +101,8 @@ namespace Blueprint.Tests.Api.Validator_Middleware
                 o.AddOperation<T>();
             });
 
-            var executor = collection.BuildServiceProvider().GetRequiredService<IApiOperationExecutor>();
+            var serviceProvider = collection.BuildServiceProvider();
+            var executor = serviceProvider.GetRequiredService<IApiOperationExecutor>();
 
             var result = await executor.ExecuteWithNewScopeAsync(operation);
 
