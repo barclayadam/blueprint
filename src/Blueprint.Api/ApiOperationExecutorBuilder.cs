@@ -112,7 +112,7 @@ namespace Blueprint.Api
                     var apiOperationContextSource =
                         new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
 
-                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>();
+                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
 
                     var context = new MiddlewareBuilderContext(
                         assembly,
@@ -156,7 +156,7 @@ namespace Blueprint.Api
                         }
                     }
 
-                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)serviceProvider.GetRequiredService(executor.CompiledType));
+                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, executor.CompiledType));
                 }
 
                 try

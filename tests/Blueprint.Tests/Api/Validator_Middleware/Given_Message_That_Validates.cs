@@ -9,12 +9,12 @@ using StructureMap;
 
 namespace Blueprint.Tests.Api.Validator_Middleware
 {
+    public class EmptyOperation : IApiOperation
+    {
+    }
+
     public class Given_ValidationMiddleware
     {
-        public class EmptyOperation : IApiOperation
-        {
-        }
-
         public class HasRequiredPropertyOperation : IApiOperation
         {
             [Required]
@@ -78,13 +78,16 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             ((ValidationFailedResult)result.Result).Content.Errors.ShouldContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
         }
 
-        private async Task<(OperationResult Result, TestApiOperationHandler<T> Handler)> Execute<T>(
+        private static async Task<(OperationResult Result, TestApiOperationHandler<T> Handler)> Execute<T>(
             T operation,
             object toReturn) where T : IApiOperation
         {
-            var handler = new TestApiOperationHandler<T>(toReturn);
+            var collection = new ServiceCollection();
 
-            var options = new BlueprintApiOptions(o =>
+            var handler = new TestApiOperationHandler<T>(toReturn);
+            collection.AddSingleton(handler);
+
+            collection.AddBlueprintApi(o =>
             {
                 o.WithApplicationName("Blueprint.Tests");
 
@@ -95,21 +98,11 @@ namespace Blueprint.Tests.Api.Validator_Middleware
                 o.AddOperation<T>();
             });
 
-            var container = ConfigureContainer(handler);
-            var executor = new ApiOperationExecutorBuilder().Build(options, container);
+            var executor = collection.BuildServiceProvider().GetRequiredService<IApiOperationExecutor>();
 
             var result = await executor.ExecuteWithNewScopeAsync(operation);
 
             return (result, handler);
-        }
-
-        private static ServiceProvider ConfigureContainer<T>(IApiOperationHandler<T> handler) where T : IApiOperation
-        {
-            var collection = new ServiceCollection();
-
-            collection.AddSingleton(handler);
-
-            return collection.BuildServiceProvider();
         }
     }
 }

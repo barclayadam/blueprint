@@ -57,7 +57,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (apiOperationHandler == null)
                 {
-                    missingApiOperationHandlers.Add(operation);
+                    // We will search for anything that has already been registered before adding to the "not registered"
+                    // pile
+                    if (services.All(d => apiOperationHandlerType.IsAssignableFrom(d.ServiceType)))
+                    {
+                        missingApiOperationHandlers.Add(operation);
+                    }
+
+                    continue;
                 }
 
                 services.AddScoped(apiOperationHandlerType, apiOperationHandler);

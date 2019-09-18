@@ -8,14 +8,14 @@ namespace Blueprint.Tests.Api
     {
         public int Id { get; set; }
 
-        public static ApiOperationDescriptor NewDescriptor()
-        {
-            return new ApiOperationDescriptor(typeof(TestApiOperation), HttpMethod.Get);
-        }
-
         public static ApiOperationContext NewOperationContext(IServiceProvider serviceProvider)
         {
             return ApiOperationContextSetup.CreateFromDescriptor(serviceProvider, NewDescriptor());
+        }
+
+        private static ApiOperationDescriptor NewDescriptor()
+        {
+            return new ApiOperationDescriptor(typeof(TestApiOperation), HttpMethod.Get);
         }
     }
 }

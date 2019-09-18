@@ -17,9 +17,8 @@ namespace Blueprint.Tests.Api.CodeGen
             var handler = new TestApiOperationHandler();
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IApiOperationHandler<TestApiOperation>>(handler);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var apiOperationExecutor = CreateApiOperationExecutor(serviceProvider, (o) =>
+            serviceCollection.AddBlueprintApi((o) =>
             {
                 o.WithApplicationName("Blueprint.Tests");
 
@@ -29,6 +28,9 @@ namespace Blueprint.Tests.Api.CodeGen
 
                 o.AddOperation<TestApiOperation>();
             });
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var apiOperationExecutor = serviceProvider.GetRequiredService<IApiOperationExecutor>();
 
             var ctx = TestApiOperation.NewOperationContext(serviceProvider);
 
@@ -42,11 +44,6 @@ namespace Blueprint.Tests.Api.CodeGen
             // Simple check for a context that looks right, not extensive testing here!
             handler.ContextPassed.Should().NotBeNull();
             handler.ContextPassed.Should().Be(ctx);
-        }
-
-        private static CodeGennedExecutor CreateApiOperationExecutor(IServiceProvider serviceProvider, Action<BlueprintApiOptions> configure)
-        {
-            return new ApiOperationExecutorBuilder().Build(new BlueprintApiOptions(configure), serviceProvider);
         }
     }
 }
