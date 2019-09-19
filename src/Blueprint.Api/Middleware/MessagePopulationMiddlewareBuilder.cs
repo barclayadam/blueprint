@@ -5,17 +5,23 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using Blueprint.Api.Errors;
-using Blueprint.Compiler.Frames;
+
+using Blueprint.Core.Errors;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+
+using Blueprint.Compiler.Frames;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 using NLog;
 
-namespace Blueprint.Api.Middleware
+using System.Text;
+
+namespace Blueprint.Core.Api.Middleware
 {
     /// <summary>
     /// A middleware that will populate the API operation that is being passed through with information
@@ -66,15 +72,11 @@ namespace Blueprint.Api.Middleware
             {
                 if (request.ContentType.Contains("application/x-www-form-urlencoded"))
                 {
-                    // TODO: Implement handling for Populating From FormData
-                    return;
+                    PopulateFromForm(context);
                 }
-
-                var isMimeMultipartContent = request.ContentType != null && request.ContentType.Contains("multipart/form-data");
-
-                if (isMimeMultipartContent)
+                else if (request.ContentType.Contains("multipart/form-data"))
                 {
-                    PopulateFromMultipartBody(context);
+                    PopulateFromForm(context);
                 }
                 else
                 {
@@ -83,7 +85,7 @@ namespace Blueprint.Api.Middleware
             }
         }
 
-        private static void PopulateFromMultipartBody(ApiOperationContext context)
+        private static void PopulateFromForm(ApiOperationContext context)
         {
             var request = context.Request;
             var operation = context.Operation;
