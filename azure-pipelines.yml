@@ -55,8 +55,9 @@ steps:
   - task: NuGetCommand@2
     displayName: 'NuGet push'
     inputs:
-      command: push
-      publishVstsFeed: 'Blueprint'
+      command: 'push'
+      packagesToPush: '.nupkgs/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c'
       allowPackageConflicts: true
-      packagesToPush: .nupkgs/*.nupkg
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
