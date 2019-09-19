@@ -1,31 +1,6 @@
 pool:
   vmImage: 'windows-latest'
 
-# Build Variables
-variables:
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-
-# CI Trigger on master branch
-trigger:
-  batch: false
-  branches:
-    include:
-      - master
-  paths:
-    exclude:
-      - docs/*
-      - '**/*.md'
-
-# Trigger builds for PR's targeting master
-pr:
-  branches:
-    include:
-      - master
-  paths:
-    exclude:
-      - docs/*
-      - '**/*.md'
-
 steps:
   - task: UseDotNet@2
     inputs:
@@ -49,19 +24,3 @@ steps:
     inputs:
       testRunner: VSTest
       testResultsFiles: '**/*.trx'
-
-  # PR doesn't create nuget packages. So publish artifact step disabled for PR's
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: packages'
-    inputs:
-      PathtoPublish: .nupkgs
-      ArtifactName: packages
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  - task: NuGetCommand@2
-    displayName: 'NuGet push'
-    inputs:
-      command: push
-      publishVstsFeed: 'Blueprint'
-      allowPackageConflicts: true
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
