@@ -63,7 +63,6 @@ steps:
     displayName: 'NuGet push'
     inputs:
       command: push
-      # "Blueprint" Azure Artifacts feed - a60429aa-6275-486c-9447-5e88f11e76f5/dac47791-36b6-499d-a11f-5762dddbb122
       publishVstsFeed: 'Blueprint'
       allowPackageConflicts: true
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
