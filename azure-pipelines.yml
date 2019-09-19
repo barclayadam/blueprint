@@ -4,7 +4,6 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  Prerelease: 'ci'
 
 # CI Trigger on master branch
 trigger:
@@ -42,7 +41,7 @@ steps:
     displayName: 'Build / Test / Create Packages'
     inputs:
       targetType: inline
-      script: .\build.ps1 -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER -Prerelease $(Prerelease)
+      script: .\build.ps1 -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results **/*.trx'
