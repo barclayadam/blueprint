@@ -51,18 +51,12 @@ steps:
       testRunner: VSTest
       testResultsFiles: '**/*.trx'
 
-  # PR doesn't create nuget packages. So publish artifact step disabled for PR's
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: packages'
-    inputs:
-      PathtoPublish: .nupkgs
-      ArtifactName: packages
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
+  # PR doesn't create nuget packages
   - task: NuGetCommand@2
     displayName: 'NuGet push'
     inputs:
       command: push
       publishVstsFeed: 'Blueprint'
       allowPackageConflicts: true
+      packagesToPush: .nupkgs/*.nupkg
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
