@@ -4,7 +4,7 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  Prerelease: ci
+  Prerelease: 'ci'
 
 # CI Trigger on master branch
 trigger:
