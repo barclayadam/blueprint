@@ -5,6 +5,7 @@ tests/**/obj
 samples/**/bin
 samples/**/obj
 
+.nupkgs
 .vs/
 
 .idea/*

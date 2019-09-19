@@ -4,7 +4,7 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  system.debug: true
+  Prerelease: ci
 
 # CI Trigger on master branch
 trigger:
@@ -42,7 +42,7 @@ steps:
     displayName: 'Build / Test / Create Packages'
     inputs:
       targetType: inline
-      script: .\build.ps1 -CreatePackages $true -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
+      script: .\build.ps1 -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER -Prerelease $(Prerelease)
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results **/*.trx'
@@ -57,4 +57,13 @@ steps:
     inputs:
       PathtoPublish: .nupkgs
       ArtifactName: packages
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    inputs:
+      command: push
+      # "Blueprint" Azure Artifacts feed - a60429aa-6275-486c-9447-5e88f11e76f5/dac47791-36b6-499d-a11f-5762dddbb122
+      publishVstsFeed: 'Blueprint'
+      allowPackageConflicts: true
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))

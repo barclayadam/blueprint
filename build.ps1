@@ -1,18 +1,19 @@
 [CmdletBinding(PositionalBinding=$false)]
 param(
-    [bool] $CreatePackages,
     [bool] $RunTests = $true,
+    [string] $Prerelease = "ci",
     [string] $PullRequestNumber
 )
 
 Write-Host "Run Parameters:" -ForegroundColor Cyan
-Write-Host "  CreatePackages: $CreatePackages"
 Write-Host "  RunTests: $RunTests"
+Write-Host "  Prerelease: $Prerelease"
 Write-Host "  PullRequestNumber: $PullRequestNumber"
 Write-Host "  dotnet --version:" (dotnet --version)
 
+$CreatePackages = $true
 $packageOutputFolder = "$PSScriptRoot\.nupkgs"
-$projectsToBuild = @(
+$proejctsToPack = @(
     'Blueprint.Compiler',
     'Blueprint.Core',
     'Blueprint.Api',
@@ -64,9 +65,9 @@ if ($CreatePackages) {
 
     Write-Host "Building all packages" -ForegroundColor "Green"
 
-    foreach ($project in $projectsToBuild) {
+    foreach ($project in $proejctsToPack) {
         Write-Host "Packing $project (dotnet pack)..." -ForegroundColor "Magenta"
-        dotnet pack ".\src\$project\$project.csproj" --no-build -c Release /p:PackageOutputPath=$packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true
+        dotnet pack ".\src\$project\$project.csproj" --no-build -c Release /p:PackageOutputPath=$packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true /p:Prerelease=$Prerelease
         Write-Host ""
     }
 }
