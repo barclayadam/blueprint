@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <Title>Blueprint - StructureMap Provider</Title>
-    <Description>Blueprint: StructureMap provider</Description>
+    <Description>Blueprint: API integration with StructureMap</Description>
     <PackageTags>StructureMap;DI;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>

@@ -5,8 +5,8 @@
     <DebugType>portable</DebugType>
     <AssemblyName>Blueprint.Compiler</AssemblyName>
     <Title>Blueprint -</Title>
-    <Description>Blueprint: Extensions and helpers for ASP.NET MVC 5+ (non-.NET Core)</Description>
-    <PackageTags>$(PackageBaseTags)</PackageTags>
+    <Description>Blueprint: Frame-based runtime code compiler using Roslyn</Description>
+    <PackageTags>Roslyn;Compiler;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />

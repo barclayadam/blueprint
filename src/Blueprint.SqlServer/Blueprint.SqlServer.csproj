@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <Title>Blueprint - SQL Server Provider</Title>
-    <Description>Blueprint: Provider to integrate Blueprint with SQL Server</Description>
+    <Description>Blueprint: API integration with SQL Server</Description>
     <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
