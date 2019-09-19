@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
-    <Title>Blueprint -</Title>
-    <Description>Blueprint: API integration with Application Insights</Description>
+    <Title>Blueprint - Application Insights Provider</Title>
+    <Description>Blueprint: Integrates Application Insights with Blueprint API projects</Description>
     <PackageTags>AppInsights;APM;Application Insights;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>

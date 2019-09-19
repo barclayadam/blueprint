@@ -35,7 +35,7 @@
     <PackageLicenseUrl>https://github.com/barclayadam/blueprint/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/barclayadam/blueprint</PackageProjectUrl>
     <PackageReleaseNotes>See https://github.com/barclayadam/blueprint/releases for more info</PackageReleaseNotes>
-    <PackageBaseTags>API;CQRS;Blueprint</PackageBaseTags>
+    <PackageBaseTags>API;CQRS;Blueprint;Rest</PackageBaseTags>
 
     <Product>Blueprint</Product>
     <Company>Red Sequence</Company>
@@ -47,7 +47,10 @@
     <RepositoryBranch>master</RepositoryBranch>
 
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>embedded</DebugType>
+    <DebugType>portable</DebugType>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <DefaultLanguage>en-GB</DefaultLanguage>
     <NeutralLanguage>en-GB</NeutralLanguage>
