@@ -6,22 +6,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-
-using Blueprint.Core.Errors;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-
 using Blueprint.Compiler.Frames;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 using NLog;
-
 using System.Text;
+using Blueprint.Api.Errors;
 
-namespace Blueprint.Core.Api.Middleware
+namespace Blueprint.Api.Middleware
 {
     /// <summary>
     /// A middleware that will populate the API operation that is being passed through with information
@@ -138,7 +132,7 @@ namespace Blueprint.Core.Api.Middleware
             // This is copied from JsonConvert.PopulateObject to avoid creating a new JsonSerializer on each
             // execution.
             using (var stringReader = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
-            using (var jsonReader = new JsonTextReader(stringReader) { CloseInput = false })
+            using (var jsonReader = new JsonTextReader(stringReader) {CloseInput = false})
             {
                 try
                 {
@@ -199,7 +193,7 @@ namespace Blueprint.Core.Api.Middleware
             if (value.Count > 1)
             {
                 // Axios creates array queryString properties in the format: property[]=1&property[]=2
-                WriteValue(operation, properties, key, (string[]) value, throwException);
+                WriteValue(operation, properties, key, (string[])value, throwException);
             }
             else
             {
@@ -235,7 +229,7 @@ namespace Blueprint.Core.Api.Middleware
                         }
                         else
                         {
-                            var valueAsString = (string) value;
+                            var valueAsString = (string)value;
                             object propertyValue;
 
                             if (valueAsString.StartsWith("["))
