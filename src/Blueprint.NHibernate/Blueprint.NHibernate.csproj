@@ -9,15 +9,4 @@
     <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="NHibernate" Version="4.1.1.4000" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Rules.ruleset">
-      <Link>Rules.ruleset</Link>
-    </None>
-    <None Include="..\Settings.StyleCop">
-      <Link>Settings.StyleCop</Link>
-    </None>
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
-  </ItemGroup>
 </Project>

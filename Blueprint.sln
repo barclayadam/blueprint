@@ -55,7 +55,7 @@ ProjectSection(SolutionItems) = preProject
 	src\CustomDictionary.xml = src\CustomDictionary.xml
 	src\Directory.Build.props = src\Directory.Build.props
 	src\Rules.ruleset = src\Rules.ruleset
-	src\Settings.StyleCop = src\Settings.StyleCop
+	src\Stylecop.json = src\Stylecop.json
 EndProjectSection
 EndProject
 Global

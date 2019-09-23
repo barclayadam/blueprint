@@ -28,5 +28,10 @@
     <Rule Id="CA2227" Action="None" />
     <Rule Id="CA2234" Action="None" />
     <Rule Id="CA2243" Action="None" />
+
+    <!-- StyleCop rules below -->
+    <Rule Id="SA1600" Action="None" /> <!-- Must be documented... Already handled by CS1591 -->
+    <Rule Id="SA1633" Action="None" /> <!-- File headers -->
+    <Rule Id="SA1101" Action="None" /> <!-- Prefix with this. -->
   </Rules>
 </RuleSet>

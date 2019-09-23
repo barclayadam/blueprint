@@ -16,16 +16,4 @@
     <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Rules.ruleset">
-      <Link>Rules.ruleset</Link>
-    </None>
-    <None Include="..\Settings.StyleCop">
-      <Link>Settings.StyleCop</Link>
-    </None>
-    <Content Include="changelog.txt" />
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
-  </ItemGroup>
 </Project>

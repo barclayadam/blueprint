@@ -13,15 +13,4 @@
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Rules.ruleset">
-      <Link>Rules.ruleset</Link>
-    </None>
-    <None Include="..\Settings.StyleCop">
-      <Link>Settings.StyleCop</Link>
-    </None>
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
-  </ItemGroup>
 </Project>

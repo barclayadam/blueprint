@@ -11,7 +11,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tasks" />
-  </ItemGroup>
 </Project>
