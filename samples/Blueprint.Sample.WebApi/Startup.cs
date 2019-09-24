@@ -1,5 +1,4 @@
 ﻿using System;
-using Blueprint.Api;
 using Blueprint.Api.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,7 +19,7 @@ namespace Blueprint.Sample.WebApi
             services.AddMvcCore();
             services.AddBlueprintApi(o =>
             {
-                o.WithAppName("SampleWebApi");
+                o.WithApplicationName("SampleWebApi");
 
                 o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
@@ -31,7 +30,7 @@ namespace Blueprint.Sample.WebApi
                 o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
-                o.Scan(typeof(Startup).Assembly);
+                o.ScanForOperations(typeof(Startup).Assembly);
             });
 
             var container = new Container();

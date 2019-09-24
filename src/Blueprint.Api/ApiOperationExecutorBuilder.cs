@@ -75,14 +75,9 @@ namespace Blueprint.Api
 
                 var model = options.Model;
                 var dictionary = new Dictionary<Type, Func<IOperationExecutorPipeline>>();
-                var rules = new GenerationRules("Blueprint.Pipelines")
-                {
-                    OptimizationLevel = OptimizationLevel.Release,
-                    AssemblyName = options.AppName.Replace(" ", string.Empty).Replace("-", string.Empty)
-                };
 
                 // Start the definition for a new generated assembly
-                var assembly = new GeneratedAssembly(rules);
+                var assembly = new GeneratedAssembly(options.Rules);
 
                 foreach (var operation in model.Operations)
                 {
@@ -113,7 +108,7 @@ namespace Blueprint.Api
                     var apiOperationContextSource =
                         new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
 
-                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>();
+                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
 
                     var context = new MiddlewareBuilderContext(
                         assembly,
@@ -157,7 +152,7 @@ namespace Blueprint.Api
                         }
                     }
 
-                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)serviceProvider.GetRequiredService(executor.CompiledType));
+                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, executor.CompiledType));
                 }
 
                 try
@@ -181,7 +176,7 @@ namespace Blueprint.Api
 
         private static Logger CreateLoggerForExecutor(BlueprintApiOptions options, ApiOperationDescriptor operation)
         {
-            return LogManager.GetLogger($"{options.AppName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor");
+            return LogManager.GetLogger($"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor");
         }
 
         private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)

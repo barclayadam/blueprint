@@ -5,15 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using Blueprint.Api.Errors;
-using Blueprint.Compiler.Frames;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Blueprint.Compiler.Frames;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
+using System.Text;
+using Blueprint.Api.Errors;
 
 namespace Blueprint.Api.Middleware
 {
@@ -66,15 +66,11 @@ namespace Blueprint.Api.Middleware
             {
                 if (request.ContentType.Contains("application/x-www-form-urlencoded"))
                 {
-                    // TODO: Implement handling for Populating From FormData
-                    return;
+                    PopulateFromForm(context);
                 }
-
-                var isMimeMultipartContent = request.ContentType != null && request.ContentType.Contains("multipart/form-data");
-
-                if (isMimeMultipartContent)
+                else if (request.ContentType.Contains("multipart/form-data"))
                 {
-                    PopulateFromMultipartBody(context);
+                    PopulateFromForm(context);
                 }
                 else
                 {
@@ -83,7 +79,7 @@ namespace Blueprint.Api.Middleware
             }
         }
 
-        private static void PopulateFromMultipartBody(ApiOperationContext context)
+        private static void PopulateFromForm(ApiOperationContext context)
         {
             var request = context.Request;
             var operation = context.Operation;
@@ -136,7 +132,7 @@ namespace Blueprint.Api.Middleware
             // This is copied from JsonConvert.PopulateObject to avoid creating a new JsonSerializer on each
             // execution.
             using (var stringReader = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
-            using (var jsonReader = new JsonTextReader(stringReader) { CloseInput = false })
+            using (var jsonReader = new JsonTextReader(stringReader) {CloseInput = false})
             {
                 try
                 {
@@ -197,7 +193,7 @@ namespace Blueprint.Api.Middleware
             if (value.Count > 1)
             {
                 // Axios creates array queryString properties in the format: property[]=1&property[]=2
-                WriteValue(operation, properties, key, (string[]) value, throwException);
+                WriteValue(operation, properties, key, (string[])value, throwException);
             }
             else
             {
@@ -233,7 +229,7 @@ namespace Blueprint.Api.Middleware
                         }
                         else
                         {
-                            var valueAsString = (string) value;
+                            var valueAsString = (string)value;
                             object propertyValue;
 
                             if (valueAsString.StartsWith("["))

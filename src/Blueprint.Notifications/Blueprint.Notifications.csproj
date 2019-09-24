@@ -1,32 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants />
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Blueprint.Core.xml</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Title>Blueprint - Notifications</Title>
+    <Description>Blueprint: Notifications (email, sms etc.) abstraction</Description>
+    <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NVelocity" Version="1.0.3" />
@@ -35,16 +12,5 @@
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Rules.ruleset">
-      <Link>Rules.ruleset</Link>
-    </None>
-    <None Include="..\Settings.StyleCop">
-      <Link>Settings.StyleCop</Link>
-    </None>
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
   </ItemGroup>
 </Project>

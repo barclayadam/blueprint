@@ -1,0 +1,100 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      $(MSBuildAllProjects) is a list of files that determine if a project is up-to-date or not.  By including this
+      file in the list, it ensures that all projects will be rebuilt if it changes.
+    -->
+    <MsBuildAllProjects>$(MsBuildAllProjects);$(MsBuildThisFileFullPath)</MsBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- edit this value to change the current MAJOR.MINOR version -->
+    <VersionPrefix>0.1</VersionPrefix>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition=" '$(Prerelease)' != '' ">
+      <PropertyGroup>
+        <!-- Prerelease version numbers are MAJOR.MINOR.0-pre-build###### -->
+        <VersionSuffix>$(Prerelease)-$(BUILD_BUILDID.PadLeft(6, '0'))</VersionSuffix>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <!-- Release version numbers are MAJOR.MINOR.# -->
+        <VersionPrefix>$(VersionPrefix).$(BUILD_BUILDID.PadLeft(1, '0'))</VersionPrefix>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+
+    <OutputType>Library</OutputType>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <MSBuildWarningsAsMessages>NETSDK1069</MSBuildWarningsAsMessages>
+
+    <PackageId>$(AssemblyName)</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/barclayadam/blueprint</PackageProjectUrl>
+    <PackageReleaseNotes>See https://github.com/barclayadam/blueprint/releases for more info</PackageReleaseNotes>
+    <PackageBaseTags>API;CQRS;Blueprint;Rest</PackageBaseTags>
+
+    <Product>Blueprint</Product>
+    <Company>Red Sequence</Company>
+    <Copyright>(c) Red Sequence. All rights reserved</Copyright>
+    <Authors>Adam Barclay, Michael Taylor</Authors>
+
+    <DefaultLanguage>en-GB</DefaultLanguage>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+
+    <RepositoryUrl>https://github.com/barclayadam/blueprint.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
+
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
+    <IsSampleProject>$(MSBuildProjectName.Contains('Sample'))</IsSampleProject>
+
+    <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Rules.ruleset</CodeAnalysisRuleset>
+    <CodeAnalysisDictionary>$(MSBuildThisFileDirectory)CustomDictionary.xml</CodeAnalysisDictionary>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(IsTestProject)' != 'true' and '$(IsSampleProject)' != 'true'">
+      <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsPackable>false</IsPackable>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
+
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json">
+          <Link>stylecop.json</Link>
+        </AdditionalFiles>
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <Choose>
+    <When Condition="'$(IsTestProject)' == 'true' or '$(IsSampleProject)' == 'true'">
+      <PropertyGroup>
+        <IsPackable>false</IsPackable>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
+  </ItemGroup>
+</Project>

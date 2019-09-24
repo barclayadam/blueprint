@@ -1,0 +1,63 @@
+pool:
+  vmImage: 'windows-latest'
+
+# Build Variables
+variables:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  Prerelease: 'ci'
+
+# CI Trigger on master branch
+trigger:
+  batch: false
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+# Trigger builds for PR's targeting master
+pr:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'runtime'
+      version: '2.2.5'
+
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '3.0.100-preview9-014004'
+
+  - task: PowerShell@2
+    displayName: 'Build / Test / Create Packages'
+    inputs:
+      targetType: inline
+      script: .\build.ps1 -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER -Prerelease $(Prerelease)
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/*.trx'
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
+
+  # PR doesn't create nuget packages
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    inputs:
+      command: 'push'
+      packagesToPush: '.nupkgs/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c'
+      allowPackageConflicts: true
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))

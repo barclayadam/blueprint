@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Red Sequence Rules" Description="Based on Microsoft's All Rules ruleset, with specific rules disabled as desired." ToolsVersion="14.0">
+<RuleSet Name="Blueprint Rules" Description="Based on Microsoft's All Rules ruleset, with specific rules disabled as desired." ToolsVersion="14.0">
   <IncludeAll Action="Warning" />
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1006" Action="None" />
@@ -28,5 +28,10 @@
     <Rule Id="CA2227" Action="None" />
     <Rule Id="CA2234" Action="None" />
     <Rule Id="CA2243" Action="None" />
+
+    <!-- StyleCop rules below -->
+    <Rule Id="SA1600" Action="None" /> <!-- Must be documented... Already handled by CS1591 -->
+    <Rule Id="SA1633" Action="None" /> <!-- File headers -->
+    <Rule Id="SA1101" Action="None" /> <!-- Prefix with this. -->
   </Rules>
 </RuleSet>

@@ -6,11 +6,11 @@ namespace Blueprint.StructureMap
 {
     public static class BlueprintConfigurerExtensions
     {
-        public static BlueprintConfigurer AddStructureMap(this BlueprintConfigurer configurer)
+        public static BlueprintApiConfigurer AddStructureMap(this BlueprintApiConfigurer blueprintApiConfigurer)
         {
-            configurer.Services.AddTransient<IInstanceFrameProvider, StructureMapInstanceFrameProvider>();
+            blueprintApiConfigurer.Services.AddTransient<IInstanceFrameProvider, StructureMapInstanceFrameProvider>();
 
-            return configurer;
+            return blueprintApiConfigurer;
         }
     }
 }

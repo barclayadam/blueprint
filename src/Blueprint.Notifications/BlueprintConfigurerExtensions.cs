@@ -8,16 +8,16 @@ namespace Blueprint.Notifications
 {
     public static class BlueprintConfigurerExtensions
     {
-        public static BlueprintConfigurer AddNotifications(this BlueprintConfigurer configurer)
+        public static BlueprintApiConfigurer AddNotifications(this BlueprintApiConfigurer blueprintApiConfigurer)
         {
-            configurer.Services.AddTransient<INotificationRepository, EmbeddedResourceNotificationRepository>();
-            configurer.Services.AddTransient<INotificationService, NotificationService>();
-            configurer.Services.AddTransient<INotificationHandler, TemplatedEmailHandler>();
-            configurer.Services.AddTransient<ITemplateFactory, NVelocityTemplateFactory>();
-            configurer.Services.AddTransient<INotificationRepository, EmbeddedResourceNotificationRepository>();
-            configurer.Services.AddTransient<IEmailSender, SmtpClientEmailSender>();
+            blueprintApiConfigurer.Services.AddTransient<INotificationRepository, EmbeddedResourceNotificationRepository>();
+            blueprintApiConfigurer.Services.AddTransient<INotificationService, NotificationService>();
+            blueprintApiConfigurer.Services.AddTransient<INotificationHandler, TemplatedEmailHandler>();
+            blueprintApiConfigurer.Services.AddTransient<ITemplateFactory, NVelocityTemplateFactory>();
+            blueprintApiConfigurer.Services.AddTransient<INotificationRepository, EmbeddedResourceNotificationRepository>();
+            blueprintApiConfigurer.Services.AddTransient<IEmailSender, SmtpClientEmailSender>();
 
-            return configurer;
+            return blueprintApiConfigurer;
         }
     }
 }

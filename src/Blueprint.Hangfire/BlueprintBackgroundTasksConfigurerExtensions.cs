@@ -8,7 +8,7 @@ namespace Blueprint.Api.Configuration
 {
     public static class BlueprintBackgroundTasksConfigurerExtensions
     {
-        public static BlueprintBackgroundTasksConfigurer UseHangfire(this BlueprintBackgroundTasksConfigurer configurer)
+        public static BlueprintTasksConfigurer UseHangfire(this BlueprintTasksConfigurer configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
 

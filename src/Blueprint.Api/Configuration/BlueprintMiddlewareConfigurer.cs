@@ -5,18 +5,18 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintMiddlewareConfigurer
     {
-        private readonly BlueprintConfigurer blueprintConfigurer;
+        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
 
-        public BlueprintMiddlewareConfigurer(BlueprintConfigurer blueprintConfigurer)
+        public BlueprintMiddlewareConfigurer(BlueprintApiConfigurer blueprintApiConfigurer)
         {
-            this.blueprintConfigurer = blueprintConfigurer;
+            this.blueprintApiConfigurer = blueprintApiConfigurer;
         }
 
         public BlueprintMiddlewareConfigurer Logging(Action<BlueprintLoggingConfigurer> configurer, MiddlewareStage? middlewareStage = null)
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer(new BlueprintLoggingConfigurer(blueprintConfigurer, middlewareStage));
+            configurer(new BlueprintLoggingConfigurer(blueprintApiConfigurer, middlewareStage));
 
             return this;
         }
@@ -25,7 +25,7 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer(new BlueprintValidationConfigurer(blueprintConfigurer, middlewareStage));
+            configurer(new BlueprintValidationConfigurer(blueprintApiConfigurer, middlewareStage));
 
             return this;
         }
@@ -34,7 +34,7 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer(new BlueprintAuditConfigurer(blueprintConfigurer, middlewareStage));
+            configurer(new BlueprintAuditConfigurer(blueprintApiConfigurer, middlewareStage));
 
             return this;
         }

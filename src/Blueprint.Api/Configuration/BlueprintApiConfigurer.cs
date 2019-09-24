@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Caching;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Errors;
@@ -13,13 +14,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Configuration
 {
-    public class BlueprintConfigurer
+    public class BlueprintApiConfigurer
     {
         private readonly BlueprintApiOptions options;
 
         private readonly Dictionary<MiddlewareStage, List<Type>> middlewareStages = new Dictionary<MiddlewareStage, List<Type>>();
 
-        public BlueprintConfigurer(IServiceCollection services, BlueprintApiOptions options = null)
+        public BlueprintApiConfigurer(IServiceCollection services, BlueprintApiOptions options = null)
         {
             Services = services;
 
@@ -28,16 +29,25 @@ namespace Blueprint.Api.Configuration
 
         public IServiceCollection Services { get; }
 
-        public BlueprintConfigurer Settings(Action<BlueprintSettingsConfigurer> configurer)
+        public BlueprintApiConfigurer SetApplicationName(string applicationName)
         {
-            Guard.NotNull(nameof(configurer), configurer);
+            Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
-            configurer(new BlueprintSettingsConfigurer(options));
+            options.WithApplicationName(applicationName);
 
             return this;
         }
 
-        public BlueprintConfigurer Middlewares(Action<BlueprintMiddlewareConfigurer> configurer)
+        public BlueprintApiConfigurer ScanForOperations(params Assembly[] assemblies)
+        {
+            Guard.NotNull(nameof(assemblies), assemblies);
+
+            options.ScanForOperations(assemblies);
+
+            return this;
+        }
+
+        public BlueprintApiConfigurer Middlewares(Action<BlueprintMiddlewareConfigurer> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
 
@@ -46,21 +56,14 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
-        public BlueprintConfigurer BackgroundTasks(Action<BlueprintBackgroundTasksConfigurer> configurer)
-        {
-            Guard.NotNull(nameof(configurer), configurer);
-
-            configurer(new BlueprintBackgroundTasksConfigurer(this));
-
-            return this;
-        }
-
         public void Build()
         {
-            if (options.AppName == null)
+            if (string.IsNullOrEmpty(options.ApplicationName))
             {
                 throw new InvalidOperationException("An app name MUST be set");
             }
+
+            options.Rules.AssemblyName = options.Rules.AssemblyName ?? options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
 
             ComposeMiddlewareBuilders();
 
@@ -84,10 +87,11 @@ namespace Blueprint.Api.Configuration
 
             Services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
 
-            AddApiOperationHandlers();
+            Services.AddApiOperationHandlers(options.Model.Operations);
         }
 
-        public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder
+        public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage)
+            where T : IMiddlewareBuilder
         {
             if (middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
             {
@@ -127,34 +131,6 @@ namespace Blueprint.Api.Configuration
             {
                 options.Middlewares.Add(middlewareType);
             }
-        }
-
-        private void AddApiOperationHandlers()
-        {
-            var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
-
-            foreach (var operation in options.Model.Operations)
-            {
-                var apiOperationHandlerType = typeof(IApiOperationHandler<>).MakeGenericType(operation.OperationType);
-                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType);
-
-                if (apiOperationHandler == null)
-                {
-                    missingApiOperationHandlers.Add(operation);
-                }
-
-                Services.AddScoped(apiOperationHandlerType, apiOperationHandler);
-            }
-
-            if (missingApiOperationHandlers.Any())
-            {
-                throw new MissingApiOperationHandlerException(missingApiOperationHandlers.ToArray());
-            }
-        }
-
-        private static Type FindApiOperationHandler(ApiOperationDescriptor apiOperationDescriptor, Type apiOperationHandlerType)
-        {
-            return apiOperationDescriptor.OperationType.Assembly.GetExportedTypes().SingleOrDefault(apiOperationHandlerType.IsAssignableFrom);
         }
     }
 }

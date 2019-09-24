@@ -5,6 +5,7 @@ tests/**/obj
 samples/**/bin
 samples/**/obj
 
+.nupkgs
 .vs/
 
 .idea/*
@@ -19,7 +20,7 @@ samples/**/obj
 !.idea/.idea.Blueprint/.idea/runConfigurations
 !.idea/.idea.Blueprint/.idea/codeStyles
 
-packages
+**/*.trx
 
 # User-specific files
 *.suo

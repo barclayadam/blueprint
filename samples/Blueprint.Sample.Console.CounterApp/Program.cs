@@ -50,13 +50,10 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddOptions();
                     services.Configure<CounterConfiguration>(context.Configuration);
 
-                    // Configure Blueprint
+                    // Configure Blueprint API
                     services.AddBlueprintApi(b => b
-                        .Settings(s =>
-                        {
-                            s.SetAppName(AppName);
-                            s.AssembliesToScanForOperations(typeof(Program).Assembly);
-                        })
+                        .SetApplicationName(AppName)
+                        .ScanForOperations(typeof(Program).Assembly)
                         .Middlewares(m => m
                             .Logging(l => l.UseNLog())
                             .Validation(v => v
@@ -66,19 +63,10 @@ namespace Blueprint.Sample.Console.CounterApp
                             .Auditing(a => a
                                 .StoreInSqlServer("connectionString", "[counter].[AuditTrail]")
                             )
-                        ).BackgroundTasks(t => t.UseHangfire()));
+                        ));
 
-                    //services.AddBlueprintApi(o =>
-                    //{
-                    //    o.WithAppName(AppName);
-
-                    //    o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                    //    o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
-                    //    o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                    //    o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
-
-                    //    o.Scan(typeof(Program).Assembly);
-                    //});
+                    // Configure Blueprint Tasks
+                    services.AddBlueprintTasks(b => b.UseHangfire());
 
                     // Configure Hosted Services
                     services.AddHostedService<CounterService>();

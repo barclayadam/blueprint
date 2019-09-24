@@ -5,20 +5,20 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintLoggingConfigurer
     {
-        private readonly BlueprintConfigurer blueprintConfigurer;
+        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
         private readonly MiddlewareStage? middlewareStage;
 
-        public BlueprintLoggingConfigurer(BlueprintConfigurer blueprintConfigurer, MiddlewareStage? middlewareStage = null)
+        public BlueprintLoggingConfigurer(BlueprintApiConfigurer blueprintApiConfigurer, MiddlewareStage? middlewareStage = null)
         {
-            this.blueprintConfigurer = blueprintConfigurer;
+            this.blueprintApiConfigurer = blueprintApiConfigurer;
             this.middlewareStage = middlewareStage;
         }
 
-        public IServiceCollection Services => blueprintConfigurer.Services;
+        public IServiceCollection Services => blueprintApiConfigurer.Services;
 
         public void UseNLog()
         {
-            blueprintConfigurer.AddMiddlewareBuilderToStage<LoggingMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
+            blueprintApiConfigurer.AddMiddlewareBuilderToStage<LoggingMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
         }
     }
 }

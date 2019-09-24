@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Title>Blueprint - Testing</Title>
+    <Description>Blueprint: Helper classes for testing Blueprint projects</Description>
+    <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.4" />
@@ -13,17 +15,5 @@
     <ProjectReference Include="..\Blueprint.Postgres\Blueprint.Postgres.csproj" />
     <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Rules.ruleset">
-      <Link>Rules.ruleset</Link>
-    </None>
-    <None Include="..\Settings.StyleCop">
-      <Link>Settings.StyleCop</Link>
-    </None>
-    <Content Include="changelog.txt" />
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
   </ItemGroup>
 </Project>

@@ -5,20 +5,20 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintAuditConfigurer
     {
-        private readonly BlueprintConfigurer blueprintConfigurer;
+        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
         private readonly MiddlewareStage? middlewareStage;
 
-        public BlueprintAuditConfigurer(BlueprintConfigurer blueprintConfigurer, MiddlewareStage? middlewareStage = null)
+        public BlueprintAuditConfigurer(BlueprintApiConfigurer blueprintApiConfigurer, MiddlewareStage? middlewareStage = null)
         {
-            this.blueprintConfigurer = blueprintConfigurer;
+            this.blueprintApiConfigurer = blueprintApiConfigurer;
             this.middlewareStage = middlewareStage;
         }
 
-        public IServiceCollection Services => blueprintConfigurer.Services;
+        public IServiceCollection Services => blueprintApiConfigurer.Services;
 
         public void UseAuditor<T>() where T : class, IAuditor
         {
-            //blueprintConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.PreExecute);
+            //blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.PreExecute);
 
             Services.AddScoped<IAuditor, T>();
         }

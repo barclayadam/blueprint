@@ -1,16 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Runtime Roslyn Compiler</Description>
-    <Authors>Adam Barclay</Authors>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
-    <DebugType>portable</DebugType>
-    <AssemblyName>Blueprint.Compiler</AssemblyName>
-    <PackageId>Blueprint.Compiler</PackageId>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <Title>Blueprint - Compiler</Title>
+    <Description>Blueprint: Frame-based runtime code compiler using Roslyn</Description>
+    <PackageTags>Roslyn;Compiler;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />

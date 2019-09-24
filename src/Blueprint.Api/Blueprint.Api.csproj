@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <Title>Blueprint - API</Title>
+    <Description>Blueprint: API framework based on "operation" concept (commands and queries) with a pipeline of middlewares
+    that are generated at runtime using Roslyn.</Description>
+    <PackageTags>Rosln;CodeGen;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="3.8.0" />

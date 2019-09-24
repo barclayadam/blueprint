@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Util;
 
@@ -38,7 +37,7 @@ namespace Blueprint.Compiler.Model
         }
 
 
-        protected Frame ChainFrames(Frame[] frames)
+        private Frame ChainFrames(Frame[] frames)
         {
             // Step 5, put into a chain.
             for (var i = 1; i < frames.Length; i++)
@@ -49,7 +48,7 @@ namespace Blueprint.Compiler.Model
             return frames[0];
         }
 
-        protected Frame[] CompileFrames(IList<Frame> frames)
+        private Frame[] CompileFrames(IList<Frame> frames)
         {
             // Step 1, resolve all the necessary variables
             foreach (var frame in frames)
@@ -75,7 +74,7 @@ namespace Blueprint.Compiler.Model
             return frames.TopologicalSort(x => dependencies.Dependencies[x], true).ToArray();
         }
 
-        internal void FindInjectedFields(DependencyGatherer dependencies)
+        private void FindInjectedFields(DependencyGatherer dependencies)
         {
             dependencies.Variables.Each((key, _) =>
             {
@@ -86,7 +85,7 @@ namespace Blueprint.Compiler.Model
             });
         }
 
-        internal void FindStaticFields(DependencyGatherer dependencies)
+        private void FindStaticFields(DependencyGatherer dependencies)
         {
             dependencies.Variables.Each((key, _) =>
             {
@@ -97,7 +96,7 @@ namespace Blueprint.Compiler.Model
             });
         }
 
-        internal void FindSetters(DependencyGatherer dependencies)
+        private void FindSetters(DependencyGatherer dependencies)
         {
             dependencies.Variables.Each((key, _) =>
             {
@@ -108,14 +107,9 @@ namespace Blueprint.Compiler.Model
             });
         }
 
-        private IEnumerable<IVariableSource> AllVariableSources(VariableSource variableSource)
+        private IEnumerable<IVariableSource> AllVariableSources()
         {
             foreach (var source in method.Sources)
-            {
-                yield return source;
-            }
-
-            foreach (var source in type.Rules.Sources)
             {
                 yield return source;
             }
@@ -123,7 +117,6 @@ namespace Blueprint.Compiler.Model
             // To get injected fields
             yield return type;
         }
-
 
         private Variable FindVariable(Type type, VariableSource variableSource)
         {
@@ -139,7 +132,7 @@ namespace Blueprint.Compiler.Model
                 return created;
             }
 
-            var source = AllVariableSources(variableSource).FirstOrDefault(x => x.Matches(type));
+            var source = AllVariableSources().FirstOrDefault(x => x.Matches(type));
             return source?.Create(type);
         }
 
@@ -186,7 +179,6 @@ namespace Blueprint.Compiler.Model
                 .Where(x => x != null)
                 .FirstOrDefault(x => x.VariableType == dependency && x.Usage == name);
 
-
             if (candidate != null)
             {
                 variable = candidate;
@@ -212,4 +204,4 @@ namespace Blueprint.Compiler.Model
             return variable;
         }
     }
-    }
+}

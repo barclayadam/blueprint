@@ -6,28 +6,28 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintValidationConfigurer
     {
-        private readonly BlueprintConfigurer blueprintConfigurer;
+        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
 
-        public BlueprintValidationConfigurer(BlueprintConfigurer blueprintConfigurer, MiddlewareStage? middlewareStage = null)
+        public BlueprintValidationConfigurer(BlueprintApiConfigurer blueprintApiConfigurer, MiddlewareStage? middlewareStage = null)
         {
-            this.blueprintConfigurer = blueprintConfigurer;
+            this.blueprintApiConfigurer = blueprintApiConfigurer;
 
-            blueprintConfigurer.Services.AddSingleton<IValidator, BlueprintValidator>();
-            blueprintConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
+            blueprintApiConfigurer.Services.AddSingleton<IValidator, BlueprintValidator>();
+            blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
         }
 
         public BlueprintValidationConfigurer UseBlueprintSource()
         {
-            blueprintConfigurer.Services.AddScoped<IValidationSource, BlueprintValidationSource>();
-            blueprintConfigurer.Services.AddScoped<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            blueprintApiConfigurer.Services.AddScoped<IValidationSource, BlueprintValidationSource>();
+            blueprintApiConfigurer.Services.AddScoped<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
 
             return this;
         }
 
         public BlueprintValidationConfigurer UseDataAnnotationSource()
         {
-            blueprintConfigurer.Services.AddScoped<IValidationSource, DataAnnotationsValidationSource>();
-            blueprintConfigurer.Services.AddScoped<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            blueprintApiConfigurer.Services.AddScoped<IValidationSource, DataAnnotationsValidationSource>();
+            blueprintApiConfigurer.Services.AddScoped<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
 
             return this;
         }

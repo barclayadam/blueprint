@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Blueprint.Compiler;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
+using Microsoft.CodeAnalysis;
 
 namespace Blueprint.Api.Configuration
 {
@@ -16,14 +18,23 @@ namespace Blueprint.Api.Configuration
     /// </summary>
     public class BlueprintApiOptions
     {
-        private readonly ApiDataModel dataModel = new ApiDataModel();
+        private readonly ApiDataModel dataModel;
 
         public BlueprintApiOptions(Action<BlueprintApiOptions> configure = null)
         {
             AddOperation<RootMetadataOperation>();
 
+            Rules = new GenerationRules("Blueprint.Pipelines")
+            {
+                OptimizationLevel = OptimizationLevel.Release
+            };
+
+            dataModel = new ApiDataModel();
+
             configure?.Invoke(this);
         }
+
+        public GenerationRules Rules { get; }
 
         /// <summary>
         /// Gets or sets what should happen if a request comes in and cannot be handled by any
@@ -37,24 +48,20 @@ namespace Blueprint.Api.Configuration
         /// </summary>
         public List<Type> Middlewares { get; } = new List<Type>();
 
-        /// <summary>
-        /// Gets or sets the name of the application, which is used when generating the DLL for the pipeline
-        /// executors.
-        /// </summary>
-        public string AppName { get; set; }
-
         public ApiDataModel Model => dataModel;
+
+        public string ApplicationName { get; private set; }
 
         /// <summary>
         /// Sets  the name of the application, which is used when generating the DLL for the pipeline
         /// executors.
         /// </summary>
-        /// <param name="appName">The name of the application.</param>
-        public void WithAppName(string appName)
+        /// <param name="applicationName">The name of the application.</param>
+        public void WithApplicationName(string applicationName)
         {
-            Guard.NotNullOrEmpty(nameof(appName), appName);
+            Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
-            AppName = appName;
+            ApplicationName = applicationName;
         }
 
         public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
