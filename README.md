@@ -137,8 +137,6 @@ Distributed under the Apache 2.0 License. See `LICENSE.md` for more information.
 ## Contact
 
 Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
-Project Link: [https://github.com/barclayadam/blueprint](https://github.com/barclayadam/blueprint)
-
 
 <!-- ACKNOWLEDGEMENTS -->
 <!-- TBD -->
