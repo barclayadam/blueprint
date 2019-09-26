@@ -1,6 +1,9 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>

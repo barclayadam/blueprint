@@ -61,37 +61,19 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
-    <IsSampleProject>$(MSBuildProjectName.Contains('Sample'))</IsSampleProject>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Rules.ruleset</CodeAnalysisRuleset>
     <CodeAnalysisDictionary>$(MSBuildThisFileDirectory)CustomDictionary.xml</CodeAnalysisDictionary>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="'$(IsTestProject)' != 'true' and '$(IsSampleProject)' != 'true'">
-      <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <IsPackable>false</IsPackable>
-      </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
 
-      <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
-
-        <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json">
-          <Link>stylecop.json</Link>
-        </AdditionalFiles>
-      </ItemGroup>
-    </When>
-  </Choose>
-
-  <Choose>
-    <When Condition="'$(IsTestProject)' == 'true' or '$(IsSampleProject)' == 'true'">
-      <PropertyGroup>
-        <IsPackable>false</IsPackable>
-      </PropertyGroup>
-    </When>
-  </Choose>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>

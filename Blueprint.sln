@@ -58,6 +58,12 @@ ProjectSection(SolutionItems) = preProject
 	src\Stylecop.json = src\Stylecop.json
 EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{B407234C-3957-4C16-A581-FBAC4436F75A}"
+ProjectSection(SolutionItems) = preProject
+	LICENSE.md = LICENSE.md
+	README.md = README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
