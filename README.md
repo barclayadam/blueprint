@@ -1,6 +1,7 @@
 [![Build Status][build-shield]][build-url]
 [![Tests][test-shield]][test-url]
 [![Coverage][coverage-shield]][coverage-url]
+[![Quality][quality-shield]][quality-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -149,6 +150,8 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
 [test-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
 [coverage-shield]: https://img.shields.io/azure-devops/coverage/blueprint-api/blueprint/1?style=flat-square
 [coverage-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
+[quality-shield]: https://sonarcloud.io/api/project_badges/measure?project=barclayadam_blueprint&metric=alert_status
+[quality-url]: https://sonarcloud.io/dashboard?id=barclayadam_blueprint
 [contributors-shield]: https://img.shields.io/github/contributors/barclayadam/blueprint.svg?style=flat-square
 [contributors-url]: https://github.com/barclayadam/blueprint/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/barclayadam/blueprint.svg?style=flat-square
