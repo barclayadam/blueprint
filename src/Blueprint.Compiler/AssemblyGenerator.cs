@@ -17,7 +17,7 @@ using NLog;
 namespace Blueprint.Compiler
 {
     /// <summary>
-    /// Use to compile C# code to in memory assemblies using the Roslyn compiler
+    /// Use to compile C# code to in memory assemblies using the Roslyn compiler.
     /// </summary>
     public class AssemblyGenerator
     {
@@ -46,7 +46,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Reference the assembly containing the type "T"
+        /// Reference the assembly containing the type "T".
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public void ReferenceAssemblyContainingType<T>()
@@ -56,7 +56,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Tells Roslyn to reference the given assembly and any of its dependencies
-        /// when compiling code
+        /// when compiling code.
         /// </summary>
         /// <param name="assembly"></param>
         public void ReferenceAssembly(Assembly assembly)
@@ -84,7 +84,9 @@ namespace Blueprint.Compiler
 
                 var alreadyReferenced = references.Any(x => x.Display == referencePath);
                 if (alreadyReferenced)
+                {
                     return;
+                }
 
                 var reference = MetadataReference.CreateFromFile(referencePath);
 
@@ -102,8 +104,13 @@ namespace Blueprint.Compiler
             }
         }
 
+        public void AddFile(string fileName, string code)
+        {
+            files.Add(new SourceFile(fileName, code));
+        }
+
         /// <summary>
-        /// Compile the code passed into this method to a new assembly
+        /// Compile the code passed into this method to a new assembly.
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
@@ -160,7 +167,35 @@ namespace Blueprint.Compiler
 
                         foreach (var failure in failures)
                         {
-                            exceptionMessage.AppendLine($"{failure.Id}: {failure.GetMessage()} @ {failure.Location}");
+                            exceptionMessage.AppendLine(failure.ToString());
+
+                            if (failure.Location.IsInSource)
+                            {
+                                var span = failure.Location.GetLineSpan();
+                                var mappedSpan = failure.Location.GetMappedLineSpan();
+
+                                if (!mappedSpan.IsValid || !span.IsValid)
+                                {
+                                    continue;
+                                }
+
+                                var sourceFile = failure.Location.SourceTree.ToString();
+                                var fileLines = sourceFile.Split('\n');
+                                var erroredLine = mappedSpan.Span.Start.Line;
+
+                                // We try to output:
+                                //     [ line before]
+                                //     line with error
+                                //        ^^^ indicators of issue
+                                //     [line after]
+                                TryOutputLine(fileLines, erroredLine - 1, exceptionMessage);
+                                TryOutputLine(fileLines, erroredLine, exceptionMessage);
+
+                                exceptionMessage.AppendLine(new string(' ', span.StartLinePosition.Character) +
+                                                            new string('^', failure.Location.SourceSpan.Length));
+
+                                TryOutputLine(fileLines, erroredLine + 1, exceptionMessage);
+                            }
                         }
 
                         exceptionMessage.AppendLine();
@@ -180,10 +215,22 @@ namespace Blueprint.Compiler
 
                         throw new CompilationException(exceptionMessage.ToString())
                         {
-                            Code = string.Join("\n\n", files.Select(f => f.Code))
+                            Failures = failures,
+                            Code = string.Join("\n\n", files.Select(f => f.Code)),
                         };
                     }
                 });
+        }
+
+        private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
+        {
+            if (line <= 0 || line >= fileLines.Count)
+            {
+                return;
+            }
+
+            var lineToOutput = fileLines[line];
+            exceptionMessage.AppendLine(lineToOutput);
         }
 
         private static string CreateAssemblyReference(Assembly assembly)
@@ -194,11 +241,6 @@ namespace Blueprint.Compiler
             }
 
             return assembly.Location;
-        }
-
-        public void AddFile(string fileName, string code)
-        {
-            this.files.Add(new SourceFile(fileName, code));
         }
 
         private class SourceFile

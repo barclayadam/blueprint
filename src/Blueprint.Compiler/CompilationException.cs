@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace Blueprint.Compiler
 {
@@ -8,6 +10,8 @@ namespace Blueprint.Compiler
         {
         }
 
-        public string Code { get; set; }
+        public string Code { get; internal set; }
+
+        public IEnumerable<Diagnostic> Failures { get; internal set; }
     }
 }
