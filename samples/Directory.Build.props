@@ -3,6 +3,8 @@
     <LangVersion>latest</LangVersion>
 
     <IsPackable>false</IsPackable>
+
+    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
   <ItemGroup>
