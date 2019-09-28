@@ -77,7 +77,7 @@ namespace Blueprint.Core.Utilities
     {
         public DictionaryKeyAttribute(string name)
         {
-            this.Name = name;
+            Name = name;
         }
 
         public string Name { get; }

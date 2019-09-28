@@ -6,7 +6,7 @@ using System.Linq;
 using Blueprint.Core.ThirdParty;
 using Blueprint.Core.Utilities;
 
-namespace Blueprint.Core 
+namespace Blueprint.Core
 {
     /// <summary>
     /// Common guard class for argument validation.
@@ -22,12 +22,14 @@ namespace Blueprint.Core
         public static void NotNull([InvokerParameterName]string argumentName, object value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(argumentName, "Parameter cannot be null.");
+            }
         }
 
         /// <summary>
         /// Ensures the given string <paramref name="value"/> is not null or empty.
-        /// Throws <see cref="ArgumentNullException"/> in the first case, or 
+        /// Throws <see cref="ArgumentNullException"/> in the first case, or
         /// <see cref="ArgumentException"/> in the latter.
         /// </summary>
         /// <exception cref="System.ArgumentException">The <paramref name="value"/> is null or an empty string.</exception>
@@ -36,61 +38,81 @@ namespace Blueprint.Core
             NotNull(argumentName, value);
 
             if (value.Length == 0)
+            {
                 throw new ArgumentException("Parameter cannot be empty.", argumentName);
+            }
         }
-    
+
         public static void EnumDefined<T>([InvokerParameterName]string argumentName, T value)
         {
             if (!Enum.IsDefined(typeof(T), value))
+            {
                 throw new ArgumentException("Parameter must be enum of type {0}. Was {1}.".Fmt(typeof(T).Name, value), argumentName);
+            }
         }
-    
+
         public static void GreaterThanOrEqual<T>([InvokerParameterName]string argumentName, T value, T referencePoint) where T : IComparable
         {
             if (value.CompareTo(referencePoint) < 0)
+            {
                 throw new ArgumentException("Parameter must be greater than or equal {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+            }
         }
-    
+
         public static void GreaterThan<T>([InvokerParameterName]string argumentName, T value, T referencePoint) where T : IComparable
         {
             if (value.CompareTo(referencePoint) <= 0)
+            {
                 throw new ArgumentException("Parameter must be greater than {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+            }
         }
-    
+
         public static void LessThanOrEqual<T>([InvokerParameterName]string argumentName, T value, T referencePoint) where T : IComparable
         {
             if (value.CompareTo(referencePoint) > 0)
+            {
                 throw new ArgumentException("Parameter must be less than or equal {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+            }
         }
-    
+
         public static void LessThan<T>([InvokerParameterName]string argumentName, T value, T referencePoint) where T : IComparable
         {
             if (value.CompareTo(referencePoint) >= 0)
+            {
                 throw new ArgumentException("Parameter must be less than {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+            }
         }
-    
+
         public static void NotEmpty<T>([InvokerParameterName]string argumentName, IEnumerable<T> value)
         {
             if (!value.Any())
+            {
                 throw new ArgumentException("Parameter must contain at least one element.", argumentName);
+            }
         }
 
         public static void IsEqual<T>([InvokerParameterName]string argumentName, T value, T reference, string message)
         {
             if (!Equals(value, reference))
+            {
                 throw new ArgumentException(message, argumentName);
+            }
         }
 
         public static void IsTrue([InvokerParameterName]string argumentName, bool value, string message)
         {
             if (!value)
+            {
                 throw new ArgumentException(message, argumentName);
+            }
         }
 
         public static void IsFalse([InvokerParameterName]string argumentName, bool value, string message)
         {
             if (value)
+            {
                 throw new ArgumentException(message, argumentName);
+            }
         }
 
         public static void MustHaveLengthLessThanOrEqualTo<T>(IEnumerable<T> propertyValue, int maxLength, string propertyName)

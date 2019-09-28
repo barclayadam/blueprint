@@ -27,6 +27,7 @@ namespace Blueprint.Core.Caching
         /// <summary>
         /// Initializes a new instance of the Cache class.
         /// </summary>
+        /// <param name="cacheProviders">The registered list of cache providers, from which one will be picked based on current configuration.</param>
         public Cache(ICacheProvider[] cacheProviders)
         {
             var cachingConfiguration = CachingConfiguration.Current;
@@ -111,8 +112,7 @@ namespace Blueprint.Core.Caching
         /// <typeparam name="T">
         /// The type of the value being inserted, inferred by the compiler.
         /// </typeparam>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type is used to avoid key naming conflicts")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         public bool ContainsKey<T>(object key)
         {
             return enabled && Provider.ContainsKey(GenerateStorageKey<T>(key));
@@ -140,7 +140,7 @@ namespace Blueprint.Core.Caching
                 if (storedItem is NullValue<T>)
                 {
                     Log.Trace("Value in cache saved as null. key={0}", key);
-                    return default(T);
+                    return default;
                 }
 
                 if (storedItem != null)
@@ -155,7 +155,7 @@ namespace Blueprint.Core.Caching
                 return (T)storedItem;
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -168,8 +168,7 @@ namespace Blueprint.Core.Caching
         /// <typeparam name="T">
         /// The type of the value being inserted, inferred by the compiler.
         /// </typeparam>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type is used to avoid key naming conflicts")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         public void Remove<T>(object key)
         {
             if (enabled)
@@ -192,8 +191,7 @@ namespace Blueprint.Core.Caching
         /// <returns>
         /// A string key to be used as the unique key in the backing cache.
         /// </returns>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type is used to avoid key naming conflicts")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         private static string GenerateStorageKey<T>(object key)
         {
             return key + " of " + typeof(T).Name;

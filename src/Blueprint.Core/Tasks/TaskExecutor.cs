@@ -134,7 +134,7 @@ namespace Blueprint.Core.Tasks
             }
             catch (Exception e)
             {
-                if (this.errorLogger.ShouldIgnore(e))
+                if (errorLogger.ShouldIgnore(e))
                 {
                     return;
                 }
@@ -155,7 +155,7 @@ namespace Blueprint.Core.Tasks
                     ["HangfireJobId"] = context.BackgroundJob.Id
                 };
 
-                this.errorLogger.Log(e, errorData);
+                errorLogger.Log(e, errorData);
 
                 throw;
             }

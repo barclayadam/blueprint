@@ -9,7 +9,7 @@ namespace Blueprint.Core.Caching.Configuration
     public class SlidingCachingStrategy : CachingStrategy
     {
         /// <summary>
-        /// Gets the time span that determines for how long an item stays in the cache after its
+        /// Gets or sets the time span that determines for how long an item stays in the cache after its
         /// last access.
         /// </summary>
         public TimeSpan TimeSpan { get; set; }

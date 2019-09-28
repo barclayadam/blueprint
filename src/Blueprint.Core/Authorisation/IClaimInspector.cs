@@ -12,6 +12,7 @@ namespace Blueprint.Core.Authorisation
         /// <param name="demandedClaim">The claim that has been demanded and should be checked for.</param>
         /// <param name="claimExpansionState">The state of expansion, which can be used to indicate expansion has
         /// already happened and should not happen again.</param>
+        /// <returns>Whether the given claim has been "fulfilled" by the list of claims of the user.</returns>
         bool IsDemandedClaimFulfilled(IClaimsHolder userClaims, Claim demandedClaim, ClaimExpansionState claimExpansionState);
     }
 }

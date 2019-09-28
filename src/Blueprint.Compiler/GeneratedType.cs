@@ -22,24 +22,20 @@ namespace Blueprint.Compiler
         }
 
         public GenerationRules Rules { get; }
-        
+
         public IList<Setter> Setters { get; } = new List<Setter>();
 
         public string TypeName { get; }
 
-        // TODO -- do something with this?
-        public Visibility Visibility { get; set; } = Visibility.Public;
-
         public Type BaseType { get; private set; }
 
         public InjectedField[] BaseConstructorArguments { get; private set; } = new InjectedField[0];
-        
+
         public List<InjectedField> AllInjectedFields { get; } = new List<InjectedField>();
 
         public List<StaticField> AllStaticFields { get; } = new List<StaticField>();
 
         public IEnumerable<Type> Interfaces => interfaces;
-
 
         public IEnumerable<GeneratedMethod> Methods => methods;
 
@@ -62,13 +58,16 @@ namespace Blueprint.Compiler
             return InheritsFrom(typeof(T));
         }
 
-        // TODO -- need ut's
         public GeneratedType InheritsFrom(Type baseType)
         {
             var ctors = baseType.GetConstructors();
+
             if (ctors.Length > 1)
-                throw new ArgumentOutOfRangeException(nameof(baseType),
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(baseType),
                     $"The base type for the code generation must only have one public constructor. {baseType.FullNameInCode()} has {ctors.Length}");
+            }
 
             if (ctors.Length == 1)
             {
@@ -78,37 +77,41 @@ namespace Blueprint.Compiler
                 AllInjectedFields.AddRange(BaseConstructorArguments);
             }
 
-
             BaseType = baseType;
-            foreach (var methodInfo in baseType.GetMethods().Where(x => x.DeclaringType != typeof(object))
-                .Where(x => x.CanBeOverridden())) methods.Add(new GeneratedMethod(methodInfo) {Overrides = true});
 
+            foreach (var methodInfo in baseType.GetMethods().Where(x => x.DeclaringType != typeof(object)).Where(x => x.CanBeOverridden()))
+            {
+                methods.Add(new GeneratedMethod(methodInfo)
+                {
+                    Overrides = true,
+                });
+            }
 
             return this;
         }
 
-
-        // TODO -- need ut's
         public GeneratedType Implements(Type type)
         {
             if (!type.GetTypeInfo().IsInterface)
+            {
                 throw new ArgumentOutOfRangeException(nameof(type), "Must be an interface type");
+            }
 
             interfaces.Add(type);
 
             foreach (var methodInfo in type.GetMethods().Where(x => x.DeclaringType != typeof(object)))
+            {
                 methods.Add(new GeneratedMethod(methodInfo));
+            }
 
             return this;
         }
 
-        // TODO -- need ut's
         public GeneratedType Implements<T>()
         {
             return Implements(typeof(T));
         }
 
-        // TODO -- need ut's
         public void AddMethod(GeneratedMethod method)
         {
             methods.Add(method);
@@ -119,7 +122,6 @@ namespace Blueprint.Compiler
             return methods.FirstOrDefault(x => x.MethodName == methodName);
         }
 
-        // TODO -- UT's
         public GeneratedMethod AddVoidMethod(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(name, typeof(void), args);
@@ -128,7 +130,6 @@ namespace Blueprint.Compiler
             return method;
         }
 
-        // TODO -- UT's
         public GeneratedMethod AddMethodThatReturns<TReturn>(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(name, typeof(TReturn), args);
@@ -136,7 +137,6 @@ namespace Blueprint.Compiler
 
             return method;
         }
-
 
         public void Write(ISourceWriter writer)
         {
@@ -147,7 +147,6 @@ namespace Blueprint.Compiler
                 WriteFieldDeclarations(writer, AllStaticFields);
             }
 
-
             if (AllInjectedFields.Any())
             {
                 WriteFieldDeclarations(writer, AllInjectedFields);
@@ -156,7 +155,6 @@ namespace Blueprint.Compiler
 
             WriteSetters(writer);
 
-
             foreach (var method in methods)
             {
                 writer.BlankLine();
@@ -164,65 +162,6 @@ namespace Blueprint.Compiler
             }
 
             writer.FinishBlock();
-        }
-
-        private void WriteSetters(ISourceWriter writer)
-        {
-            foreach (var setter in Setters)
-            {
-                writer.BlankLine();
-                setter.WriteDeclaration(writer);
-            }
-
-            writer.BlankLine();
-        }
-
-
-
-        private void WriteConstructorMethod(ISourceWriter writer, IList<InjectedField> args)
-        {
-            var ctorArgs = args.Select(x => x.CtorArgDeclaration).Join(", ");
-            var declaration = $"BLOCK:public {TypeName}({ctorArgs})";
-            if (BaseConstructorArguments.Any())
-                declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.CtorArg).Join(", ")})";
-
-            writer.Write(declaration);
-
-            foreach (var field in args) field.WriteAssignment(writer);
-
-            writer.FinishBlock();
-        }
-
-        private void WriteFieldDeclarations(ISourceWriter writer, IList<StaticField> args)
-        {
-            foreach (var field in args) field.WriteDeclaration(writer);
-
-            writer.BlankLine();
-        }
-
-        private void WriteFieldDeclarations(ISourceWriter writer, IList<InjectedField> args)
-        {
-            foreach (var field in args) field.WriteDeclaration(writer);
-
-            writer.BlankLine();
-        }
-
-        private void WriteDeclaration(ISourceWriter writer)
-        {
-            var implemented = Implements().ToArray();
-
-            if (implemented.Any())
-                writer.Write(
-                    $"BLOCK:public class {TypeName} : {implemented.Select(x => x.FullNameInCode()).Join(", ")}");
-            else
-                writer.Write($"BLOCK:public class {TypeName}");
-        }
-
-        private IEnumerable<Type> Implements()
-        {
-            if (BaseType != null) yield return BaseType;
-
-            foreach (var @interface in Interfaces) yield return @interface;
         }
 
         public void FindType(Type[] generated)
@@ -240,28 +179,118 @@ namespace Blueprint.Compiler
 
         public IEnumerable<Assembly> AssemblyReferences()
         {
-            if (BaseType != null) yield return BaseType.Assembly;
+            if (BaseType != null)
+            {
+                yield return BaseType.Assembly;
+            }
 
-            foreach (var @interface in interfaces) yield return @interface.Assembly;
+            foreach (var @interface in interfaces)
+            {
+                yield return @interface.Assembly;
+            }
         }
 
         public T CreateInstance<T>(params object[] arguments)
         {
             if (CompiledType == null)
+            {
                 throw new InvalidOperationException("This generated assembly has not yet been successfully compiled");
+            }
 
-            return (T) Activator.CreateInstance(CompiledType, arguments);
+            return (T)Activator.CreateInstance(CompiledType, arguments);
         }
 
         public void ApplySetterValues(object builtObject)
         {
             if (builtObject.GetType() != CompiledType)
-                throw new ArgumentOutOfRangeException(nameof(builtObject),
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(builtObject),
                     "This can only be applied to objects of the generated type");
+            }
 
             foreach (var setter in Setters)
             {
                 setter.SetInitialValue(builtObject);
+            }
+        }
+
+        private void WriteSetters(ISourceWriter writer)
+        {
+            foreach (var setter in Setters)
+            {
+                writer.BlankLine();
+                setter.WriteDeclaration(writer);
+            }
+
+            writer.BlankLine();
+        }
+
+        private void WriteConstructorMethod(ISourceWriter writer, IList<InjectedField> args)
+        {
+            var ctorArgs = args.Select(x => x.CtorArgDeclaration).Join(", ");
+            var declaration = $"BLOCK:public {TypeName}({ctorArgs})";
+
+            if (BaseConstructorArguments.Any())
+            {
+                declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.CtorArg).Join(", ")})";
+            }
+
+            writer.Write(declaration);
+
+            foreach (var field in args)
+            {
+                field.WriteAssignment(writer);
+            }
+
+            writer.FinishBlock();
+        }
+
+        private void WriteFieldDeclarations(ISourceWriter writer, IList<StaticField> args)
+        {
+            foreach (var field in args)
+            {
+                field.WriteDeclaration(writer);
+            }
+
+            writer.BlankLine();
+        }
+
+        private void WriteFieldDeclarations(ISourceWriter writer, IList<InjectedField> args)
+        {
+            foreach (var field in args)
+            {
+                field.WriteDeclaration(writer);
+            }
+
+            writer.BlankLine();
+        }
+
+        private void WriteDeclaration(ISourceWriter writer)
+        {
+            var implemented = Implements().ToArray();
+
+            if (implemented.Any())
+            {
+                writer.Write(
+                    $"BLOCK:public class {TypeName} : {implemented.Select(x => x.FullNameInCode()).Join(", ")}");
+            }
+            else
+            {
+                writer.Write($"BLOCK:public class {TypeName}");
+            }
+        }
+
+        private IEnumerable<Type> Implements()
+        {
+            if (BaseType != null)
+            {
+                yield return BaseType;
+            }
+
+            foreach (var @interface in Interfaces)
+            {
+                yield return @interface;
             }
         }
     }

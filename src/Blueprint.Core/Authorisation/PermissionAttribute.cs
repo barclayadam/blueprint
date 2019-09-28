@@ -10,17 +10,15 @@ namespace Blueprint.Core.Authorisation
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public sealed class PermissionAttribute : ClaimRequiredAttribute
     {
-        private readonly string permission;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="PermissionAttribute"/> class. 
+        /// Initializes a new instance of the <see cref="PermissionAttribute"/> class.
         /// Initializes a new instance of the PermissionForAttribute.
         /// </summary>
         /// <param name="permission">The named permission that is required.</param>
         public PermissionAttribute(string permission)
             : base(ClaimTypes.Permission, "*", permission)
         {
-            this.permission = permission;
+            Permission = permission;
         }
 
         /// <summary>
@@ -28,10 +26,7 @@ namespace Blueprint.Core.Authorisation
         /// </summary>
         public string Permission
         {
-            get
-            {
-                return permission;
-            }
+            get;
         }
     }
 }

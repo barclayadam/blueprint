@@ -23,8 +23,8 @@
         /// Always returns false, as no items are ever added to this cache.
         /// </summary>
         /// <param name="key">The unique identifier of the item.</param>
-        /// <typeparam name="T">The type of the value being checked for existence</typeparam>
-        /// <returns><c>false</c></returns>
+        /// <typeparam name="T">The type of the value being checked for existence.</typeparam>
+        /// <returns><c>false</c>.</returns>
         public bool ContainsKey<T>(object key)
         {
             return false;
@@ -38,7 +38,7 @@
         /// <returns>The value of <c>default(T)</c>.</returns>
         public T GetValue<T>(object key)
         {
-            return default(T);
+            return default;
         }
 
         /// <summary>

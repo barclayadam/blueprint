@@ -36,6 +36,77 @@ namespace Blueprint.Compiler.Model
             topFrame = ChainFrames(compiled);
         }
 
+        public Variable FindVariableByName(Type dependency, string name)
+        {
+            if (TryFindVariableByName(dependency, name, out var variable))
+            {
+                return variable;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(dependency), $"Cannot find a matching variable {dependency.FullName} {name}");
+        }
+
+        public Variable FindVariable(Type type)
+        {
+            if (variables.ContainsKey(type))
+            {
+                return variables[type];
+            }
+
+            var variable = FindVariable(type, VariableSource.All);
+            if (variable == null)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(type),
+                    $"Do not know how to build a variable of type '{type.FullName}'");
+            }
+
+            variables.Add(type, variable);
+
+            return variable;
+        }
+
+        public bool TryFindVariableByName(Type dependency, string name, out Variable variable)
+        {
+            variable = null;
+
+            // It's fine here for now that we aren't looking through the services for
+            // variables that could potentially be built by the IoC container
+            var sourced = method.Sources.Where(x => x.Matches(dependency)).Select(x => x.Create(dependency));
+            var created = method.Frames.SelectMany(x => x.Creates);
+
+            var candidate = variables.Values
+                .Concat(method.Arguments)
+                .Concat(method.DerivedVariables)
+                .Concat(created)
+                .Concat(sourced)
+                .Where(x => x != null)
+                .FirstOrDefault(x => x.VariableType == dependency && x.Usage == name);
+
+            if (candidate != null)
+            {
+                variable = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        public Variable TryFindVariable(Type type, VariableSource source)
+        {
+            if (variables.ContainsKey(type))
+            {
+                return variables[type];
+            }
+
+            var variable = FindVariable(type, source);
+            if (variable != null)
+            {
+                variables.Add(type, variable);
+            }
+
+            return variable;
+        }
 
         private Frame ChainFrames(Frame[] frames)
         {
@@ -134,74 +205,6 @@ namespace Blueprint.Compiler.Model
 
             var source = AllVariableSources().FirstOrDefault(x => x.Matches(type));
             return source?.Create(type);
-        }
-
-        public Variable FindVariableByName(Type dependency, string name)
-        {
-            if (TryFindVariableByName(dependency, name, out var variable)) return variable;
-
-            throw new ArgumentOutOfRangeException(nameof(dependency), $"Cannot find a matching variable {dependency.FullName} {name}");
-        }
-
-        public Variable FindVariable(Type type)
-        {
-            if (variables.ContainsKey(type))
-            {
-                return variables[type];
-            }
-
-            var variable = FindVariable(type, VariableSource.All);
-            if (variable == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type),
-                    $"Do not know how to build a variable of type '{type.FullName}'");
-            }
-
-            variables.Add(type, variable);
-
-            return variable;
-        }
-
-        public bool TryFindVariableByName(Type dependency, string name, out Variable variable)
-        {
-            variable = null;
-
-            // It's fine here for now that we aren't looking through the services for
-            // variables that could potentially be built by the IoC container
-            var sourced = method.Sources.Where(x => x.Matches(dependency)).Select(x => x.Create(dependency));
-            var created = method.Frames.SelectMany(x => x.Creates);
-
-            var candidate = variables.Values
-                .Concat(method.Arguments)
-                .Concat(method.DerivedVariables)
-                .Concat(created)
-                .Concat(sourced)
-                .Where(x => x != null)
-                .FirstOrDefault(x => x.VariableType == dependency && x.Usage == name);
-
-            if (candidate != null)
-            {
-                variable = candidate;
-                return true;
-            }
-
-            return false;
-        }
-
-        public Variable TryFindVariable(Type type, VariableSource source)
-        {
-            if (variables.ContainsKey(type))
-            {
-                return variables[type];
-            }
-
-            var variable = FindVariable(type, source);
-            if (variable != null)
-            {
-                variables.Add(type, variable);
-            }
-
-            return variable;
         }
     }
 }

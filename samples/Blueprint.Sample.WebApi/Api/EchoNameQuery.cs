@@ -11,9 +11,9 @@ namespace Blueprint.Sample.WebApi.Api
 
     public class EchoNameQueryHandler : IApiOperationHandler<EchoNameQuery>
     {
-        public async Task<object> Invoke(EchoNameQuery operation, ApiOperationContext apiOperationContext)
+        public Task<object> Invoke(EchoNameQuery operation, ApiOperationContext apiOperationContext)
         {
-            return new { operation.Name };
+            return Task.FromResult((object) new { operation.Name });
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Blueprint.Core.Caching
             {
                 AbsoluteExpiration = options.AbsoluteExpiration,
                 SlidingExpiration = options.SlidingExpiration,
-                Priority = ConvertPriority(options.Priority)
+                Priority = ConvertPriority(options.Priority),
             });
         }
 

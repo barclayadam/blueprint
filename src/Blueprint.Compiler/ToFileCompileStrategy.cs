@@ -22,7 +22,7 @@ namespace Blueprint.Compiler
 
         public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
-            var sourceTexts =  compilation.SyntaxTrees.Select(s => s.GetText());
+            var sourceTexts = compilation.SyntaxTrees.Select(s => s.GetText());
             var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
 
             var assemblyName = compilation.AssemblyName + ".dll";
@@ -66,11 +66,11 @@ namespace Blueprint.Compiler
 #if !NET472
             return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
-                    return Assembly.LoadFrom(assemblyFile);
+            return Assembly.LoadFrom(assemblyFile);
 #endif
         }
 
-        static string GetSha256Hash(string input)
+        private static string GetSha256Hash(string input)
         {
             using (var shaHash = SHA256.Create())
             {

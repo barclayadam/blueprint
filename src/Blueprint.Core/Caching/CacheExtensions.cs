@@ -88,6 +88,7 @@ namespace Blueprint.Core.Caching
 
             return cache.GetValue<T>(key);
         }
+
         /// <summary>
         /// Gets a value from this cache, constructing and storing a value should the cache
         /// not contain an item with the specified key.

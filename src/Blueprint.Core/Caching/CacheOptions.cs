@@ -14,8 +14,7 @@ namespace Blueprint.Core.Caching
         /// <summary>
         /// CacheOption which is used to indicate a value should not be stored in a cache.
         /// </summary>
-        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes",
-                Justification = "CacheOptions is an immutable type")]
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "CacheOptions is an immutable type")]
         public static readonly CacheOptions NotCached = new CacheOptions();
 
         private CacheOptions()
@@ -63,7 +62,7 @@ namespace Blueprint.Core.Caching
             return new CacheOptions
             {
                 Priority = priority,
-                AbsoluteExpiration = SystemTime.UtcNow.Add(absoluteExpiration)
+                AbsoluteExpiration = SystemTime.UtcNow.Add(absoluteExpiration),
             };
         }
 
@@ -85,7 +84,7 @@ namespace Blueprint.Core.Caching
             return new CacheOptions
             {
                 Priority = priority,
-                SlidingExpiration = slidingExpiration
+                SlidingExpiration = slidingExpiration,
             };
         }
 

@@ -38,7 +38,7 @@ namespace Blueprint.Compiler
 #if !NET472
                 return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
 #else
-                    return Assembly.Load(assemblyStream.ToArray());
+                return Assembly.Load(assemblyStream.ToArray());
 #endif
             }
         }

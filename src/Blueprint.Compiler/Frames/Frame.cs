@@ -6,28 +6,15 @@ using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler.Frames
 {
-    public abstract class SyncFrame : Frame
-    {
-        protected SyncFrame() : base(false)
-        {
-        }
-    }
-
-    public abstract class AsyncFrame : Frame
-    {
-        protected AsyncFrame() : base(true)
-        {
-        }
-    }
-
     public abstract class Frame
     {
+        protected internal readonly List<Variable> CreatesValue = new List<Variable>();
+
+        private readonly List<Frame> dependencies = new List<Frame>();
+        private readonly List<Variable> uses = new List<Variable>();
+
         private bool hasResolved;
         private Frame next;
-
-        protected internal readonly List<Variable> creates = new List<Variable>();
-        protected readonly List<Frame> dependencies = new List<Frame>();
-        protected internal readonly List<Variable> uses = new List<Variable>();
 
         protected Frame(bool isAsync)
         {
@@ -35,28 +22,33 @@ namespace Blueprint.Compiler.Frames
         }
 
         public bool IsAsync { get; }
+
         public bool Wraps { get; protected set; } = false;
 
         public Frame Next
         {
             get => next;
+
             set
             {
-                if (next != null) throw new InvalidOperationException($"Frame chain is being re-arranged, tried to set {value} as the 'Next");
+                if (next != null)
+                {
+                    throw new InvalidOperationException($"Frame chain is being re-arranged, tried to set {value} as the 'Next");
+                }
+
                 next = value;
             }
         }
 
         public IEnumerable<Variable> Uses => uses;
 
-        public virtual IEnumerable<Variable> Creates => creates;
-
+        public virtual IEnumerable<Variable> Creates => CreatesValue;
 
         public Frame[] Dependencies => dependencies.ToArray();
 
         /// <summary>
         /// Creates a new variable that is marked as being
-        /// "created" by this Frame
+        /// "created" by this Frame.
         /// </summary>
         /// <param name="variableType"></param>
         /// <returns></returns>
@@ -67,7 +59,7 @@ namespace Blueprint.Compiler.Frames
 
         /// <summary>
         /// Creates a new variable that is marked as being
-        /// "created" by this Frame
+        /// "created" by this Frame.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -86,13 +78,19 @@ namespace Blueprint.Compiler.Frames
         public void ResolveVariables(IMethodVariables method)
         {
             // This has to be idempotent
-            if (hasResolved) return;
+            if (hasResolved)
+            {
+                return;
+            }
 
             // Filter out created variables because bad, bad Stackoverflow things happen
-            // when you don't 
+            // when you don't
             var variables = FindVariables(method).Where(x => !Creates.Contains(x)).Distinct().ToArray();
+
             if (variables.Any(x => x == null))
+            {
                 throw new InvalidOperationException($"Frame {this} could not resolve one of its variables");
+            }
 
             uses.AddRange(variables.Where(x => x != null));
 

@@ -128,7 +128,7 @@ namespace Blueprint.Api
                 var value = property.GetValue(operation, null);
 
                 // Ignore default values, they are unnecessary to pass back through the URL
-                if (value == null || object.Equals(GetDefaultValue(property.PropertyType), value))
+                if (value == null || Equals(GetDefaultValue(property.PropertyType), value))
                 {
                     continue;
                 }

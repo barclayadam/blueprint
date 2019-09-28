@@ -303,10 +303,10 @@ namespace Blueprint.Core.ThirdParty
         /// Gets value indicating what is meant to be used.
         /// </summary>
         [UsedImplicitly]
-        public ImplicitUseTargetFlags TargetFlags { get; private set; }
+        public ImplicitUseTargetFlags TargetFlags { get; }
 
         [UsedImplicitly]
-        public ImplicitUseKindFlags UseKindFlags { get; private set; }
+        public ImplicitUseKindFlags UseKindFlags { get; }
     }
 
     /// <summary>
@@ -345,10 +345,10 @@ namespace Blueprint.Core.ThirdParty
         /// Gets value indicating what is meant to be used.
         /// </summary>
         [UsedImplicitly]
-        public ImplicitUseTargetFlags TargetFlags { get; private set; }
+        public ImplicitUseTargetFlags TargetFlags { get; }
 
         [UsedImplicitly]
-        public ImplicitUseKindFlags UseKindFlags { get; private set; }
+        public ImplicitUseKindFlags UseKindFlags { get; }
     }
 
     [Flags]
@@ -453,7 +453,7 @@ namespace Blueprint.Core.ThirdParty
             BasePath = basePath;
         }
 
-        public string BasePath { get; private set; }
+        public string BasePath { get; }
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
@@ -475,7 +475,7 @@ namespace Blueprint.Core.ThirdParty
             AnonymousProperty = anonymousProperty;
         }
 
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
@@ -503,7 +503,7 @@ namespace Blueprint.Core.ThirdParty
             AnonymousProperty = anonymousProperty;
         }
 
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
@@ -519,7 +519,7 @@ namespace Blueprint.Core.ThirdParty
             AnonymousProperty = anonymousProperty;
         }
 
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]

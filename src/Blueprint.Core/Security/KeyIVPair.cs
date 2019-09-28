@@ -32,7 +32,7 @@ namespace Blueprint.Core.Security
         }
 
         /// <summary>
-        /// Gets a byte array of the given size to be used as an initialisation vector in a symmetric 
+        /// Gets a byte array of the given size to be used as an initialisation vector in a symmetric
         /// cryptography algorithm..
         /// </summary>
         /// <param name="size">The size of the key to generate.</param>

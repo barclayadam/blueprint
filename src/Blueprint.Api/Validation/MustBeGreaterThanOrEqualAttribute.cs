@@ -24,7 +24,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependentProperty { get; private set; }
+        public string DependentProperty { get; }
 
         public string ValidatorKeyword => "x-validator-greater-than-or-equal";
 

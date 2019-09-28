@@ -22,7 +22,7 @@ namespace Blueprint.Core.Tasks
         public TaskScheduler(ITaskScheduler[] taskSchedulers)
         {
             this.taskSchedulers = taskSchedulers;
-            this.recurringJobManager = new RecurringJobManager();
+            recurringJobManager = new RecurringJobManager();
         }
 
         [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]

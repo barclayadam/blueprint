@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Blueprint.Core.Tasks
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents the context of a running task, providing the ability to store arbitrary pieces of
     /// data for a task (based only on task type, so shared across all runs no matter the properties).
@@ -84,7 +84,7 @@ namespace Blueprint.Core.Tasks
                 return (T)value;
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Blueprint.Core.Tasks
         /// <summary>
         /// Saves any changes that have been made to the data of this context, using the supplied <see cref="IBackgroundTaskContextProvider" />.
         /// </summary>
-        /// <returns>A task representing the save operation</returns>
+        /// <returns>A task representing the save operation.</returns>
         public Task SaveAsync()
         {
             if (!modified)

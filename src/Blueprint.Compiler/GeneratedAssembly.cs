@@ -8,27 +8,24 @@ namespace Blueprint.Compiler
 {
     public class GeneratedAssembly
     {
+        private readonly GenerationRules generationRules;
         private readonly HashSet<Assembly> assemblies = new HashSet<Assembly>();
 
         public GeneratedAssembly(GenerationRules generationRules)
         {
-            GenerationRules = generationRules;
+            this.generationRules = generationRules;
         }
 
-        public GenerationRules GenerationRules { get; }
-
-        public readonly List<GeneratedType> GeneratedTypes = new List<GeneratedType>();
+        public List<GeneratedType> GeneratedTypes { get; } = new List<GeneratedType>();
 
         public void ReferenceAssembly(Assembly assembly)
         {
             assemblies.Add(assembly);
         }
-        
+
         public GeneratedType AddType(string typeName, Type baseType)
         {
-            // TODO -- assert that it's been generated already?
-
-            var generatedType = new GeneratedType(GenerationRules, typeName);
+            var generatedType = new GeneratedType(generationRules, typeName);
             if (baseType.IsInterface)
             {
                 generatedType.Implements(baseType);
@@ -45,7 +42,7 @@ namespace Blueprint.Compiler
 
         public void CompileAll()
         {
-            var generator = BuildGenerator(GenerationRules);
+            var generator = BuildGenerator(generationRules);
 
             foreach (var generatedType in GeneratedTypes)
             {
@@ -59,7 +56,7 @@ namespace Blueprint.Compiler
                 var namespaces = generatedType
                     .AllInjectedFields
                     .Select(x => x.ArgType.Namespace)
-                    .Concat(new[]{typeof(Task).Namespace})
+                    .Concat(new[] { typeof(Task).Namespace })
                     .Distinct()
                     .ToList();
 
@@ -72,7 +69,7 @@ namespace Blueprint.Compiler
 
                 writer.BlankLine();
 
-                writer.Namespace(GenerationRules.ApplicationNamespace);
+                writer.Namespace(generationRules.ApplicationNamespace);
 
                 generatedType.Write(writer);
 
@@ -98,7 +95,7 @@ namespace Blueprint.Compiler
         {
             var generator = new AssemblyGenerator(generation);
 
-            foreach (var assembly in this.assemblies)
+            foreach (var assembly in assemblies)
             {
                 generator.ReferenceAssembly(assembly);
             }

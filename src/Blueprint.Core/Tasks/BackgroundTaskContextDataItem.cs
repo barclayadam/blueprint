@@ -8,15 +8,15 @@ namespace Blueprint.Core.Tasks
     {
         public BackgroundTaskContextDataItem(string contextKey)
         {
-            this.ContextKey = contextKey;
-            this.Data = new Dictionary<string, object>();
+            ContextKey = contextKey;
+            Data = new Dictionary<string, object>();
         }
 
         [JsonConstructor]
         public BackgroundTaskContextDataItem(string contextKey, Dictionary<string, object> data)
         {
-            this.ContextKey = contextKey;
-            this.Data = data;
+            ContextKey = contextKey;
+            Data = data;
         }
 
         public string ContextKey { get; set; }

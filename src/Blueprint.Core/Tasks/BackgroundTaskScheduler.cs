@@ -12,7 +12,7 @@ namespace Blueprint.Core.Tasks
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        
+
         private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
         private readonly IServiceProvider serviceProvider;
         private readonly IVersionInfoProvider versionInfoProvider;
@@ -44,31 +44,32 @@ namespace Blueprint.Core.Tasks
             var (canQueue, existingTask) = CheckCanEnqueueTask(task);
             if (!canQueue)
             {
-                return Task.FromResult((IScheduledBackgroundTask) existingTask);
+                return Task.FromResult((IScheduledBackgroundTask)existingTask);
             }
 
             var scheduledTask = new ScheduledBackgroundTask(task, null, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask) scheduledTask);
+            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
         }
 
         public Task<IScheduledBackgroundTask> ScheduleAsync<T>(T task, TimeSpan delay) where T : BackgroundTask
         {
             Populate(task);
-            
+
             var (canQueue, existingTask) = CheckCanEnqueueTask(task);
+
             if (!canQueue)
             {
-                return Task.FromResult((IScheduledBackgroundTask) existingTask);
+                return Task.FromResult((IScheduledBackgroundTask)existingTask);
             }
 
             var scheduledTask = new ScheduledBackgroundTask(task, delay, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask) scheduledTask);
+            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
         }
 
         public Task RunNowAsync()
@@ -83,7 +84,7 @@ namespace Blueprint.Core.Tasks
                 backgroundTaskScheduleProvider.InnerProvider.GetType().Name,
                 "Task",
                 string.Join(", ", tasks.Select(t => t.ToString())),
-                (async operation =>
+                async operation =>
                 {
                     // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
                     var currentTasks = new List<ScheduledBackgroundTask>(tasks);
@@ -101,9 +102,9 @@ namespace Blueprint.Core.Tasks
                     }
 
                     operation.MarkSuccess();
-                }));
+                });
         }
-        
+
         private void Populate<T>(T task) where T : BackgroundTask
         {
             task.Metadata.System = versionInfoProvider.Value.AppName;

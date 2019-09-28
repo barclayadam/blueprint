@@ -49,6 +49,6 @@ namespace Blueprint.Notifications.Notifications
         /// Gets any file attachments that should be sent with this notification
         /// if the specified handler (e.g. email) can handle it.
         /// </summary>
-        public List<NotificationAttachment> Attachments { get; private set; }
+        public List<NotificationAttachment> Attachments { get; }
     }
 }

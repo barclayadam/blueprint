@@ -36,10 +36,9 @@ namespace Blueprint.Core.Caching
         /// the given key.
         /// </summary>
         /// <param name="key">The unique identifier of the item.</param>
-        /// <typeparam name="T">The type of the value being checked for existence</typeparam>
+        /// <typeparam name="T">The type of the value being checked for existence.</typeparam>
         /// <returns>Whether a value for the key exists within the cache.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type is used to avoid key naming conflicts")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         bool ContainsKey<T>(object key);
 
         /// <summary>
@@ -71,8 +70,7 @@ namespace Blueprint.Core.Caching
         /// The type of the value being inserted / retrieved, inferred by the return type
         /// of the constructor.
         /// </typeparam>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type is used to avoid key naming conflicts")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         void Remove<T>(object key);
     }
 }

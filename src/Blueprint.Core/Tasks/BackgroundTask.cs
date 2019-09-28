@@ -30,7 +30,7 @@ namespace Blueprint.Core.Tasks
         }
 
         /// <summary>
-        /// Gets or sets the envelope of this background task that helps to identify metadata about
+        /// Gets or sets the envelope of this background task that helps to identify metadata about.
         /// </summary>
         public BackgroundTaskMetadata Metadata { get; set; }
 

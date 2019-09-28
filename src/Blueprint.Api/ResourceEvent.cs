@@ -114,7 +114,7 @@ namespace Blueprint.Api
             this.resourceType = resourceType;
             this.selfQuery = selfQuery;
 
-            this.created = DateTimeOffset.UtcNow;
+            created = DateTimeOffset.UtcNow;
         }
 
         /// <summary>
@@ -129,36 +129,36 @@ namespace Blueprint.Api
         /// The type should be a dot-delimited string with the first part being the resource type of
         /// the object that has been altered.
         /// </remarks>
-        public string Type => this.eventType;
+        public string Type => eventType;
 
         /// <summary>
         /// Gets a the change type of this event, which is a higher-level version of the Type property,
         /// indicating whether the resource was updated, created or deleted.
         /// </summary>
-        public ResourceEventChangeType ChangeType => this.changeType;
+        public ResourceEventChangeType ChangeType => changeType;
 
         /// <summary>
         /// Gets the created date of this event.
         /// </summary>
-        public DateTimeOffset Created => this.created;
+        public DateTimeOffset Created => created;
 
         /// <summary>
         /// Gets the query that represents the query that will load the resource this
         /// event represents.
         /// </summary>
         [JsonIgnore]
-        public IApiOperation SelfQuery => this.selfQuery;
+        public IApiOperation SelfQuery => selfQuery;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
         [JsonIgnore]
-        public Type ResourceType => this.resourceType;
+        public Type ResourceType => resourceType;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
-        public string ResourceObject => ApiResource.GetTypeName(this.ResourceType);
+        public string ResourceObject => ApiResource.GetTypeName(ResourceType);
 
         ///<summary>
         /// Gets the href of the resource this event represents, to be populated by the ResourceEventMiddleware
@@ -186,7 +186,7 @@ namespace Blueprint.Api
         /// Gets the metadata dictionary of this resource event, a simple bag of key value pairs
         /// of useful information that can be stored freeform against an event.
         /// </summary>
-        public Dictionary<string, object> Metadata => this.metadata;
+        public Dictionary<string, object> Metadata => metadata;
 
         /// <summary>
         /// Gets the correlation id for this event, which can be used to tie it back to
@@ -202,7 +202,7 @@ namespace Blueprint.Api
 
         public ResourceEvent WithMetadata(string key, object value)
         {
-            this.metadata[key] = value;
+            metadata[key] = value;
 
             return this;
         }

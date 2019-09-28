@@ -70,7 +70,7 @@ namespace Blueprint.Core.Utilities
             catch (TargetInvocationException tie)
             {
                 ExceptionDispatchInfo.Capture(tie.InnerException).Throw();
-                return default(TResult);
+                return default;
             }
         }
 

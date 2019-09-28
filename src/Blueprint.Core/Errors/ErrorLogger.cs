@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
-
-using NLog;
-
 using Microsoft.AspNetCore.Http;
+using NLog;
 
 namespace Blueprint.Core.Errors
 {
@@ -112,7 +110,7 @@ namespace Blueprint.Core.Errors
         /// <returns>A non-null dictionary of error data, including that from registered providers.</returns>
         private Dictionary<string, string> Populate(Dictionary<string, string> errorData)
         {
-            foreach(var provider in errorDataProviders)
+            foreach (var provider in errorDataProviders)
             {
                 provider.Populate(errorData);
             }

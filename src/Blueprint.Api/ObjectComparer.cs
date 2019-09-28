@@ -39,7 +39,7 @@ namespace Blueprint.Api
             {
                 if (!Equals(parms.Object1, parms.Object2))
                 {
-                    this.AddDifference(parms);
+                    AddDifference(parms);
                 }
             }
         }

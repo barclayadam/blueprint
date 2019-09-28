@@ -43,17 +43,17 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the dependant value.
         /// </summary>
-        public object DependantValue { get; private set; }
+        public object DependantValue { get; }
 
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependantProperty { get; private set; }
+        public string DependantProperty { get; }
 
         /// <summary>
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
-        public IEnumerable<object> DependantValues { get; private set; }
+        public IEnumerable<object> DependantValues { get; }
 
         /// <summary>
         /// Validates the specified value. 

@@ -4,15 +4,16 @@ using System.Collections.Generic;
 
 namespace Blueprint.Compiler.Util
 {
-    internal class LightweightCache<TKey, TValue> : IEnumerable<TValue> 
+    internal class LightweightCache<TKey, TValue> : IEnumerable<TValue>
     {
         private readonly IDictionary<TKey, TValue> values;
 
-        private Func<TValue, TKey> getKey = delegate { throw new NotImplementedException(); };
+        private Func<TValue, TKey> getKey = arg => throw new NotImplementedException();
 
-        private Func<TKey, TValue> onMissing = delegate (TKey key) {
-                                                                        var message = $"Key '{key}' could not be found";
-                                                                        throw new KeyNotFoundException(message);
+        private Func<TKey, TValue> onMissing = key =>
+        {
+            var message = $"Key '{key}' could not be found";
+            throw new KeyNotFoundException(message);
         };
 
         public LightweightCache()
@@ -35,7 +36,6 @@ namespace Blueprint.Compiler.Util
         {
             values = dictionary;
         }
-
 
         public Func<TKey, TValue> OnMissing
         {
@@ -62,7 +62,7 @@ namespace Blueprint.Compiler.Util
                     return pair.Value;
                 }
 
-                return default(TValue);
+                return default;
             }
         }
 
@@ -84,6 +84,7 @@ namespace Blueprint.Compiler.Util
 
                 return value;
             }
+
             set
             {
                 if (values.ContainsKey(key))
@@ -108,8 +109,7 @@ namespace Blueprint.Compiler.Util
         }
 
         /// <summary>
-        ///     Guarantees that the Cache has the default value for a given key.
-        ///     If it does not already exist, it's created.
+        /// Guarantees that the Cache has the default value for a given key. If it does not already exist, it's created.
         /// </summary>
         /// <param name="key"></param>
         public void FillDefault(TKey key)
@@ -129,7 +129,7 @@ namespace Blueprint.Compiler.Util
 
         public bool TryRetrieve(TKey key, out TValue value)
         {
-            value = default(TValue);
+            value = default;
 
             if (values.ContainsKey(key))
             {
@@ -165,7 +165,7 @@ namespace Blueprint.Compiler.Util
         {
             var returnValue = false;
 
-            Each(delegate (TValue value) { returnValue |= predicate(value); });
+            Each(value => returnValue |= predicate(value));
 
             return returnValue;
         }
@@ -180,7 +180,7 @@ namespace Blueprint.Compiler.Util
                 }
             }
 
-            return default(TValue);
+            return default;
         }
 
         public TValue[] GetAll()

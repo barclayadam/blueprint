@@ -29,8 +29,8 @@ namespace Blueprint.Core.Security
         /// <param name="keyIVPair">The Key/IV pair to use.</param>
         public SymmetricAlgorithmEncryptor(CipherMode cipherMode, PaddingMode paddingMode, KeyIVPair keyIVPair)
         {
-            Guard.EnumDefined<CipherMode>("cipherMode", cipherMode);
-            Guard.EnumDefined<PaddingMode>("paddingMode", paddingMode);
+            Guard.EnumDefined("cipherMode", cipherMode);
+            Guard.EnumDefined("paddingMode", paddingMode);
             Guard.NotNull(nameof(keyIVPair), keyIVPair);
 
             this.cipherMode = cipherMode;
@@ -71,7 +71,7 @@ namespace Blueprint.Core.Security
                     Key = keyIVPair.GetKey(KeySize),
                     IV = keyIVPair.GetIV(IVSize),
                     Padding = paddingMode,
-                    Mode = cipherMode
+                    Mode = cipherMode,
             };
         }
 
@@ -85,7 +85,7 @@ namespace Blueprint.Core.Security
 
                 memStream.Position = 0;
                 var result = memStream.ToArray();
-                
+
                 return result;
             }
         }

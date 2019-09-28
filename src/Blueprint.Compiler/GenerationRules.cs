@@ -14,11 +14,11 @@ namespace Blueprint.Compiler
 
         public OptimizationLevel OptimizationLevel { get; set; } = OptimizationLevel.Release;
 
-        public string ApplicationNamespace { get; }
+        public string ApplicationNamespace { get; set; }
 
         public string AssemblyName { get; set; }
 
-        public readonly IList<Assembly> Assemblies = new List<Assembly>();
+        public IList<Assembly> Assemblies { get; } = new List<Assembly>();
 
         public ICompileStrategy CompileStrategy { get; set; } = new ToFileCompileStrategy();
     }

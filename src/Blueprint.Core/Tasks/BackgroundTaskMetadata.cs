@@ -1,9 +1,8 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Blueprint.Core.Tasks
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Contains metadata about a task that is to be executed / scheduled, containing information like
     /// who is executing the task, where it comes from etc. to enable better diagnostics of

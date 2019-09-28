@@ -5,6 +5,6 @@
         Public,
         Protected,
         Private,
-        Internal
+        Internal,
     }
 }

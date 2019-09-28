@@ -19,6 +19,6 @@ namespace Blueprint.Core.Caching
         /// <summary>
         /// Cache items with this priority level are the least likely to be deleted from the cache as the server frees system memory.
         /// </summary>
-        High
+        High,
     }
 }

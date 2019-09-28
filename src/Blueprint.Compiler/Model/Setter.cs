@@ -15,27 +15,30 @@ namespace Blueprint.Compiler.Model
 
         public string PropName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the value to be set upon creating an instance of the class.
+        /// </summary>
+        public object InitialValue { get; set; }
+
         public virtual void WriteDeclaration(ISourceWriter writer)
         {
             writer.Write(ToDeclaration());
         }
 
-        public string ToDeclaration()
-        {
-            return $"public {VariableType.FullNameInCode()} {PropName} {{get; set;}}";
-        }
-
-        /// <summary>
-        /// Value to be set upon creating an instance of the class
-        /// </summary>
-        public object InitialValue { get; set; }
-
         public void SetInitialValue(object @object)
         {
-            if (InitialValue == null) return;            
-            
+            if (InitialValue == null)
+            {
+                return;
+            }
+
             var property = @object.GetType().GetProperty(Usage);
             property.SetValue(@object, InitialValue);
+        }
+
+        private string ToDeclaration()
+        {
+            return $"public {VariableType.FullNameInCode()} {PropName} {{get; set;}}";
         }
     }
 }

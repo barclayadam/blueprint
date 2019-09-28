@@ -104,7 +104,7 @@ namespace Blueprint.Core
 
             try
             {
-                parsedResourceKey = new ResourceKey<T>(type, (T) TypeDescriptor.GetConverter(typeof (T)).ConvertFromInvariantString(resource[1]));
+                parsedResourceKey = new ResourceKey<T>(type, (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(resource[1]));
                 return true;
             }
             catch (FormatException)

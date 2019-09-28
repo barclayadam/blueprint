@@ -43,17 +43,17 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependentProperty { get; private set; }
+        public string DependentProperty { get; }
 
         /// <summary>
         /// Gets the dependant value.
         /// </summary>
-        public object DependentValue { get; private set; }
+        public object DependentValue { get; }
 
         /// <summary>
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
-        public IEnumerable<object> DependentValues { get; private set; }
+        public IEnumerable<object> DependentValues { get; }
 
         /// <summary>
         /// Validates the specified value.
@@ -92,7 +92,7 @@ namespace Blueprint.Api.Validation
 
         public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {
-            schema.ExtensionData[this.ValidatorKeyword] = new Dictionary<string, object>
+            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
             {
                 ["$data"] = $"1/{DependentProperty.Camelize()}",
                 ["dependentValues"] = DependentValues

@@ -23,7 +23,7 @@ namespace Blueprint.Core.Tasks
         /// client to perform those checks.
         /// </remarks>
         /// <param name="task">The task to be executed.</param>
-        /// <param name="context">A context for the task _type_, allowing</param>
+        /// <param name="context">A context for the task _type_, allowing storing task-type specific data for subsequent runs.</param>
         Task HandleAsync(T task, BackgroundTaskContext context);
     }
 }

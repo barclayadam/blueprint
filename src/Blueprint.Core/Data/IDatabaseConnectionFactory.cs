@@ -18,7 +18,7 @@ namespace Blueprint.Core.Data
         /// It is the complete responsibility of clients of this method to manage the connection once it has
         /// been opened, to dispose and close the connection when done with.
         /// </remarks>
-        /// <returns>An opened database connection</returns>
+        /// <returns>An opened database connection.</returns>
         IDbConnection Open();
     }
 }

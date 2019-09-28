@@ -17,8 +17,7 @@ namespace Blueprint.Core.Authorisation
     /// the form <c>{<em>PropertyName</em>}</c>, where <em>PropertyName</em> is the exact property name in the
     /// class definition.
     /// </para>
-    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes",
-            Justification = "Attribute designed to be subclassed for concrete usages of claims.")]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "Attribute designed to be subclassed for concrete usages of claims.")]
     [AttributeUsage(AttributeTargets.Class)]
     public class ClaimRequiredAttribute : Attribute
     {

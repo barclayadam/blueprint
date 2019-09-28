@@ -15,7 +15,7 @@ namespace Blueprint.Api.Validation
         protected AttributeBasedValidatorFrame(bool isAsync, OperationProperty property)
             : base(isAsync)
         {
-            this.Property = property;
+            Property = property;
         }
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)

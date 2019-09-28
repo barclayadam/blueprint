@@ -7,7 +7,7 @@ namespace Blueprint.Compiler.Frames
 {
     public class ReturnFrame : SyncFrame
     {
-        public Type ReturnType { get; }
+        private readonly Type returnType;
 
         public ReturnFrame()
         {
@@ -15,7 +15,7 @@ namespace Blueprint.Compiler.Frames
 
         public ReturnFrame(Type returnType)
         {
-            ReturnType = returnType;
+            this.returnType = returnType;
         }
 
         public ReturnFrame(Variable returnVariable)
@@ -25,7 +25,6 @@ namespace Blueprint.Compiler.Frames
 
         public Variable ReturnedVariable { get; private set; }
 
-
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
             var code = ReturnedVariable == null ? "return;" : $"return {ReturnedVariable};";
@@ -34,11 +33,11 @@ namespace Blueprint.Compiler.Frames
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
         {
-            if (ReturnedVariable == null && ReturnType != null)
+            if (ReturnedVariable == null && returnType != null)
             {
-                ReturnedVariable = chain.FindVariable(ReturnType);
+                ReturnedVariable = chain.FindVariable(returnType);
             }
-            
+
             if (ReturnedVariable != null)
             {
                 yield return ReturnedVariable;

@@ -10,7 +10,7 @@ namespace Blueprint.Compiler
     public class FramesCollection : List<Frame>
     {
         /// <summary>
-        /// Adds a ReturnFrame to the method that will return a variable of the specified type
+        /// Adds a ReturnFrame to the method that will return a variable of the specified type.
         /// </summary>
         /// <param name="returnType"></param>
         /// <returns></returns>
@@ -23,7 +23,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Adds a ReturnFrame for the specified variable
+        /// Adds a ReturnFrame for the specified variable.
         /// </summary>
         /// <param name="returnVariable"></param>
         /// <returns></returns>
@@ -36,10 +36,10 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Adds a ConstructorFrame<T> to the method frames
+        /// Adds a ConstructorFrame{T} to the method frames.
         /// </summary>
         /// <param name="constructor"></param>
-        /// <param name="configure">Optional, any additional configuration for the constructor frame</param>
+        /// <param name="configure">Optional, any additional configuration for the constructor frame.</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
@@ -53,7 +53,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Add a frame to the end by its type
+        /// Add a frame to the end by its type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -63,22 +63,22 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Append one or more frames to the end
+        /// Append one or more frames to the end.
         /// </summary>
         /// <param name="frames"></param>
         /// <returns></returns>
         public FramesCollection Append(params Frame[] frames)
         {
-            this.AddRange(frames);
+            AddRange(frames);
             return this;
         }
 
         /// <summary>
         /// Convenience method to add a method call to the GeneratedMethod Frames
-        /// collection
+        /// collection.
         /// </summary>
         /// <param name="expression"></param>
-        /// <param name="configure">Optional configuration of the MethodCall</param>
+        /// <param name="configure">Optional configuration of the MethodCall.</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public FramesCollection Call<T>(Expression<Action<T>> expression, Action<MethodCall> configure = null)

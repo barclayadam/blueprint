@@ -60,7 +60,7 @@ namespace Blueprint.Api
         {
             return OperationTypeAuthorisers.GetOrAdd(descriptor.OperationType, t =>
             {
-                return this.apiAuthorisers.Where(checker => checker.AppliesTo(descriptor)).ToList();
+                return apiAuthorisers.Where(checker => checker.AppliesTo(descriptor)).ToList();
             });
         }
     }

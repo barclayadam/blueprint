@@ -25,7 +25,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependantProperty { get; private set; }
+        public string DependantProperty { get; }
 
         /// <summary>
         /// Validates the specified value. 

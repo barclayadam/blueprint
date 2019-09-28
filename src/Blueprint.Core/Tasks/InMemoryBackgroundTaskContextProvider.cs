@@ -15,7 +15,7 @@ namespace Blueprint.Core.Tasks
 
         public Task<BackgroundTaskContextDataItem> GetDataAsync(string contextKey)
         {
-            return Task.FromResult(new BackgroundTaskContextDataItem(contextKey, this.data));
+            return Task.FromResult(new BackgroundTaskContextDataItem(contextKey, data));
         }
 
         public Task SetDataAsync(BackgroundTaskContextDataItem data)

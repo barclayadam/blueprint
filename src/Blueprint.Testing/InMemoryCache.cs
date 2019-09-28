@@ -30,7 +30,7 @@ namespace Blueprint.Testing
                 return (T)items[GenerateStorageKey<T>(key)];
             }
 
-            return default(T);
+            return default;
         }
 
         public void Remove<T>(object key)

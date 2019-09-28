@@ -11,12 +11,12 @@ namespace Blueprint.Api
 
         public Base64FileData(byte[] data)
         {
-            this.Data = new MemoryStream(data);
+            Data = new MemoryStream(data);
         }
 
         public Base64FileData(Stream data)
         {
-            this.Data = data;
+            Data = data;
         }
 
         public Stream Data { get; }

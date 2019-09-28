@@ -39,7 +39,7 @@ namespace Blueprint.Compiler.Frames
         {
             writer.Write($"{lhs} = {rhs};");
 
-            this.Next?.GenerateCode(method, writer);
+            Next?.GenerateCode(method, writer);
         }
     }
 }

@@ -9,12 +9,18 @@ namespace Blueprint.Compiler.Util
         private readonly Type type;
         private ConstructorInfo constructor;
 
-        public ConstructorFinderVisitor(Type type)
+        private ConstructorFinderVisitor(Type type)
         {
             this.type = type;
         }
 
-        public ConstructorInfo Constructor => constructor;
+        public static ConstructorInfo Find(Expression<Func<T>> expression)
+        {
+            var finder = new ConstructorFinderVisitor<T>(typeof(T));
+            finder.Visit(expression);
+
+            return finder.constructor;
+        }
 
         protected override NewExpression VisitNew(NewExpression nex)
         {
@@ -24,14 +30,6 @@ namespace Blueprint.Compiler.Util
             }
 
             return base.VisitNew(nex);
-        }
-
-        public static ConstructorInfo Find(Expression<Func<T>> expression)
-        {
-            var finder = new ConstructorFinderVisitor<T>(typeof(T));
-            finder.Visit(expression);
-
-            return finder.Constructor;
         }
     }
 }

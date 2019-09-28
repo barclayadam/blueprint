@@ -147,8 +147,7 @@ namespace Blueprint.Compiler
                 syntaxTrees: syntaxTrees,
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                    .WithOptimizationLevel(rules.OptimizationLevel)
-            );
+                    .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
                 compilation,
@@ -205,9 +204,9 @@ namespace Blueprint.Compiler
                             exceptionMessage.AppendLine("Assembly reference errors (these may be the reason compilation fails)");
                             exceptionMessage.AppendLine();
 
-                            foreach (var e in referenceErrors)
+                            foreach (var (reference, exception) in referenceErrors)
                             {
-                                exceptionMessage.AppendLine($" {e.Reference}: {e.Exception.Message}");
+                                exceptionMessage.AppendLine($" {reference}: {exception.Message}");
                             }
 
                             exceptionMessage.AppendLine();

@@ -58,7 +58,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the regular expression used by this validation attribute.
         /// </summary>
-        public Regex Regex => this.regex;
+        public Regex Regex => regex;
 
         /// <summary>
         /// Determines whether or not the specified value is valid, which means that is matches

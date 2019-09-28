@@ -12,21 +12,6 @@ namespace Blueprint.Compiler
 {
     public class GeneratedMethod
     {
-        public static GeneratedMethod For<TReturn>(string name, params Argument[] arguments)
-        {
-            return new GeneratedMethod(name, typeof(TReturn), arguments);
-        }
-
-        public static GeneratedMethod ForNoArg(string name)
-        {
-            return new GeneratedMethod(name, typeof(void), new Argument[0]);
-        }
-
-        public static GeneratedMethod ForNoArg<TReturn>(string name)
-        {
-            return new GeneratedMethod(name, typeof(TReturn), new Argument[0]);
-        }
-
         private AsyncMode asyncMode = AsyncMode.None;
         private Frame top;
 
@@ -45,43 +30,58 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// The return type of the method being generated
+        /// Gets the return type of the method being generated.
         /// </summary>
         public Type ReturnType { get; }
-        
+
         /// <summary>
-        /// The name of the method being generated
+        /// Gets the name of the method being generated.
         /// </summary>
         public string MethodName { get; }
-        
-        
+
         public bool Overrides { get; set; }
 
         /// <summary>
-        /// Is the method synchronous, returning a Task, or an async method
+        /// Gets or sets the "async mode" of this method (i.e. is the method synchronous, returning a Task, or an async method).
         /// </summary>
         public AsyncMode AsyncMode
         {
             get => asyncMode;
             set => asyncMode = value;
         }
-        
+
         public Argument[] Arguments { get; }
 
-        
-        // TODO -- need a test here. It's used within Jasper, but still
         public IList<Variable> DerivedVariables { get; } = new List<Variable>();
-        
-        
+
         public IList<IVariableSource> Sources { get; } = new List<IVariableSource>();
 
         public Variable ReturnVariable { get; set; }
-        
+
+        public FramesCollection Frames { get; } = new FramesCollection();
+
+        public static GeneratedMethod For<TReturn>(string name, params Argument[] arguments)
+        {
+            return new GeneratedMethod(name, typeof(TReturn), arguments);
+        }
+
+        public static GeneratedMethod ForNoArg(string name)
+        {
+            return new GeneratedMethod(name, typeof(void), new Argument[0]);
+        }
+
+        public static GeneratedMethod ForNoArg<TReturn>(string name)
+        {
+            return new GeneratedMethod(name, typeof(TReturn), new Argument[0]);
+        }
 
         public void WriteMethod(ISourceWriter writer)
         {
-            if (top == null) throw new InvalidOperationException($"You must call {nameof(ArrangeFrames)}() before writing out the source code");
-            
+            if (top == null)
+            {
+                throw new InvalidOperationException($"You must call {nameof(ArrangeFrames)}() before writing out the source code");
+            }
+
             var returnValue = DetermineReturnExpression();
 
             if (Overrides)
@@ -93,7 +93,6 @@ namespace Blueprint.Compiler
 
             writer.Write($"BLOCK:public {returnValue} {MethodName}({arguments})");
 
-
             top.GenerateCode(this, writer);
 
             WriteReturnStatement(writer);
@@ -101,7 +100,33 @@ namespace Blueprint.Compiler
             writer.FinishBlock();
         }
 
-        protected void WriteReturnStatement(ISourceWriter writer)
+        public void ArrangeFrames(GeneratedType type)
+        {
+            if (!Frames.Any())
+            {
+                throw new ArgumentOutOfRangeException(nameof(Frames), "Cannot be an empty list");
+            }
+
+            var compiler = new MethodFrameArranger(this, type);
+            compiler.Arrange(out asyncMode, out top);
+        }
+
+        public string ToExitStatement()
+        {
+            return AsyncMode == AsyncMode.AsyncTask
+                ? "return;"
+                : $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
+        }
+
+        /// <summary>
+        /// Add a return frame for the method's return type.
+        /// </summary>
+        public void Return()
+        {
+            Frames.Return(ReturnType);
+        }
+
+        private void WriteReturnStatement(ISourceWriter writer)
         {
             if (ReturnVariable != null)
             {
@@ -113,40 +138,11 @@ namespace Blueprint.Compiler
             }
         }
 
-
-        protected string DetermineReturnExpression()
+        private string DetermineReturnExpression()
         {
             return AsyncMode == AsyncMode.AsyncTask
                 ? "async " + ReturnType.FullNameInCode()
                 : ReturnType.FullNameInCode();
         }
-
-        public void ArrangeFrames(GeneratedType type)
-        {
-            if (!Frames.Any())
-            {
-                throw new ArgumentOutOfRangeException(nameof(Frames), "Cannot be an empty list");
-            }
-            
-            var compiler = new MethodFrameArranger(this, type);
-            compiler.Arrange(out asyncMode, out top);
-        }
-
-        public string ToExitStatement()
-        {
-            return AsyncMode == AsyncMode.AsyncTask 
-                ? "return;" 
-                : $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
-        }
-        
-        /// <summary>
-        /// Add a return frame for the method's return type
-        /// </summary>
-        public void Return()
-        {
-            Frames.Return(ReturnType);
-        }
-        
-        public FramesCollection Frames { get; } = new FramesCollection();
     }
 }
