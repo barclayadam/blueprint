@@ -16,6 +16,30 @@ namespace Blueprint.Api.Middleware
     public class ValidationMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
+        /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
+        /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
+        /// </summary>
+        /// <param name="validationException">The exception to be converted.</param>
+        /// <returns>The response to send back to the client.</returns>
+        // ReSharper disable once MemberCanBePrivate.Global This is used in generated code
+        public static ValidationErrorResponse ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException validationException)
+        {
+            var validationResult = validationException.ValidationResult;
+
+            if (!validationResult.MemberNames.Any())
+            {
+                return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
+                {
+                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage },
+                });
+            }
+
+            var errorMessages = (IEnumerable<string>)new[] { validationResult.ErrorMessage };
+
+            return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
+        }
+
+        /// <summary>
         /// Always returns true as global exception handlers are added, although no actual validation code will
         /// be output in the case that no validation attributes exist on the operation.
         /// </summary>
@@ -104,30 +128,6 @@ namespace Blueprint.Api.Middleware
             // and throw an exception to indicate a problem, even if the operation itself is _not_ validated
             context.RegisterUnhandledExceptionHandler(typeof(ValidationException), RegisterBlueprintExceptionHandler);
             context.RegisterUnhandledExceptionHandler(typeof(System.ComponentModel.DataAnnotations.ValidationException), RegisterDataAnnotationsExceptionHandler);
-        }
-
-        /// <summary>
-        /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
-        /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
-        /// </summary>
-        /// <param name="validationException">The exception to be converted.</param>
-        /// <returns>The response to send back to the client.</returns>
-        // ReSharper disable once MemberCanBePrivate.Global This is used in generated code
-        public static ValidationErrorResponse ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException validationException)
-        {
-            var validationResult = validationException.ValidationResult;
-
-            if (!validationResult.MemberNames.Any())
-            {
-                return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
-                {
-                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage },
-                });
-            }
-
-            var errorMessages = (IEnumerable<string>)new[] { validationResult.ErrorMessage };
-
-            return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
         }
 
         private static IEnumerable<Frame> RegisterBlueprintExceptionHandler(Variable exception)

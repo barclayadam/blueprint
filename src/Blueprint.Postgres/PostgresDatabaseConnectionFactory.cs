@@ -17,7 +17,6 @@ namespace Blueprint.Core.Data
             this.connectionString = connectionString;
         }
 
-        /// <inherit-doc />
         public IDbConnection Open()
         {
             if (Log.IsTraceEnabled)

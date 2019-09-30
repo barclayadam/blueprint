@@ -10,12 +10,6 @@ namespace Blueprint.Core.Utilities
     /// </summary>
     public static class CommonRegularExpressions
     {
-        private const string UrlProtocolPattern = @"((([Hh][Tt]|[Ff])[Tt][Pp]([Ss]?))\://)";
-        private const string UrlWithProtocolPattern = UrlProtocolPattern + UrlDomainPattern;
-        private const string UrlDomainPattern = @"([wW]{3}.|[a-zA-Z0-9].)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%\$#\=~_\-]+))*";
-
-        // Original Source: http://www.mgbrown.com/PermaLink66.aspx
-
         /// <summary>
         /// A regular expression pattern which represents an email address, attempting to filter our the majority
         /// of incorrect email addresses whilst avoiding false-negatives.
@@ -123,5 +117,9 @@ namespace Blueprint.Core.Utilities
         /// </summary>
         public static readonly Regex UrlWithProtocol = new Regex(
             @"^\s*{0}\s*$".Fmt(UrlWithProtocolPattern), RegexOptions.Compiled);
+
+        private const string UrlProtocolPattern = @"((([Hh][Tt]|[Ff])[Tt][Pp]([Ss]?))\://)";
+        private const string UrlWithProtocolPattern = UrlProtocolPattern + UrlDomainPattern;
+        private const string UrlDomainPattern = @"([wW]{3}.|[a-zA-Z0-9].)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%\$#\=~_\-]+))*";
     }
 }

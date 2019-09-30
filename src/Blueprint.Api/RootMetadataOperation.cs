@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Blueprint.Api.Authorisation;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 

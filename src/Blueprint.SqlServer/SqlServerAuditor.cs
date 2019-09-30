@@ -28,6 +28,7 @@ namespace Blueprint.SqlServer
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class.
         /// </summary>
+        /// <param name="databaseConnectionFactory">A connection factory used to open connection when writing audit items.</param>
         public SqlServerAuditor(IDatabaseConnectionFactory databaseConnectionFactory)
         {
             Guard.NotNull(nameof(databaseConnectionFactory), databaseConnectionFactory);

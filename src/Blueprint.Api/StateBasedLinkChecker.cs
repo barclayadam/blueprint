@@ -37,7 +37,7 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Indicates whether a link is available for the the operation (as identified by the
-        /// <typeparam name="TOperation"></typeparam> type parameter) given the specified resource and current state.
+        /// <typeparamref name="TOperation"></typeparamref> type parameter) given the specified resource and current state.
         /// </summary>
         /// <param name="operationContext">The context of the currently executing operation.</param>
         /// <param name="resource">The resource to check against.</param>

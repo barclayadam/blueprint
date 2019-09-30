@@ -19,7 +19,6 @@ namespace Blueprint.SqlServer
             this.connectionString = connectionString;
         }
 
-        /// <inherit-doc />
         public IDbConnection Open()
         {
             if (Log.IsTraceEnabled)

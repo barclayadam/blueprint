@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Blueprint.Api.Authorisation;
 using Blueprint.Compiler;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;

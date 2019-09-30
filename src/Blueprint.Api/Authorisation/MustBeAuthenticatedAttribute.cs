@@ -1,6 +1,6 @@
 using System;
 
-namespace Blueprint.Core.Authorisation
+namespace Blueprint.Api.Authorisation
 {
     /// <summary>
     /// An attribute that should decorate a resource to indicate anyone who has been successfully

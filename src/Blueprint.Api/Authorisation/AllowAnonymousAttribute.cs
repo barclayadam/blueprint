@@ -1,6 +1,6 @@
 using System;
 
-namespace Blueprint.Core.Authorisation
+namespace Blueprint.Api.Authorisation
 {
     /// <summary>
     /// An attribute that decorates a resource to indicate that no authorisation checks are

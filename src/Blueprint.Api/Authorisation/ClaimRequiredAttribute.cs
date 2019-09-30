@@ -2,12 +2,13 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Blueprint.Core;
 using Blueprint.Core.Utilities;
 
-namespace Blueprint.Core.Authorisation
+namespace Blueprint.Api.Authorisation
 {
     /// <summary>
-    /// Used in conjunction with a <see cref="AttributeBasedResourceClaimProvider"/> indicates that a resource
+    /// Used in conjunction with a <see cref="ClaimsRequiredApiAuthoriser"/> indicates that a resource
     /// represented by the class this attribute is attached demands that a user has the Claim this attribute
     /// represents to be granted access.
     /// </summary>

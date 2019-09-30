@@ -12,8 +12,9 @@ namespace Blueprint.Core.Security
     public class PasswordHash
     {
         // The following constants may be changed without breaking existing hashes.
-        public static int SaltBytes = 24;
-        public static int HashBytes = 24;
+        public static readonly int SaltBytes = 24;
+
+        public static readonly int HashBytes = 24;
 
         // Use the current year to continually increase the iteration rate in an attempt
         // to keep security up to date with increases in computing power without monitoring the
@@ -25,7 +26,7 @@ namespace Blueprint.Core.Security
         // 2020 == 108000
         // 2021 == 109261
         // 2022 == 110648
-        public static int Pbkdf2Iterations = 100_000 + (int)Math.Pow(DateTime.UtcNow.Year - 2000, 3);
+        public static readonly int Pbkdf2Iterations = 100_000 + (int)Math.Pow(DateTime.UtcNow.Year - 2000, 3);
 
         private readonly string hashedPassword;
 

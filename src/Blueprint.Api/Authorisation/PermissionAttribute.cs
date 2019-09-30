@@ -1,6 +1,7 @@
 using System;
+using Blueprint.Core.Authorisation;
 
-namespace Blueprint.Core.Authorisation
+namespace Blueprint.Api.Authorisation
 {
     /// <summary>
     /// When applied to a message indicates that the user executing the command must have
