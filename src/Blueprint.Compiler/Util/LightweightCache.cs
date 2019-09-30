@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Blueprint.Compiler.Util
 {
@@ -57,9 +58,12 @@ namespace Blueprint.Compiler.Util
         {
             get
             {
-                foreach (var pair in values)
+                using (var enumerator = values.GetEnumerator())
                 {
-                    return pair.Value;
+                    if (enumerator.MoveNext())
+                    {
+                        return enumerator.Current.Value;
+                    }
                 }
 
                 return default;

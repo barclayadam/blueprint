@@ -11,7 +11,7 @@ namespace Blueprint.Api.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class PasswordAttribute : RegexAttribute
     {
-        private const string InvalidPasswordMessage = "A password must contain at least: 1 lower case letter, 1 upper case letter, 1 number, 1 special character and be at least 8 characters long.";
+        private const string DefaultMessage = "A password must contain at least: 1 lower case letter, 1 upper case letter, 1 number, 1 special character and be at least 8 characters long.";
 
         /// <summary>
         /// A regular expression that matches any string that contains at least
@@ -27,7 +27,7 @@ namespace Blueprint.Api.Validation
         /// Initializes a new instance of the PasswordAttribute class.
         /// </summary>
         public PasswordAttribute()
-            : base(StrongPassword, InvalidPasswordMessage)
+            : base(StrongPassword, DefaultMessage)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Blueprint.Api.Validation
         /// <param name="errorMessage">The error message to be shown on validation failure.</param>
         /// <param name="appendInvalidPasswordDescription">Determines whether the invalid password description should be appended to the error message.</param>
         public PasswordAttribute(string errorMessage, bool appendInvalidPasswordDescription)
-            : base(StrongPassword, appendInvalidPasswordDescription ? errorMessage + " " + InvalidPasswordMessage : errorMessage)
+            : base(StrongPassword, appendInvalidPasswordDescription ? errorMessage + " " + DefaultMessage : errorMessage)
         {
         }
 
