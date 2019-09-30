@@ -12,7 +12,7 @@ namespace Blueprint.Api
         /// Given a resource type and it's Id generates a <see cref="Link"/> that maps to it and can be output to
         /// <see cref="ApiResource.Links"/>.
         /// </summary>
-        /// <param name="configuration">The configuration of the API, used to grab <see cref="ApiConfiguration.BaseApiUrl"/></param>
+        /// <param name="configuration">The configuration of the API, used to grab <see cref="ApiConfiguration.BaseApiUrl"/>.</param>
         /// <param name="id">The id of the resource being linked to.</param>
         /// <typeparam name="T">The <see cref="ApiResource"/> type.</typeparam>
         /// <returns>A new <see cref="Link"/> that references the given resource.</returns>
@@ -20,18 +20,17 @@ namespace Blueprint.Api
         {
             return new Link
             {
-                Type = typeof (T).Name,
-                Href = BuildBaseUrl(configuration, typeof(T)) + "/" + id
+                Type = typeof(T).Name,
+                Href = BuildBaseUrl(configuration, typeof(T)) + "/" + id,
             };
         }
 
-        // TODO: We should be looking up base URL from ApiDataModel somehow, remove ServiceLocator use
+        // TODO: We should be looking up base URL from ApiDataModel somehow
         private static string BuildBaseUrl(ApiConfiguration configuration, Type resourceType)
         {
             return
                 configuration.BaseApiUrl +
                 UrlMappings.GetOrAdd(resourceType.Name, x => resourceType.Name.Pluralize().Camelize());
         }
-
     }
 }

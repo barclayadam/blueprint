@@ -63,13 +63,13 @@ namespace Blueprint.Api.Middleware
                 {
                     PropertyInfoVariable = propertyInfoVariable,
                     PropertyValueVariable = propertyValueVariable,
-                    PropertyAttributesVariable = propertyAttributesVariable
+                    PropertyAttributesVariable = propertyAttributesVariable,
                 });
             }
 
             foreach (var s in sources)
             {
-                foreach(var frame in s.GetFrames(operationVariable, operationProperties))
+                foreach (var frame in s.GetFrames(operationVariable, operationProperties))
                 {
                     AddValidatorFrame(frame);
                 }
@@ -93,7 +93,8 @@ namespace Blueprint.Api.Middleware
                 var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
 
                 context.AppendFrames(
-                    new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
+                    new IfBlock(
+                        $"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
                         createResponse,
                         createResult,
                         new ReturnFrame(createResult.Variable)));
@@ -120,11 +121,11 @@ namespace Blueprint.Api.Middleware
             {
                 return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
                 {
-                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage }
+                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage },
                 });
             }
 
-            var errorMessages = (IEnumerable<string>) new[] { validationResult.ErrorMessage };
+            var errorMessages = (IEnumerable<string>)new[] { validationResult.ErrorMessage };
 
             return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
         }
@@ -141,7 +142,7 @@ namespace Blueprint.Api.Middleware
                 new ConstructorFrame<ValidationErrorResponse>(() =>
                     new ValidationErrorResponse((ValidationFailures)null))
                 {
-                    Parameters = { [0] = validationFailures }
+                    Parameters = { [0] = validationFailures },
                 };
 
             yield return createResponse;
@@ -158,7 +159,7 @@ namespace Blueprint.Api.Middleware
              */
             yield return new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToErrorResponse))
             {
-                Arguments = { [0] = exception }
+                Arguments = { [0] = exception },
             };
             yield return new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
             yield return new ReturnFrame(typeof(ValidationFailedResult));

@@ -25,7 +25,7 @@ namespace Blueprint.Api
             { typeof(int), new PropertyValidator { Name = "integer", Parameter = "true" } },
             { typeof(double), new PropertyValidator { Name = "numeric", Parameter = "true" } },
             { typeof(decimal), new PropertyValidator { Name = "numeric", Parameter = "true" } },
-            { typeof(float), new PropertyValidator { Name = "numeric", Parameter = "true" } }
+            { typeof(float), new PropertyValidator { Name = "numeric", Parameter = "true" } },
         };
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Blueprint.Api
             {
                 Name = "regex",
                 Parameter = "/{0}/{1}".Fmt(attribute.Regex.ToString(), attribute.Regex.Options.HasFlag(RegexOptions.IgnoreCase) ? "i" : string.Empty),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -77,7 +77,7 @@ namespace Blueprint.Api
             {
                 Name = "regex",
                 Parameter = "/{0}/".Fmt(attribute.Pattern),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -87,7 +87,7 @@ namespace Blueprint.Api
             {
                 Name = "range",
                 Parameter = "[{0},{1}]".Fmt(attribute.Minimum, attribute.Maximum),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -97,7 +97,7 @@ namespace Blueprint.Api
             {
                 Name = "required",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -107,7 +107,7 @@ namespace Blueprint.Api
             {
                 Name = "rangeLength",
                 Parameter = "[{0},{1}]".Fmt(attribute.MinimumLength, attribute.MaximumLength),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -117,7 +117,7 @@ namespace Blueprint.Api
             {
                 Name = "inFuture",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -127,7 +127,7 @@ namespace Blueprint.Api
             {
                 Name = "inPast",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -137,7 +137,7 @@ namespace Blueprint.Api
             {
                 Name = "notInFuture",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -147,7 +147,7 @@ namespace Blueprint.Api
             {
                 Name = "notInPast",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -159,9 +159,9 @@ namespace Blueprint.Api
                 Parameter = JsonConvert.SerializeObject(new
                 {
                     property = attribute.DependentProperty.Camelize(),
-                    equalsOneOf = attribute.DependentValues
+                    equalsOneOf = attribute.DependentValues,
                 }),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -173,9 +173,9 @@ namespace Blueprint.Api
                 Parameter = JsonConvert.SerializeObject(new
                 {
                     property = attribute.DependantProperty.Camelize(),
-                    equalsOneOf = attribute.DependantValues
+                    equalsOneOf = attribute.DependantValues,
                 }),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -185,7 +185,7 @@ namespace Blueprint.Api
             {
                 Name = "equalTo",
                 Parameter = "{ value: true }",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -195,7 +195,7 @@ namespace Blueprint.Api
             {
                 Name = "moreThan",
                 Parameter = attribute.MinimumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -205,7 +205,7 @@ namespace Blueprint.Api
             {
                 Name = "min",
                 Parameter = attribute.MinimumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -215,7 +215,7 @@ namespace Blueprint.Api
             {
                 Name = "lessThan",
                 Parameter = attribute.MaximumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
@@ -225,7 +225,7 @@ namespace Blueprint.Api
             {
                 Name = "max",
                 Parameter = attribute.MaximumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
     }

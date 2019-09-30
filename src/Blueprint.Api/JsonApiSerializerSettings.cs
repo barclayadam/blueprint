@@ -18,7 +18,7 @@ namespace Blueprint.Api
 
                 // Do not change this setting
                 // Setting this to None prevents Json.NET from loading malicious, unsafe, or security-sensitive types
-                TypeNameHandling = TypeNameHandling.None
+                TypeNameHandling = TypeNameHandling.None,
             };
 
             settings.Converters.Add(new IsoDateTimeConverter());

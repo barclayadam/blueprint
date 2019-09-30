@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Blueprint.Core.Tasks
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     public class InMemoryBackgroundTaskContextProvider : IBackgroundTaskContextProvider
     {
         private readonly Dictionary<string, object> data;
 
-        public InMemoryBackgroundTaskContextProvider(Dictionary<string,object> data = null)
+        public InMemoryBackgroundTaskContextProvider(Dictionary<string, object> data = null)
         {
             this.data = data ?? new Dictionary<string, object>();
         }

@@ -10,8 +10,6 @@ namespace Blueprint.Compiler.Model
 {
     public class Variable
     {
-        private Frame frame;
-
         public Variable(Type variableType) : this(variableType, DefaultArgName(variableType))
         {
         }
@@ -26,9 +24,8 @@ namespace Blueprint.Compiler.Model
         {
             if (creator != null)
             {
-                Creator = creator;
-
-                Creator.CreatesValue.Fill(this);
+                this.Creator = creator;
+                creator.AddCreates(this);
             }
         }
 
@@ -38,13 +35,7 @@ namespace Blueprint.Compiler.Model
 
         public Frame Creator
         {
-            get => frame;
-
-            protected set
-            {
-                frame = value;
-                Creator?.CreatesValue.Fill(this);
-            }
+            get;
         }
 
         /// <summary>

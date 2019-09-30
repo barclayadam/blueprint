@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Blueprint.Core.Utilities 
+namespace Blueprint.Core.Utilities
 {
     public static class HttpExtensions
     {
         private static readonly Dictionary<string, string> EmptyLinkDictionary = new Dictionary<string, string>();
-        
+
         private static readonly Regex LinksHeaderUrl = new Regex("<(.*)>", RegexOptions.Compiled);
         private static readonly Regex LinksHeaderRel = new Regex("rel=(\"|')(.*)\\1", RegexOptions.Compiled);
 
@@ -26,14 +26,14 @@ namespace Blueprint.Core.Utilities
             var entries = linksHeader.Split(',');
 
             return entries.ToDictionary(
-                    e => LinksHeaderRel.Match(e).Groups[2].Value, 
+                    e => LinksHeaderRel.Match(e).Groups[2].Value,
                     e => LinksHeaderUrl.Match(e).Groups[1].Value);
         }
 
         public static (string Url, string Rel) ParseLink(string link)
         {
             return (
-                LinksHeaderRel.Match(link).Groups[2].Value, 
+                LinksHeaderRel.Match(link).Groups[2].Value,
                 LinksHeaderUrl.Match(link).Groups[1].Value
             );
         }

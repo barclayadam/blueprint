@@ -30,6 +30,7 @@ namespace Blueprint.Api
             Guard.NotNullOrEmpty(nameof(input), input);
 
             Log.Info("Decoding posted file input.");
+
             // filename:test-cv3.doc;data:application/msword;base64,0M8...
             // filename:<value>;data:<value>;base64,<data>
             var parts = input.Split(';');
@@ -50,7 +51,7 @@ namespace Blueprint.Api
             return new Base64FileData(bytes)
             {
                 FileName = filename,
-                ContentType = contentType
+                ContentType = contentType,
             };
         }
     }

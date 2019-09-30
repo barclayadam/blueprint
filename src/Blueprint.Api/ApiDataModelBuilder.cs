@@ -26,7 +26,7 @@ namespace Blueprint.Api
 
             Rules = new GenerationRules("Blueprint.Pipelines")
             {
-                OptimizationLevel = OptimizationLevel.Release
+                OptimizationLevel = OptimizationLevel.Release,
             };
 
             configure(this);
@@ -154,7 +154,7 @@ namespace Blueprint.Api
                 AnonymousAccessAllowed = type.HasAttribute<AllowAnonymousAttribute>(true),
                 IsExposed = type.HasAttribute<UnexposedOperationAttribute>(true) == false,
                 ShouldAudit = !type.HasAttribute<DoNotAuditOperationAttribute>(true),
-                RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true)
+                RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true),
             };
         }
 

@@ -13,7 +13,7 @@ namespace Blueprint.Core.Authorisation
         private readonly string permission;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PermissionForAttribute"/> class. 
+        /// Initializes a new instance of the <see cref="PermissionForAttribute"/> class.
         /// Initializes a new instance of the PermissionForAttribute.
         /// </summary>
         /// <param name="permission">The named permission that is required.</param>

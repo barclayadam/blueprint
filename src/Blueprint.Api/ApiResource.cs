@@ -27,7 +27,7 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Gets the object type of this resource, used to indicate to clients what they
+        /// Gets or sets the object type of this resource, used to indicate to clients what they
         /// are dealing with.
         /// </summary>
         [JsonProperty(PropertyName = "$object")]

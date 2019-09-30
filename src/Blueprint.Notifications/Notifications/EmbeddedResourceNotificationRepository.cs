@@ -52,6 +52,16 @@ namespace Blueprint.Notifications.Notifications
         }
 
         /// <summary>
+        /// Gets the content of the notification embedded resource.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>Returns the content if successful else returns an empty string.</returns>
+        private static string GetNotificationEmbeddedResourceContent(string name)
+        {
+            return Assembly.GetExecutingAssembly().GetEmbeddedResourceAsString(name);
+        }
+
+        /// <summary>
         /// Gets the notification template.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -69,16 +79,6 @@ namespace Blueprint.Notifications.Notifications
             {
                 return (EmailTemplate)EmailTemplateSerializer.Deserialize(memStream);
             }
-        }
-
-        /// <summary>
-        /// Gets the content of the notification embedded resource.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>Returns the content if successful else returns an empty string.</returns>
-        private static string GetNotificationEmbeddedResourceContent(string name)
-        {
-            return Assembly.GetExecutingAssembly().GetEmbeddedResourceAsString(name);
         }
     }
 }

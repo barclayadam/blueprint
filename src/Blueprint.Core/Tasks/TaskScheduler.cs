@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Newtonsoft.Json;
 using NLog;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Core.Tasks
 {
@@ -18,7 +18,7 @@ namespace Blueprint.Core.Tasks
 
         private readonly ITaskScheduler[] taskSchedulers;
         private readonly RecurringJobManager recurringJobManager;
-        
+
         public TaskScheduler(ITaskScheduler[] taskSchedulers)
         {
             this.taskSchedulers = taskSchedulers;
@@ -57,12 +57,36 @@ namespace Blueprint.Core.Tasks
             }
         }
 
+        private static string GetGroupNameFromScheduler(ITaskScheduler scheduler)
+        {
+            return scheduler.GetType().Name;
+        }
+
+        private static IEnumerable<TaskSchedule> GetSchedules(ITaskScheduler taskScheduler, string schedulerName)
+        {
+            try
+            {
+                Log.Info("Getting scheduled tasks. scheduler={0}", schedulerName);
+
+                return taskScheduler.GetTaskSchedules();
+            }
+            catch (Exception e)
+            {
+                Log.Error(
+                    e,
+                    "Unhandled exception getting schedules from '{0}'. Will delete all existing jobs.",
+                    schedulerName);
+            }
+
+            return Enumerable.Empty<TaskSchedule>();
+        }
+
         /// <summary>
         /// Gets all the schedulers that have been registered.
         /// </summary>
         /// <remarks>
         /// We ask for new schedulers every time to ensure that dependencies that should be transient are (e.g. a
-        /// database context should be new every time a scheduler is called)
+        /// database context should be new every time a scheduler is called).
         /// </remarks>
         /// <returns></returns>
         private IEnumerable<ITaskScheduler> GetSchedulers()
@@ -80,11 +104,6 @@ namespace Blueprint.Core.Tasks
 
                 return !enableConfigKey.TryGetAppSetting(out bool isEnabled) || isEnabled;
             });
-        }
-
-        private static string GetGroupNameFromScheduler(ITaskScheduler scheduler)
-        {
-            return scheduler.GetType().Name;
         }
 
         private void Reschedule(IEnumerable<ITaskScheduler> schedulers, List<RecurringJobDto> recurringJobs)
@@ -141,26 +160,6 @@ namespace Blueprint.Core.Tasks
                     }
                 }
             }
-        }
-
-        private static IEnumerable<TaskSchedule> GetSchedules(ITaskScheduler taskScheduler, string schedulerName)
-        {
-            try
-            {
-                Log.Info("Getting scheduled tasks. scheduler={0}", schedulerName);
-
-                return taskScheduler.GetTaskSchedules();
-
-            }
-            catch (Exception e)
-            {
-                Log.Error(
-                    e,
-                    "Unhandled exception getting schedules from '{0}'. Will delete all existing jobs.",
-                    schedulerName);
-            }
-
-            return Enumerable.Empty<TaskSchedule>();
         }
 
         private void CreateOrUpdateTaskSchedule(IEnumerable<RecurringJobDto> existingJobs, TaskSchedule taskSchedule, string group)

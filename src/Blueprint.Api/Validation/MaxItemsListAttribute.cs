@@ -51,7 +51,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the maximum number of items allowed in the collection.
         /// </summary>
-        public int MaxItems { get { return maxItems; } }
+        public int MaxItems => maxItems;
 
         /// <summary>
         /// The property is valid if it is a collection with fewer than the specified number of items.

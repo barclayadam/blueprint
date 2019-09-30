@@ -8,8 +8,8 @@ namespace Blueprint.Core.Utilities
         public static TimeZoneInfo GetGmtTimeZone()
         {
             return GetByStandardName("GMT Standard Time");
-        }    
-        
+        }
+
         public static TimeZoneInfo GetByStandardName(string standardName)
         {
             Guard.NotNullOrEmpty("standardName", standardName);

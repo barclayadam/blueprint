@@ -11,13 +11,9 @@ namespace Blueprint.Core.Utilities
     public class Page<T>
     {
         private readonly IEnumerable<T> items;
-
         private readonly int pageCount;
-
         private readonly int pageNumber;
-
         private readonly int pageSize;
-
         private readonly int totalCount;
 
         /// <summary>
@@ -45,17 +41,17 @@ namespace Blueprint.Core.Utilities
         /// <summary>
         /// Gets all the items in the current page.
         /// </summary>
-        public IEnumerable<T> Items { get { return items; } }
+        public IEnumerable<T> Items => items;
 
         /// <summary>
         /// Gets the number of pages in the collection.
         /// </summary>
-        public int PageCount { get { return pageCount; } }
+        public int PageCount => pageCount;
 
         /// <summary>
         /// Gets the current page number.
         /// </summary>
-        public int PageNumber { get { return items.Any() ? pageNumber : 0; } }
+        public int PageNumber => items.Any() ? pageNumber : 0;
 
         /// <summary>
         /// Gets the size of the page.
@@ -63,12 +59,12 @@ namespace Blueprint.Core.Utilities
         /// <value>
         /// The size of the page.
         /// </value>
-        public int PageSize { get { return pageSize; } }
+        public int PageSize => pageSize;
 
         /// <summary>
         /// Gets the total number of objects in the collection.
         /// </summary>
-        public int TotalCount { get { return totalCount; } }
+        public int TotalCount => totalCount;
 
         /// <summary>
         /// Calculates the page count.

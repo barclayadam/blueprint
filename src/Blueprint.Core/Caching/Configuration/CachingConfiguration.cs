@@ -54,7 +54,7 @@ namespace Blueprint.Core.Caching.Configuration
         public Type ProviderType { get; set; } = typeof(NoCacheProvider);
 
         /// <summary>
-        /// Gets the strategies that have been defined, used to decide how (and if) an item will be cached;
+        /// Gets the strategies that have been defined, used to decide how (and if) an item will be cached.
         /// </summary>
         public List<ICachingStrategy> Strategies { get; } = new List<ICachingStrategy>();
     }

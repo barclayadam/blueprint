@@ -7,8 +7,8 @@ using NLog;
 namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
-    /// Sends an email message using the built-in <see cref="System.Net.Mail.SmtpClient" /> class, 
-    /// taking all configuration from the standard settings in app.config or web.config, 
+    /// Sends an email message using the built-in <see cref="System.Net.Mail.SmtpClient" /> class,
+    /// taking all configuration from the standard settings in app.config or web.config,
     /// as documented within the .NET framework.
     /// </summary>
     public class SmtpClientEmailSender : IEmailSender

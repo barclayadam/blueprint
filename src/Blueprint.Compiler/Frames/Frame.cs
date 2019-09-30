@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Frames
 {
     public abstract class Frame
     {
-        protected internal readonly List<Variable> CreatesValue = new List<Variable>();
-
+        private readonly List<Variable> creates = new List<Variable>();
         private readonly List<Frame> dependencies = new List<Frame>();
+
         private readonly List<Variable> uses = new List<Variable>();
 
         private bool hasResolved;
@@ -42,7 +43,7 @@ namespace Blueprint.Compiler.Frames
 
         public IEnumerable<Variable> Uses => uses;
 
-        public virtual IEnumerable<Variable> Creates => CreatesValue;
+        public virtual IEnumerable<Variable> Creates => creates;
 
         public Frame[] Dependencies => dependencies.ToArray();
 
@@ -115,6 +116,11 @@ namespace Blueprint.Compiler.Frames
                 yield return frame;
                 frame = frame.Next;
             }
+        }
+
+        internal void AddCreates(Variable variable)
+        {
+            creates.Fill(variable);
         }
     }
 }

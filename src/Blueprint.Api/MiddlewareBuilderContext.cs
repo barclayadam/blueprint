@@ -38,7 +38,7 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// An <see cref="IVariableSource" /> that should be used to grab any variables that would
+        /// Gets an <see cref="IVariableSource" /> that should be used to grab any variables that would
         /// be found on the <see cref="ApiOperationContext" />.
         /// </summary>
         public ApiOperationContextVariableSource ApiContextVariableSource { get; }
@@ -67,8 +67,8 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets the service provider.
         /// </summary>
-        public IServiceProvider ServiceProvider { get; set; }
-        
+        public IServiceProvider ServiceProvider { get; }
+
         /// <summary>
         /// Gets the currently registered exception handlers.
         /// </summary>
@@ -78,7 +78,7 @@ namespace Blueprint.Api
         /// Adds a reference to the given <see cref="Assembly" /> to the generated assembly, ensuring that any types that are used
         /// within the generated source code is available.
         /// </summary>
-        /// <param name="assembly">The assembly to reference</param>
+        /// <param name="assembly">The assembly to reference.</param>
         public void AddAssemblyReference(Assembly assembly)
         {
             Guard.NotNull(nameof(assembly), assembly);

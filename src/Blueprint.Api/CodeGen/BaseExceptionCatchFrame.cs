@@ -55,7 +55,7 @@ namespace Blueprint.Api.CodeGen
                 var shouldHandleNull = prop.PropertyType.IsClass;
 
                 writer.Write($"errorData[\"{context.Descriptor.Name}.{prop.Name}\"] = " +
-                             $"{context.ApiContextVariableSource.OperationVariable}.{prop.Name}{(shouldHandleNull ? "?" : "")}.ToString();");
+                             $"{context.ApiContextVariableSource.OperationVariable}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks

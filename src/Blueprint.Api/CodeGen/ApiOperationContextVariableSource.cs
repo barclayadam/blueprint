@@ -14,15 +14,15 @@ namespace Blueprint.Api.CodeGen
     /// <remarks>
     /// The given properties can be matched:
     ///
-    ///  * <see cref="ApiDataModel" /> from <see cref="ApiOperationContext.DataModel" />
-    ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />
-    ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />
-    ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />
-    ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />
-    ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />
-    ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />
-    ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />
-    ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />
+    ///  * <see cref="ApiDataModel" /> from <see cref="ApiOperationContext.DataModel" />.
+    ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />.
+    ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />.
+    ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />.
+    ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />.
+    ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />.
+    ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />.
+    ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />.
+    ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />.
     /// </remarks>
     public class ApiOperationContextVariableSource : IVariableSource
     {
@@ -36,6 +36,15 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
+        /// Gets the variable that represents the actual property for this context, casted from the <see cref="IApiOperation" /> property
+        /// of the <see cref="ApiOperationContext" />.
+        /// </summary>
+        public Variable OperationVariable
+        {
+            get;
+        }
+
+        /// <summary>
         /// Gets a <see cref="Variable" /> that represents access to a property of an <see cref="ApiOperationContext" />.
         /// </summary>
         /// <param name="type">The type of variable requested.</param>
@@ -43,15 +52,6 @@ namespace Blueprint.Api.CodeGen
         public Variable Get(Type type)
         {
             return ((IVariableSource)this).Create(type);
-        }
-
-        /// <summary>
-        /// Gets the variable that represents the actual property for this context, casted from the <see cref="IApiOperation" /> property
-        /// of the <see cref="ApiOperationContext" />.
-        /// </summary>
-        public Variable OperationVariable
-        {
-            get;
         }
 
         public Variable GetOperationProperty(PropertyInfo property)

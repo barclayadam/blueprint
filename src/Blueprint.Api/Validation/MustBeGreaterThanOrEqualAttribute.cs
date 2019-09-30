@@ -11,7 +11,7 @@ namespace Blueprint.Api.Validation
     /// Ensures the property has a greater value than the 'dependant property'.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class MustBeGreaterThanOrEqualAttribute  : ValidationAttribute, IOpenApiValidationAttribute
+    public sealed class MustBeGreaterThanOrEqualAttribute : ValidationAttribute, IOpenApiValidationAttribute
     {
         private const string RequiredIfFieldMessage = "The {0} field must be greater than or equal to";
 
@@ -27,6 +27,16 @@ namespace Blueprint.Api.Validation
         public string DependentProperty { get; }
 
         public string ValidatorKeyword => "x-validator-greater-than-or-equal";
+
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        {
+            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
+            {
+                ["$data"] = $"1/{DependentProperty.Camelize()}",
+            };
+
+            return Task.CompletedTask;
+        }
 
         protected override ValidationResult IsValid(object maxValue, ValidationContext validationContext)
         {
@@ -53,16 +63,6 @@ namespace Blueprint.Api.Validation
             }
 
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
-        }
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
-            {
-                ["$data"] = $"1/{DependentProperty.Camelize()}"
-            };
-
-            return Task.CompletedTask;
         }
     }
 }

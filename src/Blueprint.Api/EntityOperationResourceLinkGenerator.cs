@@ -67,7 +67,7 @@ namespace Blueprint.Api
         {
             return new Link
             {
-                Href = linkGenerator.CreateUrlFromLink(link, result)
+                Href = linkGenerator.CreateUrlFromLink(link, result),
             };
         }
     }

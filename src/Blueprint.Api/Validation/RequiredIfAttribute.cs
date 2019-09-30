@@ -14,8 +14,9 @@ namespace Blueprint.Api.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class RequiredIfAttribute : ValidationAttribute, IOpenApiValidationAttribute
     {
-        private readonly IEnumerable<string> convertedValues;
         private const string RequiredIfFieldMessage = "The {0} field is required";
+
+        private readonly IEnumerable<string> convertedValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
@@ -37,7 +38,7 @@ namespace Blueprint.Api.Validation
                 DependentValues = new[] { dependentValue };
             }
 
-            convertedValues = dependentValue == null ? new string [0] : DependentValues.Select(x => x.ToString());
+            convertedValues = dependentValue == null ? new string[0] : DependentValues.Select(x => x.ToString());
         }
 
         /// <summary>
@@ -54,6 +55,19 @@ namespace Blueprint.Api.Validation
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
         public IEnumerable<object> DependentValues { get; }
+
+        public string ValidatorKeyword => "x-validator-required-if";
+
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        {
+            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
+            {
+                ["$data"] = $"1/{DependentProperty.Camelize()}",
+                ["dependentValues"] = DependentValues,
+            };
+
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Validates the specified value.
@@ -86,19 +100,6 @@ namespace Blueprint.Api.Validation
             }
 
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
-        }
-
-        public string ValidatorKeyword => "x-validator-required-if";
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
-            {
-                ["$data"] = $"1/{DependentProperty.Camelize()}",
-                ["dependentValues"] = DependentValues
-            };
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -5,93 +5,6 @@ using Newtonsoft.Json;
 
 namespace Blueprint.Api
 {
-    public class ResourceCreated<T> : ResourceEvent
-    {
-        /// <summary>
-        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
-        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
-        /// </summary>
-        /// <param name="selfQuery">An object with properties required to create a canonical link
-        /// of the given resource type, as defined by it's 'self' link.</param>
-        public ResourceCreated(IApiOperation selfQuery)
-            : base(ResourceEventChangeType.Created, ApiResource.GetTypeName(typeof(T)) + ".created", typeof(T), selfQuery)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
-        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
-        /// </summary>
-        /// <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
-        /// should represent the action taken (for example 'timer.started')</param>
-        /// <param name="selfQuery">An object with properties required to create a canonical link
-        /// of the given resource type, as defined by it's 'self' link.</param>
-        public ResourceCreated(string eventName, IApiOperation selfQuery)
-            : base(ResourceEventChangeType.Created, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
-        {
-        }
-
-        public new T Data
-        {
-            get => (T)base.Data;
-            set => base.Data = value;
-        }
-    }
-
-    public abstract class ResourceUpdated<T> : ResourceEvent
-    {
-        /// <summary>
-        /// Creates a new <see cref="ResourceCreated{T}" /> instance, setting the event type
-        /// to '`resourceTypeName`.`eventName`' with a ChangeType of 'updated'.
-        /// </summary>
-        /// <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
-        /// should represent the action taken (for example 'approved', or 'rate.updated')</param>
-        /// <param name="selfQuery">An object with properties required to create a canonical link
-        /// of the given resource type, as defined by it's 'self' link.</param>
-        protected ResourceUpdated(string eventName, IApiOperation selfQuery)
-            : base(ResourceEventChangeType.Updated, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
-        {
-        }
-
-        public new T Data
-        {
-            get => (T)base.Data;
-            set => base.Data = value;
-        }
-    }
-
-    public class ResourceDeleted<T> : ResourceEvent
-    {
-        /// <summary>
-        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
-        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
-        /// </summary>
-        /// <param name="selfQuery">An object with properties required to create a canonical link
-        /// of the given resource type, as defined by it's 'self' link.</param>
-        public ResourceDeleted(IApiOperation selfQuery)
-            : base(ResourceEventChangeType.Deleted, ApiResource.GetTypeName(typeof(T)) + ".deleted", typeof(T), selfQuery)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
-        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
-        /// </summary>
-        /// <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
-        /// <param name="selfQuery">An object with properties required to create a canonical link
-        /// of the given resource type, as defined by it's 'self' link.</param>
-        public ResourceDeleted(string eventName, IApiOperation selfQuery)
-            : base(ResourceEventChangeType.Deleted, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
-        {
-        }
-
-        public new T Data
-        {
-            get => (T)base.Data;
-            set => base.Data = value;
-        }
-    }
-
     public abstract class ResourceEvent
     {
         private readonly DateTimeOffset created;
@@ -160,8 +73,8 @@ namespace Blueprint.Api
         /// </summary>
         public string ResourceObject => ApiResource.GetTypeName(ResourceType);
 
-        ///<summary>
-        /// Gets the href of the resource this event represents, to be populated by the ResourceEventMiddleware
+        /// <summary>
+        /// Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware
         /// component from the resource type and id definition object.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -189,7 +102,7 @@ namespace Blueprint.Api
         public Dictionary<string, object> Metadata => metadata;
 
         /// <summary>
-        /// Gets the correlation id for this event, which can be used to tie it back to
+        /// Gets or sets the correlation id for this event, which can be used to tie it back to
         /// the initial request that resulted in an event.
         /// </summary>
         public string CorrelationId { get; set; }
@@ -205,6 +118,93 @@ namespace Blueprint.Api
             metadata[key] = value;
 
             return this;
+        }
+    }
+
+    public class ResourceCreated<T> : ResourceEvent
+    {
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
+        /// </summary>
+        /// <param name="selfQuery">An object with properties required to create a canonical link
+        /// of the given resource type, as defined by it's 'self' link.</param>
+        public ResourceCreated(IApiOperation selfQuery)
+            : base(ResourceEventChangeType.Created, ApiResource.GetTypeName(typeof(T)) + ".created", typeof(T), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
+        /// </summary>
+        /// <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
+        /// should represent the action taken (for example 'timer.started').</param>
+        /// <param name="selfQuery">An object with properties required to create a canonical link
+        /// of the given resource type, as defined by it's 'self' link.</param>
+        public ResourceCreated(string eventName, IApiOperation selfQuery)
+            : base(ResourceEventChangeType.Created, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
+        {
+        }
+
+        public new T Data
+        {
+            get => (T)base.Data;
+            set => base.Data = value;
+        }
+    }
+
+    public abstract class ResourceUpdated<T> : ResourceEvent
+    {
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, setting the event type
+        /// to '`resourceTypeName`.`eventName`' with a ChangeType of 'updated'.
+        /// </summary>
+        /// <param name="eventName">The name of this event, which is what gets put after `resourceTypeName.`, and
+        /// should represent the action taken (for example 'approved', or 'rate.updated').</param>
+        /// <param name="selfQuery">An object with properties required to create a canonical link
+        /// of the given resource type, as defined by it's 'self' link.</param>
+        protected ResourceUpdated(string eventName, IApiOperation selfQuery)
+            : base(ResourceEventChangeType.Updated, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
+        {
+        }
+
+        public new T Data
+        {
+            get => (T)base.Data;
+            set => base.Data = value;
+        }
+    }
+
+    public class ResourceDeleted<T> : ResourceEvent
+    {
+        /// <summary>
+        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
+        /// </summary>
+        /// <param name="selfQuery">An object with properties required to create a canonical link
+        /// of the given resource type, as defined by it's 'self' link.</param>
+        public ResourceDeleted(IApiOperation selfQuery)
+            : base(ResourceEventChangeType.Deleted, ApiResource.GetTypeName(typeof(T)) + ".deleted", typeof(T), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
+        /// </summary>
+        /// <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
+        /// <param name="selfQuery">An object with properties required to create a canonical link
+        /// of the given resource type, as defined by it's 'self' link.</param>
+        public ResourceDeleted(string eventName, IApiOperation selfQuery)
+            : base(ResourceEventChangeType.Deleted, ApiResource.GetTypeName(typeof(T)) + "." + eventName, typeof(T), selfQuery)
+        {
+        }
+
+        public new T Data
+        {
+            get => (T)base.Data;
+            set => base.Data = value;
         }
     }
 }

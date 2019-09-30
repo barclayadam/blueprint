@@ -64,17 +64,6 @@ namespace Blueprint.Core.Security
             }
         }
 
-        private T CreateProvider()
-        {
-            return new T
-            {
-                    Key = keyIVPair.GetKey(KeySize),
-                    IV = keyIVPair.GetIV(IVSize),
-                    Padding = paddingMode,
-                    Mode = cipherMode,
-            };
-        }
-
         private static byte[] Transform(byte[] input, ICryptoTransform cryptoTransform)
         {
             using (var memStream = new MemoryStream())
@@ -88,6 +77,17 @@ namespace Blueprint.Core.Security
 
                 return result;
             }
+        }
+
+        private T CreateProvider()
+        {
+            return new T
+            {
+                    Key = keyIVPair.GetKey(KeySize),
+                    IV = keyIVPair.GetIV(IVSize),
+                    Padding = paddingMode,
+                    Mode = cipherMode,
+            };
         }
     }
 }

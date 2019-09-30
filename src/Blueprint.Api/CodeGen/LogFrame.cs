@@ -6,27 +6,12 @@ using NLog;
 
 namespace Blueprint.Api.CodeGen
 {
-    public class LoggerVariable : StaticField
-    {
-        public LoggerVariable(Logger logger) :
-            base(typeof(Logger), $"{typeof(LogManager).FullNameInCode()}.{nameof(LogManager.GetLogger)}(\"{logger.Name}\")")
-        {
-            Logger = logger;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Logger"/> that would be instantiated in the <see cref="LoggerInitialisationFrame" />, useful in order
-        /// to completely remove logging if the log level is not enabled (which assumes the levels are static at build time).
-        /// </summary>
-        public Logger Logger { get; }
-    }
-
     /// <summary>
     /// A <see cref="SyncFrame" /> that will output a log message to the configured NLog <see cref="Logger"/>
     /// at the specified level.
     /// </summary>
     /// <remarks>
-    /// The Logger used in output code is found by searching for a configured <see cref="LoggerVariable"/> from a <see cref="LoggerInitialisationFrame"/>
+    /// The Logger used in output code is found by searching for a configured <see cref="LoggerVariable"/>
     /// and will be used to check whether the log level is enabled, <b>not</b> outputting any logging in the case of
     /// the log level being turned off.
     /// </remarks>
@@ -50,7 +35,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Trace(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Trace, message, parameters);
@@ -61,8 +47,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <param name="s"></param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Debug(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Debug, message, parameters);
@@ -73,7 +59,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Info(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Info, message, parameters);
@@ -84,7 +71,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Warn(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Warn, message, parameters);
@@ -95,7 +83,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Error(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Error, message, parameters);
@@ -106,7 +95,8 @@ namespace Blueprint.Api.CodeGen
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
-        /// <returns>A new <see cref="LogFrame"/> </returns>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Fatal(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Fatal, message, parameters);

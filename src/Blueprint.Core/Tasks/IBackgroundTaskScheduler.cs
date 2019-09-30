@@ -6,11 +6,11 @@ namespace Blueprint.Core.Tasks
     /// <summary>
     /// A background task 'executor', something that can take an instance of <see cref="BackgroundTask"/>
     /// and push it's execution to a background process.
-    /// </summary> 
+    /// </summary>
     /// <remarks>
     /// A task represents an action that should be performed out-of-process, and has
     /// no need to be executed immediately (e.g. it may be stored and executed at a later time
-    /// with no negative impact on the system and its operation)
+    /// with no negative impact on the system and its operation).
     /// </remarks>
     /// <remarks>
     /// A task scheduler will queue up the tasks that are  passed and only attempt to execute / schedule them when
@@ -24,6 +24,7 @@ namespace Blueprint.Core.Tasks
         /// to <see cref="RunNowAsync" />.
         /// </summary>
         /// <param name="task">The task.</param>
+        /// <typeparam name="T">The exact type of the task being executed, usually can be inferred by compiler.</typeparam>
         /// <returns>A scheduled task that can be used to perform further operations, such as adding
         /// a continuation task.</returns>
         Task<IScheduledBackgroundTask> EnqueueAsync<T>(T task) where T : BackgroundTask;
@@ -34,6 +35,7 @@ namespace Blueprint.Core.Tasks
         /// </summary>
         /// <param name="task">The task.</param>
         /// <param name="delay">The amount of time to wait before executing this task.</param>
+        /// <typeparam name="T">The exact type of the task being executed, usually can be inferred by compiler.</typeparam>
         /// <returns>A scheduled task that can be used to perform further operations, such as adding
         /// a continuation task.</returns>
         Task<IScheduledBackgroundTask> ScheduleAsync<T>(T task, TimeSpan delay) where T : BackgroundTask;

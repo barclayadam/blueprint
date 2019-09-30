@@ -22,6 +22,8 @@ namespace Blueprint.Testing
         /// <summary>
         /// Creates a new LocalDb database, not dropping an existing database if it exists.
         /// </summary>
+        /// <param name="connectionStringSettings">The connection string settings of the DB to connect to.</param>
+        /// <returns>The connection string.</returns>
         public static string CreateIfRequired(string connectionStringSettings)
         {
             CreateDatabaseIfRequired(connectionStringSettings);
@@ -32,6 +34,8 @@ namespace Blueprint.Testing
         /// <summary>
         /// Creates a new Postgres database, dropping any existing database with the same name.
         /// </summary>
+        /// <param name="connectionStringSettings">The connection string settings of the DB to connect to.</param>
+        /// <returns>The connection string.</returns>
         public static string Recreate(string connectionStringSettings)
         {
             DropDatabaseIfItExists(connectionStringSettings);
@@ -43,13 +47,16 @@ namespace Blueprint.Testing
         /// <summary>
         /// Creates a new Postgres database, dropping any existing database with the same name.
         /// </summary>
-        public static bool RecreateIfSchemaDifferent(string connectionString, string schemaKey)
+        /// <param name="connectionStringSettings">The connection string settings of the DB to connect to.</param>
+        /// <param name="schemaKey">A "key" of the schema, used to determine whether a database is the same and can be re-used.</param>
+        /// <returns>Whether the database was re-created.</returns>
+        public static bool RecreateIfSchemaDifferent(string connectionStringSettings, string schemaKey)
         {
-            var schemaHash = HashStringMD5(schemaKey);
-            var databaseName = DatabaseNameRegex.Match(connectionString).Groups["databaseName"].Value;
+            var schemaHash = HashStringMd5(schemaKey);
+            var databaseName = DatabaseNameRegex.Match(connectionStringSettings).Groups["databaseName"].Value;
             var shouldCreate = false;
 
-            using (var connection = OpenRootConnection(connectionString))
+            using (var connection = OpenRootConnection(connectionStringSettings))
             {
                 var result = connection.Query($@"select pg_database.oid, pg_shdescription.description from pg_database
                     left join pg_shdescription on objoid = pg_database.oid
@@ -74,7 +81,7 @@ namespace Blueprint.Testing
                 }
             }
 
-            using (var connection = OpenRootConnection(connectionString))
+            using (var connection = OpenRootConnection(connectionStringSettings))
             {
                 if (shouldCreate)
                 {
@@ -134,12 +141,12 @@ namespace Blueprint.Testing
 
         private static IDbConnection OpenRootConnection(string connectionString)
         {
-            var withoutDatabaseName = DatabaseNameRegex.Replace(connectionString, "");
+            var withoutDatabaseName = DatabaseNameRegex.Replace(connectionString, string.Empty);
 
             return new PostgresDatabaseConnectionFactory(withoutDatabaseName).Open();
         }
 
-        private static string HashStringMD5(string value)
+        private static string HashStringMd5(string value)
         {
             var data = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(value));
 

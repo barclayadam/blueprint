@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
+using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
@@ -55,14 +55,43 @@ namespace Blueprint.Core.Tasks
         /// </summary>
         /// <param name="task">The task to be executed.</param>
         /// <param name="context">The Hangfire context.</param>
+        /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
         [DisplayName("{0}")]
         public async Task Execute(BackgroundTask task, PerformContext context)
         {
             Guard.NotNull(nameof(task), task);
 
-            await (Task) InvokeTaskHandlerMethod
+            await (Task)InvokeTaskHandlerMethod
                 .MakeGenericMethod(task.GetType())
-                .Invoke(this, new object[] { task, context });
+                .Invoke(this, new object[] {task, context});
+        }
+
+        private static string GetOperationName<TTask>(TTask backgroundTask) where TTask : BackgroundTask
+        {
+            var categorisedTask = backgroundTask as IHaveTaskCategory;
+            var taskType = backgroundTask.GetType();
+
+            return categorisedTask != null ? taskType.Name + "-" + categorisedTask.Category : taskType.Name;
+        }
+
+        /// <summary>
+        /// Gets the maximum number of attempts allowed, which is the minimum <see cref="AutomaticRetryAttribute.Attempts" />
+        /// of all registered filters of type <see cref="AutomaticRetryAttribute"/>.
+        /// </summary>
+        /// <returns>Maximum number of retry attempts allowed.</returns>
+        private static int GetMaxAttempts()
+        {
+            int? attempts = null;
+
+            foreach (var att in GlobalJobFilters.Filters.OfType<AutomaticRetryAttribute>())
+            {
+                if (att.Attempts < (attempts ?? int.MaxValue))
+                {
+                    attempts = att.Attempts;
+                }
+            }
+
+            return attempts ?? 0;
         }
 
         private async Task InvokeTaskHandlerAsync<TTask>(TTask backgroundTask, PerformContext context) where TTask : BackgroundTask
@@ -149,10 +178,10 @@ namespace Blueprint.Core.Tasks
                     throw;
                 }
 
-                var errorData = new Dictionary<string, string>()
+                var errorData = new Dictionary<string, string>
                 {
                     ["RetryCount"] = attempt?.ToString(),
-                    ["HangfireJobId"] = context.BackgroundJob.Id
+                    ["HangfireJobId"] = context.BackgroundJob.Id,
                 };
 
                 errorLogger.Log(e, errorData);
@@ -163,34 +192,6 @@ namespace Blueprint.Core.Tasks
             {
                 activity.Stop();
             }
-        }
-
-        private static string GetOperationName<TTask>(TTask backgroundTask) where TTask : BackgroundTask
-        {
-            var categorisedTask = backgroundTask as IHaveTaskCategory;
-            var taskType = backgroundTask.GetType();
-
-            return categorisedTask != null ? taskType.Name + "-" + categorisedTask.Category : taskType.Name;
-        }
-
-        /// <summary>
-        /// Gets the maximum number of attempts allowed, which is the minimum <see cref="AutomaticRetryAttribute.Attempts" />
-        /// of all registered filters of type <see cref="AutomaticRetryAttribute"/>
-        /// </summary>
-        /// <returns>Maximum number of retry attempts allowed.</returns>
-        private static int GetMaxAttempts()
-        {
-            int? attempts = null;
-
-            foreach (var att in GlobalJobFilters.Filters.OfType<AutomaticRetryAttribute>())
-            {
-                if (att.Attempts < (attempts ?? int.MaxValue))
-                {
-                    attempts = att.Attempts;
-                }
-            }
-
-            return attempts ?? 0;
         }
     }
 }

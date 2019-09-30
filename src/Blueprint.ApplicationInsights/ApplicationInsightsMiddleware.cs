@@ -20,7 +20,7 @@ namespace Blueprint.ApplicationInsights
     public class ApplicationInsightsMiddleware : IMiddlewareBuilder
     {
         /// <inheritdoc />
-        /// <returns><c>true</c></returns>
+        /// <returns><c>true</c>.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;
@@ -60,6 +60,7 @@ namespace Blueprint.ApplicationInsights
                 Next?.GenerateCode(method, writer);
 
                 writer.WriteFinally();
+
                 // ALWAYS, in a finally statement, try to set the user details if we have them available
                 // This is so the UserAuthorisationContext variable isn't reordered above the try of this middleware
                 writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");

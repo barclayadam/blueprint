@@ -29,7 +29,7 @@ namespace Blueprint.Hangfire
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateElection(context));
         }
-        
+
         public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateApplied(context, transaction));
@@ -38,26 +38,6 @@ namespace Blueprint.Hangfire
         public void OnStateUnapplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateUnapplied(context, transaction));
-        }
-
-        private void WithRetryAttribute(BackgroundJob backgroundJob, Action<AutomaticRetryAttribute> onAttribute)
-        {
-            var taskType = GetTaskType(backgroundJob);
-
-            var retryAttribute = taskType?.GetCustomAttribute<AutomaticRetryAttribute>();
-
-            if (retryAttribute != null)
-            {
-                onAttribute(retryAttribute);
-                return;
-            }
-
-            // Either this is not a task being executed, or the task itself has not had an
-            // attribute applied. In this case let's apply the global default.
-            if (defaultAutomaticRetryAttribute != null)
-            {
-                onAttribute(defaultAutomaticRetryAttribute);
-            }
         }
 
         private static Type GetTaskType(BackgroundJob backgroundJob)
@@ -78,6 +58,26 @@ namespace Blueprint.Hangfire
             }
 
             return null;
+        }
+
+        private void WithRetryAttribute(BackgroundJob backgroundJob, Action<AutomaticRetryAttribute> onAttribute)
+        {
+            var taskType = GetTaskType(backgroundJob);
+
+            var retryAttribute = taskType?.GetCustomAttribute<AutomaticRetryAttribute>();
+
+            if (retryAttribute != null)
+            {
+                onAttribute(retryAttribute);
+                return;
+            }
+
+            // Either this is not a task being executed, or the task itself has not had an
+            // attribute applied. In this case let's apply the global default.
+            if (defaultAutomaticRetryAttribute != null)
+            {
+                onAttribute(defaultAutomaticRetryAttribute);
+            }
         }
     }
 }

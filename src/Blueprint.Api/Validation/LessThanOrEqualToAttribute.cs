@@ -8,7 +8,7 @@ namespace Blueprint.Api.Validation
     /// Requires the property this attribute is assigned to, to be a number less than or equal to the specified maximum value.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments", Justification = "errorMessageAccessor cannot be given a public accessor as it belogs to the base class.")]
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class LessThanOrEqualToAttribute : ValidationAttribute
     {
         private readonly int maximumValue;
@@ -50,7 +50,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the maximum value for the property.
         /// </summary>
-        public int MaximumValue { get { return maximumValue; } }
+        public int MaximumValue => maximumValue;
 
         /// <summary>
         /// If the value is less than that provided by the constructor, this returns true. Null objects also evaluate to true.

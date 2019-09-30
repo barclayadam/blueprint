@@ -20,8 +20,7 @@ namespace Blueprint.Api.Middleware
 
             context.AppendFrames(
                 getInstanceFrame,
-                runNowCall
-            );
+                runNowCall);
         }
     }
 }

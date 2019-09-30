@@ -56,7 +56,7 @@ namespace Blueprint.Api
             return new Link
             {
                 Href = CreateUrlFromLink(selfLink, idDefinition),
-                Type = ApiResource.GetTypeName(typeof(T))
+                Type = ApiResource.GetTypeName(typeof(T)),
             };
         }
 
@@ -66,7 +66,7 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="link">The link to generate URL for.</param>
         /// <param name="result">The "result" object used to populate placeholder values of the specified link route.</param>
-        /// <returns>A fully-qualified URL</returns>
+        /// <returns>A fully-qualified URL.</returns>
         public string CreateUrlFromLink(ApiOperationLink link, object result = null)
         {
             // baseUri always has / at end, relative never has at start
@@ -82,7 +82,7 @@ namespace Blueprint.Api
         /// </remarks>
         /// <param name="operation">The operation to generate a URL for.</param>
         /// <returns>A fully-qualified URL that, if hit, would execute the passed in operation with the same values.</returns>
-        /// <exception cref="InvalidOperationException">If the URL link has a malformed placeholder (i.e. the property it names cannot be found)</exception>
+        /// <exception cref="InvalidOperationException">If the URL link has a malformed placeholder (i.e. the property it names cannot be found).</exception>
         /// <exception cref="InvalidOperationException">If no links / routes have been specified for the given operation.</exception>
         public string CreateUrl(IApiOperation operation)
         {

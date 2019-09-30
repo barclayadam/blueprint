@@ -10,7 +10,7 @@ namespace Blueprint.Notifications.Notifications
     public class EmailSendingException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the EmailSendingException class. 
+        /// Initializes a new instance of the EmailSendingException class.
         /// </summary>
         public EmailSendingException()
         {

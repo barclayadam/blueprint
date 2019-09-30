@@ -5,14 +5,14 @@ namespace Blueprint.Api
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     public class LinkAttribute : Attribute
     {
-        protected LinkAttribute()
-        {
-        }
-
         public LinkAttribute(Type resourceType, string url)
         {
             ResourceType = resourceType;
             Url = url;
+        }
+
+        protected LinkAttribute()
+        {
         }
 
         public Type ResourceType { get; }

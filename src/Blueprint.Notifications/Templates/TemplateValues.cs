@@ -8,8 +8,10 @@ namespace Blueprint.Notifications.Templates
     /// <summary>
     /// Represents the values which can be used within a template.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix",
-            Justification = "We do not want to expose this as a dictionary, it is not required for its use by clients")]
+    [SuppressMessage(
+        "Microsoft.Naming",
+        "CA1710:IdentifiersShouldHaveCorrectSuffix",
+        Justification = "We do not want to expose this as a dictionary, it is not required for its use by clients")]
     public class TemplateValues : IEnumerable<KeyValuePair<string, object>>
     {
         private readonly IDictionary<string, object> values;
@@ -35,12 +37,12 @@ namespace Blueprint.Notifications.Templates
         /// <summary>
         /// Gets all keys that have been set on this template.
         /// </summary>
-        public IEnumerable<string> Keys { get { return values.Keys; } }
+        public IEnumerable<string> Keys => values.Keys;
 
         /// <summary>
         /// Gets all values that have been set on this template.
         /// </summary>
-        public IEnumerable<object> Values { get { return values.Values; } }
+        public IEnumerable<object> Values => values.Values;
 
         /// <summary>
         /// Gets or sets the value that is stored against the specified key.

@@ -11,7 +11,35 @@ namespace Blueprint.Core.Utilities
     /// </summary>
     public static class StopwatchLogger
     {
-        internal class StopwatchLoggerDisposable : IDisposable
+        /// <summary>
+        /// Starts a new timer, logging the message immediately and then, once disposed, the
+        /// message again with `time_taken_ms={[0-9]?}` appended.
+        /// </summary>
+        /// <param name="log">The log to which to output this information.</param>
+        /// <param name="message">The message to be logged before and after the action.</param>
+        /// <param name="args">The arguments to be used in formatting of the message.</param>
+        /// <returns>A disposable object that, once disposed, will log the time between creating and
+        /// disposing.</returns>
+        public static IDisposable LogTimeWrapper(this Logger log, string message, params object[] args)
+        {
+            return new StopwatchLoggerDisposable(log, message, true, args);
+        }
+
+        /// <summary>
+        /// Starts a new timer, only logging message once disposed, with the
+        /// with `time_taken_ms={[0-9]?}` appended.
+        /// </summary>
+        /// <param name="log">The log to which to output this information.</param>
+        /// <param name="message">The message to be logged before and after the action.</param>
+        /// <param name="args">The arguments to be used in formatting of the message.</param>
+        /// <returns>A disposable object that, once disposed, will log the time between creating and
+        /// disposing.</returns>
+        public static IDisposable LogTime(this Logger log, string message, params object[] args)
+        {
+            return new StopwatchLoggerDisposable(log, message, false, args);
+        }
+
+        private class StopwatchLoggerDisposable : IDisposable
         {
             private readonly Logger log;
             private readonly string message;
@@ -39,39 +67,12 @@ namespace Blueprint.Core.Utilities
             {
                 stopwatch.Stop();
 
-                log.Info("{0}{1} time_taken_ms={2}",
+                log.Info(
+                    "{0}{1} time_taken_ms={2}",
                     logStart ? "[STOP] " : string.Empty,
                     message,
                     stopwatch.ElapsedMilliseconds);
             }
-        }
-
-        /// <summary>
-        /// Starts a new timer, logging the message immediately and then, once disposed, the
-        /// message again with `time_taken_ms={[0-9]?}` appended.
-        /// </summary>
-        /// <param name="log">The log to which to output this information.</param>
-        /// <param name="message">The message to be logged before and after the action.</param>
-        /// <param name="args">The arguments to be used in formatting of the message.</param>
-        /// <returns>A disposable object that, once disposed, will log the time between creating and
-        /// disposing.</returns>
-        public static IDisposable LogTimeWrapper(this Logger log, string message, params object[] args)
-        {
-            return new StopwatchLoggerDisposable(log, message, true, args);
-        }
-
-        /// <summary>
-        /// Starts a new timer, only logging message once disposed, with the
-        /// with `time_taken_ms={[0-9]?}` appended.
-        /// </summary>
-        /// <param name="log">The log to which to output this information.</param>
-        /// <param name="message">The message to be logged before and after the action.</param>
-        /// <param name="args">The arguments to be used in formatting of the message.</param>
-        /// <returns>A disposable object that, once disposed, will log the time between creating and
-        /// disposing.</returns>
-        public static IDisposable LogTime(this Logger log, string message, params object[] args)
-        {
-            return new StopwatchLoggerDisposable(log, message, false, args);
         }
     }
 }

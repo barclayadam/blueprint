@@ -32,7 +32,7 @@ namespace Blueprint.Api.Middleware
                 {
                     Log.Debug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
 
-                    context.UserAuthorisationContext.PopulateMetadata((k,v) => resourceEvent.Metadata[k] = v);
+                    context.UserAuthorisationContext.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
 
                     resourceEvent.CorrelationId = Activity.Current.Id;
                     resourceEvent.Operation = context.Operation;
@@ -43,7 +43,8 @@ namespace Blueprint.Api.Middleware
 
                     if (selfLink == null)
                     {
-                        Log.Warn("No self link exists. Link and payload will not be populated. resource_type={0}",
+                        Log.Warn(
+                            "No self link exists. Link and payload will not be populated. resource_type={0}",
                             resourceEvent.ResourceType.Name);
 
                         return;
@@ -69,7 +70,8 @@ namespace Blueprint.Api.Middleware
 
             if (context.Request.Headers.ContainsKey("User-Agent"))
             {
-                resourceEvent.Metadata.Add("UserAgent",
+                resourceEvent.Metadata.Add(
+                    "UserAgent",
                     string.Join(" ", context.Request.Headers["User-Agent"].ToString()));
             }
         }

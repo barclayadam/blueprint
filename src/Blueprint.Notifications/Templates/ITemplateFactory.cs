@@ -1,7 +1,7 @@
 ﻿namespace Blueprint.Notifications.Templates
 {
     /// <summary>
-    /// A factory which is used to construct a concrete implementation of 
+    /// A factory which is used to construct a concrete implementation of
     /// a <see cref="Template"/>.
     /// </summary>
     public interface ITemplateFactory

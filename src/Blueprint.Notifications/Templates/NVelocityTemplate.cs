@@ -71,7 +71,7 @@ namespace Blueprint.Notifications.Templates
                 catch (ParseErrorException e)
                 {
                     Log.Error(e, "Parsing of the template '{0}' has failed. Template was '{1}'.", Name, Text);
-                    
+
                     throw;
                 }
 

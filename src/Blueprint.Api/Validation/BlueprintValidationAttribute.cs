@@ -12,11 +12,6 @@ namespace Blueprint.Api.Validation
 
         public virtual string ErrorMessage { get; set; } = DefaultErrorMessage;
 
-        protected virtual Task<bool> IsValidAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
-        {
-            return Task.FromResult(true);
-        }
-
         public virtual async Task<ValidationResult> GetValidationResultAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
         {
             Guard.NotNull(nameof(apiOperationContext), apiOperationContext);
@@ -29,6 +24,11 @@ namespace Blueprint.Api.Validation
             }
 
             return new ValidationResult(string.Format(ErrorMessage, GetType().Name, propertyName));
+        }
+
+        protected virtual Task<bool> IsValidAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
+        {
+            return Task.FromResult(true);
         }
     }
 }

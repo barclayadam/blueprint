@@ -1,9 +1,8 @@
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
 namespace Blueprint.Core.Tasks
 {
-    using System.Collections.Generic;
-
-    using Newtonsoft.Json;
-
     public class BackgroundTaskContextDataItem
     {
         public BackgroundTaskContextDataItem(string contextKey)

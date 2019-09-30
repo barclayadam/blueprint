@@ -43,6 +43,16 @@ namespace Blueprint.Notifications.Notifications.Handlers
             }
         }
 
+        private static string UnescapeXmlCharacters(string text)
+        {
+            var unescapedText = text.Replace("&lt;", "<");
+            unescapedText = unescapedText.Replace("&gt;", ">");
+            unescapedText = unescapedText.Replace("&amp;", "&");
+            unescapedText = unescapedText.Replace("&quot;", "\"");
+
+            return unescapedText.Replace("&apos;", "'");
+        }
+
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "This message is used in SendEmail which disposes of it.")]
         private MailMessage CreateMessage(EmailTemplate emailTemplate, NotificationOptions options)
         {
@@ -63,7 +73,7 @@ namespace Blueprint.Notifications.Notifications.Handlers
                 Subject = ApplyTemplate("Subject", emailTemplate.Subject, options),
                 Body = ApplyTemplate("Body", emailTemplate.Body, options, emailTemplate.Layout),
                 From = new MailAddress(ApplyTemplate("From", fromEmailAddress, options)),
-                IsBodyHtml = true
+                IsBodyHtml = true,
             };
 
             // If the from addres does not have the same domain as our main sender address then we
@@ -148,19 +158,10 @@ namespace Blueprint.Notifications.Notifications.Handlers
 
             return templateFactory
                 .CreateTemplate(propertyTemplateAppliedTo + "Layout", layout)
-                .Merge(new TemplateValues {
-                    { "Body", baseContent }
+                .Merge(new TemplateValues
+                {
+                    { "Body", baseContent },
                 });
-        }
-
-        private static string UnescapeXmlCharacters(string text)
-        {
-            var unescapedText = text.Replace("&lt;", "<");
-            unescapedText = unescapedText.Replace("&gt;", ">");
-            unescapedText = unescapedText.Replace("&amp;", "&");
-            unescapedText = unescapedText.Replace("&quot;", "\"");
-
-            return unescapedText.Replace("&apos;", "'");
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Blueprint.Api
         {
             return new ErrorResponse
             {
-                Error = GetErrorResponse(exception)
+                Error = GetErrorResponse(exception),
             };
         }
 
@@ -64,21 +64,21 @@ namespace Blueprint.Api
                     return new ErrorResponseDetail
                     {
                         Code = errorCodeProvider.ErrorCode,
-                        Message = errorCodeProvider.ErrorMessage
+                        Message = errorCodeProvider.ErrorMessage,
                     };
 
                 case InvalidOperationException _:
                     return new ErrorResponseDetail
                     {
                         Code = "bad_request",
-                        Message = e.Message
+                        Message = e.Message,
                     };
 
                 case SecurityException _:
                     return new ErrorResponseDetail
                     {
                         Code = "unauthenticated",
-                        Message = e.Message
+                        Message = e.Message,
                     };
             }
 
@@ -86,7 +86,7 @@ namespace Blueprint.Api
             {
                 Code = "unknown_error",
 
-                Message = e.ToString()
+                Message = e.ToString(),
             };
         }
     }

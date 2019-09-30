@@ -43,9 +43,4 @@ namespace Blueprint.Api
             return Values as IEnumerable<object>;
         }
     }
-
-    public interface IPagedApiResource
-    {
-        IEnumerable<object> GetEnumerable();
-    }
 }

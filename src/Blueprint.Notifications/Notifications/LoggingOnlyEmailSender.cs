@@ -13,7 +13,7 @@ namespace Blueprint.Notifications.Notifications
     /// such as UI tests where the emails would be lost and not useful in any case.
     /// </para>
     /// <para>
-    /// The message details will be logged at an <c>Info</c> level using the <c>Notifications</c> logger, 
+    /// The message details will be logged at an <c>Info</c> level using the <c>Notifications</c> logger,
     /// including from and to addresses, the count of attachments, the subject and body.
     /// </para>
     /// </remarks>
@@ -25,7 +25,7 @@ namespace Blueprint.Notifications.Notifications
         {
             Log.Info(
                      "Sending mail to '{0}', from '{1}'. {2} attachments. Subject is '{3}'. Body is '{4}'.",
-                     message.From, 
+                     message.From,
                      message.To,
                      message.Attachments.Count,
                      message.Subject,

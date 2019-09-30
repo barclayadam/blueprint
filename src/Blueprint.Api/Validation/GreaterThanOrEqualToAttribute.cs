@@ -7,16 +7,13 @@ namespace Blueprint.Api.Validation
     /// <summary>
     /// Requires the property this attribute is assigned to, to be a number greater than or equal to the specified minimum value.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments",
-            Justification = "errorMessageAccessor cannot be given a public accessor as it belongs to the base class.")]
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property,
-            AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class GreaterThanOrEqualToAttribute : ValidationAttribute
     {
         private readonly int minimumValue;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class. 
+        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class.
         /// </summary>
         /// <param name="minimumValue">
         /// The minimum value allowed.
@@ -27,7 +24,7 @@ namespace Blueprint.Api.Validation
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class. 
+        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class.
         /// </summary>
         /// <param name="minimumValue">
         /// The minimum value allowed.
@@ -42,7 +39,7 @@ namespace Blueprint.Api.Validation
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class. 
+        /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class.
         /// </summary>
         /// <param name="minimumValue">
         /// The minimum value allowed.
@@ -62,7 +59,7 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the minimum value for the property.
         /// </summary>
-        public int MinimumValue { get { return minimumValue; } }
+        public int MinimumValue => minimumValue;
 
         /// <summary>
         /// If the value is greater than that provided by the constructor, this returns true. Null objects also evaluate to true.

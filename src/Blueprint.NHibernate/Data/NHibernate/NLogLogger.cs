@@ -11,12 +11,12 @@ namespace Blueprint.NHibernate.Data.NHibernate
     public class NLogLogger : IInternalLogger
     {
         private readonly Logger log;
-        
+
         public NLogLogger(Logger log)
         {
             this.log = log;
         }
-        
+
         /// <summary>
         /// Gets a value indicating whether this debugging is enabled for <c>debug</c>
         /// messages.
@@ -55,7 +55,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Debug(object message, Exception exception)
         {
             if (message == null || exception == null)
+            {
                 return;
+            }
 
             log.Debug(exception, message.ToString());
         }
@@ -67,7 +69,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Debug(object message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             log.Debug(message.ToString());
         }
@@ -91,7 +95,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Error(object message, Exception exception)
         {
             if (message == null || exception == null)
+            {
                 return;
+            }
 
             log.Error(exception, message.ToString());
         }
@@ -103,17 +109,19 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Error(object message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             log.Error(message.ToString());
         }
 
         /// <summary>
         /// Logs a message at a <c>error</c> level, using the optional arguments
-        /// to fortmat the string (<see cref="string.Format(string,object)" />.
+        /// to format the string (<see cref="string.Format(string,object)" />.
         /// </summary>
         /// <param name="format">The message format to be used.</param>
-        /// <param name="args">The arguments to inject into the format strng.</param>
+        /// <param name="args">The arguments to inject into the format string.</param>
         public void ErrorFormat(string format, params object[] args)
         {
             log.Error(format, args);
@@ -127,7 +135,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Fatal(object message, Exception exception)
         {
             if (message == null || exception == null)
+            {
                 return;
+            }
 
             log.Fatal(exception, message.ToString());
         }
@@ -139,7 +149,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Fatal(object message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             log.Fatal(message.ToString());
         }
@@ -152,7 +164,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Info(object message, Exception exception)
         {
             if (message == null || exception == null)
+            {
                 return;
+            }
 
             log.Info(exception, message.ToString());
         }
@@ -164,14 +178,16 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Info(object message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             log.Info(message.ToString());
         }
 
         /// <summary>
         /// Logs a message at a <c>info</c> level, using the optional arguments
-        /// to fortmat the string (<see cref="string.Format(string,object)" />.
+        /// to format the string (<see cref="string.Format(string,object)" />.
         /// </summary>
         /// <param name="format">The message format to be used.</param>
         /// <param name="args">The arguments to inject into the format strng.</param>
@@ -188,7 +204,9 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Warn(object message, Exception exception)
         {
             if (message == null || exception == null)
+            {
                 return;
+            }
 
             log.Warn(exception, message.ToString());
         }
@@ -200,17 +218,19 @@ namespace Blueprint.NHibernate.Data.NHibernate
         public void Warn(object message)
         {
             if (message == null)
+            {
                 return;
+            }
 
             log.Warn(message.ToString());
         }
 
         /// <summary>
         /// Logs a message at a <c>warn</c> level, using the optional arguments
-        /// to fortmat the string (<see cref="string.Format(string,object)" />.
+        /// to format the string (<see cref="string.Format(string,object)" />.
         /// </summary>
         /// <param name="format">The message format to be used.</param>
-        /// <param name="args">The arguments to inject into the format strng.</param>
+        /// <param name="args">The arguments to inject into the format string.</param>
         public void WarnFormat(string format, params object[] args)
         {
             log.Warn(format, args);

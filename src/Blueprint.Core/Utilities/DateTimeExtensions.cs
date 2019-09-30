@@ -10,16 +10,16 @@ namespace Blueprint.Core.Utilities
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Given a DateTime will get the last second of the day that it represents, with ticks set to 0, 
-        /// that is 23:59:59.000. 
+        /// Given a DateTime will get the last second of the day that it represents, with ticks set to 0,
+        /// that is 23:59:59.000.
         /// </summary>
-        /// <param name="dateTime">The date time from which to get the end of the day</param>
+        /// <param name="dateTime">The date time from which to get the end of the day.</param>
         /// <returns>The 'end of the day' of the given DateTime instance.</returns>
         public static DateTime EndOfDay(this DateTime dateTime)
         {
             return dateTime.Date.AddDays(1).AddSeconds(-1);
         }
-        
+
         /// <summary>
         /// Returns a value indicating whether of not this date is in the future, based on the
         /// value of <see cref="SystemTime.UtcNow"/>.
@@ -74,7 +74,7 @@ namespace Blueprint.Core.Utilities
             }
 
             date = date.AddDays(-1);
-            
+
             while (!dayOfWeeks.Contains(date.DayOfWeek))
             {
                 date = date.AddDays(-1);

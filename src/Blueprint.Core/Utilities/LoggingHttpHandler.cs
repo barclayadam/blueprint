@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using NLog;
 
-namespace Blueprint.Core.Utilities 
+namespace Blueprint.Core.Utilities
 {
     public class LoggingHttpHandler : DelegatingHandler
     {
@@ -19,7 +19,7 @@ namespace Blueprint.Core.Utilities
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             logger.Info("Executing HTTP request. url={0}", request.RequestUri);
-                
+
             return base.SendAsync(request, cancellationToken);
         }
     }

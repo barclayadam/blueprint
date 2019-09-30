@@ -1,7 +1,9 @@
 ﻿using System;
+using Blueprint.Core;
+using Blueprint.NHibernate;
 using Hangfire;
 
-namespace Blueprint.NHibernate
+namespace Blueprint.Hangfire
 {
     /// <summary>
     /// Global Configuration extensions.
@@ -14,15 +16,12 @@ namespace Blueprint.NHibernate
         /// <param name="configuration">The configuration.</param>
         /// <param name="serviceProvider">The root service provider.</param>
         /// <returns>An instance of <see cref="ServiceProviderJobActivator"/>.</returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// configuration
-        /// or
-        /// container
+        /// <exception cref="System.ArgumentNullException">configuration or container.
         /// </exception>
         public static IGlobalConfiguration<ServiceProviderJobActivator> UseServiceProviderActivator(this IGlobalConfiguration configuration, IServiceProvider serviceProvider)
         {
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-            if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+            Guard.NotNull(nameof(configuration), configuration);
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
 
             return configuration.UseActivator(new ServiceProviderJobActivator(serviceProvider));
         }

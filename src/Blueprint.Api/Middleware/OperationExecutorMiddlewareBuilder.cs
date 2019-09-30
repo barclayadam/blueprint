@@ -12,7 +12,7 @@ namespace Blueprint.Api.Middleware
     public class OperationExecutorMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <inheritdoc />
-        /// <returns>true</returns>
+        /// <returns>true.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;
@@ -28,13 +28,9 @@ namespace Blueprint.Api.Middleware
 
             context.AppendFrames(
                 getInstanceFrame,
-
                 LogFrame.Debug("Executing API operation. handler_type={0}", $"{getInstanceFrame.InstanceVariable}.GetType().Name"),
-
                 handlerInvokeCall,
-
-                new OperationResultCastFrame(handlerInvokeCall.ReturnVariable)
-            );
+                new OperationResultCastFrame(handlerInvokeCall.ReturnVariable));
         }
 
         /// <summary>

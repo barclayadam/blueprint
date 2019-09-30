@@ -25,9 +25,7 @@ namespace Blueprint.Api.Validation
                 return true;
             }
 
-            bool boolValue;
-            
-            return bool.TryParse(value.ToString(), out boolValue) && boolValue;
+            return bool.TryParse(value.ToString(), out var boolValue) && boolValue;
         }
     }
 }

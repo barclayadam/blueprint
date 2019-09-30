@@ -72,7 +72,7 @@ namespace Blueprint.Api
         public HttpMethod HttpMethod { get; }
 
         /// <summary>
-        /// Gets a value indicating whether anonymous access is allowed to this API operation, typically determined
+        /// Gets or sets a value indicating whether anonymous access is allowed to this API operation, typically determined
         /// by the presence of an <see cref="AllowAnonymousAttribute"/> decorating the operation.
         /// </summary>
         public bool AnonymousAccessAllowed { get; set; }
@@ -110,7 +110,7 @@ namespace Blueprint.Api
         /// <returns>A new instance of operation this descriptor describes.</returns>
         public virtual IApiOperation CreateInstance()
         {
-            return (IApiOperation) Activator.CreateInstance(OperationType);
+            return (IApiOperation)Activator.CreateInstance(OperationType);
         }
     }
 }

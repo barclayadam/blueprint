@@ -57,7 +57,7 @@ namespace Blueprint.Notifications.Notifications
         /// <summary>
         /// Gets the physical file path.
         /// </summary>
-        public string PhysicalFilePath { get; }   
+        public string PhysicalFilePath { get; }
 
         /// <summary>
         /// Gets the stream.

@@ -16,7 +16,7 @@ namespace Blueprint.ApplicationInsights
 
         /// <summary>
         /// Initializes a new instance of the ApplicationInsightsApmOperationTracker class that will
-        /// use the given <see cref="TelemetryClient"/> for tracking operation.s
+        /// use the given <see cref="TelemetryClient"/> for tracking operations.
         /// </summary>
         /// <param name="telemetryClient"></param>
         public ApplicationInsightsApmTool(TelemetryClient telemetryClient)
@@ -29,7 +29,7 @@ namespace Blueprint.ApplicationInsights
         {
             var requestTelemetry = new RequestTelemetry
             {
-                Name = operationName
+                Name = operationName,
             };
 
             var operation = telemetryClient.StartOperation(requestTelemetry);

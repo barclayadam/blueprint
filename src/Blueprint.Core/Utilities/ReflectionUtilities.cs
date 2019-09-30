@@ -12,6 +12,16 @@ namespace Blueprint.Core.Utilities
     /// </summary>
     public static class ReflectionUtilities
     {
+        public static Type GetUnderlyingTypeIfNullable(Type type)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         /// <summary>
         /// Provides a means to call a generic method where the type parameters are not known at compile time, such that
         /// if the method was called normally the generic type parameter inferred would be too 'loose'.
@@ -50,8 +60,10 @@ namespace Blueprint.Core.Utilities
         /// <param name="expression">An expression that represents the call that is to be made, including the real parameters.</param>
         /// <param name="genericTypeParameters">The type parameters that should be specified when constructing the method.</param>
         /// <returns>The result of the given method call.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters",
-                Justification = "Expression<Func<T, TResult>> used for compiler support of expression creation.")]
+        [SuppressMessage(
+            "Microsoft.Design",
+            "CA1011:ConsiderPassingBaseTypesAsParameters",
+            Justification = "Expression<Func<T, TResult>> used for compiler support of expression creation.")]
         public static TResult CallGenericMethodWithExplicitTypes<T, TResult>(
                 this T instance, Expression<Func<T, TResult>> expression, params Type[] genericTypeParameters)
                 where T : class
@@ -65,7 +77,7 @@ namespace Blueprint.Core.Utilities
 
             try
             {
-                return (TResult) concreteMethod.Invoke(instance, arguments.ToArray());
+                return (TResult)concreteMethod.Invoke(instance, arguments.ToArray());
             }
             catch (TargetInvocationException tie)
             {
@@ -88,8 +100,10 @@ namespace Blueprint.Core.Utilities
         /// <param name="instance">The instance on which to call the method.</param>
         /// <param name="expression">An expression that represents the call that is to be made, including the real parameters.</param>
         /// <param name="genericTypeParameters">The type parameters that should be specified when constructing the method.</param>
-        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters",
-                Justification = "Expression<Action<T>> used for compiler support of expression creation.")]
+        [SuppressMessage(
+            "Microsoft.Design",
+            "CA1011:ConsiderPassingBaseTypesAsParameters",
+            Justification = "Expression<Action<T>> used for compiler support of expression creation.")]
         public static void CallGenericMethodWithExplicitTypes<T>(
                 this T instance, Expression<Action<T>> expression, params Type[] genericTypeParameters) where T : class
         {
@@ -144,16 +158,6 @@ namespace Blueprint.Core.Utilities
             }
 
             return genericMethod.MakeGenericMethod(genericTypeParameters);
-        }
-
-        public static Type GetUnderlyingTypeIfNullable(Type type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-
-            return Nullable.GetUnderlyingType(type) ?? type;
         }
     }
 }

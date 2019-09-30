@@ -18,6 +18,8 @@ namespace Blueprint.Core
         /// Ensures the given <paramref name="value"/> is not null.
         /// Throws <see cref="ArgumentNullException"/> otherwise.
         /// </summary>
+        /// <param name="argumentName">The name of the argument being checked, will be used in exception.</param>
+        /// <param name="value">The value to check.</param>
         /// <exception cref="System.ArgumentException">The <paramref name="value"/> is null.</exception>
         public static void NotNull([InvokerParameterName]string argumentName, object value)
         {
@@ -32,6 +34,8 @@ namespace Blueprint.Core
         /// Throws <see cref="ArgumentNullException"/> in the first case, or
         /// <see cref="ArgumentException"/> in the latter.
         /// </summary>
+        /// <param name="argumentName">The name of the argument being checked, will be used in exception.</param>
+        /// <param name="value">The value to check.</param>
         /// <exception cref="System.ArgumentException">The <paramref name="value"/> is null or an empty string.</exception>
         public static void NotNullOrEmpty([InvokerParameterName]string argumentName, string value)
         {

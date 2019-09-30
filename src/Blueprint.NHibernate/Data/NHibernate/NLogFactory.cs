@@ -18,7 +18,7 @@ namespace Blueprint.NHibernate.Data.NHibernate
         /// the single logger with the name of <c>NHibernate</c>.
         /// </summary>
         /// <param name="type">The type for the logger, currently ignored.</param>
-        /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/></returns>
+        /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/>.</returns>
         public IInternalLogger LoggerFor(Type type)
         {
             return new NLogLogger(LogManager.GetLogger(NHibernateLoggerName + "." + type.Name));
@@ -29,7 +29,7 @@ namespace Blueprint.NHibernate.Data.NHibernate
         /// the single logger with the name of <c>NHibernate</c>.
         /// </summary>
         /// <param name="keyName">The key for the logger, currently ignored.</param>
-        /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/></returns>
+        /// <returns>The single NLog logger implementation of <see cref="IInternalLogger"/>.</returns>
         public IInternalLogger LoggerFor(string keyName)
         {
             return new NLogLogger(LogManager.GetLogger(keyName));

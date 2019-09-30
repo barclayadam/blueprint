@@ -18,13 +18,13 @@ namespace Blueprint.Api.Formatters
         public void Write(ApiOperationContext context, string format, object result)
         {
             context.Response.ContentType = JsonContentType;
-            
+
             using (var httpResponseStreamWriter = new HttpResponseStreamWriter(context.Response.Body, Encoding.UTF8))
             using (var jsonWriter = new JsonTextWriter(httpResponseStreamWriter))
             {
                 jsonWriter.CloseOutput = false;
                 jsonWriter.AutoCompleteOnClose = false;
-                
+
                 Serializer.Serialize(jsonWriter, result);
             }
         }

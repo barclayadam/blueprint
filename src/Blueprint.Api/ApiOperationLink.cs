@@ -34,7 +34,7 @@ namespace Blueprint.Api
         public string UrlFormat { get; }
 
         public ApiOperationDescriptor OperationDescriptor { get; }
-        
+
         public string Rel { get; }
 
         public Type ResourceType { get; set; }
@@ -57,7 +57,7 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Creates a URL that can be used for routing, trimming the definitions
-        /// of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details)
+        /// of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details).
         /// </summary>
         /// <returns>A URL representation of the link used in routing.</returns>
         public string GetFormatForRouting()
@@ -65,8 +65,10 @@ namespace Blueprint.Api
             // We need to strip out alternate source property name else the format
             // is incorrect for routing.
             return QueryStringRegex.Replace(
-                ParameterRegex.Replace(UrlFormat,
-                    match => "{" + match.Groups["propName"].Value + "}"), string.Empty);
+                ParameterRegex.Replace(
+                    UrlFormat,
+                    match => "{" + match.Groups["propName"].Value + "}"),
+                string.Empty);
         }
 
         public override string ToString()

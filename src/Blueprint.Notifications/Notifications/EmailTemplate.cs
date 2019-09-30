@@ -13,24 +13,24 @@
         public string Layout { get; set; }
 
         /// <summary>
-        /// Gets the body of this email template, which will be passed through
+        /// Gets or sets the body of this email template, which will be passed through
         /// a template engine before being used.
         /// </summary>
         public string Body { get; set; }
 
         /// <summary>
-        /// Gets the from email address of this email template.
+        /// Gets or sets the from email address of this email template.
         /// </summary>
         public string From { get; set; }
 
         /// <summary>
-        /// Gets the email address to send this notification to (being an optional
+        /// Gets or sets the email address to send this notification to (being an optional
         /// value that is applied in addition to any explicit value when sending a notification).
         /// </summary>
         public string To { get; set; }
 
         /// <summary>
-        /// Gets the subject of this email template, which will be passed 
+        /// Gets or sets the subject of this email template, which will be passed
         /// through a template engine before being used.
         /// </summary>
         public string Subject { get; set; }

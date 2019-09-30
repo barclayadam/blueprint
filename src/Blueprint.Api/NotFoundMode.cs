@@ -16,6 +16,6 @@
         /// routing components to potentially be handled elsewhere, useful for integrating with
         /// existing applications that already have endpoints under the same path segment.
         /// </summary>
-        Fallthrough
+        Fallthrough,
     }
 }

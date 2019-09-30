@@ -16,17 +16,17 @@ namespace Blueprint.SqlServer
     /// </summary>
     public class SqlServerAuditor : IAuditor
     {
-        private readonly IDatabaseConnectionFactory databaseConnectionFactory;
-
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            ContractResolver = new AuditDetailsResolver()
+            ContractResolver = new AuditDetailsResolver(),
         };
 
+        private readonly IDatabaseConnectionFactory databaseConnectionFactory;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class. 
+        /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class.
         /// </summary>
         public SqlServerAuditor(IDatabaseConnectionFactory databaseConnectionFactory)
         {
@@ -53,7 +53,7 @@ namespace Blueprint.SqlServer
             {
                 cn.Execute(
                     @"INSERT INTO AuditTrail (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
-                                      VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
+                                           VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
                     new
                     {
                         auditItem.CorrelationId,
@@ -62,7 +62,7 @@ namespace Blueprint.SqlServer
                         auditItem.WasSuccessful,
                         Timestamp = SystemTime.UtcNow,
                         MessageType = type,
-                        MessageData = serializedMessage
+                        MessageData = serializedMessage,
                     },
                     transaction);
 
@@ -71,10 +71,10 @@ namespace Blueprint.SqlServer
         }
 
         /// <summary>
-        /// A contract resolver that will filter out properties that have <see cref="DoNotAuditAttribute"/> 
+        /// A contract resolver that will filter out properties that have <see cref="DoNotAuditAttribute"/>
         /// or <see cref="SensitiveAttribute"/> applied.
         /// </summary>
-        class AuditDetailsResolver : DefaultContractResolver
+        private class AuditDetailsResolver : DefaultContractResolver
         {
             protected override List<MemberInfo> GetSerializableMembers(Type objectType)
             {

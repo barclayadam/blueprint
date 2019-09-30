@@ -35,7 +35,7 @@ namespace Blueprint.Api
             {
                 systemResource.AddLink(link.Rel, new Link
                 {
-                    Href = linkGenerator.CreateUrlFromLink(link)
+                    Href = linkGenerator.CreateUrlFromLink(link),
                 });
             }
 
@@ -43,5 +43,7 @@ namespace Blueprint.Api
         }
     }
 
-    public class RootResource : ApiResource { }
+    public class RootResource : ApiResource
+    {
+    }
 }

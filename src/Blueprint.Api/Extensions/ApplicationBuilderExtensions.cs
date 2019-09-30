@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Builder
             var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
             var apiOperationExecutor = applicationBuilder.ApplicationServices.GetRequiredService<IApiOperationExecutor>();
             var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
-            
+
             // Ensure ends with a slash, but only one
             apiPrefix = apiPrefix.TrimEnd('/') + '/';
 
@@ -43,11 +43,11 @@ namespace Microsoft.AspNetCore.Builder
                     routeTemplate: apiPrefix + safeRouteUrl,
                     defaults: new RouteValueDictionary(new
                     {
-                        operation = link.OperationDescriptor
+                        operation = link.OperationDescriptor,
                     }),
                     constraints: new Dictionary<string, object>
                     {
-                        ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString())
+                        ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString()),
                     },
                     dataTokens: null,
                     inlineConstraintResolver: inlineConstraintResolver));
@@ -87,7 +87,7 @@ namespace Microsoft.AspNetCore.Builder
             {
                 context.Handler = async c =>
                 {
-                    var operation = (ApiOperationDescriptor) context.RouteData.Values["operation"];
+                    var operation = (ApiOperationDescriptor)context.RouteData.Values["operation"];
 
                     if (operation.HttpMethod.ToString() != context.HttpContext.Request.Method)
                     {
@@ -97,7 +97,7 @@ namespace Microsoft.AspNetCore.Builder
                             context.HttpContext.Request.Method,
                             operation.HttpMethod);
 
-                        context.HttpContext.Response.StatusCode = (int) HttpStatusCode.MethodNotAllowed;
+                        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 
                         return;
                     }
@@ -107,7 +107,7 @@ namespace Microsoft.AspNetCore.Builder
                         var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation)
                         {
                             RouteData = context.RouteData.Values,
-                            HttpContext = context.HttpContext
+                            HttpContext = context.HttpContext,
                         };
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
@@ -138,7 +138,7 @@ namespace Microsoft.AspNetCore.Builder
                         "Request does not match API endpoint. url={0}",
                         context.HttpContext.Request.GetDisplayUrl());
 
-                    context.HttpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                    context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                     return Task.CompletedTask;
                 };
