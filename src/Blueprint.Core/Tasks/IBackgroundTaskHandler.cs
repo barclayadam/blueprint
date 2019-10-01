@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Core.Tasks
 {
@@ -9,7 +9,7 @@ namespace Blueprint.Core.Tasks
     /// of <see cref="BackgroundTask"/>.
     /// </summary>
     /// <typeparam name="T">The type of the task this handler can execute.</typeparam>
-    [UsedImplicitly]
+    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
     public interface IBackgroundTaskHandler<in T> where T : BackgroundTask
     {
         /// <summary>

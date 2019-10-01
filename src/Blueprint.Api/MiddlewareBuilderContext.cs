@@ -99,7 +99,13 @@ namespace Blueprint.Api
         /// Registers a handler for a given exception type, a set of frames that will make up the catch clause
         /// of an all-surrounding try-block for the whole operation pipeline.
         /// </summary>
-        /// <param name="exceptionType">The type of exception to handle.</param>
+        /// <remarks>
+        /// This is useful for providing more specific processing of known exceptions, for example a <c>ValidationException</c>, where
+        /// the overall exception strategy is not appropriate. In the case of validations for example, a HTTP response code of 422 makes
+        /// more sense in a HTTP concept than the generic 500 failure.
+        /// </remarks>
+        /// <param name="exceptionType">The type of exception to handle (this is the exact type output to the generated code, meaning this
+        /// type and everything that inherits it will be caught).</param>
         /// <param name="create">A method to create the frames, passed a <see cref="Variable"/> that will be of the
         /// specified exception type and represents the caught exception.</param>
         public void RegisterUnhandledExceptionHandler(Type exceptionType, Func<Variable, IEnumerable<Frame>> create)

@@ -10,9 +10,6 @@ namespace Blueprint.Core.ThirdParty
     public static class Inflector
     {
         private static readonly List<Rule> Plurals = new List<Rule>();
-
-        private static readonly List<Rule> Singulars = new List<Rule>();
-
         private static readonly List<string> Uncountables = new List<string>();
 
         static Inflector()
@@ -34,31 +31,6 @@ namespace Blueprint.Core.ThirdParty
             AddPlural("([m|l])ouse$", "$1ice");
             AddPlural("^(ox)$", "$1en");
             AddPlural("(quiz)$", "$1zes");
-
-            AddSingular("s$", string.Empty);
-            AddSingular("(n)ews$", "$1ews");
-            AddSingular("([ti])a$", "$1um");
-            AddSingular("((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$", "$1$2sis");
-            AddSingular("(^analy)ses$", "$1sis");
-            AddSingular("([^f])ves$", "$1fe");
-            AddSingular("(hive)s$", "$1");
-            AddSingular("(tive)s$", "$1");
-            AddSingular("([lr])ves$", "$1f");
-            AddSingular("([^aeiouy]|qu)ies$", "$1y");
-            AddSingular("(s)eries$", "$1eries");
-            AddSingular("(m)ovies$", "$1ovie");
-            AddSingular("(x|ch|ss|sh)es$", "$1");
-            AddSingular("([m|l])ice$", "$1ouse");
-            AddSingular("(bus)es$", "$1");
-            AddSingular("(o)es$", "$1");
-            AddSingular("(shoe)s$", "$1");
-            AddSingular("(cris|ax|test)es$", "$1is");
-            AddSingular("(octop|vir|alumn|fung)i$", "$1us");
-            AddSingular("(alias|status)es$", "$1");
-            AddSingular("^(ox)en", "$1");
-            AddSingular("(vert|ind)ices$", "$1ex");
-            AddSingular("(matr)ices$", "$1ix");
-            AddSingular("(quiz)zes$", "$1");
 
             AddIrregular("person", "people");
             AddIrregular("man", "men");
@@ -85,31 +57,6 @@ namespace Blueprint.Core.ThirdParty
             return Uncapitalize(Pascalize(lowercaseAndUnderscoredWord));
         }
 
-        public static string Capitalize(this string word)
-        {
-            return word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower();
-        }
-
-        public static string Dasherize(this string underscoredWord)
-        {
-            return underscoredWord.Replace('_', '-');
-        }
-
-        public static string Humanize(this string lowercaseAndUnderscoredWord)
-        {
-            return Capitalize(Regex.Replace(lowercaseAndUnderscoredWord, @"_", " "));
-        }
-
-        public static string Ordinalize(this string numberString)
-        {
-            return Ordanize(int.Parse(numberString), numberString);
-        }
-
-        public static string Ordinalize(this int number)
-        {
-            return Ordanize(number, number.ToString());
-        }
-
         public static string Pascalize(this string lowercaseAndUnderscoredWord)
         {
             return Regex.Replace(lowercaseAndUnderscoredWord, "(?:^|_)(.)", match => match.Groups[1].Value.ToUpper());
@@ -120,47 +67,19 @@ namespace Blueprint.Core.ThirdParty
             return ApplyRules(Plurals, word);
         }
 
-        public static string Singularize(this string word)
-        {
-            return ApplyRules(Singulars, word);
-        }
-
-        public static string Titleize(this string word)
-        {
-            return Regex.Replace(Humanize(Underscore(word)), @"\b([a-z])", match => match.Captures[0].Value.ToUpper());
-        }
-
         public static string Uncapitalize(this string word)
         {
             return word.Substring(0, 1).ToLower() + word.Substring(1);
         }
 
-        public static string Underscore(this string pascalCasedWord)
-        {
-            return
-                    Regex.Replace(
-                                  Regex.Replace(
-                                                Regex.Replace(pascalCasedWord, @"([A-Z]+)([A-Z][a-z])", "$1_$2"),
-                                                @"([a-z\d])([A-Z])",
-                                                "$1_$2"),
-                                  @"[-\s]",
-                                  "_").ToLower();
-        }
-
         private static void AddIrregular(string singular, string plural)
         {
             AddPlural("(" + singular[0] + ")" + singular.Substring(1) + "$", "$1" + plural.Substring(1));
-            AddSingular("(" + plural[0] + ")" + plural.Substring(1) + "$", "$1" + singular.Substring(1));
         }
 
         private static void AddPlural(string rule, string replacement)
         {
             Plurals.Add(new Rule(rule, replacement));
-        }
-
-        private static void AddSingular(string rule, string replacement)
-        {
-            Singulars.Add(new Rule(rule, replacement));
         }
 
         private static void AddUncountable(string word)
@@ -184,28 +103,6 @@ namespace Blueprint.Core.ThirdParty
             }
 
             return result;
-        }
-
-        private static string Ordanize(int number, string numberString)
-        {
-            var nMod100 = number % 100;
-
-            if (nMod100 >= 11 && nMod100 <= 13)
-            {
-                return numberString + "th";
-            }
-
-            switch (number % 10)
-            {
-                case 1:
-                    return numberString + "st";
-                case 2:
-                    return numberString + "nd";
-                case 3:
-                    return numberString + "rd";
-                default:
-                    return numberString + "th";
-            }
         }
 
         private class Rule

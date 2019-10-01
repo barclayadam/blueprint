@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 using NJsonSchema;
 
 namespace Blueprint.Api.Validation

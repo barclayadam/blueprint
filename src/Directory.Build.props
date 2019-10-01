@@ -65,6 +65,8 @@
 
     <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Rules.ruleset</CodeAnalysisRuleset>
     <CodeAnalysisDictionary>$(MSBuildThisFileDirectory)CustomDictionary.xml</CodeAnalysisDictionary>
+
+    <DefineConstants>$(DefineConstants);JETBRAINS_ANNOTATIONS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

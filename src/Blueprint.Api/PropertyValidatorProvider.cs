@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Blueprint.Api.Validation;
 using Blueprint.Core.ThirdParty;
 using Blueprint.Core.Utilities;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api
@@ -61,6 +62,7 @@ namespace Blueprint.Api
             }
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RegexAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -71,6 +73,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RegularExpressionAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -81,6 +84,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RangeAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -91,6 +95,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -101,6 +106,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(StringLengthAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -111,6 +117,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(InFutureAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -121,6 +128,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(InPastAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -131,6 +139,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(NotInFutureAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -141,6 +150,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(NotInPastAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -151,6 +161,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredIfAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -165,6 +176,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredIfNotAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -179,6 +191,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(MustBeTrueAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -189,6 +202,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(GreaterThanAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -199,6 +213,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(GreaterThanOrEqualToAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -209,6 +224,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(LessThanAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -219,6 +235,7 @@ namespace Blueprint.Api
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(LessThanOrEqualToAttribute attribute, string propertyName)
         {
             return new PropertyValidator

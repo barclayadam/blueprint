@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Core.Utilities
 {

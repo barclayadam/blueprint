@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
-using Blueprint.Core.ThirdParty;
 using Blueprint.Core.Utilities;
+using JetBrains.Annotations;
 
 namespace Blueprint.Core
 {
@@ -21,7 +20,7 @@ namespace Blueprint.Core
         /// <param name="argumentName">The name of the argument being checked, will be used in exception.</param>
         /// <param name="value">The value to check.</param>
         /// <exception cref="System.ArgumentException">The <paramref name="value"/> is null.</exception>
-        public static void NotNull([InvokerParameterName]string argumentName, object value)
+        public static void NotNull([InvokerParameterName]string argumentName, [NoEnumeration] object value)
         {
             if (value == null)
             {
