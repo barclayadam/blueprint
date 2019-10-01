@@ -13,27 +13,22 @@ namespace Blueprint.Api
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
 
-        private readonly GeneratedAssembly generatedAssembly;
         private readonly IInstanceFrameProvider instanceFrameProvider;
 
         internal MiddlewareBuilderContext(
-            GeneratedAssembly generatedAssembly,
-            ApiOperationContextVariableSource apiContextVariableSource,
-            GeneratedType generatedType,
             GeneratedMethod executeMethod,
+            ApiOperationContextVariableSource apiContextVariableSource,
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
             IServiceProvider serviceProvider,
             IInstanceFrameProvider instanceFrameProvider)
         {
             ApiContextVariableSource = apiContextVariableSource;
-            GeneratedType = generatedType;
             ExecuteMethod = executeMethod;
             Descriptor = descriptor;
             Model = model;
             ServiceProvider = serviceProvider;
 
-            this.generatedAssembly = generatedAssembly;
             this.instanceFrameProvider = instanceFrameProvider;
         }
 
@@ -44,15 +39,20 @@ namespace Blueprint.Api
         public ApiOperationContextVariableSource ApiContextVariableSource { get; }
 
         /// <summary>
-        /// Gets the generated type that contains the execution method and implements <see cref="IOperationExecutorPipeline" />.
-        /// </summary>
-        public GeneratedType GeneratedType { get; }
-
-        /// <summary>
         /// Gets the <see cref="GeneratedMethod" /> that is being built to handle the execution of
         /// an operation of the type described in the <see cref="Descriptor"/>.
         /// </summary>
         public GeneratedMethod ExecuteMethod { get; }
+
+        /// <summary>
+        /// Gets the generated type that contains the execution method and implements <see cref="IOperationExecutorPipeline" />.
+        /// </summary>
+        public GeneratedType GeneratedType => ExecuteMethod.GeneratedType;
+
+        /// <summary>
+        /// Gets the assembly that contains the generated pipeline.
+        /// </summary>
+        public GeneratedAssembly GeneratedAssembly => GeneratedType.GeneratedAssembly;
 
         /// <summary>
         /// Gets the descriptor for the operation that a method is currently being generated for.
@@ -83,7 +83,7 @@ namespace Blueprint.Api
         {
             Guard.NotNull(nameof(assembly), assembly);
 
-            generatedAssembly.ReferenceAssembly(assembly);
+            GeneratedAssembly.ReferenceAssembly(assembly);
         }
 
         /// <summary>

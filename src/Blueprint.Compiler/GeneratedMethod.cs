@@ -15,19 +15,26 @@ namespace Blueprint.Compiler
         private AsyncMode asyncMode = AsyncMode.None;
         private Frame top;
 
-        public GeneratedMethod(MethodInfo method)
+        internal GeneratedMethod(GeneratedType generatedType, MethodInfo method)
         {
+            GeneratedType = generatedType;
             ReturnType = method.ReturnType;
             Arguments = method.GetParameters().Select(x => new Argument(x)).ToArray();
             MethodName = method.Name;
         }
 
-        public GeneratedMethod(string methodName, Type returnType, params Argument[] arguments)
+        internal GeneratedMethod(GeneratedType generatedType, string methodName, Type returnType, params Argument[] arguments)
         {
+            GeneratedType = generatedType;
             ReturnType = returnType;
             Arguments = arguments;
             MethodName = methodName;
         }
+
+        /// <summary>
+        /// Gets the generated type this method belongs to.
+        /// </summary>
+        public GeneratedType GeneratedType { get; }
 
         /// <summary>
         /// Gets the return type of the method being generated.
@@ -59,21 +66,6 @@ namespace Blueprint.Compiler
         public Variable ReturnVariable { get; set; }
 
         public FramesCollection Frames { get; } = new FramesCollection();
-
-        public static GeneratedMethod For<TReturn>(string name, params Argument[] arguments)
-        {
-            return new GeneratedMethod(name, typeof(TReturn), arguments);
-        }
-
-        public static GeneratedMethod ForNoArg(string name)
-        {
-            return new GeneratedMethod(name, typeof(void), new Argument[0]);
-        }
-
-        public static GeneratedMethod ForNoArg<TReturn>(string name)
-        {
-            return new GeneratedMethod(name, typeof(TReturn), new Argument[0]);
-        }
 
         public void WriteMethod(ISourceWriter writer)
         {

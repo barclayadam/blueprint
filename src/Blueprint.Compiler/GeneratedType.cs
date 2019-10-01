@@ -15,11 +15,17 @@ namespace Blueprint.Compiler
         private readonly IList<Type> interfaces = new List<Type>();
         private readonly IList<GeneratedMethod> methods = new List<GeneratedMethod>();
 
-        public GeneratedType(GenerationRules rules, string typeName)
+        internal GeneratedType(GeneratedAssembly generatedAssembly, GenerationRules rules, string typeName)
         {
+            GeneratedAssembly = generatedAssembly;
             Rules = rules;
             TypeName = typeName;
         }
+
+        /// <summary>
+        /// Gets the generated assembly this type belongs to.
+        /// </summary>
+        public GeneratedAssembly GeneratedAssembly { get; }
 
         public GenerationRules Rules { get; }
 
@@ -81,7 +87,7 @@ namespace Blueprint.Compiler
 
             foreach (var methodInfo in baseType.GetMethods().Where(x => x.DeclaringType != typeof(object)).Where(x => x.CanBeOverridden()))
             {
-                methods.Add(new GeneratedMethod(methodInfo)
+                methods.Add(new GeneratedMethod(this, methodInfo)
                 {
                     Overrides = true,
                 });
@@ -101,7 +107,7 @@ namespace Blueprint.Compiler
 
             foreach (var methodInfo in type.GetMethods().Where(x => x.DeclaringType != typeof(object)))
             {
-                methods.Add(new GeneratedMethod(methodInfo));
+                methods.Add(new GeneratedMethod(this, methodInfo));
             }
 
             return this;
@@ -124,7 +130,7 @@ namespace Blueprint.Compiler
 
         public GeneratedMethod AddVoidMethod(string name, params Argument[] args)
         {
-            var method = new GeneratedMethod(name, typeof(void), args);
+            var method = new GeneratedMethod(this, name, typeof(void), args);
             AddMethod(method);
 
             return method;
@@ -132,7 +138,7 @@ namespace Blueprint.Compiler
 
         public GeneratedMethod AddMethodThatReturns<TReturn>(string name, params Argument[] args)
         {
-            var method = new GeneratedMethod(name, typeof(TReturn), args);
+            var method = new GeneratedMethod(this, name, typeof(TReturn), args);
             AddMethod(method);
 
             return method;

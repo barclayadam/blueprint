@@ -42,7 +42,7 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Gets the type that represents this operation, a type that defines the parameters required (or
-        /// optional paramaters), plus any other metadata that is used by middleware components to
+        /// optional parameters), plus any other metadata that is used by middleware components to
         /// decide what action to take (for example any declarative permissions in the form of
         /// attributes).
         /// </summary>

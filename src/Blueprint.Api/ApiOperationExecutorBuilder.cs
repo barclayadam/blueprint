@@ -18,7 +18,7 @@ namespace Blueprint.Api
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly HashSet<Assembly> references = new HashSet<Assembly>();
-        private readonly List<IMiddlewareBuilder> behaviours = new List<IMiddlewareBuilder>();
+        private readonly List<IMiddlewareBuilder> builders = new List<IMiddlewareBuilder>();
 
         public ApiOperationExecutorBuilder()
         {
@@ -26,35 +26,7 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Uses the given <see cref="IMiddlewareBuilder" />, placing it at the end of the
-        /// current list and adding the assembly from where it comes from as a reference.
-        /// </summary>
-        /// <remarks>
-        /// This method is not normally used directly, as the building is directed by the options
-        /// present in <see cref="BlueprintApiOptions" />.
-        /// </remarks>
-        /// <param name="middlewareBuilder">The builder to add, must not be <c>null</c>.</param>
-        public void Use(IMiddlewareBuilder middlewareBuilder)
-        {
-            Guard.NotNull(nameof(middlewareBuilder), middlewareBuilder);
-
-            behaviours.Add(middlewareBuilder);
-            references.Add(middlewareBuilder.GetType().Assembly);
-        }
-
-        /// <summary>
-        /// References the given <see cref="Assembly" /> when compiling the pipelines in <see cref="Build"/>.
-        /// </summary>
-        /// <param name="assembly">The assembly to reference, must not be <c>null</c>.</param>
-        public void Reference(Assembly assembly)
-        {
-            Guard.NotNull(nameof(assembly), assembly);
-
-            references.Add(assembly);
-        }
-
-        /// <summary>
-        /// Given the specified <see cref="BlueprintApiOptions" /> will generate and compiler an
+        /// Given the specified <see cref="BlueprintApiOptions" /> will generate and compile an
         /// <see cref="IApiOperationExecutor" /> that can be used to execute any operation that
         /// has been identified by the model of the options passed.
         /// </summary>
@@ -94,11 +66,11 @@ namespace Blueprint.Api
                 {
                     Log.Debug("Generating executor for {0}", operation.OperationType.FullName);
 
-                    var executor = assembly.AddType(
+                    var pipelineExecutorType = assembly.AddType(
                         $"{GetLastNamespaceSegment(operation)}{operation.OperationType.Name}Executor",
                         typeof(IOperationExecutorPipeline));
 
-                    var executeMethod = executor.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
+                    var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
 
                     var operationContextVariable = executeMethod.Arguments[0];
 
@@ -110,10 +82,8 @@ namespace Blueprint.Api
                     var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
 
                     var context = new MiddlewareBuilderContext(
-                        assembly,
-                        apiOperationContextSource,
-                        executor,
                         executeMethod,
+                        apiOperationContextSource,
                         operation,
                         model,
                         serviceScope.ServiceProvider,
@@ -123,13 +93,13 @@ namespace Blueprint.Api
 
                     executeMethod.Sources.Add(apiOperationContextSource);
 
-                    executor.AllStaticFields.Add(new LoggerVariable(CreateLoggerForExecutor(options, operation)));
+                    pipelineExecutorType.AllStaticFields.Add(new LoggerVariable(CreateLoggerForExecutor(options, operation)));
 
                     executeMethod.Frames.Add(castFrame);
                     executeMethod.Frames.Add(new ErrorHandlerFrame(context));
                     executeMethod.Frames.Add(new BlankLineFrame());
 
-                    foreach (var behaviour in behaviours)
+                    foreach (var behaviour in builders)
                     {
                         if (behaviour.Matches(operation))
                         {
@@ -151,7 +121,7 @@ namespace Blueprint.Api
                         }
                     }
 
-                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, executor.CompiledType));
+                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
                 }
 
                 try
@@ -181,6 +151,23 @@ namespace Blueprint.Api
         private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)
         {
             return operation.OperationType.Namespace == null ? string.Empty : operation.OperationType.Namespace.Split('.').Last();
+        }
+
+        /// <summary>
+        /// Uses the given <see cref="IMiddlewareBuilder" />, placing it at the end of the
+        /// current list and adding the assembly from where it comes from as a reference.
+        /// </summary>
+        /// <remarks>
+        /// This method is not normally used directly, as the building is directed by the options
+        /// present in <see cref="BlueprintApiOptions" />.
+        /// </remarks>
+        /// <param name="middlewareBuilder">The builder to add, must not be <c>null</c>.</param>
+        private void Use(IMiddlewareBuilder middlewareBuilder)
+        {
+            Guard.NotNull(nameof(middlewareBuilder), middlewareBuilder);
+
+            builders.Add(middlewareBuilder);
+            references.Add(middlewareBuilder.GetType().Assembly);
         }
 
         /// <summary>
