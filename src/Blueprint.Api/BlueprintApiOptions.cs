@@ -74,9 +74,22 @@ namespace Blueprint.Api
             ApplicationName = appName;
         }
 
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <typeparam name="T">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</typeparam>
         public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
         {
             Middlewares.Add(typeof(T));
+        }
+
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <param name="middlewareType">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</param>
+        public void UseMiddlewareBuilder(Type middlewareType)
+        {
+            Middlewares.Add(middlewareType);
         }
 
         /// <summary>
