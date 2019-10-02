@@ -68,53 +68,63 @@ types and with DI integration potentially eliminate DI calls and replace them wi
 
 ### Installation
 
-To use Blueprint API in your ASP.Net app:
+To use Blueprint API in your ASP.NET app:
 
-1. Add Blueprint.Api to your project (note we only publish to Azure Artifacts Feed right now)
-```sh
-dotnet add package Blueprint.Api -s https://pkgs.dev.azure.com/blueprint-api/Blueprint/_packaging/Blueprint/nuget/v3/index.json
-```
-2. Add Blueprint.Api to `Startup.ConfigureServices`
-```c#
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // MVC Core is currently a requirement
-            services.AddMvcCore();
-
-            services.AddBlueprintApi(o =>
+ 1. Add our Azure DevOps NuGet feed by adding the source `https://pkgs.dev.azure.com/blueprint-api/Blueprint/_packaging/Blueprint/nuget/v3/index.json`
+   to a `NuGet.config` file at your solution root folder:
+    ````xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <configuration>
+      <packageSources>
+        <add key="blueprint-api" value="https://pkgs.dev.azure.com/blueprint-api/Blueprint/_packaging/Blueprint/nuget/v3/index.json" protocolVersion="3" />
+      </packageSources>
+    </configuration>
+    ````   
+ 2. Add Blueprint.Api to your project (note we only currently have pre-release NuGet packages)
+    ```sh
+    dotnet add package Blueprint.Api -v 0.1.0-*
+    ```
+ 3. Add Blueprint.Api to `Startup.ConfigureServices`
+    ```c#
+            public void ConfigureServices(IServiceCollection services)
             {
-                o.WithApplicationName("MyApplication");
-
-                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
-
-                o.Scan(typeof(Startup).Assembly);
-            });
-        }
-```
-3. Add Blueprint.Api to `Startup.Configure`
-```c#
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-        {
-            app.UseForwardedHeaders();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
+                // MVC Core is currently a requirement
+                services.AddMvcCore();
+    
+                services.AddBlueprintApi(o =>
+                {
+                    o.WithApplicationName("MyApplication");
+    
+                    o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
+                    o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
+    
+                    o.Scan(typeof(Startup).Assembly);
+                });
             }
-            else
+    ```
+4. Add Blueprint.Api to `Startup.Configure`
+    ```c#
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
             {
-                app.UseExceptionHandler();
+                app.UseForwardedHeaders();
+    
+                if (env.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseExceptionHandler();
+                }
+    
+                app.UseBlueprintApi("api/");
             }
-
-            app.UseBlueprintApi("api/");
-        }
-```
+    ```
 
 ## Roadmap
 
