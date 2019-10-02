@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Security;
+using System.Threading.Tasks;
 using Blueprint.Api.Errors;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
@@ -18,7 +19,7 @@ namespace Blueprint.Api
 
         public Exception Exception { get; }
 
-        public override void Execute(ApiOperationContext context)
+        public override Task ExecuteAsync(ApiOperationContext context)
         {
             var configuration = context.ServiceProvider.GetService<IConfiguration>();
             var shouldExpose = Convert.ToBoolean(configuration["Api.ExposeErrorMessage"] ?? "true");
@@ -28,7 +29,7 @@ namespace Blueprint.Api
                 Content.Error.Message = "Something has gone wrong, please try again";
             }
 
-            base.Execute(context);
+            return base.ExecuteAsync(context);
         }
 
         private static HttpStatusCode ToStatusCode(Exception exception)

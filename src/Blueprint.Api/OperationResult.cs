@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Blueprint.Api
 {
     /// <summary>
@@ -11,6 +13,7 @@ namespace Blueprint.Api
         /// Executes this result.
         /// </summary>
         /// <param name="context">The context representing the request and response.</param>
-        public abstract void Execute(ApiOperationContext context);
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public abstract Task ExecuteAsync(ApiOperationContext context);
     }
 }

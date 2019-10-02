@@ -6,6 +6,7 @@ using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Errors;
 using Blueprint.Api.Formatters;
+using Blueprint.Api.Infrastructure;
 using Blueprint.Api.Validation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
@@ -22,6 +23,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton(options);
             services.AddSingleton(options.Model);
+            services.AddSingleton<ApiConfiguration>();
+            services.AddSingleton<ApiLinkGenerator>();
             services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder().Build(options, s));
 
             services.AddScoped<IErrorLogger, ErrorLogger>();
@@ -31,15 +34,15 @@ namespace Microsoft.Extensions.DependencyInjection
             // Tasks: services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
             // Tasks: Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
 
-            services.AddScoped<ITypeFormatter, JsonTypeFormatter>();
+            services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
             services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
             services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
 
             // Validation
-            services.AddScoped<IValidationSource, DataAnnotationsValidationSource>();
-            services.AddScoped<IValidationSource, BlueprintValidationSource>();
-            services.AddScoped<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
-            services.AddScoped<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            services.AddSingleton<IValidationSource, BlueprintValidationSource>();
+            services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
             services.AddSingleton<IValidator, BlueprintValidator>();
 
             services.AddSingleton<ICache, Cache>();
@@ -47,6 +50,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
+
+            // Formatters
+            services.AddSingleton<JsonTypeFormatter>();
+
+            // Random infrastructure
+            services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
+            services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
             var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
 

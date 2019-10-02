@@ -9,8 +9,10 @@ namespace Blueprint.Api.Middleware
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static async Task AddLinksAsync(List<IResourceLinkGenerator> generators, ApiOperationContext context, OperationResult result)
+        public static async Task AddLinksAsync(IEnumerable<IResourceLinkGenerator> registeredGenerators, ApiOperationContext context, OperationResult result)
         {
+            var generators = registeredGenerators.ToList();
+
             if (result is OkResult okResult)
             {
                 var innerResult = okResult.Content;

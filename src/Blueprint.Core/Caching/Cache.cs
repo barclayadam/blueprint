@@ -28,7 +28,7 @@ namespace Blueprint.Core.Caching
         /// Initializes a new instance of the Cache class.
         /// </summary>
         /// <param name="cacheProviders">The registered list of cache providers, from which one will be picked based on current configuration.</param>
-        public Cache(ICacheProvider[] cacheProviders)
+        public Cache(IEnumerable<ICacheProvider> cacheProviders)
         {
             var cachingConfiguration = CachingConfiguration.Current;
 

@@ -12,7 +12,7 @@ namespace Blueprint.Api.Middleware
 
         public void Build(MiddlewareBuilderContext context)
         {
-            var getGenerators = context.VariableFromContainer<List<IResourceLinkGenerator>>();
+            var getGenerators = context.VariableFromContainer<IEnumerable<IResourceLinkGenerator>>();
 
             context.AppendFrames(
                 getGenerators,

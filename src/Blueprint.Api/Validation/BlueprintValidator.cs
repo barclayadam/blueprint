@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Blueprint.Api.Validation
@@ -9,9 +10,9 @@ namespace Blueprint.Api.Validation
     /// </summary>
     public class BlueprintValidator : IValidator
     {
-        private readonly IValidationSource[] validationSources;
+        private readonly IEnumerable<IValidationSource> validationSources;
 
-        public BlueprintValidator(IValidationSource[] validationSources)
+        public BlueprintValidator(IEnumerable<IValidationSource> validationSources)
         {
             this.validationSources = validationSources;
         }

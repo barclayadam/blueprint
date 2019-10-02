@@ -8,8 +8,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Blueprint.Api.Errors;
+using Blueprint.Api.Infrastructure;
 using Blueprint.Compiler.Frames;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -164,9 +166,11 @@ namespace Blueprint.Api.Middleware
                 request.Body = buffer;
             }
 
+            var readerFactory = context.ServiceProvider.GetRequiredService<IHttpRequestStreamReaderFactory>();
+
             // This is copied from JsonConvert.PopulateObject to avoid creating a new JsonSerializer on each
             // execution.
-            using (var stringReader = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
+            using (var stringReader = readerFactory.CreateReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(stringReader) {CloseInput = false})
             {
                 try

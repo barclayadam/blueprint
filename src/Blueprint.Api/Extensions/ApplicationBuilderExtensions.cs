@@ -113,7 +113,7 @@ namespace Microsoft.AspNetCore.Builder
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
-                        result.Execute(apiContext);
+                        await result.ExecuteAsync(apiContext);
                     }
                 };
 

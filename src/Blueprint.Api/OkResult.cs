@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading.Tasks;
 using Blueprint.Api.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,8 +15,6 @@ namespace Blueprint.Api
     public class OkResult : OperationResult
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        private static readonly ITypeFormatter DefaultTypeFormatter = new JsonTypeFormatter();
 
         private readonly object content;
         private readonly HttpStatusCode? statusCode;
@@ -46,24 +45,19 @@ namespace Blueprint.Api
         /// </summary>
         public object Content => content;
 
-        public override void Execute(ApiOperationContext context)
+        public override async Task ExecuteAsync(ApiOperationContext context)
         {
             if (statusCode != null)
             {
                 context.Response.StatusCode = (int)statusCode;
             }
 
-            var formatter = DefaultTypeFormatter;
             var requestedFormat = GetRequestedFormat(context.Request);
-
-            if (requestedFormat != null)
-            {
-                formatter = GetFormatter(context, requestedFormat);
-            }
+            var formatter = requestedFormat != null ? GetFormatter(context, requestedFormat) : context.ServiceProvider.GetRequiredService<JsonTypeFormatter>();
 
             try
             {
-                formatter.Write(context, requestedFormat, content);
+                await formatter.WriteAsync(context, requestedFormat, content);
             }
             catch (Exception e)
             {
