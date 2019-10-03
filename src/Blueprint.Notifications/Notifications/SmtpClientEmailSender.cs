@@ -2,7 +2,7 @@
 using System.Net.Mail;
 using Blueprint.Core;
 using Blueprint.Core.Utilities;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications.Notifications
 {
@@ -13,7 +13,12 @@ namespace Blueprint.Notifications.Notifications
     /// </summary>
     public class SmtpClientEmailSender : IEmailSender
     {
-        private static readonly Logger Log = LogManager.GetLogger("Blueprint.Notifications");
+        private readonly ILogger<SmtpClientEmailSender> logger;
+
+        public SmtpClientEmailSender(ILogger<SmtpClientEmailSender> logger)
+        {
+            this.logger = logger;
+        }
 
         /// <summary>
         /// Sends the specified mail message using the built-in SmtpClient, constructing a new
@@ -29,23 +34,23 @@ namespace Blueprint.Notifications.Notifications
         /// to send the message.</exception>
         public void Send(MailMessage message)
         {
-            Log.Debug("Attempting to send email. to={0} from={1}", message.To, message.From);
+            logger.LogDebug("Attempting to send email. to={0} from={1}", message.To, message.From);
 
             try
             {
                 DoSend(message);
 
-                Log.Debug("Successfully sent email. to={0} from={1}", message.To, message.From);
+                logger.LogDebug("Successfully sent email. to={0} from={1}", message.To, message.From);
             }
             catch (InvalidOperationException e)
             {
-                Log.Warn("Failed to send email. to={0} from={1}", message.To, message.From);
+                logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
                 throw new EmailSendingException("An error has occurred attempting to send email ({0}).".Fmt(e.Message), e);
             }
             catch (SmtpException e)
             {
-                Log.Warn("Failed to send email. to={0} from={1}", message.To, message.From);
+                logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
                 throw new EmailSendingException("An error has occurred attempting to send email ({0}).".Fmt(e.Message), e);
             }

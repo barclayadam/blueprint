@@ -2,7 +2,6 @@
 using System.IO;
 using Blueprint.Core;
 using Commons.Collections;
-using NLog;
 using NVelocity;
 using NVelocity.App;
 using NVelocity.Exception;
@@ -15,8 +14,6 @@ namespace Blueprint.Notifications.Templates
     /// </summary>
     public class NVelocityTemplate : Template
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         /// <summary>
         /// Initializes a new instance of the NVelocityTemplate class.
         /// </summary>
@@ -64,16 +61,7 @@ namespace Blueprint.Notifications.Templates
         {
             using (var textWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
-                try
-                {
-                    engine.Evaluate(context, textWriter, Name, Text);
-                }
-                catch (ParseErrorException e)
-                {
-                    Log.Error(e, "Parsing of the template '{0}' has failed. Template was '{1}'.", Name, Text);
-
-                    throw;
-                }
+                engine.Evaluate(context, textWriter, Name, Text);
 
                 return textWriter.ToString();
             }

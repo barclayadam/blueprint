@@ -51,7 +51,8 @@ namespace Blueprint.Api.CodeGen
         /// <returns>The corresponding <see cref="Variable"/> for the type.</returns>
         public Variable Get(Type type)
         {
-            return ((IVariableSource)this).Create(type);
+            return TryFindVariable(type) ?? throw new ArgumentException(
+                       $"{nameof(ApiOperationContextVariableSource)} cannot build variable of type {type.Name}");
         }
 
         public Variable GetOperationProperty(PropertyInfo property)
@@ -62,21 +63,7 @@ namespace Blueprint.Api.CodeGen
             return operationPropertyVariable;
         }
 
-        bool IVariableSource.Matches(Type type)
-        {
-            return type == typeof(ApiDataModel) ||
-                   type == typeof(ApiOperationDescriptor) ||
-                   type == typeof(IApiOperation) ||
-                   type == typeof(IServiceProvider) ||
-                   type == typeof(IUserAuthorisationContext) ||
-                   type == typeof(HttpContext) ||
-                   type == typeof(HttpRequest) ||
-                   type == typeof(HttpResponse) ||
-                   type == typeof(ClaimsIdentity) ||
-                   type == OperationVariable.VariableType;
-        }
-
-        Variable IVariableSource.Create(Type type)
+        public Variable TryFindVariable(Type type)
         {
             if (type == typeof(ApiDataModel))
             {
@@ -128,7 +115,7 @@ namespace Blueprint.Api.CodeGen
                 return OperationVariable;
             }
 
-            throw new InvalidOperationException($"Cannot create variable of type {type.FullName}");
+            return null;
         }
     }
 }

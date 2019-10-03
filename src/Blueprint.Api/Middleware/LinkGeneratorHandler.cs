@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NLog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Middleware
 {
     public static class LinkGeneratorHandler
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         public static async Task AddLinksAsync(IEnumerable<IResourceLinkGenerator> registeredGenerators, ApiOperationContext context, OperationResult result)
         {
+            var logger = context.ServiceProvider.GetRequiredService<ILogger<LinkGeneratorMiddlewareBuilder>>();
             var generators = registeredGenerators.ToList();
 
             if (result is OkResult okResult)
@@ -24,35 +24,36 @@ namespace Blueprint.Api.Middleware
                         // We will not generate any links for a deleted resource. The payload is there more
                         // for convenience to identify what has been deleted. Even self links do not make sense
                         // as the resource no longer exists
-                        Log.Trace("No links being generated for a deleted ResourceEvent");
+                        logger.LogTrace("No links being generated for a deleted ResourceEvent");
                     }
                     else if (resourceEvent.Data != null)
                     {
-                        Log.Trace("Adding links to ResourceEvent.Data");
+                        logger.LogTrace("Adding links to ResourceEvent.Data");
 
-                        resourceEvent.Data = await AddResourceLinksAsync(generators, context, resourceEvent.Data);
+                        resourceEvent.Data = await AddResourceLinksAsync(logger, generators, context, resourceEvent.Data);
                     }
                 }
                 else
                 {
-                    await AddResourceLinksAsync(generators, context, innerResult);
+                    await AddResourceLinksAsync(logger, generators, context, innerResult);
                 }
             }
         }
 
         private static async Task<object> AddResourceLinksAsync(
+            ILogger<LinkGeneratorMiddlewareBuilder> logger,
             List<IResourceLinkGenerator> generators,
             ApiOperationContext context,
             object resource)
         {
-            if (resource is ApiResource apiResource1)
+            if (resource is ApiResource apiResource)
             {
-                await AddLinksAsync(generators, context, apiResource1);
+                await AddLinksAsync(logger, generators, context, apiResource);
             }
 
-            if (Log.IsTraceEnabled)
+            if (logger.IsEnabled(LogLevel.Trace))
             {
-                Log.Trace("Resource type is not a LinkableResource. resource_type={0}", resource.GetType().Name);
+                logger.LogTrace("Resource type is not a LinkableResource. resource_type={0}", resource.GetType().Name);
             }
 
             var enumerableResult = resource as IEnumerable<object>;
@@ -78,17 +79,17 @@ namespace Blueprint.Api.Middleware
 
                 foreach (var obj in enumerableResult)
                 {
-                    if (obj is ApiResource apiResource)
+                    if (obj is ApiResource apiResourceItem)
                     {
-                        await AddLinksAsync(generators, context, apiResource);
+                        await AddLinksAsync(logger, generators, context, apiResourceItem);
                     }
                     else
                     {
                         // If we cannot add any links because not a `LinkableResource` then break early
                         // as we assume all entries are the same type
-                        if (Log.IsTraceEnabled)
+                        if (logger.IsEnabled(LogLevel.Trace))
                         {
-                            Log.Trace("Resource type is not a LinkableResource. resource_type={0}", obj.GetType().Name);
+                            logger.LogTrace("Resource type is not a LinkableResource. resource_type={0}", obj.GetType().Name);
                         }
 
                         break;
@@ -99,13 +100,13 @@ namespace Blueprint.Api.Middleware
             return resource;
         }
 
-        private static async Task AddLinksAsync(List<IResourceLinkGenerator> generators, ApiOperationContext context, ILinkableResource result)
+        private static async Task AddLinksAsync(ILogger<LinkGeneratorMiddlewareBuilder> logger, List<IResourceLinkGenerator> generators, ApiOperationContext context, ILinkableResource result)
         {
             foreach (var resourceLinkGenerator in generators)
             {
-                if (Log.IsTraceEnabled)
+                if (logger.IsEnabled(LogLevel.Trace))
                 {
-                    Log.Trace("Generating links. generator={0} result_type={1}", resourceLinkGenerator.GetType().Name, result.GetType().Name);
+                    logger.LogTrace("Generating links. generator={0} result_type={1}", resourceLinkGenerator.GetType().Name, result.GetType().Name);
                 }
 
                 await resourceLinkGenerator.AddLinksAsync(context, result);

@@ -8,11 +8,20 @@ namespace Blueprint.Compiler.Model
     public interface IMethodVariables
     {
         /// <summary>
-        /// Find or create a variable with the supplied type.
+        /// Find or create a variable with the supplied type, throwing an exception if that is not possible.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
         Variable FindVariable(Type type);
+
+        /// <summary>
+        /// Try to find a variable by type and variable source. Use this when
+        /// you need to differentiate between variables that are resolved
+        /// from an IoC container and all other kinds of variables.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        Variable TryFindVariable(Type type);
 
         /// <summary>
         /// Find or create a variable by type and variable name.
@@ -30,15 +39,5 @@ namespace Blueprint.Compiler.Model
         /// <param name="variable"></param>
         /// <returns></returns>
         bool TryFindVariableByName(Type dependency, string name, out Variable variable);
-
-        /// <summary>
-        /// Try to find a variable by type and variable source. Use this when
-        /// you need to differentiate between variables that are resolved
-        /// from an IoC container and all other kinds of variables.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        Variable TryFindVariable(Type type, VariableSource source);
     }
 }

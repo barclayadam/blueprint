@@ -43,12 +43,6 @@ namespace Blueprint.Api
         public GenerationRules Rules { get; }
 
         /// <summary>
-        /// Gets or sets what should happen if a request comes in and cannot be handled by any
-        /// known handlers.
-        /// </summary>
-        public NotFoundMode NotFoundMode { get; set; } = NotFoundMode.Handle;
-
-        /// <summary>
         /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
         /// order that they will be configured.
         /// </summary>

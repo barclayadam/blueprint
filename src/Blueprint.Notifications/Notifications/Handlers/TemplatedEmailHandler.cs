@@ -4,7 +4,7 @@ using System.Net.Mail;
 using Blueprint.Core;
 using Blueprint.Core.Utilities;
 using Blueprint.Notifications.Templates;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications.Notifications.Handlers
 {
@@ -14,11 +14,10 @@ namespace Blueprint.Notifications.Notifications.Handlers
     /// </summary>
     public class TemplatedEmailHandler : NotificationHandler<EmailTemplate>
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private static readonly string EmailRecipientModifierFormat = "email:RecipientModifier".GetConfigValue(IfEmpty.ShouldThrow);
 
         private readonly IEmailSender emailSender;
+        private readonly ILogger<TemplatedEmailHandler> logger;
         private readonly ITemplateFactory templateFactory;
 
         /// <summary>
@@ -26,13 +25,15 @@ namespace Blueprint.Notifications.Notifications.Handlers
         /// </summary>
         /// <param name="templateFactory">The template factory.</param>
         /// <param name="emailSender">The email sender.</param>
-        public TemplatedEmailHandler(ITemplateFactory templateFactory, IEmailSender emailSender)
+        /// <param name="logger">The logger to use.</param>
+        public TemplatedEmailHandler(ITemplateFactory templateFactory, IEmailSender emailSender, ILogger<TemplatedEmailHandler> logger)
         {
             Guard.NotNull(nameof(templateFactory), templateFactory);
             Guard.NotNull(nameof(emailSender), emailSender);
 
             this.templateFactory = templateFactory;
             this.emailSender = emailSender;
+            this.logger = logger;
         }
 
         protected override void InternalHandle(EmailTemplate emailTemplate, NotificationOptions options)
@@ -135,7 +136,7 @@ namespace Blueprint.Notifications.Notifications.Handlers
 
             if (modified != address)
             {
-                Log.Debug($"Modified email address for sending. original={address} replaced={modified}");
+                logger.LogDebug($"Modified email address for sending. original={address} replaced={modified}");
             }
 
             // If we have not replaced the email address return the original incoming, as that may be

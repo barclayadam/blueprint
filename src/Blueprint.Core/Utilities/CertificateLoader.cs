@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using NLog;
 
 namespace Blueprint.Core.Utilities
 {
     public static class CertificateLoader
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         public static X509Certificate2 GetCertificateFromStore(string thumbprint)
         {
             var store = new X509Store(StoreLocation.CurrentUser);
@@ -40,8 +37,6 @@ namespace Blueprint.Core.Utilities
                 string resourceName,
                 string password)
         {
-            Log.Info("Loading certificate {0}", resourceName);
-
             return new X509Certificate2(
                 ExtractResource(assembly, resourceName),
                 password,

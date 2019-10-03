@@ -44,7 +44,7 @@ namespace Blueprint.Testing
             collection.AddBlueprintApi(o =>
             {
                 o.Rules.OptimizationLevel = OptimizationLevel.Debug;
-                o.Rules.CompileStrategy = new InMemoryOnlyCompileStrategy();
+                o.Rules.UseCompileStrategy<InMemoryOnlyCompileStrategy>();
 
                 o.WithApplicationName("Blueprint.Tests");
 
@@ -94,7 +94,7 @@ namespace Blueprint.Testing
             internal List<Type> MiddlewareBuilderTypes { get; } = new List<Type>();
 
             /// <summary>
-            /// Configures a new handler, which will also implicitly register the operation of type <typeparam name="T"></typeparam>
+            /// Configures a new handler, which will also implicitly register the operation of type <typeparamref name="T"/>
             /// with the <see cref="ApiDataModel" /> of the executor.
             /// </summary>
             /// <param name="handler">The handler to register.</param>
@@ -110,7 +110,7 @@ namespace Blueprint.Testing
             }
 
             /// <summary>
-            /// Configures the pipeline to use the middleware builder specified by the type parameter <typeparam name="T"></typeparam>.
+            /// Configures the pipeline to use the middleware builder specified by the type parameter <typeparamref name="T" />.
             /// </summary>
             /// <typeparam name="T">The type of <see cref="IMiddlewareBuilder"/> to register.</typeparam>
             /// <returns>This instance.</returns>

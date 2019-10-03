@@ -7,21 +7,22 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core;
-using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api
 {
     public class ApiOperationExecutorBuilder
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<ApiOperationExecutorBuilder> logger;
 
         private readonly HashSet<Assembly> references = new HashSet<Assembly>();
         private readonly List<IMiddlewareBuilder> builders = new List<IMiddlewareBuilder>();
 
-        public ApiOperationExecutorBuilder()
+        public ApiOperationExecutorBuilder(ILogger<ApiOperationExecutorBuilder> logger)
         {
+            this.logger = logger;
+
             references.Add(typeof(ApiOperationExecutorBuilder).Assembly);
         }
 
@@ -35,7 +36,7 @@ namespace Blueprint.Api
         /// <returns></returns>
         public CodeGennedExecutor Build(BlueprintApiOptions options, IServiceProvider serviceProvider)
         {
-            Log.Info("Building CodeGennedExecutor for {0} operations", options.Model.Operations.Count());
+            logger.LogInformation("Building CodeGennedExecutor for {0} operations", options.Model.Operations.Count());
 
             using (var serviceScope = serviceProvider.CreateScope())
             {
@@ -57,14 +58,14 @@ namespace Blueprint.Api
 
                 foreach (var a in references)
                 {
-                    Log.Debug("Referencing assembly {0}", a.FullName);
+                    logger.LogDebug("Referencing assembly {0}", a.FullName);
 
                     assembly.ReferenceAssembly(a);
                 }
 
                 foreach (var operation in model.Operations)
                 {
-                    Log.Debug("Generating executor for {0}", operation.OperationType.FullName);
+                    logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
 
                     var pipelineExecutorType = assembly.AddType(
                         $"{GetLastNamespaceSegment(operation)}{operation.OperationType.Name}Executor",
@@ -93,7 +94,9 @@ namespace Blueprint.Api
 
                     executeMethod.Sources.Add(apiOperationContextSource);
 
-                    pipelineExecutorType.AllStaticFields.Add(new LoggerVariable(CreateLoggerForExecutor(options, operation)));
+                    var executorLoggerName = $"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor";
+                    var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(executorLoggerName);
+                    pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(executorLoggerName, executorLogger));
 
                     executeMethod.Frames.Add(castFrame);
                     executeMethod.Frames.Add(new ErrorHandlerFrame(context));
@@ -111,7 +114,7 @@ namespace Blueprint.Api
                             }
                             catch (Exception ex)
                             {
-                                Log.Fatal(ex, $"An unhandled exception occurred in middleware builder {behaviour.GetType()}");
+                                executorLogger.LogCritical(ex, $"An unhandled exception occurred in middleware builder {behaviour.GetType()}");
 
                                 throw new InvalidOperationException(
                                     $"An unhandled exception occurred in middleware builder {behaviour.GetType()}", ex);
@@ -126,26 +129,21 @@ namespace Blueprint.Api
 
                 try
                 {
-                    Log.Info("Compiling {0} pipeline executors", dictionary.Count);
+                    logger.LogInformation("Compiling {0} pipeline executors", dictionary.Count);
 
-                    assembly.CompileAll();
+                    assembly.CompileAll(serviceProvider.GetRequiredService<AssemblyGenerator>());
 
-                    Log.Info("Done compiling {0} pipeline executors", dictionary.Count);
+                    logger.LogInformation("Done compiling {0} pipeline executors", dictionary.Count);
                 }
                 catch (Exception e)
                 {
-                    Log.Fatal(e);
+                    logger.LogCritical(e, "Failed to compile pipeline executors");
 
                     throw;
                 }
 
                 return new CodeGennedExecutor(serviceProvider, model, assembly, dictionary.ToDictionary(d => d.Key, d => d.Value()));
             }
-        }
-
-        private static Logger CreateLoggerForExecutor(BlueprintApiOptions options, ApiOperationDescriptor operation)
-        {
-            return LogManager.GetLogger($"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor");
         }
 
         private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)

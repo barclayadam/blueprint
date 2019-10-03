@@ -175,9 +175,9 @@ namespace Blueprint.Compiler.Frames
                 return inner.TryFindVariableByName(dependency, name, out variable);
             }
 
-            public Variable TryFindVariable(Type type, VariableSource source)
+            public Variable TryFindVariable(Type type)
             {
-                return inner.TryFindVariable(type, source);
+                return inner.TryFindVariable(type);
             }
         }
     }

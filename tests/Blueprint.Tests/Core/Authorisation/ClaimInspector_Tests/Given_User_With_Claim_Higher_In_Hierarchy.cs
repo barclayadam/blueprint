@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using ClaimTypes = Blueprint.Core.Authorisation.ClaimTypes;
@@ -26,12 +27,12 @@ namespace Blueprint.Tests.Core.Authorisation.ClaimInspector_Tests
             var resourceKeyExpander = new Mock<IResourceKeyExpander>();
             resourceKeyExpander.Setup(e => e.Expand("Task/4")).Returns("Account/6/Project/9/Task/4");
 
-            var claimChecker = new ClaimInspector(new[] { resourceKeyExpander.Object }, Cache.NoCache);
+            var claimChecker = new ClaimInspector(new[] { resourceKeyExpander.Object }, Cache.NoCache, new NullLogger<ClaimInspector>());
 
             // Act
             claimChecker.IsDemandedClaimFulfilled(
-                                                  new[] { userClaim }.ToClaimsHolder(), 
-                                                  demandedClaim, 
+                                                  new[] { userClaim }.ToClaimsHolder(),
+                                                  demandedClaim,
                                                   ClaimExpansionState.RequiresExpansion);
 
             // Assert

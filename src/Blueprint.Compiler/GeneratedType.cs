@@ -9,7 +9,7 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
-    [DebuggerDisplay("GeneratedType: {BaseType}")]
+    [DebuggerDisplay("GeneratedType: {" + nameof(BaseType) + "}")]
     public class GeneratedType : IVariableSource
     {
         private readonly IList<Type> interfaces = new List<Type>();
@@ -48,16 +48,6 @@ namespace Blueprint.Compiler
         public string SourceCode { get; set; }
 
         public Type CompiledType { get; private set; }
-
-        bool IVariableSource.Matches(Type type)
-        {
-            return BaseConstructorArguments.Any(x => x.ArgType == type);
-        }
-
-        Variable IVariableSource.Create(Type type)
-        {
-            return BaseConstructorArguments.FirstOrDefault(x => x.ArgType == type);
-        }
 
         public GeneratedType InheritsFrom<T>()
         {
@@ -221,6 +211,27 @@ namespace Blueprint.Compiler
             }
         }
 
+        Variable IVariableSource.TryFindVariable(Type variableType)
+        {
+            foreach (var v in AllInjectedFields)
+            {
+                if (v.VariableType == variableType)
+                {
+                    return v;
+                }
+            }
+
+            foreach (var v in BaseConstructorArguments)
+            {
+                if (v.VariableType == variableType)
+                {
+                    return v;
+                }
+            }
+
+            return null;
+        }
+
         private void WriteSetters(ISourceWriter writer)
         {
             foreach (var setter in Setters)
@@ -239,7 +250,7 @@ namespace Blueprint.Compiler
 
             if (BaseConstructorArguments.Any())
             {
-                declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.CtorArg).Join(", ")})";
+                declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.ArgumentName).Join(", ")})";
             }
 
             writer.Write(declaration);

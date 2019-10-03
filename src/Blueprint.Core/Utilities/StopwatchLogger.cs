@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Utilities
 {
@@ -20,7 +20,7 @@ namespace Blueprint.Core.Utilities
         /// <param name="args">The arguments to be used in formatting of the message.</param>
         /// <returns>A disposable object that, once disposed, will log the time between creating and
         /// disposing.</returns>
-        public static IDisposable LogTimeWrapper(this Logger log, string message, params object[] args)
+        public static IDisposable LogTimeWrapper(this ILogger log, string message, params object[] args)
         {
             return new StopwatchLoggerDisposable(log, message, true, args);
         }
@@ -34,20 +34,20 @@ namespace Blueprint.Core.Utilities
         /// <param name="args">The arguments to be used in formatting of the message.</param>
         /// <returns>A disposable object that, once disposed, will log the time between creating and
         /// disposing.</returns>
-        public static IDisposable LogTime(this Logger log, string message, params object[] args)
+        public static IDisposable LogTime(this ILogger log, string message, params object[] args)
         {
             return new StopwatchLoggerDisposable(log, message, false, args);
         }
 
         private class StopwatchLoggerDisposable : IDisposable
         {
-            private readonly Logger log;
+            private readonly ILogger log;
             private readonly string message;
             private readonly bool logStart;
 
             private readonly Stopwatch stopwatch;
 
-            internal StopwatchLoggerDisposable(Logger log, string messageFormat, bool logStart, params object[] args)
+            internal StopwatchLoggerDisposable(ILogger log, string messageFormat, bool logStart, params object[] args)
             {
                 this.log = log;
                 this.logStart = logStart;
@@ -56,7 +56,7 @@ namespace Blueprint.Core.Utilities
 
                 if (logStart)
                 {
-                    log.Info("[START] " + message);
+                    log.LogInformation("[START] " + message);
                 }
 
                 stopwatch = new Stopwatch();
@@ -67,7 +67,7 @@ namespace Blueprint.Core.Utilities
             {
                 stopwatch.Stop();
 
-                log.Info(
+                log.LogInformation(
                     "{0}{1} time_taken_ms={2}",
                     logStart ? "[STOP] " : string.Empty,
                     message,

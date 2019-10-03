@@ -4,29 +4,30 @@ using System.Diagnostics;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 using Microsoft.AspNetCore.Http;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Errors
 {
     public class ErrorLogger : IErrorLogger
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private static readonly List<Exception> TestLoggedExceptions = new List<Exception>();
         private static bool isTestMode;
 
         private readonly IEnumerable<IErrorDataProvider> errorDataProviders;
         private readonly IEnumerable<IExceptionSink> exceptionSinks;
         private readonly IEnumerable<IExceptionFilter> exceptionFilters;
+        private readonly ILogger<ErrorLogger> logger;
 
         public ErrorLogger(
             IEnumerable<IErrorDataProvider> errorDataProviders,
             IEnumerable<IExceptionSink> exceptionSinks,
-            IEnumerable<IExceptionFilter> exceptionFilters)
+            IEnumerable<IExceptionFilter> exceptionFilters,
+            ILogger<ErrorLogger> logger)
         {
             this.errorDataProviders = errorDataProviders;
             this.exceptionSinks = exceptionSinks;
             this.exceptionFilters = exceptionFilters;
+            this.logger = logger;
         }
 
         public static IEnumerable<Exception> LoggedExceptions => TestLoggedExceptions;
@@ -72,7 +73,7 @@ namespace Blueprint.Core.Errors
             exception = exception.Demystify();
 
             // This is not a known and well-handled exception
-            Logger.Error(exception, "An unhandled exception has occurred");
+            logger.LogError(exception, "An unhandled exception has occurred");
 
             if (isTestMode)
             {
@@ -95,8 +96,8 @@ namespace Blueprint.Core.Errors
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Error logging error");
-                Logger.Error(exception, "Original error");
+                logger.LogError(ex, "Error logging error");
+                logger.LogError(exception, "Original error");
             }
 
             return ErrorLogStatus.Recorded;

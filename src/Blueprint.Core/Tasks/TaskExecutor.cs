@@ -10,8 +10,9 @@ using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Server;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Tasks
 {
@@ -20,14 +21,13 @@ namespace Blueprint.Core.Tasks
     /// </summary>
     public class TaskExecutor
     {
-        private static readonly Logger Log = LogManager.GetLogger("Blueprint.Tasks");
-
         private static readonly MethodInfo InvokeTaskHandlerMethod = typeof(TaskExecutor)
             .GetMethod(nameof(InvokeTaskHandlerAsync), BindingFlags.Instance | BindingFlags.NonPublic);
 
         private readonly IServiceProvider serviceProvider;
         private readonly IErrorLogger errorLogger;
         private readonly IApmTool apmTool;
+        private readonly ILogger<TaskExecutor> logger;
 
         /// <summary>
         /// Instantiates a new instance of the class TaskExecutor.
@@ -35,18 +35,22 @@ namespace Blueprint.Core.Tasks
         /// <param name="serviceProvider">The parent container.</param>
         /// <param name="errorLogger">Error logger to track thrown exceptions.</param>
         /// <param name="apmTool">APM operation tracker to track individual task executions.</param>
+        /// <param name="logger">Logger to use.</param>
         public TaskExecutor(
             IServiceProvider serviceProvider,
             IErrorLogger errorLogger,
-            IApmTool apmTool)
+            IApmTool apmTool,
+            ILogger<TaskExecutor> logger)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(errorLogger), errorLogger);
             Guard.NotNull(nameof(apmTool), apmTool);
+            Guard.NotNull(nameof(logger), logger);
 
             this.serviceProvider = serviceProvider;
             this.errorLogger = errorLogger;
             this.apmTool = apmTool;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -118,7 +122,7 @@ namespace Blueprint.Core.Tasks
             {
                 activity.Start();
 
-                using (MappedDiagnosticsLogicalContext.SetScoped("Hangfire_JobId", context.BackgroundJob.Id))
+                using (logger.BeginScope(new { JobId = context.BackgroundJob.Id }))
                 using (var nestedContainer = serviceProvider.CreateScope())
                 {
                     await apmTool.InvokeAsync(GetOperationName(backgroundTask), async () =>
@@ -135,14 +139,17 @@ namespace Blueprint.Core.Tasks
 
                         if (enableConfigKey.TryGetAppSetting(out bool isEnabled) && !isEnabled)
                         {
-                            Log.Warn($"Task disabled in configuration. task_type={typeName} handler_type={handler.GetType().Name}");
+                            logger.LogWarning(
+                                "Task disabled in configuration. task_type={0} handler_type={1}",
+                                typeName,
+                                handler.GetType().Name);
 
                             return;
                         }
 
-                        if (Log.IsTraceEnabled)
+                        if (logger.IsEnabled(LogLevel.Trace))
                         {
-                            Log.Trace(
+                            logger.LogTrace(
                                 "Executing task in new nested container context. task_type={0} handler={1}",
                                 backgroundTask.GetType().Name,
                                 handler.GetType().Name);
