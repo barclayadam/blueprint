@@ -4,7 +4,6 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  Prerelease: 'ci'
   BuildConfiguration: 'Release'
 
 # CI Trigger on master branch
@@ -13,7 +12,6 @@ trigger:
   branches:
     include:
       - master
-      - feature/*
   paths:
     exclude:
       - docs/*
@@ -48,7 +46,6 @@ steps:
       projectName: Blueprint
       extraProperties: |
         sonar.organization=barclayadam
-        sonar.branch.name=$(Build.SourceBranchName)
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
