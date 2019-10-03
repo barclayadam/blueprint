@@ -1,10 +1,8 @@
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using Blueprint.Api.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 
 namespace Blueprint.Api
 {
@@ -14,8 +12,6 @@ namespace Blueprint.Api
     /// </summary>
     public class OkResult : OperationResult
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly object content;
         private readonly HttpStatusCode? statusCode;
 
@@ -55,16 +51,7 @@ namespace Blueprint.Api
             var requestedFormat = GetRequestedFormat(context.Request);
             var formatter = requestedFormat != null ? GetFormatter(context, requestedFormat) : context.ServiceProvider.GetRequiredService<JsonTypeFormatter>();
 
-            try
-            {
-                await formatter.WriteAsync(context, requestedFormat, content);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e);
-
-                throw;
-            }
+            await formatter.WriteAsync(context, requestedFormat, content);
         }
 
         private static string GetRequestedFormat(HttpRequest request)

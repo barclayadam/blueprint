@@ -8,6 +8,7 @@ using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
@@ -29,13 +30,13 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             // Arrange
             var parentId = Guid.NewGuid().ToString();
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
-            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object));
-            var backgroundTaskScheduler = new BackgroundTaskScheduler(new ServiceCollection().BuildServiceProvider(),  backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool());
+            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object), new NullLogger<HangfireBackgroundTaskScheduleProvider>());
+            var backgroundTaskScheduler = new BackgroundTaskScheduler(new ServiceCollection().BuildServiceProvider(),  backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)))
                 .Returns(parentId).Verifiable();
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)))
                 .Verifiable();
-            
+
             // Act
             var parentTask = await backgroundTaskScheduler.EnqueueAsync(new ParentTask());
             var childTask = parentTask.ContinueWith(new ChildTask(),
@@ -43,7 +44,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
                     ? global::Blueprint.Core.Tasks.JobContinuationOptions.OnlyOnSucceededState
                     : global::Blueprint.Core.Tasks.JobContinuationOptions.OnAnyFinishedState);
             await backgroundTaskScheduler.RunNowAsync();
-            
+
             // Assert
             parentTask.ShouldNotBeNull();
             childTask.ShouldNotBeNull();

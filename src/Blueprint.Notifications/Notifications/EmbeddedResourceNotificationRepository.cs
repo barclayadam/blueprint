@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
 using Blueprint.Core.Utilities;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications.Notifications
 {
@@ -14,9 +14,14 @@ namespace Blueprint.Notifications.Notifications
     /// </summary>
     public class EmbeddedResourceNotificationRepository : INotificationRepository
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private static readonly XmlSerializer EmailTemplateSerializer = new XmlSerializer(typeof(EmailTemplate));
+
+        private readonly ILogger<EmbeddedResourceNotificationRepository> logger;
+
+        public EmbeddedResourceNotificationRepository(ILogger<EmbeddedResourceNotificationRepository> logger)
+        {
+            this.logger = logger;
+        }
 
         /// <summary>
         /// Gets the notification templates that are associated with a given named notification.
@@ -46,7 +51,7 @@ namespace Blueprint.Notifications.Notifications
                 }
             }
 
-            Log.Debug("Embedded Resource Notification '{0}' has been found.", name);
+            logger.LogDebug("Embedded Resource Notification '{0}' has been found.", name);
 
             return new[] { notificationContent };
         }

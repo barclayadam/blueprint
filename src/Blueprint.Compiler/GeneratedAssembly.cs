@@ -41,9 +41,12 @@ namespace Blueprint.Compiler
             return generatedType;
         }
 
-        public void CompileAll()
+        public void CompileAll(AssemblyGenerator generator)
         {
-            var generator = BuildGenerator(generationRules);
+            foreach (var assemblyReference in assemblies)
+            {
+                generator.ReferenceAssembly(assemblyReference);
+            }
 
             foreach (var generatedType in GeneratedTypes)
             {
@@ -56,7 +59,7 @@ namespace Blueprint.Compiler
 
                 var namespaces = generatedType
                     .AllInjectedFields
-                    .Select(x => x.ArgType.Namespace)
+                    .Select(x => x.VariableType.Namespace)
                     .Concat(new[] { typeof(Task).Namespace })
                     .Distinct()
                     .ToList();
@@ -82,7 +85,7 @@ namespace Blueprint.Compiler
                 generator.AddFile(generatedType.TypeName + ".cs", code);
             }
 
-            var assembly = generator.Generate();
+            var assembly = generator.Generate(generationRules);
 
             var generated = assembly.GetExportedTypes().ToArray();
 
@@ -90,18 +93,6 @@ namespace Blueprint.Compiler
             {
                 generatedType.FindType(generated);
             }
-        }
-
-        private AssemblyGenerator BuildGenerator(GenerationRules generation)
-        {
-            var generator = new AssemblyGenerator(generation);
-
-            foreach (var assembly in assemblies)
-            {
-                generator.ReferenceAssembly(assembly);
-            }
-
-            return generator;
         }
     }
 }

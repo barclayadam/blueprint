@@ -8,8 +8,12 @@ using Blueprint.Api.Errors;
 using Blueprint.Api.Formatters;
 using Blueprint.Api.Infrastructure;
 using Blueprint.Api.Validation;
+using Blueprint.Compiler;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 // This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -19,13 +23,20 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static BlueprintConfigurer AddBlueprintApi(this IServiceCollection services, Action<BlueprintApiOptions> optionsFunc)
         {
+            services.AddLogging();
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             var options = new BlueprintApiOptions(optionsFunc);
 
             services.AddSingleton(options);
             services.AddSingleton(options.Model);
             services.AddSingleton<ApiConfiguration>();
             services.AddSingleton<ApiLinkGenerator>();
-            services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder().Build(options, s));
+            services.AddSingleton<AssemblyGenerator>();
+            services.AddSingleton<ToFileCompileStrategy>();
+            services.AddSingleton<InMemoryOnlyCompileStrategy>();
+            services.AddSingleton<AssemblyGenerator>();
+            services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
 
             services.AddScoped<IErrorLogger, ErrorLogger>();
 

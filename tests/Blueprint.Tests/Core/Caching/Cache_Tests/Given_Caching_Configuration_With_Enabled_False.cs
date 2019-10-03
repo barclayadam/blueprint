@@ -1,9 +1,10 @@
 ﻿using System;
-
+using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Caching.Configuration;
 using Blueprint.Tests.Fakes;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Core.Caching.Cache_Tests
@@ -35,7 +36,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_ContainsKey_Is_False()
         {
             // Arrange
-            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() }, new NullLogger<Cache>());
             cache.Add("Default", "My Key", "My Value");
 
             // Act
@@ -49,7 +50,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_GetValue_Returns_Default_Value()
         {
             // Arrange
-            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() }, new NullLogger<Cache>());
 
             // Act
             cache.Add("Default", "My Key", "My Value");
@@ -62,7 +63,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Item_Added_Then_Value_Not_Added_To_Provider()
         {
             // Arrange
-            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() }, new NullLogger<Cache>());
 
             // Act
             cache.Add("Default", "My Key", "My Value");
@@ -75,7 +76,7 @@ namespace Blueprint.Tests.Core.Caching.Cache_Tests
         public void When_Key_Removed_Then_Nothing_Happens()
         {
             // Arrange
-            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() });
+            var cache = new Cache(new ICacheProvider[] { new FakeCacheProvider() }, new NullLogger<Cache>());
             cache.Add("Default", "My Key", "My Value");
 
             // Act

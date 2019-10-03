@@ -46,22 +46,23 @@ namespace Blueprint.Compiler.Model
             throw new ArgumentOutOfRangeException(nameof(dependency), $"Cannot find a matching variable {dependency.FullName} {name}");
         }
 
-        public Variable FindVariable(Type type)
+        public Variable FindVariable(Type variableType)
         {
-            if (variables.ContainsKey(type))
+            if (variables.ContainsKey(variableType))
             {
-                return variables[type];
+                return variables[variableType];
             }
 
-            var variable = FindVariable(type, VariableSource.All);
+            var variable = DoFindVariable(variableType);
+
             if (variable == null)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(type),
-                    $"Do not know how to build a variable of type '{type.FullName}'");
+                    nameof(variableType),
+                    $"Do not know how to build a variable of type '{variableType.FullName}'");
             }
 
-            variables.Add(type, variable);
+            variables.Add(variableType, variable);
 
             return variable;
         }
@@ -72,7 +73,7 @@ namespace Blueprint.Compiler.Model
 
             // It's fine here for now that we aren't looking through the services for
             // variables that could potentially be built by the IoC container
-            var sourced = method.Sources.Where(x => x.Matches(dependency)).Select(x => x.Create(dependency));
+            var sourced = method.Sources.Select(x => x.TryFindVariable(dependency)).Where(x => x != null);
             var created = method.Frames.SelectMany(x => x.Creates);
 
             var candidate = variables.Values
@@ -92,14 +93,14 @@ namespace Blueprint.Compiler.Model
             return false;
         }
 
-        public Variable TryFindVariable(Type type, VariableSource source)
+        public Variable TryFindVariable(Type type)
         {
             if (variables.ContainsKey(type))
             {
                 return variables[type];
             }
 
-            var variable = FindVariable(type, source);
+            var variable = DoFindVariable(type);
             if (variable != null)
             {
                 variables.Add(type, variable);
@@ -178,33 +179,48 @@ namespace Blueprint.Compiler.Model
             });
         }
 
-        private IEnumerable<IVariableSource> AllVariableSources()
+        private Variable DoFindVariable(Type variableType)
         {
-            foreach (var source in method.Sources)
+            foreach (var v in method.Arguments)
             {
-                yield return source;
+                if (v.VariableType == variableType)
+                {
+                    return v;
+                }
             }
 
-            // To get injected fields
-            yield return type;
-        }
-
-        private Variable FindVariable(Type type, VariableSource variableSource)
-        {
-            var argument = method.Arguments.Concat(method.DerivedVariables).Concat(this.type.AllStaticFields).FirstOrDefault(x => x.VariableType == type);
-            if (argument != null)
+            foreach (var v in method.DerivedVariables)
             {
-                return argument;
+                if (v.VariableType == variableType)
+                {
+                    return v;
+                }
             }
 
-            var created = method.Frames.SelectMany(x => x.Creates).FirstOrDefault(x => x.VariableType == type);
-            if (created != null)
+            foreach (var f in method.Frames)
             {
-                return created;
+                foreach (var v in f.Creates)
+                {
+                    if (v.VariableType == variableType)
+                    {
+                        return v;
+                    }
+                }
             }
 
-            var source = AllVariableSources().FirstOrDefault(x => x.Matches(type));
-            return source?.Create(type);
+            var classVariable = ((IVariableSource)type).TryFindVariable(variableType);
+
+            foreach (var s in method.Sources)
+            {
+                var created = s.TryFindVariable(variableType);
+
+                if (created != null)
+                {
+                    return created;
+                }
+            }
+
+            return null;
         }
     }
 }

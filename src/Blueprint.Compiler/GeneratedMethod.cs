@@ -21,6 +21,7 @@ namespace Blueprint.Compiler
             ReturnType = method.ReturnType;
             Arguments = method.GetParameters().Select(x => new Argument(x)).ToArray();
             MethodName = method.Name;
+            Sources.Add(generatedType);
         }
 
         internal GeneratedMethod(GeneratedType generatedType, string methodName, Type returnType, params Argument[] arguments)
@@ -29,6 +30,7 @@ namespace Blueprint.Compiler
             ReturnType = returnType;
             Arguments = arguments;
             MethodName = methodName;
+            Sources.Add(generatedType);
         }
 
         /// <summary>

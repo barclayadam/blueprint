@@ -2,28 +2,29 @@
 using System.Data.SqlClient;
 using Blueprint.Core;
 using Blueprint.Core.Data;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.SqlServer
 {
     public class SqlServerDatabaseConnectionFactory : IDatabaseConnectionFactory
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly string connectionString;
+        private readonly ILogger<SqlServerDatabaseConnectionFactory> logger;
 
-        public SqlServerDatabaseConnectionFactory(string connectionString)
+        public SqlServerDatabaseConnectionFactory(string connectionString, ILogger<SqlServerDatabaseConnectionFactory> logger)
         {
             Guard.NotNull(nameof(connectionString), connectionString);
+            Guard.NotNull(nameof(logger), logger);
 
             this.connectionString = connectionString;
+            this.logger = logger;
         }
 
         public IDbConnection Open()
         {
-            if (Log.IsTraceEnabled)
+            if (logger.IsEnabled(LogLevel.Trace))
             {
-                Log.Trace("Opening new SQL DB connection");
+                logger.LogTrace("Opening new SQL DB connection");
             }
 
             var connection = new SqlConnection(connectionString);

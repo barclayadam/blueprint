@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-
-using NLog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 #if !NET472
 
@@ -21,9 +21,8 @@ namespace Blueprint.Compiler
     /// </summary>
     public class AssemblyGenerator
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        private readonly GenerationRules rules;
+        private readonly ILogger<AssemblyGenerator> logger;
+        private readonly IServiceProvider serviceProvider;
 
         private readonly List<MetadataReference> references = new List<MetadataReference>();
         private readonly List<Assembly> assemblies = new List<Assembly>();
@@ -31,18 +30,14 @@ namespace Blueprint.Compiler
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
         private readonly List<SourceFile> files = new List<SourceFile>();
 
-        public AssemblyGenerator(GenerationRules rules)
+        public AssemblyGenerator(ILogger<AssemblyGenerator> logger, IServiceProvider serviceProvider)
         {
-            this.rules = rules;
+            this.logger = logger;
+            this.serviceProvider = serviceProvider;
 
             ReferenceAssemblyContainingType<object>();
             ReferenceAssemblyContainingType<AssemblyGenerator>();
             ReferenceAssemblyContainingType<Task>();
-
-            foreach (var assembly in rules.Assemblies)
-            {
-                ReferenceAssembly(assembly);
-            }
         }
 
         /// <summary>
@@ -110,13 +105,14 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Compile the code passed into this method to a new assembly.
+        /// Compile the code passed into this method to a new assembly which is loaded in to the current application.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="rules">Rules that are used to control the generation of the <see cref="Assembly"/>.</param>
+        /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Assembly Generate()
+        public Assembly Generate(GenerationRules rules)
         {
-            var compileStrategy = rules.CompileStrategy;
+            var compileStrategy = (ICompileStrategy)serviceProvider.GetRequiredService(rules.CompileStrategy);
             var encoding = Encoding.UTF8;
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
 
@@ -140,7 +136,7 @@ namespace Blueprint.Compiler
                 syntaxTrees.Add(encodedSyntaxTree);
             }
 
-            Log.Debug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
+            logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
 
             var compilation = CSharpCompilation.Create(
                 assemblyName,

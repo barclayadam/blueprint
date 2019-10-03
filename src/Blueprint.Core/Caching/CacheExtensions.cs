@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NLog;
 
 namespace Blueprint.Core.Caching
 {
@@ -11,8 +10,6 @@ namespace Blueprint.Core.Caching
     /// </summary>
     public static class CacheExtensions
     {
-        private static readonly Logger Log = LogManager.GetLogger("Caching");
-
         /// <summary>
         /// Gets a value from this cache, constructing and storing a value should the cache
         /// not contain an item with the specified key.
@@ -78,8 +75,6 @@ namespace Blueprint.Core.Caching
 
             if (!cache.ContainsKey<T>(key))
             {
-                Log.Trace("Cannot find item with cache key {0}, in category {1}, constructing and adding.", key, category);
-
                 var value = constructor();
                 cache.Add(category, key, value);
 
@@ -123,8 +118,6 @@ namespace Blueprint.Core.Caching
 
             if (!cache.ContainsKey<T>(key))
             {
-                Log.Trace("Cannot find item with cache key {0}, in category {1}, constructing and adding.", key, category);
-
                 var value = await constructor();
                 cache.Add(category, key, value);
 

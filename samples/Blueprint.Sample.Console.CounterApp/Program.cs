@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 
 namespace Blueprint.Sample.Console.CounterApp
 {
@@ -67,8 +66,7 @@ namespace Blueprint.Sample.Console.CounterApp
                 })
                 .ConfigureLogging((context, logging) =>
                 {
-                    logging.ClearProviders();
-                    logging.AddNLog();
+                    logging.AddConsole();
                 })
                 .ConfigureContainer((HostBuilderContext context, ServiceRegistry services) =>
                 {

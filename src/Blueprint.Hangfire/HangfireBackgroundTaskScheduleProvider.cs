@@ -10,25 +10,24 @@ using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-
-using NLog;
-
+using Microsoft.Extensions.Logging;
 using JobContinuationOptions = Blueprint.Core.Tasks.JobContinuationOptions;
 
 namespace Blueprint.Hangfire
 {
     public class HangfireBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly Lazy<IBackgroundJobClient> jobClientFactory;
+        private readonly ILogger<HangfireBackgroundTaskScheduleProvider> logger;
         private readonly Dictionary<Type, string> taskToQueue = new Dictionary<Type, string>();
 
-        public HangfireBackgroundTaskScheduleProvider(Lazy<IBackgroundJobClient> jobClientFactory)
+        public HangfireBackgroundTaskScheduleProvider(Lazy<IBackgroundJobClient> jobClientFactory, ILogger<HangfireBackgroundTaskScheduleProvider> logger)
         {
             Guard.NotNull(nameof(jobClientFactory), jobClientFactory);
+            Guard.NotNull(nameof(logger), logger);
 
             this.jobClientFactory = jobClientFactory;
+            this.logger = logger;
         }
 
         public Task<string> EnqueueAsync(BackgroundTask task)
@@ -56,9 +55,9 @@ namespace Blueprint.Hangfire
         {
             var queue = GetQueueForTask(task);
 
-            if (Log.IsDebugEnabled)
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                Log.Debug("Enqueuing task. task_type={0} queue={1}", task.GetType().Name, queue);
+                logger.LogDebug("Enqueuing task. task_type={0} queue={1}", task.GetType().Name, queue);
             }
 
             var id = jobClientFactory.Value.Create(

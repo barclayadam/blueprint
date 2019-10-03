@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Middleware
 {
@@ -16,8 +16,6 @@ namespace Blueprint.Api.Middleware
         private static readonly MethodInfo GetByIdMethod =
             typeof(ResourceEventHandler).GetMethod(nameof(GetById), BindingFlags.Static | BindingFlags.NonPublic);
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         public static async Task HandleAsync(
             IResourceEventRepository resourceEventRepository,
             ApiLinkGenerator apiLinkGenerator,
@@ -30,7 +28,9 @@ namespace Blueprint.Api.Middleware
 
                 if (innerResult is ResourceEvent resourceEvent)
                 {
-                    Log.Debug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
+                    var logger = context.ServiceProvider.GetRequiredService<ILogger<ResourceEventHandlerMiddlewareBuilder>>();
+
+                    logger.LogDebug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
 
                     context.UserAuthorisationContext.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
 
@@ -43,7 +43,7 @@ namespace Blueprint.Api.Middleware
 
                     if (selfLink == null)
                     {
-                        Log.Warn(
+                        logger.LogWarning(
                             "No self link exists. Link and payload will not be populated. resource_type={0}",
                             resourceEvent.ResourceType.Name);
 

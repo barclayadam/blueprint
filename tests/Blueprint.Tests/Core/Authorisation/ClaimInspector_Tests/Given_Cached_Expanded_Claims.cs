@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Blueprint.Core.Authorisation;
 using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Core.Authorisation.ClaimInspector_Tests
@@ -23,7 +24,7 @@ namespace Blueprint.Tests.Core.Authorisation.ClaimInspector_Tests
                     "http://www.example.com/Claim/Resource/4",
                     "Type2");
 
-            var claimChecker = new ClaimInspector(Enumerable.Empty<IResourceKeyExpander>(), new InMemoryCache());
+            var claimChecker = new ClaimInspector(Enumerable.Empty<IResourceKeyExpander>(), new InMemoryCache(), new NullLogger<ClaimInspector>());
 
             // Push through once to add to cache
             claimChecker.IsDemandedClaimFulfilled(

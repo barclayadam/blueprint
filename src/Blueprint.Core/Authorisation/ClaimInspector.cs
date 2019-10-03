@@ -3,30 +3,30 @@ using System.Linq;
 using System.Security.Claims;
 
 using Blueprint.Core.Caching;
-
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Authorisation
 {
     public class ClaimInspector : IClaimInspector
     {
-        private static readonly Logger Log = LogManager.GetLogger("Authorisation");
-
         private readonly IEnumerable<IResourceKeyExpander> resourceKeyExpanders;
         private readonly ICache cache;
+        private readonly ILogger<ClaimInspector> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClaimInspector"/> class.
         /// </summary>
         /// <param name="resourceKeyExpanders">Resource key expanders that will be asked to 'expand' any demanded claims.</param>
         /// <param name="cache">Cache used to store expanded resource keys (as they will typically require database access).</param>
-        public ClaimInspector(IEnumerable<IResourceKeyExpander> resourceKeyExpanders, ICache cache)
+        /// <param name="logger">Logger to use.</param>
+        public ClaimInspector(IEnumerable<IResourceKeyExpander> resourceKeyExpanders, ICache cache, ILogger<ClaimInspector> logger)
         {
             Guard.NotNull(nameof(resourceKeyExpanders), resourceKeyExpanders);
             Guard.NotNull(nameof(cache), cache);
 
             this.resourceKeyExpanders = resourceKeyExpanders;
             this.cache = cache;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Blueprint.Core.Authorisation
         {
             if (demandedClaim == null)
             {
-                Log.Trace("No claim demanded, returning ClaimInspectionResult.Success");
+                logger.LogTrace("No claim demanded, returning ClaimInspectionResult.Success");
 
                 return true;
             }
@@ -56,11 +56,11 @@ namespace Blueprint.Core.Authorisation
 
             if (demandedClaim.Value == "*")
             {
-                Log.Trace("Wildcard claim given, no expansion necessary.");
+                logger.LogTrace("Wildcard claim given, no expansion necessary.");
             }
             else if (!resourceKeyExpanders.Any())
             {
-                Log.Trace("No resource key expanders");
+                logger.LogTrace("No resource key expanders");
             }
             else
             {
@@ -85,20 +85,20 @@ namespace Blueprint.Core.Authorisation
 
                 if (demandedClaim.Value == "*")
                 {
-                    Log.Trace("Wildcard claim given, ValueType and Type match found, returning true.");
+                    logger.LogTrace("Wildcard claim given, ValueType and Type match found, returning true.");
                     return true;
                 }
 
                 if (demandedClaim.Value.Contains(claim.Value))
                 {
-                    Log.Trace("Expanded claim was fulfilled, returning ClaimInspectionResult.Success.");
+                    logger.LogTrace("Expanded claim was fulfilled, returning ClaimInspectionResult.Success.");
                     return true;
                 }
             }
 
-            if (Log.IsTraceEnabled)
+            if (logger.IsEnabled(LogLevel.Trace))
             {
-                Log.Trace("Expanded claim '[{0}, {1}, {2}]' was not fulfilled.", demandedClaim.Type, demandedClaim.Value, demandedClaim.ValueType);
+                logger.LogTrace("Expanded claim '[{0}, {1}, {2}]' was not fulfilled.", demandedClaim.Type, demandedClaim.Value, demandedClaim.ValueType);
             }
 
             return false;
@@ -106,7 +106,7 @@ namespace Blueprint.Core.Authorisation
 
         private Claim ExpandClaim(Claim claim)
         {
-            Log.Trace("Expanding required claim {0}.", claim);
+            logger.LogTrace("Expanding required claim {0}.", claim);
 
             var expandedKey = cache.GetOrCreate(
                 "Resource Key Expansion",

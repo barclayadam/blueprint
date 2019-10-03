@@ -12,10 +12,10 @@ using Blueprint.Api.Infrastructure;
 using Blueprint.Compiler.Frames;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 
 namespace Blueprint.Api.Middleware
 {
@@ -25,27 +25,27 @@ namespace Blueprint.Api.Middleware
     /// </summary>
     public class MessagePopulationMiddlewareBuilder : IMiddlewareBuilder
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly JsonSerializer BodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
 
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
         public static async Task PopulateFromMessageBody(ApiOperationContext context)
         {
+            var logger = context.ServiceProvider.GetRequiredService<ILogger<MessagePopulationMiddlewareBuilder>>();
             var request = context.Request;
 
             if (request.Body != null && request.ContentLength > 0)
             {
                 if (request.ContentType.Contains("application/x-www-form-urlencoded"))
                 {
-                    PopulateFromForm(context);
+                    PopulateFromForm(logger, context);
                 }
                 else if (request.ContentType.Contains("multipart/form-data"))
                 {
-                    PopulateFromForm(context);
+                    PopulateFromForm(logger, context);
                 }
                 else
                 {
-                    await PopulateFromJsonBodyAsync(context);
+                    await PopulateFromJsonBodyAsync(logger, context);
                 }
             }
         }
@@ -53,11 +53,13 @@ namespace Blueprint.Api.Middleware
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
         public static void PopulateFromRoute(ApiOperationContext context)
         {
+            var logger = context.ServiceProvider.GetRequiredService<ILogger<MessagePopulationMiddlewareBuilder>>();
             var properties = context.Descriptor.Properties;
 
             foreach (var routeValue in context.RouteData)
             {
                 WriteValue(
+                    logger,
                     context.Operation,
                     properties,
                     routeValue.Key,
@@ -69,6 +71,7 @@ namespace Blueprint.Api.Middleware
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
         public static void PopulateFromQueryString(ApiOperationContext context)
         {
+            var logger = context.ServiceProvider.GetRequiredService<ILogger<MessagePopulationMiddlewareBuilder>>();
             var properties = context.Descriptor.Properties;
 
             if (context.Request.QueryString.HasValue)
@@ -76,6 +79,7 @@ namespace Blueprint.Api.Middleware
                 foreach (var queryParameter in context.Request.Query)
                 {
                     WriteStringValues(
+                        logger,
                         context.Operation,
                         properties,
                         queryParameter.Key,
@@ -116,7 +120,7 @@ namespace Blueprint.Api.Middleware
                 new MethodCall(typeof(MessagePopulationMiddlewareBuilder), nameof(PopulateFromQueryString)));
         }
 
-        private static void PopulateFromForm(ApiOperationContext context)
+        private static void PopulateFromForm(ILogger<MessagePopulationMiddlewareBuilder> logger, ApiOperationContext context)
         {
             var request = context.Request;
             var operation = context.Operation;
@@ -126,7 +130,7 @@ namespace Blueprint.Api.Middleware
 
             foreach (var item in form)
             {
-                WriteStringValues(operation, properties, item.Key, item.Value, exception => { });
+                WriteStringValues(logger, operation, properties, item.Key, item.Value, exception => { });
             }
 
             if (form.Files.Any())
@@ -145,7 +149,7 @@ namespace Blueprint.Api.Middleware
             }
         }
 
-        private static async Task PopulateFromJsonBodyAsync(ApiOperationContext context)
+        private static async Task PopulateFromJsonBodyAsync(ILogger<MessagePopulationMiddlewareBuilder> logger, ApiOperationContext context)
         {
             var request = context.Request;
             var operation = context.Operation;
@@ -179,7 +183,7 @@ namespace Blueprint.Api.Middleware
                 }
                 catch (JsonSerializationException e)
                 {
-                    Log.Debug("Invalid body detected, malformed JSON");
+                    logger.LogDebug("Invalid body detected, malformed JSON");
 
                     throw new InvalidOperationException("Could not parse JSON body", e);
                 }
@@ -192,6 +196,7 @@ namespace Blueprint.Api.Middleware
         }
 
         private static void WriteStringValues(
+            ILogger<MessagePopulationMiddlewareBuilder> logger,
             IApiOperation operation,
             IEnumerable<PropertyInfo> properties,
             string key,
@@ -201,15 +206,16 @@ namespace Blueprint.Api.Middleware
             if (value.Count > 1)
             {
                 // Axios creates array queryString properties in the format: property[]=1&property[]=2
-                WriteValue(operation, properties, key, (string[])value, throwException);
+                WriteValue(logger, operation, properties, key, (string[])value, throwException);
             }
             else
             {
-                WriteValue(operation, properties, key, value[0], throwException);
+                WriteValue(logger, operation, properties, key, value[0], throwException);
             }
         }
 
         private static void WriteValue(
+            ILogger<MessagePopulationMiddlewareBuilder> logger,
             IApiOperation operation,
             IEnumerable<PropertyInfo> properties,
             string key,
@@ -254,7 +260,7 @@ namespace Blueprint.Api.Middleware
                     }
                     catch (Exception e)
                     {
-                        Log.Debug(e, "Exception when trying to write a value to message");
+                        logger.LogDebug(e, "Exception when trying to write a value to message");
 
                         throwException(e);
                     }
@@ -271,14 +277,14 @@ namespace Blueprint.Api.Middleware
                         }
                         catch (Exception e)
                         {
-                            Log.Debug(e, "Exception when trying to write a value to message");
+                            logger.LogDebug(e, "Exception when trying to write a value to message");
 
                             throwException(e);
                         }
                     }
                     else
                     {
-                        Log.Warn("Could not convert querystring value. value={0}, property_type={1}", value, property.PropertyType);
+                        logger.LogWarning("Could not convert querystring value. value={0}, property_type={1}", value, property.PropertyType);
 
                         throwException(new Exception($"Could not understand the value of querystring key '{key}'"));
                     }

@@ -1,11 +1,11 @@
 using System.Net.Mail;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications.Notifications
 {
     /// <summary>
     /// An <see cref="IEmailSender" /> that performs no real sending of any email messages, will only log
-    /// the message using NLog.
+    /// the message using a configured <see cref="ILogger{LoggingOnlyEmailSender}" />.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -19,11 +19,16 @@ namespace Blueprint.Notifications.Notifications
     /// </remarks>
     public class LoggingOnlyEmailSender : IEmailSender
     {
-        private static readonly Logger Log = LogManager.GetLogger("Blueprint.Notifications");
+        private readonly ILogger<LoggingOnlyEmailSender> logger;
+
+        public LoggingOnlyEmailSender(ILogger<LoggingOnlyEmailSender> logger)
+        {
+            this.logger = logger;
+        }
 
         public void Send(MailMessage message)
         {
-            Log.Info(
+            logger.LogInformation(
                      "Sending mail to '{0}', from '{1}'. {2} attachments. Subject is '{3}'. Body is '{4}'.",
                      message.From,
                      message.To,

@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 #if !NET472
 using System.Runtime.Loader;
@@ -15,11 +15,16 @@ namespace Blueprint.Compiler
 {
     public class InMemoryOnlyCompileStrategy : ICompileStrategy
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<InMemoryOnlyCompileStrategy> logger;
+
+        public InMemoryOnlyCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
+        {
+            this.logger = logger;
+        }
 
         public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
-            Log.Info("Compiling source to an in-memory DLL with embedded source");
+            logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
 
             using (var assemblyStream = new MemoryStream())
             {
