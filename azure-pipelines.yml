@@ -4,6 +4,7 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  Prerelease: 'ci'
   BuildConfiguration: 'Release'
 
 # CI Trigger on master branch
@@ -51,7 +52,7 @@ steps:
     displayName: 'dotnet build'
     inputs:
       command: 'build'
-      arguments: '--configuration $(BuildConfiguration)'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
@@ -68,6 +69,7 @@ steps:
       outputDir: '$(Build.ArtifactStagingDirectory)/.nupkgs'
       nobuild: true
       verbosityPack: 'minimal'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - task: DotNetCoreCLI@2
