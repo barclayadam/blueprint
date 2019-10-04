@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blueprint.Core;
+using MediatR;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api
 {
-    public abstract class ResourceEvent
+    public abstract class ResourceEvent : INotification
     {
         private readonly DateTimeOffset created;
 
