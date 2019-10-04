@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Blueprint.Notifications.Notifications
+namespace Blueprint.Notifications
 {
     /// <summary>
     /// Provides the means to get <see cref="INotificationTemplate"/>s from a persistent store, typically

@@ -4,7 +4,7 @@ using Blueprint.Core;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Notifications.Notifications
+namespace Blueprint.Notifications
 {
     /// <summary>
     /// Sends an email message using the built-in <see cref="System.Net.Mail.SmtpClient" /> class,

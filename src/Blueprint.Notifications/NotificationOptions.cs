@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Blueprint.Notifications.Templates;
 
-namespace Blueprint.Notifications.Notifications
+namespace Blueprint.Notifications
 {
     /// <summary>
     /// A number of notification options that can (and in some cases, must) be used to

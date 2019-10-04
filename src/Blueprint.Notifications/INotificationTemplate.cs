@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Notifications.Notifications
+﻿namespace Blueprint.Notifications
 {
     /// <summary>
     /// A template that represents a single communication protocol's (e.g. SMS, SMTP)

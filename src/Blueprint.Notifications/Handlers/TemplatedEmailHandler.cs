@@ -6,7 +6,7 @@ using Blueprint.Core.Utilities;
 using Blueprint.Notifications.Templates;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Notifications.Notifications.Handlers
+namespace Blueprint.Notifications.Handlers
 {
     /// <summary>
     /// Handles notifications that have an EmailTemplate attached, merging the

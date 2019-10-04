@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Notifications.Notifications
+namespace Blueprint.Notifications
 {
     /// <summary>
     /// The repository class for Embedded Resource Notification templates.

@@ -1,4 +1,4 @@
-namespace Blueprint.Notifications.Notifications.Handlers
+namespace Blueprint.Notifications.Handlers
 {
     public abstract class NotificationHandler<TTemplate> : INotificationHandler where TTemplate : INotificationTemplate
     {

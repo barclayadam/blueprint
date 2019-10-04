@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Notifications.Notifications
+﻿namespace Blueprint.Notifications
 {
     /// <summary>
     /// An email template that will belong to a Notification, a template that
