@@ -12,7 +12,7 @@ namespace Blueprint.Api.Http
     /// </summary>
     public class OkResult : HttpResult
     {
-        private readonly object content;
+        private object content;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OkResult" /> class with the given content
@@ -37,7 +37,7 @@ namespace Blueprint.Api.Http
         /// <summary>
         /// Gets the content that will be output when this result is executed.
         /// </summary>
-        public object Content => content;
+        public object Content { get => content; set => content = value; }
 
         public override async Task ExecuteAsync(ApiOperationContext context)
         {
