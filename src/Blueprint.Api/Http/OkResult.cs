@@ -4,16 +4,15 @@ using Blueprint.Api.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// Represents a known result, a well-handled result of executing an operation that will use conneg to
     /// determine _how_ to output a value and also set the status code of the HTTP response.
     /// </summary>
-    public class OkResult : OperationResult
+    public class OkResult : HttpResult
     {
         private readonly object content;
-        private readonly HttpStatusCode? statusCode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OkResult" /> class with the given content
@@ -30,9 +29,8 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="statusCode">The HTTP status code to set.</param>
         /// <param name="content">The content to write to the body of the output.</param>
-        public OkResult(HttpStatusCode statusCode, object content)
+        public OkResult(HttpStatusCode statusCode, object content) : base(statusCode)
         {
-            this.statusCode = statusCode;
             this.content = content;
         }
 
@@ -43,10 +41,7 @@ namespace Blueprint.Api
 
         public override async Task ExecuteAsync(ApiOperationContext context)
         {
-            if (statusCode != null)
-            {
-                context.Response.StatusCode = (int)statusCode;
-            }
+            await base.ExecuteAsync(context);
 
             var requestedFormat = GetRequestedFormat(context.Request);
             var formatter = requestedFormat != null ? GetFormatter(context, requestedFormat) : context.ServiceProvider.GetRequiredService<JsonTypeFormatter>();

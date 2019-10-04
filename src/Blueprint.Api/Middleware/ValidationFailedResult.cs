@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using Blueprint.Api.Http;
 using Blueprint.Api.Validation;
 using Blueprint.Core.Errors;
 using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;

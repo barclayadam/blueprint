@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Http;
 using Blueprint.Api.Middleware;
 using Blueprint.Testing;
 using NUnit.Framework;

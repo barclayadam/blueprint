@@ -3,6 +3,7 @@ using System.Net;
 using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Api.Errors;
+using Blueprint.Api.Http;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.Configuration;
