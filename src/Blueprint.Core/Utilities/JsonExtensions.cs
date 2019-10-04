@@ -96,6 +96,11 @@ namespace Blueprint.Core.Utilities
 
         public static string ToJson(object value, Type objectType, JsonSerializer serializer)
         {
+            if (value is ICustomJsonWriter customJsonWriter)
+            {
+                return customJsonWriter.ToJson();
+            }
+
             if (value is IDictionary asDictionary && asDictionary.Count == 0)
             {
                 return "{}";
