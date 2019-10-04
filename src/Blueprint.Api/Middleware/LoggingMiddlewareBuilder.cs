@@ -15,7 +15,7 @@ namespace Blueprint.Api.Middleware
     public class LoggingMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <inheritdoc />
-        /// <returns><see cref="ApiOperationDescriptor.ShouldAudit"/></returns>
+        /// <returns><see cref="ApiOperationDescriptor.ShouldAudit"/>.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return operation.ShouldAudit;

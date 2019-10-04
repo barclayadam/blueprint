@@ -11,16 +11,9 @@ namespace Blueprint.Core.Authorisation
         bool IsActive { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the user is using the site without being logged in
+        /// Gets a value indicating whether the user is using the site without being logged in.
         /// </summary>
         bool IsAnonymous { get; }
-
-        /// <summary>
-        /// Populates metadata about this user using the given action which adds data to the destination
-        /// store.
-        /// </summary>
-        /// <param name="add">The action to call to add data about this user to.</param>
-        void PopulateMetadata(Action<string, object> add);
 
         string Id { get; }
 
@@ -29,5 +22,12 @@ namespace Blueprint.Core.Authorisation
         string Email { get; }
 
         string Name { get; }
+
+        /// <summary>
+        /// Populates metadata about this user using the given action which adds data to the destination
+        /// store.
+        /// </summary>
+        /// <param name="add">The action to call to add data about this user to.</param>
+        void PopulateMetadata(Action<string, object> add);
     }
 }

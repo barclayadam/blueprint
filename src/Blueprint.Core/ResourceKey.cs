@@ -8,10 +8,10 @@ namespace Blueprint.Core
     /// Represents a resource key, a string that can uniquely identify a resource (e.g. an entity such as
     /// a user or an address), in the format of <em>[Type]</em>/<em>[Id]</em> where [Id] is a <see cref="Guid"/>.
     /// </summary>
+    /// <typeparam name="T">The type of resource (typically an ApiResource) being represented.</typeparam>
     public class ResourceKey<T>
     {
         private readonly T id;
-
         private readonly string resourceType;
 
         private ResourceKey(string resourceType, T id)
@@ -23,12 +23,12 @@ namespace Blueprint.Core
         /// <summary>
         /// Gets the ID of the resource this resource key represents.
         /// </summary>
-        public T Id { get { return id; } }
+        public T Id => id;
 
         /// <summary>
         /// Gets the type this resource key represents.
         /// </summary>
-        public string ResourceType { get { return resourceType; } }
+        public string ResourceType => resourceType;
 
         /// <summary>
         /// Converts the string representation of a ResourceKey to the equivalent ResourceKey structure.
@@ -53,7 +53,7 @@ namespace Blueprint.Core
         }
 
         /// <summary>
-        /// Extracts the id out of the given strig representation of a ResourceKey
+        /// Extracts the id out of the given string representation of a ResourceKey.
         /// </summary>
         /// <param name="resourceKey">
         /// The resource key to convert.
@@ -104,7 +104,7 @@ namespace Blueprint.Core
 
             try
             {
-                parsedResourceKey = new ResourceKey<T>(type, (T) TypeDescriptor.GetConverter(typeof (T)).ConvertFromInvariantString(resource[1]));
+                parsedResourceKey = new ResourceKey<T>(type, (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(resource[1]));
                 return true;
             }
             catch (FormatException)
@@ -112,15 +112,16 @@ namespace Blueprint.Core
                 parsedResourceKey = null;
                 return false;
             }
-            catch (Exception) // This is thrown by System.ComponentModel.BaseNumberConverter.ConvertFrom
+            catch (Exception)
             {
+                // This is thrown by System.ComponentModel.BaseNumberConverter.ConvertFrom
                 parsedResourceKey = null;
                 return false;
             }
         }
 
         /// <summary>
-        /// Returns the string repersentation of the resource key in for format of [Type]/[Id].
+        /// Returns the string representation of the resource key in for format of [Type]/[Id].
         /// </summary>
         /// <returns>
         /// The resource key string.

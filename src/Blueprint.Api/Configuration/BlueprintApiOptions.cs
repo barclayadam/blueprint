@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Blueprint.Api.Authorisation;
 using Blueprint.Compiler;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
@@ -22,25 +23,18 @@ namespace Blueprint.Api.Configuration
 
         public BlueprintApiOptions(Action<BlueprintApiOptions> configure = null)
         {
-            AddOperation<RootMetadataOperation>();
-
             Rules = new GenerationRules("Blueprint.Pipelines")
             {
-                OptimizationLevel = OptimizationLevel.Release
+                OptimizationLevel = OptimizationLevel.Release,
             };
 
             dataModel = new ApiDataModel();
 
+            AddOperation<RootMetadataOperation>();
             configure?.Invoke(this);
         }
 
         public GenerationRules Rules { get; }
-
-        /// <summary>
-        /// Gets or sets what should happen if a request comes in and cannot be handled by any
-        /// known handlers.
-        /// </summary>
-        public NotFoundMode NotFoundMode { get; set; } = NotFoundMode.Handle;
 
         /// <summary>
         /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
@@ -67,6 +61,18 @@ namespace Blueprint.Api.Configuration
         public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
         {
             Middlewares.Add(typeof(T));
+        }
+
+        public void UseMiddlewareBuilder(Type middlewareType)
+        {
+            if (!typeof(IMiddlewareBuilder).IsAssignableFrom(middlewareType))
+            {
+                throw new ArgumentException(
+                    $"Builder type must implement {nameof(IMiddlewareBuilder)}, but {middlewareType} does not.",
+                    nameof(middlewareType));
+            }
+
+            Middlewares.Add(middlewareType);
         }
 
         /// <summary>
@@ -145,7 +151,7 @@ namespace Blueprint.Api.Configuration
                 AnonymousAccessAllowed = type.HasAttribute<AllowAnonymousAttribute>(true),
                 IsExposed = type.HasAttribute<UnexposedOperationAttribute>(true) == false,
                 ShouldAudit = !type.HasAttribute<DoNotAuditOperationAttribute>(true),
-                RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true)
+                RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true),
             };
         }
 

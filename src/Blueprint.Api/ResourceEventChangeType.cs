@@ -4,6 +4,6 @@
     {
         Created,
         Updated,
-        Deleted
+        Deleted,
     }
 }

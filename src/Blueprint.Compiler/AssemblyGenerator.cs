@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-
-using NLog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 #if !NET472
 
@@ -17,13 +17,12 @@ using NLog;
 namespace Blueprint.Compiler
 {
     /// <summary>
-    /// Use to compile C# code to in memory assemblies using the Roslyn compiler
+    /// Use to compile C# code to in memory assemblies using the Roslyn compiler.
     /// </summary>
     public class AssemblyGenerator
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        private readonly GenerationRules rules;
+        private readonly ILogger<AssemblyGenerator> logger;
+        private readonly IServiceProvider serviceProvider;
 
         private readonly List<MetadataReference> references = new List<MetadataReference>();
         private readonly List<Assembly> assemblies = new List<Assembly>();
@@ -31,22 +30,18 @@ namespace Blueprint.Compiler
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
         private readonly List<SourceFile> files = new List<SourceFile>();
 
-        public AssemblyGenerator(GenerationRules rules)
+        public AssemblyGenerator(ILogger<AssemblyGenerator> logger, IServiceProvider serviceProvider)
         {
-            this.rules = rules;
+            this.logger = logger;
+            this.serviceProvider = serviceProvider;
 
             ReferenceAssemblyContainingType<object>();
             ReferenceAssemblyContainingType<AssemblyGenerator>();
             ReferenceAssemblyContainingType<Task>();
-
-            foreach (var assembly in rules.Assemblies)
-            {
-                ReferenceAssembly(assembly);
-            }
         }
 
         /// <summary>
-        /// Reference the assembly containing the type "T"
+        /// Reference the assembly containing the type "T".
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public void ReferenceAssemblyContainingType<T>()
@@ -56,7 +51,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Tells Roslyn to reference the given assembly and any of its dependencies
-        /// when compiling code
+        /// when compiling code.
         /// </summary>
         /// <param name="assembly"></param>
         public void ReferenceAssembly(Assembly assembly)
@@ -84,7 +79,9 @@ namespace Blueprint.Compiler
 
                 var alreadyReferenced = references.Any(x => x.Display == referencePath);
                 if (alreadyReferenced)
+                {
                     return;
+                }
 
                 var reference = MetadataReference.CreateFromFile(referencePath);
 
@@ -102,14 +99,20 @@ namespace Blueprint.Compiler
             }
         }
 
-        /// <summary>
-        /// Compile the code passed into this method to a new assembly
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public Assembly Generate()
+        public void AddFile(string fileName, string code)
         {
-            var compileStrategy = rules.CompileStrategy;
+            files.Add(new SourceFile(fileName, code));
+        }
+
+        /// <summary>
+        /// Compile the code passed into this method to a new assembly which is loaded in to the current application.
+        /// </summary>
+        /// <param name="rules">Rules that are used to control the generation of the <see cref="Assembly"/>.</param>
+        /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Assembly Generate(GenerationRules rules)
+        {
+            var compileStrategy = (ICompileStrategy)serviceProvider.GetRequiredService(rules.CompileStrategy);
             var encoding = Encoding.UTF8;
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
 
@@ -133,15 +136,14 @@ namespace Blueprint.Compiler
                 syntaxTrees.Add(encodedSyntaxTree);
             }
 
-            Log.Debug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
+            logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
 
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: syntaxTrees,
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                    .WithOptimizationLevel(rules.OptimizationLevel)
-            );
+                    .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
                 compilation,
@@ -160,7 +162,35 @@ namespace Blueprint.Compiler
 
                         foreach (var failure in failures)
                         {
-                            exceptionMessage.AppendLine($"{failure.Id}: {failure.GetMessage()} @ {failure.Location}");
+                            exceptionMessage.AppendLine(failure.ToString());
+
+                            if (failure.Location.IsInSource)
+                            {
+                                var span = failure.Location.GetLineSpan();
+                                var mappedSpan = failure.Location.GetMappedLineSpan();
+
+                                if (!mappedSpan.IsValid || !span.IsValid)
+                                {
+                                    continue;
+                                }
+
+                                var sourceFile = failure.Location.SourceTree.ToString();
+                                var fileLines = sourceFile.Split('\n');
+                                var erroredLine = mappedSpan.Span.Start.Line;
+
+                                // We try to output:
+                                //     [ line before]
+                                //     line with error
+                                //        ^^^ indicators of issue
+                                //     [line after]
+                                TryOutputLine(fileLines, erroredLine - 1, exceptionMessage);
+                                TryOutputLine(fileLines, erroredLine, exceptionMessage);
+
+                                exceptionMessage.AppendLine(new string(' ', span.StartLinePosition.Character) +
+                                                            new string('^', failure.Location.SourceSpan.Length));
+
+                                TryOutputLine(fileLines, erroredLine + 1, exceptionMessage);
+                            }
                         }
 
                         exceptionMessage.AppendLine();
@@ -170,9 +200,9 @@ namespace Blueprint.Compiler
                             exceptionMessage.AppendLine("Assembly reference errors (these may be the reason compilation fails)");
                             exceptionMessage.AppendLine();
 
-                            foreach (var e in referenceErrors)
+                            foreach (var (reference, exception) in referenceErrors)
                             {
-                                exceptionMessage.AppendLine($" {e.Reference}: {e.Exception.Message}");
+                                exceptionMessage.AppendLine($" {reference}: {exception.Message}");
                             }
 
                             exceptionMessage.AppendLine();
@@ -180,10 +210,22 @@ namespace Blueprint.Compiler
 
                         throw new CompilationException(exceptionMessage.ToString())
                         {
-                            Code = string.Join("\n\n", files.Select(f => f.Code))
+                            Failures = failures,
+                            Code = string.Join("\n\n", files.Select(f => f.Code)),
                         };
                     }
                 });
+        }
+
+        private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
+        {
+            if (line <= 0 || line >= fileLines.Count)
+            {
+                return;
+            }
+
+            var lineToOutput = fileLines[line];
+            exceptionMessage.AppendLine(lineToOutput);
         }
 
         private static string CreateAssemblyReference(Assembly assembly)
@@ -194,11 +236,6 @@ namespace Blueprint.Compiler
             }
 
             return assembly.Location;
-        }
-
-        public void AddFile(string fileName, string code)
-        {
-            this.files.Add(new SourceFile(fileName, code));
         }
 
         private class SourceFile

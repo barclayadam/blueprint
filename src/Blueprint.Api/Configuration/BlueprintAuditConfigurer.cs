@@ -18,7 +18,7 @@ namespace Blueprint.Api.Configuration
 
         public void UseAuditor<T>() where T : class, IAuditor
         {
-            //blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.PreExecute);
+            // blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.PreExecute);
 
             Services.AddScoped<IAuditor, T>();
         }

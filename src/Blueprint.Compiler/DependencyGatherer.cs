@@ -9,24 +9,32 @@ namespace Blueprint.Compiler
 {
     internal class DependencyGatherer
     {
-        private readonly IMethodVariables methodVariables;
+        private readonly LightweightCache<Frame, List<Frame>> dependencies = new LightweightCache<Frame, List<Frame>>();
+        private readonly LightweightCache<Variable, List<Frame>> variables = new LightweightCache<Variable, List<Frame>>();
 
-        public readonly LightweightCache<Frame, List<Frame>> Dependencies = new LightweightCache<Frame, List<Frame>>();
-        public readonly LightweightCache<Variable, List<Frame>> Variables = new LightweightCache<Variable, List<Frame>>();
+        private readonly IMethodVariables methodVariables;
 
         public DependencyGatherer(IMethodVariables methodVariables, IList<Frame> frames)
         {
             this.methodVariables = methodVariables;
-            Dependencies.OnMissing = frame => new List<Frame>(FindDependencies(frame).Distinct());
-            Variables.OnMissing = v => new List<Frame>(FindDependencies(v).Distinct());
+            dependencies.OnMissing = frame => new List<Frame>(FindDependencies(frame).Distinct());
+            variables.OnMissing = v => new List<Frame>(FindDependencies(v).Distinct());
 
             foreach (var frame in frames)
             {
-                Dependencies.FillDefault(frame);
+                dependencies.FillDefault(frame);
             }
         }
 
+        public LightweightCache<Frame, List<Frame>> Dependencies
+        {
+            get => dependencies;
+        }
 
+        public LightweightCache<Variable, List<Frame>> Variables
+        {
+            get => variables;
+        }
 
         private IEnumerable<Frame> FindDependencies(Frame frame)
         {
@@ -36,7 +44,7 @@ namespace Blueprint.Compiler
             {
                 yield return dependency;
 
-                foreach (var child in Dependencies[dependency])
+                foreach (var child in dependencies[dependency])
                 {
                     yield return child;
                 }
@@ -44,12 +52,11 @@ namespace Blueprint.Compiler
 
             foreach (var variable in frame.Uses)
             {
-                foreach (var dependency in Variables[variable])
+                foreach (var dependency in variables[variable])
                 {
                     yield return dependency;
                 }
             }
-
         }
 
         private IEnumerable<Frame> FindDependencies(Variable variable)
@@ -57,7 +64,7 @@ namespace Blueprint.Compiler
             if (variable.Creator != null)
             {
                 yield return variable.Creator;
-                foreach (var frame in Dependencies[variable.Creator])
+                foreach (var frame in dependencies[variable.Creator])
                 {
                     yield return frame;
                 }
@@ -65,12 +72,11 @@ namespace Blueprint.Compiler
 
             foreach (var dependency in variable.Dependencies)
             {
-                foreach (var frame in Variables[dependency])
+                foreach (var frame in variables[dependency])
                 {
                     yield return frame;
                 }
             }
         }
-
     }
 }

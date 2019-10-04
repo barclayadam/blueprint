@@ -3,7 +3,9 @@
     public enum MiddlewareStage
     {
         OperationChecks,
+
         PreExecute,
-        PostExecute
+
+        PostExecute,
     }
 }

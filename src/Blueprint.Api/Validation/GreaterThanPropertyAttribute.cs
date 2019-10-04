@@ -25,11 +25,10 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependantProperty { get; private set; }
+        public string DependantProperty { get; }
 
         /// <summary>
-        /// Validates the specified value. 
-        /// If the dependant property contains one of the values inside dependant values then value 
+        /// Validates the specified value; if the dependant property contains one of the values inside dependant values then value
         /// must not be null.
         /// </summary>
         /// <param name="value">The value to validate.</param>
@@ -55,7 +54,7 @@ namespace Blueprint.Api.Validation
 
             if (comparableValue == null)
             {
-                throw new InvalidOperationException("The property type of '{0}' is not comparable.".Fmt(validationContext.DisplayName));               
+                throw new InvalidOperationException("The property type of '{0}' is not comparable.".Fmt(validationContext.DisplayName));
             }
 
             return comparableValue.CompareTo(item) > 0 ? ValidationResult.Success : new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });

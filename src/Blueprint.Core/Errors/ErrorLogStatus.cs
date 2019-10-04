@@ -13,6 +13,6 @@
         /// handler of this exception should continue to treat this as an unhandled
         /// exception (e.g. it may cause a task to fail and be retried).
         /// </summary>
-        Recorded
+        Recorded,
     }
 }

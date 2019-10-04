@@ -25,14 +25,13 @@ namespace Blueprint.Core.Caching
     {
         /// <summary>
         /// Gets the priority of this caching strategy, which is used when determining what
-        /// strategy to use should more than one be able to handle a given value. 
-        /// The highest priority strategy will be picked, in the case of a tie the first registered 
-        /// strategy wins.
+        /// strategy to use should more than one be able to handle a given value.
+        /// The highest priority strategy will be picked, in the case of a tie the first registered strategy wins.
         /// </summary>
         int Priority { get; }
 
         /// <summary>
-        /// Gets a value which indicates whether or not this strategy could handle the 
+        /// Gets a value which indicates whether or not this strategy could handle the
         /// specified key / value pair.
         /// </summary>
         /// <param name="category">
@@ -54,8 +53,10 @@ namespace Blueprint.Core.Caching
         /// <returns>
         /// The options used to store the given key-value pair.
         /// </returns>
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
-                Justification = "This is not normally a simple property but is usually a calculated value (e.g. based on current time)")]
+        [SuppressMessage(
+            "Microsoft.Design",
+            "CA1024:UsePropertiesWhereAppropriate",
+            Justification = "This is not normally a simple property but is usually a calculated value (e.g. based on current time)")]
         CacheOptions GetOptions();
     }
 }

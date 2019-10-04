@@ -14,15 +14,15 @@ namespace Blueprint.Api.CodeGen
     /// <remarks>
     /// The given properties can be matched:
     ///
-    ///  * <see cref="ApiDataModel" /> from <see cref="ApiOperationContext.DataModel" />
-    ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />
-    ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />
-    ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />
-    ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />
-    ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />
-    ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />
-    ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />
-    ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />
+    ///  * <see cref="ApiDataModel" /> from <see cref="ApiOperationContext.DataModel" />.
+    ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />.
+    ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />.
+    ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />.
+    ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />.
+    ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />.
+    ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />.
+    ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />.
+    ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />.
     /// </remarks>
     public class ApiOperationContextVariableSource : IVariableSource
     {
@@ -36,22 +36,23 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Gets a <see cref="Variable" /> that represents access to a property of an <see cref="ApiOperationContext" />.
-        /// </summary>
-        /// <param name="type">The type of variable requested.</param>
-        /// <returns>The corresponding <see cref="Variable"/> for the type.</returns>
-        public Variable Get(Type type)
-        {
-            return ((IVariableSource)this).Create(type);
-        }
-
-        /// <summary>
         /// Gets the variable that represents the actual property for this context, casted from the <see cref="IApiOperation" /> property
         /// of the <see cref="ApiOperationContext" />.
         /// </summary>
         public Variable OperationVariable
         {
             get;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Variable" /> that represents access to a property of an <see cref="ApiOperationContext" />.
+        /// </summary>
+        /// <param name="type">The type of variable requested.</param>
+        /// <returns>The corresponding <see cref="Variable"/> for the type.</returns>
+        public Variable Get(Type type)
+        {
+            return TryFindVariable(type) ?? throw new ArgumentException(
+                       $"{nameof(ApiOperationContextVariableSource)} cannot build variable of type {type.Name}");
         }
 
         public Variable GetOperationProperty(PropertyInfo property)
@@ -62,21 +63,7 @@ namespace Blueprint.Api.CodeGen
             return operationPropertyVariable;
         }
 
-        bool IVariableSource.Matches(Type type)
-        {
-            return type == typeof(ApiDataModel) ||
-                   type == typeof(ApiOperationDescriptor) ||
-                   type == typeof(IApiOperation) ||
-                   type == typeof(IServiceProvider) ||
-                   type == typeof(IUserAuthorisationContext) ||
-                   type == typeof(HttpContext) ||
-                   type == typeof(HttpRequest) ||
-                   type == typeof(HttpResponse) ||
-                   type == typeof(ClaimsIdentity) ||
-                   type == OperationVariable.VariableType;
-        }
-
-        Variable IVariableSource.Create(Type type)
+        public Variable TryFindVariable(Type type)
         {
             if (type == typeof(ApiDataModel))
             {
@@ -128,7 +115,7 @@ namespace Blueprint.Api.CodeGen
                 return OperationVariable;
             }
 
-            throw new InvalidOperationException($"Cannot create variable of type {type.FullName}");
+            return null;
         }
     }
 }

@@ -9,28 +9,27 @@ namespace Blueprint.Core.Caching.Configuration
     public abstract class CachingStrategy : ICachingStrategy
     {
         /// <summary>
-        /// Gets the category to which this caching element will be applied.
+        /// Gets or sets the category to which this caching element will be applied.
         /// </summary>
         public string Category { get; set; }
 
         /// <summary>
-        /// Gets the priority at which a item should be entered into a cache, providing
+        /// Gets or sets the priority at which a item should be entered into a cache, providing
         /// a hint to the cache as to what items can be discarded first if required.
         /// </summary>
         public CacheItemPriority ItemPriority { get; set; } = CacheItemPriority.Medium;
 
         /// <summary>
-        /// Gets the priority of this rule, which is used to distinguish between rules that
+        /// Gets or sets the priority of this rule, which is used to distinguish between rules that
         /// match the same type.
         /// </summary>
         public int Priority { get; set; } = 0;
 
         /// <summary>
-        /// Gets the type name that this caching options element will apply to, which
+        /// Gets or sets the type name that this caching options element will apply to, which
         /// may include wildcards for mapping.
         /// </summary>
         public string TypeName { get; set; }
-
 
         /// <summary>
         /// Gets a value which indicates whether or not this strategy could handle the

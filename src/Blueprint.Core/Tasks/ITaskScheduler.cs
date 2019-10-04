@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Core.Tasks
 {
-    [UsedImplicitly]
+    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
     public interface ITaskScheduler
     {
         IEnumerable<TaskSchedule> GetTaskSchedules();

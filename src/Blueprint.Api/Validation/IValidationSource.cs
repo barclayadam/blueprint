@@ -1,4 +1,6 @@
 namespace Blueprint.Api.Validation
 {
-    public interface IValidationSource { }
+    public interface IValidationSource
+    {
+    }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Core;
+using Blueprint.Core.Tasks;
 
 // This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -17,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(nameof(configureApi), configureApi);
 
-            CheckBlueprintRegistration(services);
+            EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
 
             var blueprintApiConfigurer = configureApi(new BlueprintApiConfigurer(services));
 
@@ -32,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(nameof(optionsFunc), optionsFunc);
 
-            CheckBlueprintRegistration(services);
+            EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
 
             var options = new BlueprintApiOptions(optionsFunc);
             var blueprintApiConfigurer = new BlueprintApiConfigurer(services, options);
@@ -46,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             Func<BlueprintTasksConfigurer, BlueprintTasksConfigurer> configureTasks)
         {
-            CheckBlueprintRegistration(services);
+            EnsureNotAlreadySetup(services, typeof(IBackgroundTaskScheduler));
 
             configureTasks(new BlueprintTasksConfigurer(services));
 
@@ -97,9 +98,9 @@ namespace Microsoft.Extensions.DependencyInjection
             return apiOperationDescriptor.OperationType.Assembly.GetExportedTypes().SingleOrDefault(apiOperationHandlerType.IsAssignableFrom);
         }
 
-        private static void CheckBlueprintRegistration(IServiceCollection services)
+        private static void EnsureNotAlreadySetup(IServiceCollection services, Type type)
         {
-            if (services.FirstOrDefault(d => d.ServiceType == typeof(IApiOperationExecutor)) != null)
+            if (services.FirstOrDefault(d => d.ServiceType == type) != null)
             {
                 throw new InvalidOperationException("Blueprint has already been configured.");
             }

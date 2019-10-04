@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
+using Blueprint.Api.Http;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Middleware
 {
@@ -16,8 +17,6 @@ namespace Blueprint.Api.Middleware
         private static readonly MethodInfo GetByIdMethod =
             typeof(ResourceEventHandler).GetMethod(nameof(GetById), BindingFlags.Static | BindingFlags.NonPublic);
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         public static async Task HandleAsync(
             IResourceEventRepository resourceEventRepository,
             ApiLinkGenerator apiLinkGenerator,
@@ -30,9 +29,11 @@ namespace Blueprint.Api.Middleware
 
                 if (innerResult is ResourceEvent resourceEvent)
                 {
-                    Log.Debug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
+                    var logger = context.ServiceProvider.GetRequiredService<ILogger<ResourceEventHandlerMiddlewareBuilder>>();
 
-                    context.UserAuthorisationContext.PopulateMetadata((k,v) => resourceEvent.Metadata[k] = v);
+                    logger.LogDebug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
+
+                    context.UserAuthorisationContext.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
 
                     resourceEvent.CorrelationId = Activity.Current.Id;
                     resourceEvent.Operation = context.Operation;
@@ -43,7 +44,8 @@ namespace Blueprint.Api.Middleware
 
                     if (selfLink == null)
                     {
-                        Log.Warn("No self link exists. Link and payload will not be populated. resource_type={0}",
+                        logger.LogWarning(
+                            "No self link exists. Link and payload will not be populated. resource_type={0}",
                             resourceEvent.ResourceType.Name);
 
                         return;
@@ -69,7 +71,8 @@ namespace Blueprint.Api.Middleware
 
             if (context.Request.Headers.ContainsKey("User-Agent"))
             {
-                resourceEvent.Metadata.Add("UserAgent",
+                resourceEvent.Metadata.Add(
+                    "UserAgent",
                     string.Join(" ", context.Request.Headers["User-Agent"].ToString()));
             }
         }

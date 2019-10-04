@@ -23,12 +23,12 @@ namespace Blueprint.Core.Utilities
         /// <summary>
         /// Gets the end date of this time period.
         /// </summary>
-        public DateTime EndDate { get; private set; }
+        public DateTime EndDate { get; }
 
         /// <summary>
         /// Gets the start date of this time period.
         /// </summary>
-        public DateTime StartDate { get; private set; }
+        public DateTime StartDate { get; }
 
         /// <summary>
         /// Returns all of the TimePeriods that are overlapped by this instance.

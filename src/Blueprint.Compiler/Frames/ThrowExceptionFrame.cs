@@ -7,7 +7,8 @@ namespace Blueprint.Compiler.Frames
     /// A <see cref="SyncFrame" /> that will throw an exception with a message.
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Exception"/> that will be thrown.</typeparam>
-    public class ThrowExceptionFrame<T> : SyncFrame where T : Exception
+    public class ThrowExceptionFrame<T> : SyncFrame
+        where T : Exception
     {
         private readonly string exceptionMessage;
 
@@ -31,9 +32,9 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            writer.Write($"throw new {typeof(T).FullNameInCode()}(\"{this.exceptionMessage.Replace("\"", "\\\"")}\"); ");
+            writer.Write($"throw new {typeof(T).FullNameInCode()}(\"{exceptionMessage.Replace("\"", "\\\"")}\"); ");
 
-            this.Next?.GenerateCode(method, writer);
+            Next?.GenerateCode(method, writer);
         }
     }
 }

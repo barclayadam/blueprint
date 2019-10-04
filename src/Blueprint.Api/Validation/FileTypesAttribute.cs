@@ -8,7 +8,7 @@ using NJsonSchema;
 namespace Blueprint.Api.Validation
 {
     /// <summary>
-    /// Causes a validation error if a file is over a given size or zero bytes
+    /// Causes a validation error if a file is of the correct type (based on file name extension only).
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class FileTypesAttribute : ValidationAttribute, IOpenApiValidationAttribute
@@ -17,10 +17,17 @@ namespace Blueprint.Api.Validation
 
         public FileTypesAttribute(params string[] validExtensions)
         {
-            this.validExtensions = validExtensions ?? throw new ArgumentException(nameof(validExtensions));;
+            this.validExtensions = validExtensions ?? throw new ArgumentException(nameof(validExtensions));
         }
 
         public string ValidatorKeyword => "x-validator-file-types";
+
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        {
+            schema.ExtensionData[ValidatorKeyword] = validExtensions;
+
+            return Task.CompletedTask;
+        }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
@@ -48,13 +55,6 @@ namespace Blueprint.Api.Validation
             }
 
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
-        }
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[ValidatorKeyword] = validExtensions;
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -58,7 +58,9 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the regular expression used by this validation attribute.
         /// </summary>
-        public Regex Regex => this.regex;
+        public Regex Regex => regex;
+
+        public string ValidatorKeyword => "pattern";
 
         /// <summary>
         /// Determines whether or not the specified value is valid, which means that is matches
@@ -98,8 +100,6 @@ namespace Blueprint.Api.Validation
                 ErrorMessageString,
                 new object[] { name, regex.ToString() });
         }
-
-        public string ValidatorKeyword => "pattern";
 
         public virtual Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
         {

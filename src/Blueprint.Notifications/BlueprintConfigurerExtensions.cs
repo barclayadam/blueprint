@@ -1,6 +1,5 @@
 ﻿using Blueprint.Api.Configuration;
-using Blueprint.Notifications.Notifications;
-using Blueprint.Notifications.Notifications.Handlers;
+using Blueprint.Notifications.Handlers;
 using Blueprint.Notifications.Templates;
 using Microsoft.Extensions.DependencyInjection;
 

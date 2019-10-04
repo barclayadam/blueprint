@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NLog;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Core.Tasks
 {
@@ -14,15 +14,16 @@ namespace Blueprint.Core.Tasks
     {
         private const char IdSplitter = ':';
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        private readonly ITaskScheduler[] taskSchedulers;
         private readonly RecurringJobManager recurringJobManager;
-        
-        public TaskScheduler(ITaskScheduler[] taskSchedulers)
+        private readonly ITaskScheduler[] taskSchedulers;
+        private readonly ILogger<TaskScheduler> logger;
+
+        public TaskScheduler(ITaskScheduler[] taskSchedulers, ILogger<TaskScheduler> logger)
         {
+            recurringJobManager = new RecurringJobManager();
+
             this.taskSchedulers = taskSchedulers;
-            this.recurringJobManager = new RecurringJobManager();
+            this.logger = logger;
         }
 
         [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
@@ -40,7 +41,7 @@ namespace Blueprint.Core.Tasks
             var recurringJobs = JobStorage.Current.GetConnection().GetRecurringJobs();
             var schedulers = GetSchedulers().ToArray();
 
-            using (Log.LogTimeWrapper("Purging jobs where the task scheduler no longer exists"))
+            using (logger.LogTimeWrapper("Purging jobs where the task scheduler no longer exists"))
             {
                 var groupNames = schedulers.Select(GetGroupNameFromScheduler).ToList();
 
@@ -57,12 +58,36 @@ namespace Blueprint.Core.Tasks
             }
         }
 
+        private static string GetGroupNameFromScheduler(ITaskScheduler scheduler)
+        {
+            return scheduler.GetType().Name;
+        }
+
+        private IEnumerable<TaskSchedule> GetSchedules(ITaskScheduler taskScheduler, string schedulerName)
+        {
+            try
+            {
+                logger.LogInformation("Getting scheduled tasks. scheduler={0}", schedulerName);
+
+                return taskScheduler.GetTaskSchedules();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(
+                    e,
+                    "Unhandled exception getting schedules from '{0}'. Will delete all existing jobs.",
+                    schedulerName);
+            }
+
+            return Enumerable.Empty<TaskSchedule>();
+        }
+
         /// <summary>
         /// Gets all the schedulers that have been registered.
         /// </summary>
         /// <remarks>
         /// We ask for new schedulers every time to ensure that dependencies that should be transient are (e.g. a
-        /// database context should be new every time a scheduler is called)
+        /// database context should be new every time a scheduler is called).
         /// </remarks>
         /// <returns></returns>
         private IEnumerable<ITaskScheduler> GetSchedulers()
@@ -82,14 +107,9 @@ namespace Blueprint.Core.Tasks
             });
         }
 
-        private static string GetGroupNameFromScheduler(ITaskScheduler scheduler)
-        {
-            return scheduler.GetType().Name;
-        }
-
         private void Reschedule(IEnumerable<ITaskScheduler> schedulers, List<RecurringJobDto> recurringJobs)
         {
-            Log.Info("Rescheduling tasks");
+            logger.LogInformation("Rescheduling tasks");
 
             foreach (var taskScheduler in schedulers)
             {
@@ -101,7 +121,7 @@ namespace Blueprint.Core.Tasks
         {
             var schedulerName = taskScheduler.GetType().Name;
 
-            using (Log.LogTimeWrapper("Rescheduling for scheduler={0}", schedulerName))
+            using (logger.LogTimeWrapper("Rescheduling for scheduler={0}", schedulerName))
             {
                 var taskSchedules = GetSchedules(taskScheduler, schedulerName).ToList();
 
@@ -111,16 +131,16 @@ namespace Blueprint.Core.Tasks
                     .Where(jk => !currentNames.Contains(jk.Id.Split(IdSplitter)[1]))
                     .ToList();
 
-                Log.Info("Deleting old jobs that no longer exist");
+                logger.LogInformation("Deleting old jobs that no longer exist");
 
                 jobsToDelete.ForEach(j =>
                 {
-                    Log.Debug("Deleting job that no longer exists. job_to_delete={0}", j.Id);
+                    logger.LogDebug("Deleting job that no longer exists. job_to_delete={0}", j.Id);
 
                     recurringJobManager.RemoveIfExists(j.Id);
                 });
 
-                Log.Info("Scheduling (add or update) current jobs");
+                logger.LogInformation("Scheduling (add or update) current jobs");
 
                 // Create and update jobs
                 foreach (var taskSchedule in taskSchedules)
@@ -131,7 +151,7 @@ namespace Blueprint.Core.Tasks
                     }
                     catch (Exception e)
                     {
-                        Log.Error(
+                        logger.LogError(
                             e,
                             "Could not schedule job='{0}{1}{2}', with schedule='{3}'",
                             @group,
@@ -143,26 +163,6 @@ namespace Blueprint.Core.Tasks
             }
         }
 
-        private static IEnumerable<TaskSchedule> GetSchedules(ITaskScheduler taskScheduler, string schedulerName)
-        {
-            try
-            {
-                Log.Info("Getting scheduled tasks. scheduler={0}", schedulerName);
-
-                return taskScheduler.GetTaskSchedules();
-
-            }
-            catch (Exception e)
-            {
-                Log.Error(
-                    e,
-                    "Unhandled exception getting schedules from '{0}'. Will delete all existing jobs.",
-                    schedulerName);
-            }
-
-            return Enumerable.Empty<TaskSchedule>();
-        }
-
         private void CreateOrUpdateTaskSchedule(IEnumerable<RecurringJobDto> existingJobs, TaskSchedule taskSchedule, string group)
         {
             var id = group + IdSplitter + taskSchedule.Name;
@@ -172,7 +172,7 @@ namespace Blueprint.Core.Tasks
 
             if (existing != null && existing.Cron == taskSchedule.CronExpression && JobsEqual(existing.Job, job))
             {
-                Log.Debug("Not rescheduling job as it has not changed. job_id={0}", id);
+                logger.LogDebug("Not rescheduling job as it has not changed. job_id={0}", id);
 
                 return;
             }
@@ -183,7 +183,7 @@ namespace Blueprint.Core.Tasks
                 taskSchedule.CronExpression,
                 taskSchedule.TimeZone);
 
-            Log.Info("Job scheduled. job_id={0} cron='{1}'", id, taskSchedule.CronExpression);
+            logger.LogInformation("Job scheduled. job_id={0} cron='{1}'", id, taskSchedule.CronExpression);
         }
 
         private bool JobsEqual(Job existing, Job updated)

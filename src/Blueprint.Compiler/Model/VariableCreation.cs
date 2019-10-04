@@ -16,6 +16,6 @@
         /// <summary>
         /// Variable is built by a frame
         /// </summary>
-        BuiltByFrame
+        BuiltByFrame,
     }
 }

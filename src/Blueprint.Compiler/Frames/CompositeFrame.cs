@@ -14,7 +14,8 @@ namespace Blueprint.Compiler.Frames
             this.inner = inner;
         }
 
-        public override IEnumerable<Variable> Creates => inner.SelectMany<Frame, Variable>(x => x.Creates).ToArray();
+        public override IEnumerable<Variable> Creates => inner.SelectMany(x => x.Creates).ToArray();
+
         public sealed override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
             if (inner.Length > 1)
@@ -30,8 +31,6 @@ namespace Blueprint.Compiler.Frames
             Next?.GenerateCode(method, writer);
         }
 
-        protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
-
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
         {
             return inner.SelectMany(x => x.FindVariables(chain)).Distinct();
@@ -41,5 +40,7 @@ namespace Blueprint.Compiler.Frames
         {
             return inner.Last().CanReturnTask();
         }
+
+        protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
     }
 }

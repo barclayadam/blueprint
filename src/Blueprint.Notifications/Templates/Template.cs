@@ -28,19 +28,19 @@ namespace Blueprint.Notifications.Templates
         /// <summary>
         /// Gets the name of this template, which can be used if logging errors.
         /// </summary>
-        public string Name { get { return name; } }
+        public string Name => name;
 
         /// <summary>
         /// Gets the text of this template.
         /// </summary>
-        public string Text { get { return text; } }
+        public string Text => text;
 
         /// <summary>
         /// Transforms this template into a final string representation, having merged in any
         /// values to be replaced within the template text.
         /// </summary>
         /// <param name="values">The values that are to be merged into the template.</param>
-        /// <returns>A final representation of the template, with the values having been injected.</returns>        
+        /// <returns>A final representation of the template, with the values having been injected.</returns>
         public abstract string Merge(TemplateValues values);
     }
 }

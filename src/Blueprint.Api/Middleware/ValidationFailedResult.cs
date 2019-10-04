@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using Blueprint.Api.Http;
 using Blueprint.Api.Validation;
 using Blueprint.Core.Errors;
 using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
@@ -11,7 +12,7 @@ namespace Blueprint.Api.Middleware
         public ValidationFailedResult(string formLevelErrorMessage)
             : this(new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
             {
-                [ValidationFailures.FormLevelPropertyName] = new [] { formLevelErrorMessage }
+                [ValidationFailures.FormLevelPropertyName] = new[] { formLevelErrorMessage },
             }))
         {
         }
@@ -26,7 +27,7 @@ namespace Blueprint.Api.Middleware
         {
         }
 
-        public ValidationFailedResult(ValidationErrorResponse content) : base((HttpStatusCode) 422, content)
+        public ValidationFailedResult(ValidationErrorResponse content) : base((HttpStatusCode)422, content)
         {
         }
     }

@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Blueprint.Compiler.Model
 {
     /// <summary>
-    /// Variable that represents the input argument to a generated method
+    /// Variable that represents the input argument to a generated method.
     /// </summary>
     public class Argument : Variable
     {
@@ -18,21 +18,28 @@ namespace Blueprint.Compiler.Model
 
         public string Declaration => $"{VariableType.FullNameInCode()} {Usage}";
 
-        public new static Argument For<T>(string argName = null)
+        public static new Argument For<T>(string argName = null)
         {
             return new Argument(typeof(T), argName ?? DefaultArgName(typeof(T)));
         }
 
-        protected bool Equals(Argument other)
-        {
-            return VariableType == other.VariableType && string.Equals(Usage, other.Usage);
-        }
-
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
             return Equals((Argument)obj);
         }
 
@@ -42,6 +49,11 @@ namespace Blueprint.Compiler.Model
             {
                 return ((VariableType != null ? VariableType.GetHashCode() : 0) * 397) ^ (Usage != null ? Usage.GetHashCode() : 0);
             }
+        }
+
+        private bool Equals(Argument other)
+        {
+            return VariableType == other.VariableType && string.Equals(Usage, other.Usage);
         }
     }
 }

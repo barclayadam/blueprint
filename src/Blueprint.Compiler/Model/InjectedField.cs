@@ -10,24 +10,21 @@ namespace Blueprint.Compiler.Model
 
         public InjectedField(Type argType, string name) : base(argType, "_" + name)
         {
-            CtorArg = name;
-            ArgType = argType;
+            ArgumentName = name;
         }
 
-        public Type ArgType { get; }
+        public string ArgumentName { get; }
 
-        public string CtorArg { get; protected set; }
-
-        public virtual string CtorArgDeclaration => $"{ArgType.FullNameInCode()} {CtorArg}";
+        public virtual string CtorArgDeclaration => $"{VariableType.FullNameInCode()} {ArgumentName}";
 
         public void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Write($"private readonly {ArgType.FullNameInCode()} {Usage};");
+            writer.Write($"private readonly {VariableType.FullNameInCode()} {Usage};");
         }
 
-        public void WriteAssignment(ISourceWriter writer)
+        public virtual void WriteAssignment(ISourceWriter writer)
         {
-            writer.Write($"{Usage} = {CtorArg};");
+            writer.Write($"{Usage} = {ArgumentName};");
         }
     }
 }

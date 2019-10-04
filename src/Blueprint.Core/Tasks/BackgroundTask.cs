@@ -21,8 +21,7 @@ namespace Blueprint.Core.Tasks
     {
         /// <summary>
         /// Initialises a new instance of <see cref="BackgroundTask" />, setting <see cref="Metadata"/> to a new
-        /// <see cref="BackgroundTaskMetadata" /> with it's <see cref="BackgroundTaskMetadata.RequestId" /> property
-        /// set to <see cref="RequestIdAccessor.Id" />.
+        /// <see cref="BackgroundTaskMetadata" /> to be filled..
         /// </summary>
         public BackgroundTask()
         {
@@ -30,7 +29,7 @@ namespace Blueprint.Core.Tasks
         }
 
         /// <summary>
-        /// Gets or sets the envelope of this background task that helps to identify metadata about
+        /// Gets or sets the envelope of this background task that helps to identify metadata about.
         /// </summary>
         public BackgroundTaskMetadata Metadata { get; set; }
 

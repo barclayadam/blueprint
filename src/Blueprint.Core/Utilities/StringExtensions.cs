@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Core.Utilities
 {
@@ -42,7 +42,7 @@ namespace Blueprint.Core.Utilities
         {
             Guard.NotNullOrEmpty("value", value);
 
-            return (TEnumType) Enum.Parse(typeof(TEnumType), value);
+            return (TEnumType)Enum.Parse(typeof(TEnumType), value);
         }
 
         public static TEnumType? AsNullableEnum<TEnumType>(this string value) where TEnumType : struct
@@ -98,7 +98,7 @@ namespace Blueprint.Core.Utilities
                             {
                                 sb.Append(curChar);
                             }
-                            else if (prevIsLower && !nextIsUpper && (curChar == 'A' || curChar == 'I'))
+                            else if (prevIsLower && (curChar == 'A' || curChar == 'I'))
                             {
                                 sb.Append(curChar);
                             }

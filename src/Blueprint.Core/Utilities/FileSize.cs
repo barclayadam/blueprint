@@ -20,9 +20,14 @@ namespace Blueprint.Core.Utilities
         private static readonly UnitSize TerabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 40), Suffix = "TB", FormatModifier = "N2" };
         private static readonly UnitSize PetabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 50), Suffix = "PB", FormatModifier = "N2" };
 
-        private static readonly UnitSize[] Units = new[]
+        private static readonly UnitSize[] Units =
         {
-            ByteUnit, KilobyteUnit, MegabyteUnit, GigabyteUnit, TerabyteUnit, PetabyteUnit
+            ByteUnit,
+            KilobyteUnit,
+            MegabyteUnit,
+            GigabyteUnit,
+            TerabyteUnit,
+            PetabyteUnit,
         };
 
         private readonly UnitSize unitSize;
@@ -40,32 +45,67 @@ namespace Blueprint.Core.Utilities
         /// <summary>
         /// Gets the number of bytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Bytes { get { return unitSize.ConvertTo(ByteUnit, units); } }
+        public double Bytes => unitSize.ConvertTo(ByteUnit, units);
 
         /// <summary>
         /// Gets the number of kilobytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Kilobytes { get { return unitSize.ConvertTo(KilobyteUnit, units); } }
+        public double Kilobytes => unitSize.ConvertTo(KilobyteUnit, units);
 
         /// <summary>
         /// Gets the number of megabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Megabytes { get { return unitSize.ConvertTo(MegabyteUnit, units); } }
+        public double Megabytes => unitSize.ConvertTo(MegabyteUnit, units);
 
         /// <summary>
         /// Gets the number of gigabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Gigabytes { get { return unitSize.ConvertTo(GigabyteUnit, units); } }
+        public double Gigabytes => unitSize.ConvertTo(GigabyteUnit, units);
 
         /// <summary>
         /// Gets the number of terabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Terabytes { get { return unitSize.ConvertTo(TerabyteUnit, units); } }
+        public double Terabytes => unitSize.ConvertTo(TerabyteUnit, units);
 
         /// <summary>
         /// Gets the number of petabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Petabytes { get { return unitSize.ConvertTo(PetabyteUnit, units); } }
+        public double Petabytes => unitSize.ConvertTo(PetabyteUnit, units);
+
+        /// <summary>
+        /// Compares the two objects to determine if they contain the same number of bytes.
+        /// </summary>
+        /// <param name="leftTerm">
+        /// The object to compare to.
+        /// </param>
+        /// <param name="rightTerm">
+        /// The object to compare with.
+        /// </param>
+        /// <returns>
+        /// True if the two values are the same.
+        /// </returns>
+        public static bool operator ==(FileSize leftTerm, FileSize rightTerm)
+        {
+            // Return true if the fields match:
+            return leftTerm.Bytes == rightTerm.Bytes;
+        }
+
+        /// <summary>
+        /// Compares the two objects to determine if they contain a different number of bytes.
+        /// </summary>
+        /// <param name="leftTerm">
+        /// The object to compare to.
+        /// </param>
+        /// <param name="rightTerm">
+        /// The object to compare with.
+        /// </param>
+        /// <returns>
+        /// True if the two values are different.
+        /// </returns>
+        public static bool operator !=(FileSize leftTerm, FileSize rightTerm)
+        {
+            return !(leftTerm == rightTerm);
+        }
 
         /// <summary>
         /// Creates a new <see cref="FileSize"/> instance that represents the given number
@@ -180,10 +220,13 @@ namespace Blueprint.Core.Utilities
         /// </returns>
         public override bool Equals(object obj)
         {
-            var fs = obj is FileSize ? (FileSize)obj : new FileSize();
+            if (!(obj is FileSize size))
+            {
+                return false;
+            }
 
             // Return true if the fields match:
-            return fs.Bytes == Bytes;
+            return size.Bytes == Bytes;
         }
 
         /// <summary>
@@ -223,38 +266,33 @@ namespace Blueprint.Core.Utilities
         /// <returns>A string representation of this file size.</returns>
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            if (formatProvider != null)
+            if (formatProvider?.GetFormat(typeof(FileSize)) is ICustomFormatter formatter)
             {
-                var formatter = formatProvider.GetFormat(typeof(FileSize)) as ICustomFormatter;
-
-                if (formatter != null)
-                {
-                    return formatter.Format(format, this, formatProvider);
-                }
+                return formatter.Format(format, this, formatProvider);
             }
 
-            return GetUnitSizeForFormat(format, units).Format(units);
+            return GetUnitSizeForFormat(format, Bytes).Format(Bytes);
         }
 
-        private static UnitSize GetUnitSizeForFormat(string format, double sizeInbytes)
+        private static UnitSize GetUnitSizeForFormat(string format, double sizeInBytes)
         {
             // Can specify format with format modifier plus a unit (e.g. 'N4:FS')
             if (format != null && format.Contains(":"))
             {
                 var parts = format.Split(':');
-                var unit = GetDefaultUnitSizeForFormat(parts[1], sizeInbytes);
+                var unit = GetDefaultUnitSizeForFormat(parts[1], sizeInBytes);
 
                 return new UnitSize { FormatModifier = parts[0], Suffix = unit.Suffix, UnitValue = unit.UnitValue };
             }
 
-            return GetDefaultUnitSizeForFormat(format, sizeInbytes);
+            return GetDefaultUnitSizeForFormat(format, sizeInBytes);
         }
 
         private static UnitSize GetDefaultUnitSizeForFormat(string unitFormat, double bytes)
         {
             unitFormat = (unitFormat ?? FileSystemFormatSpecifier).ToUpperInvariant();
 
-            if (unitFormat.Equals(FileSystemFormatSpecifier) || !Units.Any(u => u.Suffix == unitFormat))
+            if (unitFormat.Equals(FileSystemFormatSpecifier) || Units.All(u => u.Suffix != unitFormat))
             {
                 return Units.Last(m => bytes >= m.UnitValue);
             }
@@ -265,41 +303,6 @@ namespace Blueprint.Core.Utilities
         private static UnitSize GetUnitSize(string unitFormat)
         {
             return Units.Single(m => m.Suffix == unitFormat);
-        }
-
-        /// <summary>
-        /// Compares the two objects to determine if they contain the same number of bytes.
-        /// </summary>
-        /// <param name="leftTerm">
-        /// The object to compare to.
-        /// </param>
-        /// <param name="rightTerm">
-        /// The object to compare with.
-        /// </param>
-        /// <returns>
-        /// True if the two values are the same.
-        /// </returns>
-        public static bool operator ==(FileSize leftTerm, FileSize rightTerm)
-        {
-            // Return true if the fields match:
-            return leftTerm.Bytes == rightTerm.Bytes;
-        }
-
-        /// <summary>
-        /// Compares the two objects to determine if they contain a different number of bytes.
-        /// </summary>
-        /// <param name="leftTerm">
-        /// The object to compare to.
-        /// </param>
-        /// <param name="rightTerm">
-        /// The object to compare with.
-        /// </param>
-        /// <returns>
-        /// True if the two values are different.
-        /// </returns>
-        public static bool operator !=(FileSize leftTerm, FileSize rightTerm)
-        {
-            return !(leftTerm == rightTerm);
         }
 
         private class UnitSize

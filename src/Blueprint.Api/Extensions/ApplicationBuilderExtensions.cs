@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 // This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -25,12 +25,15 @@ namespace Microsoft.AspNetCore.Builder
             var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
             var apiOperationExecutor = applicationBuilder.ApplicationServices.GetRequiredService<IApiOperationExecutor>();
             var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
-            
+
             // Ensure ends with a slash, but only one
             apiPrefix = apiPrefix.TrimEnd('/') + '/';
 
             var routeBuilder = new RouteBuilder(applicationBuilder);
-            var routeHandler = new BlueprintApiRouter(apiOperationExecutor, applicationBuilder.ApplicationServices);
+            var routeHandler = new BlueprintApiRouter(
+                apiOperationExecutor,
+                applicationBuilder.ApplicationServices,
+                applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>());
 
             // Ordering by 'indexOf {' means we put those URLs which are not placeholders
             // first (e.g. /users/{id} and /users/me will put /users/me first)
@@ -44,24 +47,12 @@ namespace Microsoft.AspNetCore.Builder
                     routeTemplate: apiPrefix + safeRouteUrl,
                     defaults: new RouteValueDictionary(new
                     {
-                        operation = link.OperationDescriptor
+                        operation = link.OperationDescriptor,
                     }),
                     constraints: new Dictionary<string, object>
                     {
-                        ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString())
+                        ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString()),
                     },
-                    dataTokens: null,
-                    inlineConstraintResolver: inlineConstraintResolver));
-            }
-
-            if (options.NotFoundMode == NotFoundMode.Handle)
-            {
-                routeBuilder.Routes.Add(new Route(
-                    target: new BlueprintApiNotFoundRouter(),
-                    routeName: "api-not-found",
-                    routeTemplate: apiPrefix + "{*url}",
-                    defaults: new RouteValueDictionary(),
-                    constraints: null,
                     dataTokens: null,
                     inlineConstraintResolver: inlineConstraintResolver));
             }
@@ -71,34 +62,35 @@ namespace Microsoft.AspNetCore.Builder
 
         private class BlueprintApiRouter : IRouter
         {
-            private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
             private readonly IApiOperationExecutor apiOperationExecutor;
             private readonly IServiceProvider rootServiceProvider;
+            private readonly ILogger<BlueprintApiRouter> logger;
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
-                IServiceProvider rootServiceProvider)
+                IServiceProvider rootServiceProvider,
+                ILogger<BlueprintApiRouter> logger)
             {
                 this.apiOperationExecutor = apiOperationExecutor;
                 this.rootServiceProvider = rootServiceProvider;
+                this.logger = logger;
             }
 
             public Task RouteAsync(RouteContext context)
             {
                 context.Handler = async c =>
                 {
-                    var operation = (ApiOperationDescriptor) context.RouteData.Values["operation"];
+                    var operation = (ApiOperationDescriptor)context.RouteData.Values["operation"];
 
                     if (operation.HttpMethod.ToString() != context.HttpContext.Request.Method)
                     {
-                        Log.Info(
+                        logger.LogInformation(
                             "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
                             context.HttpContext.Request.GetDisplayUrl(),
                             context.HttpContext.Request.Method,
                             operation.HttpMethod);
 
-                        context.HttpContext.Response.StatusCode = (int) HttpStatusCode.MethodNotAllowed;
+                        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 
                         return;
                     }
@@ -108,40 +100,14 @@ namespace Microsoft.AspNetCore.Builder
                         var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation)
                         {
                             RouteData = context.RouteData.Values,
-                            HttpContext = context.HttpContext
+                            HttpContext = context.HttpContext,
                         };
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
-                        result.Execute(apiContext);
+                        await result.ExecuteAsync(apiContext);
                     }
-                };
-
-                return Task.CompletedTask;
-            }
-
-            public VirtualPathData GetVirtualPath(VirtualPathContext context)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class BlueprintApiNotFoundRouter : IRouter
-        {
-            private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-            public Task RouteAsync(RouteContext context)
-            {
-                context.Handler = c =>
-                {
-                    Log.Info(
-                        "Request does not match API endpoint. url={0}",
-                        context.HttpContext.Request.GetDisplayUrl());
-
-                    context.HttpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
-
-                    return Task.CompletedTask;
                 };
 
                 return Task.CompletedTask;

@@ -10,7 +10,7 @@ namespace Blueprint.Core.Caching.Configuration
     public class FixedCachingStrategy : CachingStrategy
     {
         /// <summary>
-        /// Gets the time span that determines the length of time that an item will be stored
+        /// Gets or sets the time span that determines the length of time that an item will be stored
         /// in a cache from the moment it is first inserted.
         /// </summary>
         public TimeSpan TimeSpan { get; set; }

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Blueprint.Api.Validation;
 using Blueprint.Core.ThirdParty;
 using Blueprint.Core.Utilities;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api
@@ -25,7 +26,7 @@ namespace Blueprint.Api
             { typeof(int), new PropertyValidator { Name = "integer", Parameter = "true" } },
             { typeof(double), new PropertyValidator { Name = "numeric", Parameter = "true" } },
             { typeof(decimal), new PropertyValidator { Name = "numeric", Parameter = "true" } },
-            { typeof(float), new PropertyValidator { Name = "numeric", Parameter = "true" } }
+            { typeof(float), new PropertyValidator { Name = "numeric", Parameter = "true" } },
         };
 
         /// <summary>
@@ -61,96 +62,106 @@ namespace Blueprint.Api
             }
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RegexAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "regex",
                 Parameter = "/{0}/{1}".Fmt(attribute.Regex.ToString(), attribute.Regex.Options.HasFlag(RegexOptions.IgnoreCase) ? "i" : string.Empty),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RegularExpressionAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "regex",
                 Parameter = "/{0}/".Fmt(attribute.Pattern),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RangeAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "range",
                 Parameter = "[{0},{1}]".Fmt(attribute.Minimum, attribute.Maximum),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "required",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(StringLengthAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "rangeLength",
                 Parameter = "[{0},{1}]".Fmt(attribute.MinimumLength, attribute.MaximumLength),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(InFutureAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "inFuture",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(InPastAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "inPast",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(NotInFutureAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "notInFuture",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(NotInPastAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "notInPast",
                 Parameter = "true",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredIfAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -159,12 +170,13 @@ namespace Blueprint.Api
                 Parameter = JsonConvert.SerializeObject(new
                 {
                     property = attribute.DependentProperty.Camelize(),
-                    equalsOneOf = attribute.DependentValues
+                    equalsOneOf = attribute.DependentValues,
                 }),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(RequiredIfNotAttribute attribute, string propertyName)
         {
             return new PropertyValidator
@@ -173,59 +185,64 @@ namespace Blueprint.Api
                 Parameter = JsonConvert.SerializeObject(new
                 {
                     property = attribute.DependantProperty.Camelize(),
-                    equalsOneOf = attribute.DependantValues
+                    equalsOneOf = attribute.DependantValues,
                 }),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(MustBeTrueAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "equalTo",
                 Parameter = "{ value: true }",
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(GreaterThanAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "moreThan",
                 Parameter = attribute.MinimumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(GreaterThanOrEqualToAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "min",
                 Parameter = attribute.MinimumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(LessThanAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "lessThan",
                 Parameter = attribute.MaximumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
 
+        [UsedImplicitly]
         private static PropertyValidator Handle(LessThanOrEqualToAttribute attribute, string propertyName)
         {
             return new PropertyValidator
             {
                 Name = "max",
                 Parameter = attribute.MaximumValue.ToString(),
-                Message = attribute.FormatErrorMessage(propertyName)
+                Message = attribute.FormatErrorMessage(propertyName),
             };
         }
     }

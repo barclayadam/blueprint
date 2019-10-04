@@ -5,6 +5,7 @@ pool:
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   Prerelease: 'ci'
+  BuildConfiguration: 'Release'
 
 # CI Trigger on master branch
 trigger:
@@ -31,33 +32,55 @@ steps:
   - task: UseDotNet@2
     inputs:
       packageType: 'runtime'
-      version: '2.2.5'
+      version: '2.2.x'
 
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '3.0.100-preview9-014004'
+      version: '3.0.x'
 
-  - task: PowerShell@2
-    displayName: 'Build / Test / Create Packages'
+  - task: SonarSource.sonarqube.15B84CA1-B62F-4A2A-A403-89B77A063157.SonarQubePrepare@4
+    displayName: 'SonarQube Preparation'
     inputs:
-      targetType: inline
-      script: .\build.ps1 -PullRequestNumber $env:SYSTEM_PULLREQUEST_PULLREQUESTNUMBER -Prerelease $(Prerelease)
+      SonarQube: 'SonarCloud'
+      projectKey: barclayadam_blueprint
+      projectName: Blueprint
+      extraProperties: |
+        sonar.organization=barclayadam
 
-  - task: PublishTestResults@2
-    displayName: 'Publish Test Results **/*.trx'
-    condition: succeededOrFailed()
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
     inputs:
-      testRunner: VSTest
-      testResultsFiles: '**/*.trx'
+      command: 'build'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
 
-  # PR doesn't create nuget packages
-  - task: NuGetCommand@2
-    displayName: 'NuGet push'
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test'
+    inputs:
+      command: 'test'
+      nobuild: true
+      arguments: '--collect "Code coverage"'
+
+  # Pack a NuGet package to a test directory
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet pack'
+    inputs:
+      command: 'pack'
+      outputDir: '$(Build.ArtifactStagingDirectory)/.nupkgs'
+      nobuild: true
+      verbosityPack: 'minimal'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet push'
     inputs:
       command: 'push'
-      packagesToPush: '.nupkgs/*.nupkg'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg'
       nuGetFeedType: 'internal'
       publishVstsFeed: '91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c'
       allowPackageConflicts: true
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: SonarSource.sonarqube.6D01813A-9589-4B15-8491-8164AEB38055.SonarQubeAnalyze@4
+    displayName: 'SonarQube analysis'

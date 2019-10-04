@@ -5,6 +5,7 @@ using FluentAssertions;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 
@@ -54,7 +55,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
         {
             // Arrange
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
-            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object));
+            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object), new NullLogger<HangfireBackgroundTaskScheduleProvider>());
 
             // Act
             await backgroundTaskExecutor.EnqueueAsync(new NoPropertiesTask());
@@ -68,7 +69,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
         {
             // Arrange
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
-            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object));
+            var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(new Lazy<IBackgroundJobClient>(() => backgroundJobClient.Object), new NullLogger<HangfireBackgroundTaskScheduleProvider>());
 
             // Act
             await backgroundTaskExecutor.EnqueueAsync(new QueueAttributeTask());

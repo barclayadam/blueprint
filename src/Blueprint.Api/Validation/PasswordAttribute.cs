@@ -7,11 +7,12 @@ namespace Blueprint.Api.Validation
     /// <summary>
     /// Requires that a string is of sufficent complexity to be classed as a valid password.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments",
-            Justification = "errorMessageAccessor belongs to the base class, thus cannot have a public accesso.r")]
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments", Justification = "errorMessageAccessor belongs to the base class, thus cannot have a public accesso.r")]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class PasswordAttribute : RegexAttribute
     {
+        private const string DefaultMessage = "A password must contain at least: 1 lower case letter, 1 upper case letter, 1 number, 1 special character and be at least 8 characters long.";
+
         /// <summary>
         /// A regular expression that matches any string that contains at least
         ///     +one lower case letter,
@@ -22,13 +23,11 @@ namespace Blueprint.Api.Validation
         private static readonly Regex StrongPassword =
                 new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$", RegexOptions.Compiled);
 
-        private const string InvalidPasswordMessage = "A password must contain at least: 1 lower case letter, 1 upper case letter, 1 number, 1 special character and be at least 8 characters long.";
-
         /// <summary>
         /// Initializes a new instance of the PasswordAttribute class.
         /// </summary>
         public PasswordAttribute()
-            : base(StrongPassword, InvalidPasswordMessage)
+            : base(StrongPassword, DefaultMessage)
         {
         }
 
@@ -49,7 +48,7 @@ namespace Blueprint.Api.Validation
         /// <param name="errorMessage">The error message to be shown on validation failure.</param>
         /// <param name="appendInvalidPasswordDescription">Determines whether the invalid password description should be appended to the error message.</param>
         public PasswordAttribute(string errorMessage, bool appendInvalidPasswordDescription)
-            : base(StrongPassword, appendInvalidPasswordDescription ? errorMessage + " " + InvalidPasswordMessage : errorMessage)
+            : base(StrongPassword, appendInvalidPasswordDescription ? errorMessage + " " + DefaultMessage : errorMessage)
         {
         }
 

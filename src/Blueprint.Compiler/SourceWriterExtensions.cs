@@ -16,7 +16,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Adds a "namespace [@namespace]" declaration into the code, and starts a new
-        /// code block with a leading '{' character
+        /// code block with a leading '{' character.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="namespace"></param>
@@ -27,7 +27,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Adds a "using namespace;" declaration into the code for the namespace
-        /// that holds the type T
+        /// that holds the type T.
         /// </summary>
         /// <param name="writer"></param>
         /// <typeparam name="T"></typeparam>
@@ -37,7 +37,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Adds a "using namespace;" declaration into the code for the namespace
+        /// Adds a "using namespace;" declaration into the code for the namespace.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="namespace"></param>
@@ -48,7 +48,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Writes "using ([declaration])" into the code and starts a new code
-        /// block with a leading '{' character
+        /// block with a leading '{' character.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="declaration"></param>
@@ -64,7 +64,7 @@ namespace Blueprint.Compiler
 
         /// <summary>
         /// Writes either "return;" or "return Task.CompletedTask;" into the code
-        /// for synchronous or asynchronous methods
+        /// for synchronous or asynchronous methods.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="method"></param>
@@ -81,7 +81,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Writes a "return [variable.Usage];" code snippet 
+        /// Writes a "return [variable.Usage];" code snippet .
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="method"></param>
@@ -91,12 +91,12 @@ namespace Blueprint.Compiler
             object[] args = new[] { variable.Usage };
             writer.WriteLine(method.AsyncMode == AsyncMode.AsyncTask
                 ? $"return {variable.Usage};"
-                : String.Format(ReturnFromResult, args));
+                : string.Format(ReturnFromResult, args));
         }
 
         /// <summary>
         /// Writes the text into the code as a comment at the current
-        /// block level
+        /// block level.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="comment"></param>
@@ -106,17 +106,17 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Starts an if block in code with the opening brace and indention for following lines
+        /// Starts an if block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="statement">The statement to put inside the if block</param>
+        /// <param name="statement">The statement to put inside the if block.</param>
         public static void WriteIf(this ISourceWriter writer, string statement)
         {
             writer.Write($"BLOCK:if({statement})");
         }
 
         /// <summary>
-        /// Starts an else block in code with the opening brace and indention for following lines
+        /// Starts an else block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer"></param>
         public static void WriteElse(this ISourceWriter writer)
@@ -125,7 +125,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Starts a try block in code with the opening brace and indention for following lines
+        /// Starts a try block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer"></param>
         public static void WriteTry(this ISourceWriter writer)
@@ -134,7 +134,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Starts a finally block in code with the opening brace and indention for following lines
+        /// Starts a finally block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer"></param>
         public static void WriteFinally(this ISourceWriter writer)
@@ -144,7 +144,7 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
-        /// Writes the declaration of a new class to the source writer
+        /// Writes the declaration of a new class to the source writer.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="className"></param>
@@ -160,6 +160,5 @@ namespace Blueprint.Compiler
                 writer.Write($"BLOCK:public class {className} : {inheritsOrImplements.Select(x => x.FullNameInCode()).Join(", ")}");
             }
         }
-
     }
 }

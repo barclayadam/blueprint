@@ -16,7 +16,7 @@ namespace Blueprint.Api.Validation
             var contextCreator =
                 new ConstructorFrame<ValidationContext>(() => new ValidationContext(null))
                 {
-                    Parameters = { [0] = operationVariable }
+                    Parameters = { [0] = operationVariable },
                 };
 
             var hasClassLevel = typeof(IValidatableObject).IsAssignableFrom(operationVariable.VariableType);

@@ -1,7 +1,9 @@
 using System;
 using System.Net;
 using System.Security;
+using System.Threading.Tasks;
 using Blueprint.Api.Errors;
+using Blueprint.Api.Http;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +20,7 @@ namespace Blueprint.Api
 
         public Exception Exception { get; }
 
-        public override void Execute(ApiOperationContext context)
+        public override Task ExecuteAsync(ApiOperationContext context)
         {
             var configuration = context.ServiceProvider.GetService<IConfiguration>();
             var shouldExpose = Convert.ToBoolean(configuration["Api.ExposeErrorMessage"] ?? "true");
@@ -28,7 +30,7 @@ namespace Blueprint.Api
                 Content.Error.Message = "Something has gone wrong, please try again";
             }
 
-            base.Execute(context);
+            return base.ExecuteAsync(context);
         }
 
         private static HttpStatusCode ToStatusCode(Exception exception)
@@ -52,7 +54,7 @@ namespace Blueprint.Api
         {
             return new ErrorResponse
             {
-                Error = GetErrorResponse(exception)
+                Error = GetErrorResponse(exception),
             };
         }
 
@@ -64,21 +66,21 @@ namespace Blueprint.Api
                     return new ErrorResponseDetail
                     {
                         Code = errorCodeProvider.ErrorCode,
-                        Message = errorCodeProvider.ErrorMessage
+                        Message = errorCodeProvider.ErrorMessage,
                     };
 
                 case InvalidOperationException _:
                     return new ErrorResponseDetail
                     {
                         Code = "bad_request",
-                        Message = e.Message
+                        Message = e.Message,
                     };
 
                 case SecurityException _:
                     return new ErrorResponseDetail
                     {
                         Code = "unauthenticated",
-                        Message = e.Message
+                        Message = e.Message,
                     };
             }
 
@@ -86,7 +88,7 @@ namespace Blueprint.Api
             {
                 Code = "unknown_error",
 
-                Message = e.ToString()
+                Message = e.ToString(),
             };
         }
     }

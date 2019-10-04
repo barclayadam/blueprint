@@ -8,7 +8,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 #if !NET472
 using System.Runtime.Loader;
@@ -18,11 +18,16 @@ namespace Blueprint.Compiler
 {
     public class ToFileCompileStrategy : ICompileStrategy
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<InMemoryOnlyCompileStrategy> logger;
+
+        public ToFileCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
+        {
+            this.logger = logger;
+        }
 
         public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
-            var sourceTexts =  compilation.SyntaxTrees.Select(s => s.GetText());
+            var sourceTexts = compilation.SyntaxTrees.Select(s => s.GetText());
             var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
 
             var assemblyName = compilation.AssemblyName + ".dll";
@@ -48,7 +53,7 @@ namespace Blueprint.Compiler
 
                 if (previousHash == sourceTextHash)
                 {
-                    Log.Info("NOT compiling as previous compilation exists at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+                    logger.LogInformation("NOT compiling as previous compilation exists at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
                     needsCompile = false;
                 }
@@ -56,7 +61,7 @@ namespace Blueprint.Compiler
 
             if (needsCompile)
             {
-                Log.Info("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+                logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
                 Compile(compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
 
@@ -66,11 +71,11 @@ namespace Blueprint.Compiler
 #if !NET472
             return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
-                    return Assembly.LoadFrom(assemblyFile);
+            return Assembly.LoadFrom(assemblyFile);
 #endif
         }
 
-        static string GetSha256Hash(string input)
+        private static string GetSha256Hash(string input)
         {
             using (var shaHash = SHA256.Create())
             {
@@ -87,7 +92,7 @@ namespace Blueprint.Compiler
             }
         }
 
-        private static void Compile(
+        private void Compile(
             CSharpCompilation compilation,
             Action<EmitResult> check,
             IEnumerable<SyntaxTree> syntaxTrees,
@@ -120,11 +125,11 @@ namespace Blueprint.Compiler
                 }
 
                 var assemblyBytes = assemblyStream.ToArray();
-                Log.Info($"Writing assembly file to \"{assemblyFile}\" with {assemblyBytes.Length} bytes");
+                logger.LogInformation($"Writing assembly file to \"{assemblyFile}\" with {assemblyBytes.Length} bytes");
                 File.WriteAllBytes(assemblyFile, assemblyBytes);
 
                 var symbolBytes = symbolsStream.ToArray();
-                Log.Info($"Writing symbol file to \"{symbolsFile}\" with {symbolBytes.Length} bytes");
+                logger.LogInformation($"Writing symbol file to \"{symbolsFile}\" with {symbolBytes.Length} bytes");
                 File.WriteAllBytes(symbolsFile, symbolBytes);
             }
         }

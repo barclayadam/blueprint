@@ -1,23 +1,27 @@
 using System.Threading.Tasks;
 using Blueprint.Core;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api
 {
     public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly IApiAuthoriserAggregator apiAuthoriserAggregator;
         private readonly ApiLinkGenerator linkGenerator;
+        private readonly ILogger<EntityOperationResourceLinkGenerator> logger;
 
-        public EntityOperationResourceLinkGenerator(IApiAuthoriserAggregator apiAuthoriserAggregator, ApiLinkGenerator linkGenerator)
+        public EntityOperationResourceLinkGenerator(
+            IApiAuthoriserAggregator apiAuthoriserAggregator,
+            ApiLinkGenerator linkGenerator,
+            ILogger<EntityOperationResourceLinkGenerator> logger)
         {
             Guard.NotNull(nameof(apiAuthoriserAggregator), apiAuthoriserAggregator);
             Guard.NotNull(nameof(linkGenerator), linkGenerator);
+            Guard.NotNull(nameof(logger), logger);
 
             this.apiAuthoriserAggregator = apiAuthoriserAggregator;
             this.linkGenerator = linkGenerator;
+            this.logger = logger;
         }
 
         public async Task AddLinksAsync(ApiOperationContext context, ILinkableResource linkableResource)
@@ -34,9 +38,9 @@ namespace Blueprint.Api
 
                 if (!entityOperation.IsExposed)
                 {
-                    if (Log.IsTraceEnabled)
+                    if (logger.IsEnabled(LogLevel.Trace))
                     {
-                        Log.Trace("Operation not exposed, excluding. operation_type={0}", entityOperationName);
+                        logger.LogTrace("Operation not exposed, excluding. operation_type={0}", entityOperationName);
                     }
 
                     continue;
@@ -46,17 +50,17 @@ namespace Blueprint.Api
 
                 if (result.IsAllowed == false)
                 {
-                    if (Log.IsTraceEnabled)
+                    if (logger.IsEnabled(LogLevel.Trace))
                     {
-                        Log.Trace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
+                        logger.LogTrace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
                     }
 
                     continue;
                 }
 
-                if (Log.IsTraceEnabled)
+                if (logger.IsEnabled(LogLevel.Trace))
                 {
-                    Log.Trace("All checks passed. Adding link. operation_type={0}", entityOperationName);
+                    logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
                 }
 
                 linkableResource.AddLink(link.Rel, ConvertResourceDescriptorToLink(link, linkableResource));
@@ -67,7 +71,7 @@ namespace Blueprint.Api
         {
             return new Link
             {
-                Href = linkGenerator.CreateUrlFromLink(link, result)
+                Href = linkGenerator.CreateUrlFromLink(link, result),
             };
         }
     }

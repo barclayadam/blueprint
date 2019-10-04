@@ -23,7 +23,7 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Gets all registered links for this model, with a link representing the association between a resource and a different
-        /// operation (for example a link between the resource 'Jobs' and the operation 'Apply')
+        /// operation (for example a link between the resource 'Jobs' and the operation 'Apply').
         /// </summary>
         public IEnumerable<ApiOperationLink> Links => allLinks;
 
@@ -54,6 +54,7 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="operation">The configured operation instance.</param>
+        /// <typeparam name="T">The exact type of the operation to execute.</typeparam>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
         public ApiOperationContext CreateOperationContext<T>(IServiceProvider serviceProvider, T operation) where T : IApiOperation
         {

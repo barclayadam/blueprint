@@ -15,16 +15,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="NLog" Version="4.6.7" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.5.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="NLog.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />

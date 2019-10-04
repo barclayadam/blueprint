@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.8.0" />
     <PackageReference Include="Hangfire.Core" Version="1.7.6" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.1" />
     <PackageReference Include="Moq" Version="4.7.99" />
@@ -26,7 +27,6 @@
     <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings.StyleCop" />
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
   </ItemGroup>

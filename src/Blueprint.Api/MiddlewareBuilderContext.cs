@@ -13,46 +13,46 @@ namespace Blueprint.Api
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
 
-        private readonly GeneratedAssembly generatedAssembly;
         private readonly IInstanceFrameProvider instanceFrameProvider;
 
         internal MiddlewareBuilderContext(
-            GeneratedAssembly generatedAssembly,
-            ApiOperationContextVariableSource apiContextVariableSource,
-            GeneratedType generatedType,
             GeneratedMethod executeMethod,
+            ApiOperationContextVariableSource apiContextVariableSource,
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
             IServiceProvider serviceProvider,
             IInstanceFrameProvider instanceFrameProvider)
         {
             ApiContextVariableSource = apiContextVariableSource;
-            GeneratedType = generatedType;
             ExecuteMethod = executeMethod;
             Descriptor = descriptor;
             Model = model;
             ServiceProvider = serviceProvider;
 
-            this.generatedAssembly = generatedAssembly;
             this.instanceFrameProvider = instanceFrameProvider;
         }
 
         /// <summary>
-        /// An <see cref="IVariableSource" /> that should be used to grab any variables that would
+        /// Gets an <see cref="IVariableSource" /> that should be used to grab any variables that would
         /// be found on the <see cref="ApiOperationContext" />.
         /// </summary>
         public ApiOperationContextVariableSource ApiContextVariableSource { get; }
-
-        /// <summary>
-        /// Gets the generated type that contains the execution method and implements <see cref="IOperationExecutorPipeline" />.
-        /// </summary>
-        public GeneratedType GeneratedType { get; }
 
         /// <summary>
         /// Gets the <see cref="GeneratedMethod" /> that is being built to handle the execution of
         /// an operation of the type described in the <see cref="Descriptor"/>.
         /// </summary>
         public GeneratedMethod ExecuteMethod { get; }
+
+        /// <summary>
+        /// Gets the generated type that contains the execution method and implements <see cref="IOperationExecutorPipeline" />.
+        /// </summary>
+        public GeneratedType GeneratedType => ExecuteMethod.GeneratedType;
+
+        /// <summary>
+        /// Gets the assembly that contains the generated pipeline.
+        /// </summary>
+        public GeneratedAssembly GeneratedAssembly => GeneratedType.GeneratedAssembly;
 
         /// <summary>
         /// Gets the descriptor for the operation that a method is currently being generated for.
@@ -67,8 +67,8 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets the service provider.
         /// </summary>
-        public IServiceProvider ServiceProvider { get; set; }
-        
+        public IServiceProvider ServiceProvider { get; }
+
         /// <summary>
         /// Gets the currently registered exception handlers.
         /// </summary>
@@ -78,12 +78,12 @@ namespace Blueprint.Api
         /// Adds a reference to the given <see cref="Assembly" /> to the generated assembly, ensuring that any types that are used
         /// within the generated source code is available.
         /// </summary>
-        /// <param name="assembly">The assembly to reference</param>
+        /// <param name="assembly">The assembly to reference.</param>
         public void AddAssemblyReference(Assembly assembly)
         {
             Guard.NotNull(nameof(assembly), assembly);
 
-            generatedAssembly.ReferenceAssembly(assembly);
+            GeneratedAssembly.ReferenceAssembly(assembly);
         }
 
         /// <summary>
@@ -99,7 +99,13 @@ namespace Blueprint.Api
         /// Registers a handler for a given exception type, a set of frames that will make up the catch clause
         /// of an all-surrounding try-block for the whole operation pipeline.
         /// </summary>
-        /// <param name="exceptionType">The type of exception to handle.</param>
+        /// <remarks>
+        /// This is useful for providing more specific processing of known exceptions, for example a <c>ValidationException</c>, where
+        /// the overall exception strategy is not appropriate. In the case of validations for example, a HTTP response code of 422 makes
+        /// more sense in a HTTP concept than the generic 500 failure.
+        /// </remarks>
+        /// <param name="exceptionType">The type of exception to handle (this is the exact type output to the generated code, meaning this
+        /// type and everything that inherits it will be caught).</param>
         /// <param name="create">A method to create the frames, passed a <see cref="Variable"/> that will be of the
         /// specified exception type and represents the caught exception.</param>
         public void RegisterUnhandledExceptionHandler(Type exceptionType, Func<Variable, IEnumerable<Frame>> create)

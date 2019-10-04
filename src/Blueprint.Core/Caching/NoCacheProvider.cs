@@ -32,8 +32,7 @@ namespace Blueprint.Core.Caching
         /// <returns>
         /// The value <c>false</c> on all occasions.
         /// </returns>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type parameter used to determine unique key.")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type parameter used to determine unique key.")]
         public bool ContainsKey(string key)
         {
             return false;
@@ -59,8 +58,7 @@ namespace Blueprint.Core.Caching
         /// <param name="key">
         /// The key to remove the value for.
         /// </param>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter",
-                Justification = "Type parameter used to determine unique key.")]
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type parameter used to determine unique key.")]
         public void Remove(string key)
         {
         }

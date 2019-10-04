@@ -44,18 +44,18 @@ namespace Blueprint.Core.Caching.Configuration
         public static CachingConfiguration Current { get; set; } = new CachingConfiguration();
 
         /// <summary>
-        /// Gets a value indicating whether caching should be enabled.
+        /// Gets or sets a value indicating whether caching should be enabled.
         /// </summary>
         public bool IsEnabled { get; set; }
 
         /// <summary>
-        /// Gets the type of the provider that should be used for caching.
+        /// Gets or sets the type of the provider that should be used for caching.
         /// </summary>
         public Type ProviderType { get; set; } = typeof(NoCacheProvider);
 
         /// <summary>
-        /// Gets the strategies that have been defined, used to decide how (and if) an item will be cached;
+        /// Gets the strategies that have been defined, used to decide how (and if) an item will be cached.
         /// </summary>
-        public List<ICachingStrategy> Strategies { get; set; } = new List<ICachingStrategy>();
+        public List<ICachingStrategy> Strategies { get; } = new List<ICachingStrategy>();
     }
 }

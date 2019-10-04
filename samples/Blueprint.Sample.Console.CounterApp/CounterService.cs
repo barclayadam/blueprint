@@ -4,29 +4,32 @@ using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Sample.Console.CounterApp.Api;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NLog;
 
 namespace Blueprint.Sample.Console.CounterApp
 {
     public class CounterService : IHostedService, IDisposable
     {
-        public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private readonly IOptionsMonitor<CounterConfiguration> configuration;
         private readonly IApiOperationExecutor apiOperationExecutor;
+        private readonly ILogger logger;
 
         private Timer timer;
 
-        public CounterService(IOptionsMonitor<CounterConfiguration> configuration, IApiOperationExecutor apiOperationExecutor)
+        public CounterService(
+            IOptionsMonitor<CounterConfiguration> configuration,
+            IApiOperationExecutor apiOperationExecutor,
+            ILogger<CounterService> logger)
         {
             this.configuration = configuration;
             this.apiOperationExecutor = apiOperationExecutor;
+            this.logger = logger;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Log.Info("Starting CounterApp!");
+            logger.LogInformation("Starting CounterApp!");
 
             var max = configuration.CurrentValue.Max;
 
@@ -45,7 +48,7 @@ namespace Blueprint.Sample.Console.CounterApp
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Log.Warn("Stopping CounterApp!");
+            logger.LogWarning("Stopping CounterApp!");
 
             timer?.Change(Timeout.Infinite, 0);
 

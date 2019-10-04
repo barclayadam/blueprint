@@ -8,17 +8,21 @@ namespace Blueprint.Compiler
     public class SourceWriter : ISourceWriter
     {
         private readonly StringWriter writer = new StringWriter();
-        private string leadingSpaces = "";
 
         private int level;
+        private string leadingSpaces = string.Empty;
 
         public int IndentionLevel
         {
-            get { return level; }
+            get
+            {
+                return level;
+            }
+
             set
             {
                 level = value;
-                leadingSpaces = "".PadRight(level*4);
+                leadingSpaces = new string(' ', level * 4);
             }
         }
 
@@ -64,12 +68,6 @@ namespace Blueprint.Compiler
             writer.WriteLine(leadingSpaces + text);
         }
 
-        private void StartBlock()
-        {
-            WriteLine("{");
-            IndentionLevel++;
-        }
-
         public void FinishBlock(string extra = null)
         {
             if (IndentionLevel == 0)
@@ -80,10 +78,13 @@ namespace Blueprint.Compiler
             IndentionLevel--;
 
             if (string.IsNullOrEmpty(extra))
+            {
                 WriteLine("}");
+            }
             else
+            {
                 WriteLine("}" + extra);
-
+            }
 
             BlankLine();
         }
@@ -93,19 +94,10 @@ namespace Blueprint.Compiler
             return writer.ToString();
         }
 
-        internal class BlockMarker : IDisposable
+        private void StartBlock()
         {
-            private readonly SourceWriter parent;
-
-            public BlockMarker(SourceWriter parent)
-            {
-                this.parent = parent;
-            }
-
-            public void Dispose()
-            {
-                parent.FinishBlock();
-            }
+            WriteLine("{");
+            IndentionLevel++;
         }
     }
 }

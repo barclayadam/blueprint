@@ -12,7 +12,9 @@ namespace Blueprint.Core.Utilities
             var jProperty = base.CreateProperty(member, memberSerialization);
 
             if (jProperty.Writable)
+            {
                 return jProperty;
+            }
 
             jProperty.Writable = IsPropertyWithSetter(member);
 

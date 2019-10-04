@@ -9,11 +9,12 @@ namespace Blueprint.Api.Validation
     /// <summary>
     /// Makes the property required if the 'dependant property' has a value that doesn't exists in the 'dependant value'.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class RequiredIfNotAttribute : ValidationAttribute
     {
-        private readonly IEnumerable<string> convertedValues;
         private const string RequiredFieldMessage = "The field {0} is required.";
+
+        private readonly IEnumerable<string> convertedValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
@@ -43,21 +44,21 @@ namespace Blueprint.Api.Validation
         /// <summary>
         /// Gets the dependant value.
         /// </summary>
-        public object DependantValue { get; private set; }
+        public object DependantValue { get; }
 
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependantProperty { get; private set; }
+        public string DependantProperty { get; }
 
         /// <summary>
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
-        public IEnumerable<object> DependantValues { get; private set; }
+        public IEnumerable<object> DependantValues { get; }
 
         /// <summary>
-        /// Validates the specified value. 
-        /// If the dependant property contains one of the values inside dependant values then value 
+        /// Validates the specified value.
+        /// If the dependant property contains one of the values inside dependant values then value
         /// must not be null.
         /// </summary>
         /// <param name="value">The value to validate.</param>

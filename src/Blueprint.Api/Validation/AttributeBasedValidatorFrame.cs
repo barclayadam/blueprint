@@ -8,15 +8,17 @@ namespace Blueprint.Api.Validation
 {
     internal abstract class AttributeBasedValidatorFrame<T> : Frame
     {
-        protected readonly OperationProperty Property;
+        private readonly OperationProperty property;
 
         private Variable resultsVariable;
 
         protected AttributeBasedValidatorFrame(bool isAsync, OperationProperty property)
             : base(isAsync)
         {
-            this.Property = property;
+            this.property = property;
         }
+
+        protected OperationProperty Property => property;
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
         {
@@ -28,10 +30,10 @@ namespace Blueprint.Api.Validation
         protected void LoopAttributes(ISourceWriter writer, string methodCall)
         {
             var attributeType = typeof(T).FullNameInCode();
-            var awaitMethod = IsAsync ? "await" : "";
+            var awaitMethod = IsAsync ? "await" : string.Empty;
 
-            writer.WriteComment($"{Property.PropertyInfoVariable} == {Property.PropertyInfoVariable.Property.DeclaringType.Name}.{Property.PropertyInfoVariable.Property.Name}");
-            writer.Write($"BLOCK:foreach (var attribute in {Property.PropertyAttributesVariable})");
+            writer.WriteComment($"{property.PropertyInfoVariable} == {property.PropertyInfoVariable.Property.DeclaringType.Name}.{property.PropertyInfoVariable.Property.Name}");
+            writer.Write($"BLOCK:foreach (var attribute in {property.PropertyAttributesVariable})");
             writer.Write($"BLOCK:if (attribute is {attributeType} x)");
             writer.Write($"var result = {awaitMethod} x.{methodCall};");
             writer.Write($"BLOCK:if (result != {Variable.StaticFrom<ValidationResult>(nameof(ValidationResult.Success))})");

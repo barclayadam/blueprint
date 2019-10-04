@@ -8,7 +8,7 @@ namespace Blueprint.Core.Utilities
     public static class TypeExtensions
     {
         /// <summary>
-        /// Gets a 'simple' qualified assembly name, one that contains the full type name including 
+        /// Gets a 'simple' qualified assembly name, one that contains the full type name including
         /// namespace, and the assembly name, without culture, version and token.
         /// </summary>
         /// <remarks>
@@ -17,12 +17,12 @@ namespace Blueprint.Core.Utilities
         /// when pushing tasks / messages around.
         /// </remarks>
         /// <param name="type">The type to get the name from.</param>
-        /// <returns>A 'simple' qualified name</returns>
-        public static string SimpleAssemblyQualifedName(this Type type)
+        /// <returns>A 'simple' qualified name.</returns>
+        public static string SimpleAssemblyQualifiedName(this Type type)
         {
             Guard.NotNull(nameof(type), type);
 
-            return String.Concat(type.FullName, ", ", type.Assembly.GetName().Name);
+            return string.Concat(type.FullName, ", ", type.Assembly.GetName().Name);
         }
 
         public static IEnumerable<Type> GetTypeHierarchy(this Type type)

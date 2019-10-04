@@ -6,14 +6,15 @@ namespace Blueprint.Core.Security
     /// <summary>
     /// Salted password hashing with PBKDF2-SHA1.
     /// Author: havoc AT defuse.ca
-    /// www: http://crackstation.net/hashing-security.htm
+    /// www: http://crackstation.net/hashing-security.htm.
     /// </summary>
     [Serializable]
     public class PasswordHash
     {
         // The following constants may be changed without breaking existing hashes.
-        public static int SaltBytes = 24;
-        public static int HashBytes = 24;
+        public static readonly int SaltBytes = 24;
+
+        public static readonly int HashBytes = 24;
 
         // Use the current year to continually increase the iteration rate in an attempt
         // to keep security up to date with increases in computing power without monitoring the
@@ -25,8 +26,8 @@ namespace Blueprint.Core.Security
         // 2020 == 108000
         // 2021 == 109261
         // 2022 == 110648
-        public static int Pbkdf2Iterations = 100_000 + (int)Math.Pow(DateTime.UtcNow.Year - 2000, 3);
-        
+        public static readonly int Pbkdf2Iterations = 100_000 + (int)Math.Pow(DateTime.UtcNow.Year - 2000, 3);
+
         private readonly string hashedPassword;
 
         private PasswordHash(string hashedPassword)
@@ -96,8 +97,39 @@ namespace Blueprint.Core.Security
         }
 
         /// <summary>
+        /// Returns the string representation of this password, which is how the hash should
+        /// be stored in the persistent store of the application.
+        /// </summary>
+        /// <returns>The string representation of this hash.</returns>
+        /// <seealso cref="FromHash" />
+        public override string ToString()
+        {
+            return hashedPassword;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType() && Equals((PasswordHash)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return hashedPassword.GetHashCode();
+        }
+
+        /// <summary>
         /// Compares two byte arrays in length-constant time. This comparison
-        /// method is used so that password hashes cannot be extracted from 
+        /// method is used so that password hashes cannot be extracted from
         /// on-line systems using a timing attack and then attacked off-line.
         /// </summary>
         /// <param name="a">The first byte array.</param>
@@ -105,11 +137,11 @@ namespace Blueprint.Core.Security
         /// <returns>True if both byte arrays are equal. False otherwise.</returns>
         private static bool SlowEquals(byte[] a, byte[] b)
         {
-            var diff = (uint) a.Length ^ (uint) b.Length;
-            
+            var diff = (uint)a.Length ^ (uint)b.Length;
+
             for (var i = 0; i < a.Length && i < b.Length; i++)
             {
-                diff |= (uint) (a[i] ^ b[i]);
+                diff |= (uint)(a[i] ^ b[i]);
             }
 
             return diff == 0;
@@ -131,40 +163,9 @@ namespace Blueprint.Core.Security
             }
         }
 
-        /// <summary>
-        /// Returns the string representation of this password, which is how the hash should
-        /// be stored in the persistent store of the application.
-        /// </summary>
-        /// <returns>The string representation of this hash.</returns>
-        /// <seealso cref="FromHash" />
-        public override string ToString()
-        {
-            return hashedPassword;
-        }
-
-        protected bool Equals(PasswordHash other)
+        private bool Equals(PasswordHash other)
         {
             return string.Equals(hashedPassword, other.hashedPassword);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            
-            return obj.GetType() == GetType() && Equals((PasswordHash) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return hashedPassword.GetHashCode();
         }
     }
 }

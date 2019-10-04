@@ -8,7 +8,7 @@ namespace Blueprint.Api.Validation
         private static readonly ErrorResponseDetail DefaultErrorResponseDetail = new ErrorResponseDetail
         {
             Code = "validation_failed",
-            Message = "Message validation has failed. See Errors property"
+            Message = "Message validation has failed. See Errors property",
         };
 
         public ValidationErrorResponse(Dictionary<string, IEnumerable<string>> errors)

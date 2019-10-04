@@ -2,6 +2,7 @@
 using Blueprint.Core.Data;
 using Blueprint.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 // This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -32,7 +33,8 @@ namespace Blueprint.Api.Configuration
                 c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
             });
 
-            configurer.Services.AddScoped<IDatabaseConnectionFactory>(s => new SqlServerDatabaseConnectionFactory(connectionString));
+            configurer.Services.AddScoped<IDatabaseConnectionFactory>(
+                s => new SqlServerDatabaseConnectionFactory(connectionString, s.GetRequiredService<ILogger<SqlServerDatabaseConnectionFactory>>()));
 
             configurer.UseAuditor<SqlServerAuditor>();
         }

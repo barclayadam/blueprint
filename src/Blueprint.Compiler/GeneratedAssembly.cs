@@ -8,27 +8,25 @@ namespace Blueprint.Compiler
 {
     public class GeneratedAssembly
     {
+        private readonly GenerationRules generationRules;
         private readonly HashSet<Assembly> assemblies = new HashSet<Assembly>();
 
         public GeneratedAssembly(GenerationRules generationRules)
         {
-            GenerationRules = generationRules;
+            this.generationRules = generationRules;
         }
 
-        public GenerationRules GenerationRules { get; }
-
-        public readonly List<GeneratedType> GeneratedTypes = new List<GeneratedType>();
+        public List<GeneratedType> GeneratedTypes { get; } = new List<GeneratedType>();
 
         public void ReferenceAssembly(Assembly assembly)
         {
             assemblies.Add(assembly);
         }
-        
+
         public GeneratedType AddType(string typeName, Type baseType)
         {
-            // TODO -- assert that it's been generated already?
+            var generatedType = new GeneratedType(this, generationRules, typeName);
 
-            var generatedType = new GeneratedType(GenerationRules, typeName);
             if (baseType.IsInterface)
             {
                 generatedType.Implements(baseType);
@@ -43,9 +41,12 @@ namespace Blueprint.Compiler
             return generatedType;
         }
 
-        public void CompileAll()
+        public void CompileAll(AssemblyGenerator generator)
         {
-            var generator = BuildGenerator(GenerationRules);
+            foreach (var assemblyReference in assemblies)
+            {
+                generator.ReferenceAssembly(assemblyReference);
+            }
 
             foreach (var generatedType in GeneratedTypes)
             {
@@ -58,8 +59,8 @@ namespace Blueprint.Compiler
 
                 var namespaces = generatedType
                     .AllInjectedFields
-                    .Select(x => x.ArgType.Namespace)
-                    .Concat(new[]{typeof(Task).Namespace})
+                    .Select(x => x.VariableType.Namespace)
+                    .Concat(new[] { typeof(Task).Namespace })
                     .Distinct()
                     .ToList();
 
@@ -72,7 +73,7 @@ namespace Blueprint.Compiler
 
                 writer.BlankLine();
 
-                writer.Namespace(GenerationRules.ApplicationNamespace);
+                writer.Namespace(generationRules.ApplicationNamespace);
 
                 generatedType.Write(writer);
 
@@ -84,7 +85,7 @@ namespace Blueprint.Compiler
                 generator.AddFile(generatedType.TypeName + ".cs", code);
             }
 
-            var assembly = generator.Generate();
+            var assembly = generator.Generate(generationRules);
 
             var generated = assembly.GetExportedTypes().ToArray();
 
@@ -92,18 +93,6 @@ namespace Blueprint.Compiler
             {
                 generatedType.FindType(generated);
             }
-        }
-
-        private AssemblyGenerator BuildGenerator(GenerationRules generation)
-        {
-            var generator = new AssemblyGenerator(generation);
-
-            foreach (var assembly in this.assemblies)
-            {
-                generator.ReferenceAssembly(assembly);
-            }
-
-            return generator;
         }
     }
 }

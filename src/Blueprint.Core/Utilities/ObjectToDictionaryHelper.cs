@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace Blueprint.Core.Utilities
 {
     /// <summary>
-    /// A set of utility methods that can be used to turn any object in to a Dictionary
+    /// A set of utility methods that can be used to turn any object in to a Dictionary.
     /// </summary>
     public static class ObjectToDictionaryHelper
     {
@@ -13,8 +13,8 @@ namespace Blueprint.Core.Utilities
         /// Converts the given object in to a dictionary, including all properties as-is with no conversion
         /// and including null properties.
         /// </summary>
-        /// <param name="source">The object to convert</param>
-        /// <returns>A dictionary representation of the given object</returns>
+        /// <param name="source">The object to convert.</param>
+        /// <returns>A dictionary representation of the given object.</returns>
         public static Dictionary<string, object> ToDictionary(this object source)
         {
             return source.ToDictionary<object>();
@@ -24,8 +24,8 @@ namespace Blueprint.Core.Utilities
         /// Converts the given object in to a dictionary, including all properties (including null values) and calling
         /// ToString of them.
         /// </summary>
-        /// <param name="source">The object to convert</param>
-        /// <returns>A dictionary representation of the given object</returns>
+        /// <param name="source">The object to convert.</param>
+        /// <returns>A dictionary representation of the given object.</returns>
         public static Dictionary<string, string> ToStringDictionary(this object source)
         {
             return ToDictionary(source, (p, v) => true, v => v?.ToString());
@@ -35,8 +35,9 @@ namespace Blueprint.Core.Utilities
         /// Converts the given object in to a dictionary, including only properties of the specified type, or one
         /// whose type is assignable (e.g. T == object would include all properties).
         /// </summary>
-        /// <param name="source">The object to convert</param>
-        /// <returns>A dictionary representation of the given object</returns>
+        /// <param name="source">The object to convert.</param>
+        /// <typeparam name="T">The type of values to extract from the object.</typeparam>
+        /// <returns>A dictionary representation of the given object.</returns>
         public static Dictionary<string, T> ToDictionary<T>(this object source)
         {
             return ToDictionary(source, (p, v) => typeof(T).IsAssignableFrom(p.PropertyType), v => (T)v);
@@ -70,16 +71,5 @@ namespace Blueprint.Core.Utilities
 
             return dictionary;
         }
-    }
-
-    [AttributeUsage(AttributeTargets.Property)]
-    public class DictionaryKeyAttribute : Attribute
-    {
-        public DictionaryKeyAttribute(string name)
-        {
-            this.Name = name;
-        }
-
-        public string Name { get; }
     }
 }

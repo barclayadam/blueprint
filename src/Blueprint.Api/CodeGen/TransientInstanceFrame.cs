@@ -11,6 +11,7 @@ namespace Blueprint.Api.CodeGen
     /// A <see cref="SyncFrame" /> that will resolve, from the registered <see cref="IServiceProvider"/>, an instance
     /// of a given type and store in a new <see cref="GetInstanceFrame{T}.InstanceVariable"/>.
     /// </summary>
+    /// <typeparam name="T">The type of instance represented by this frame.</typeparam>
     public class TransientInstanceFrame<T> : GetInstanceFrame<T>
     {
         private readonly Type constructedType;
@@ -35,7 +36,7 @@ namespace Blueprint.Api.CodeGen
         /// This is a small readability optimisation that can be used when we know that only possible type that
         /// could satisfy a requested interface type (i.e. requested IFoo that is only implemented by Foo, so
         /// <paramref name="variableType"/> is <c>IFoo</c> but <paramref name="constructedType" /> would
-        /// be <c>Foo</c> and generated code would be <c>var i = container.GetInstance<Foo>()</c>.
+        /// be <c>Foo</c> and generated code would be <c>var i = container.GetInstance&lt;Foo&gt;()</c>.
         /// </remarks>
         /// <param name="variableType">The type of variable and request container type.</param>
         /// <param name="constructedType">The type to be requested from the container.</param>

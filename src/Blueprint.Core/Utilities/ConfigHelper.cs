@@ -1,17 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-
 using Microsoft.Extensions.Configuration;
 
 namespace Blueprint.Core.Utilities
 {
-    using System.Collections.Generic;
-
     public static class ConfigHelper
     {
         /// <summary>
-        /// Sets the .NET Core <see cref="IConfigurationRoot" /> in the case that we are running in core, using this
+        /// Gets or sets the .NET Core <see cref="IConfigurationRoot" /> in the case that we are running in core, using this
         /// instead of ConfigurationManager to load settings.
         /// </summary>
         public static IConfigurationRoot Configuration { get; set; }
@@ -89,7 +87,8 @@ namespace Blueprint.Core.Utilities
                 // Although this is a 'try' method we will throw an exception if the value actually
                 // exists but we could not convert it as it represents a mis-configuration, not
                 // a missing value.
-                throw new ConfigurationErrorsException($"Configuration value '{appSettingString}' for '{key}' failed to be converted to type '{typeof(T).Name}'.", ex);
+                throw new ConfigurationErrorsException(
+                    $"Configuration value '{appSettingString}' for '{key}' failed to be converted to type '{typeof(T).Name}'.", ex);
             }
         }
 
@@ -97,11 +96,5 @@ namespace Blueprint.Core.Utilities
         {
             throw new NotImplementedException();
         }
-    }
-
-    public enum IfEmpty
-    {
-        DefaultValue,
-        ShouldThrow
     }
 }

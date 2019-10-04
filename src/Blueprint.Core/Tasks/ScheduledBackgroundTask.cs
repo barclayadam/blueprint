@@ -51,6 +51,11 @@ namespace Blueprint.Core.Tasks
             return taskTypeToCheck == task.GetType() && task is IHaveUniqueKey haveUniqueKey && haveUniqueKey.UniqueKey == taskToCheckUniqueKey;
         }
 
+        public override string ToString()
+        {
+            return task.GetType().Name;
+        }
+
         internal async Task PushToProviderAsync(IBackgroundTaskScheduleProvider provider)
         {
             string id;
@@ -71,11 +76,6 @@ namespace Blueprint.Core.Tasks
                     await child.PushToProviderAsync(provider, id);
                 }
             }
-        }
-
-        public override string ToString()
-        {
-            return task.GetType().Name;
         }
     }
 }

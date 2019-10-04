@@ -5,7 +5,6 @@
         ReturnCompletedTask,
         AsyncTask,
         ReturnFromLastNode,
-        None
-        
+        None,
     }
 }

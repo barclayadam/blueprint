@@ -9,41 +9,6 @@ namespace Blueprint.Api
 {
     public static class ObjectComparer
     {
-        private class DateTimeOffsetComparer : BaseTypeComparer
-        {
-            /// <summary>
-            /// Constructor that takes a root comparer
-            /// </summary>
-            /// <param name="rootComparer"></param>
-            public DateTimeOffsetComparer(RootComparer rootComparer)
-                : base(rootComparer)
-            {
-            }
-
-            /// <summary>
-            /// Returns true if the type is a simple type
-            /// </summary>
-            /// <param name="type1">The type of the first object</param>
-            /// <param name="type2">The type of the second object</param>
-            /// <returns></returns>
-            public override bool IsTypeMatch(Type type1, Type type2)
-            {
-                return ReflectionUtilities.GetUnderlyingTypeIfNullable(type1) == typeof (DateTimeOffset) &&
-                       ReflectionUtilities.GetUnderlyingTypeIfNullable(type2) == typeof (DateTimeOffset);
-            }
-
-            /// <summary>
-            /// Compare two simple types
-            /// </summary>
-            public override void CompareType(CompareParms parms)
-            {
-                if (!Equals(parms.Object1, parms.Object2))
-                {
-                    this.AddDifference(parms);
-                }
-            }
-        }
-
         private static readonly Dictionary<string, object> NoChangesDictionary = new Dictionary<string, object>();
 
         private static readonly CompareLogic CompareLogic = new CompareLogic(new ComparisonConfig
@@ -52,12 +17,12 @@ namespace Blueprint.Api
 
             CustomComparers = new List<BaseTypeComparer>
             {
-                new DateTimeOffsetComparer(RootComparerFactory.GetRootComparer())
+                new DateTimeOffsetComparer(RootComparerFactory.GetRootComparer()),
             },
 
             CompareChildren = true,
 
-            AttributesToIgnore = new List<Type> { typeof(DoNotCompareAttribute) }
+            AttributesToIgnore = new List<Type> { typeof(DoNotCompareAttribute) },
         });
 
         /// <summary>
@@ -87,6 +52,41 @@ namespace Blueprint.Api
 
             return comparison.Differences
                 .ToDictionary(d => d.PropertyName.TrimStart('.'), d => d.Object1.Target);
+        }
+
+        private class DateTimeOffsetComparer : BaseTypeComparer
+        {
+            /// <summary>
+            /// Constructor that takes a root comparer.
+            /// </summary>
+            /// <param name="rootComparer"></param>
+            public DateTimeOffsetComparer(RootComparer rootComparer)
+                : base(rootComparer)
+            {
+            }
+
+            /// <summary>
+            /// Returns true if the type is a simple type.
+            /// </summary>
+            /// <param name="type1">The type of the first object.</param>
+            /// <param name="type2">The type of the second object.</param>
+            /// <returns></returns>
+            public override bool IsTypeMatch(Type type1, Type type2)
+            {
+                return ReflectionUtilities.GetUnderlyingTypeIfNullable(type1) == typeof(DateTimeOffset) &&
+                       ReflectionUtilities.GetUnderlyingTypeIfNullable(type2) == typeof(DateTimeOffset);
+            }
+
+            /// <summary>
+            /// Compare two simple types.
+            /// </summary>
+            public override void CompareType(CompareParms parms)
+            {
+                if (!Equals(parms.Object1, parms.Object2))
+                {
+                    AddDifference(parms);
+                }
+            }
         }
     }
 }

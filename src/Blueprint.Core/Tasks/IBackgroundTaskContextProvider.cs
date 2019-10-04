@@ -1,7 +1,7 @@
+using System.Threading.Tasks;
+
 namespace Blueprint.Core.Tasks
 {
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents a provider that can save and load data used to provide task related, unstructured
     /// data for a <see cref="BackgroundTaskContext" />.

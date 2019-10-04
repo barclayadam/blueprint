@@ -8,8 +8,10 @@ namespace Blueprint.Api.Validation
     /// Provides a validator which will check for a valid email address, using the pre-built regular expressions found
     /// in the RegularExpressions class.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments",
-            Justification = "errorMessageAccessor is defined in base class, not accessible")]
+    [SuppressMessage(
+        "Microsoft.Design",
+        "CA1019:DefineAccessorsForAttributeArguments",
+        Justification = "errorMessageAccessor is defined in base class, not accessible")]
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class EmailAddressAttribute : RegexAttribute
     {

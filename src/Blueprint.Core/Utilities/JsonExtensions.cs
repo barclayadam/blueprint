@@ -14,7 +14,7 @@ namespace Blueprint.Core.Utilities
         // TODO potentially move typed settings in here
         private static readonly JsonSerializer DefaultSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
         {
-            CheckAdditionalContent = false
+            CheckAdditionalContent = false,
         });
 
         private static readonly Dictionary<Type, object> EmptyArrayCache = new Dictionary<Type, object>();
@@ -26,7 +26,7 @@ namespace Blueprint.Core.Utilities
                 return default;
             }
 
-            return (T) FromJson(value, typeof (T), DefaultSerializer);
+            return (T)FromJson(value, typeof(T), DefaultSerializer);
         }
 
         public static T FromJson<T>(this string value, JsonSerializer serializer) where T : class
@@ -96,16 +96,17 @@ namespace Blueprint.Core.Utilities
 
         public static string ToJson(object value, Type objectType, JsonSerializer serializer)
         {
-            var asDictionary = value as IDictionary;
+            if (value is ICustomJsonWriter customJsonWriter)
+            {
+                return customJsonWriter.ToJson();
+            }
 
-            if (asDictionary != null && asDictionary.Count == 0)
+            if (value is IDictionary asDictionary && asDictionary.Count == 0)
             {
                 return "{}";
             }
 
-            var asCollection = value as ICollection;
-
-            if (asCollection != null && asCollection.Count == 0)
+            if (value is ICollection asCollection && asCollection.Count == 0)
             {
                 return "[]";
             }

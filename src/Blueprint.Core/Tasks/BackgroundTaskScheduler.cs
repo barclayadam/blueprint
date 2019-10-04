@@ -5,18 +5,17 @@ using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Tracing;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Tasks
 {
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        
         private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
         private readonly IServiceProvider serviceProvider;
         private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
+        private readonly ILogger logger;
 
         private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
 
@@ -24,17 +23,20 @@ namespace Blueprint.Core.Tasks
             IServiceProvider serviceProvider,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
             IVersionInfoProvider versionInfoProvider,
-            IApmTool apmTool)
+            IApmTool apmTool,
+            ILogger logger)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
             Guard.NotNull(nameof(versionInfoProvider), versionInfoProvider);
             Guard.NotNull(nameof(apmTool), apmTool);
+            Guard.NotNull(nameof(logger), logger);
 
             this.backgroundTaskScheduleProvider = new ActivityTrackingBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider);
             this.serviceProvider = serviceProvider;
             this.versionInfoProvider = versionInfoProvider;
             this.apmTool = apmTool;
+            this.logger = logger;
         }
 
         public Task<IScheduledBackgroundTask> EnqueueAsync<T>(T task) where T : BackgroundTask
@@ -44,31 +46,32 @@ namespace Blueprint.Core.Tasks
             var (canQueue, existingTask) = CheckCanEnqueueTask(task);
             if (!canQueue)
             {
-                return Task.FromResult((IScheduledBackgroundTask) existingTask);
+                return Task.FromResult((IScheduledBackgroundTask)existingTask);
             }
 
             var scheduledTask = new ScheduledBackgroundTask(task, null, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask) scheduledTask);
+            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
         }
 
         public Task<IScheduledBackgroundTask> ScheduleAsync<T>(T task, TimeSpan delay) where T : BackgroundTask
         {
             Populate(task);
-            
+
             var (canQueue, existingTask) = CheckCanEnqueueTask(task);
+
             if (!canQueue)
             {
-                return Task.FromResult((IScheduledBackgroundTask) existingTask);
+                return Task.FromResult((IScheduledBackgroundTask)existingTask);
             }
 
             var scheduledTask = new ScheduledBackgroundTask(task, delay, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask) scheduledTask);
+            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
         }
 
         public Task RunNowAsync()
@@ -83,7 +86,7 @@ namespace Blueprint.Core.Tasks
                 backgroundTaskScheduleProvider.InnerProvider.GetType().Name,
                 "Task",
                 string.Join(", ", tasks.Select(t => t.ToString())),
-                (async operation =>
+                async operation =>
                 {
                     // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
                     var currentTasks = new List<ScheduledBackgroundTask>(tasks);
@@ -92,7 +95,7 @@ namespace Blueprint.Core.Tasks
 
                     if (currentTasks.Count > 5)
                     {
-                        Log.Warn($"Queuing larger than normal number of tasks: {currentTasks.Count}");
+                        logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
                     }
 
                     foreach (var task in currentTasks)
@@ -101,9 +104,9 @@ namespace Blueprint.Core.Tasks
                     }
 
                     operation.MarkSuccess();
-                }));
+                });
         }
-        
+
         private void Populate<T>(T task) where T : BackgroundTask
         {
             task.Metadata.System = versionInfoProvider.Value.AppName;

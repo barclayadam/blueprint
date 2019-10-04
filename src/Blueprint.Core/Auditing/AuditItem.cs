@@ -26,7 +26,7 @@
         /// Gets the object that was passed as the action, denormalised.
         /// </summary>
         public object Details { get; }
-        
+
         /// <summary>
         /// Gets the context of the request.
         /// </summary>

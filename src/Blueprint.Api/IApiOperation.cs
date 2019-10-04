@@ -1,4 +1,4 @@
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Api
 {
@@ -7,7 +7,7 @@ namespace Blueprint.Api
     /// operation being defined as a simple property bag with parameters, metadata in the form of attributes, and
     /// an association <see cref="IApiOperationHandler{T}"/>.
     /// </summary>
-    [UsedImplicitly]
+    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature, ImplicitUseTargetFlags.WithMembers)]
     public interface IApiOperation
     {
     }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Blueprint.Api.Authorisation;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
@@ -41,7 +42,7 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Gets the type that represents this operation, a type that defines the parameters required (or
-        /// optional paramaters), plus any other metadata that is used by middleware components to
+        /// optional parameters), plus any other metadata that is used by middleware components to
         /// decide what action to take (for example any declarative permissions in the form of
         /// attributes).
         /// </summary>
@@ -72,7 +73,7 @@ namespace Blueprint.Api
         public HttpMethod HttpMethod { get; }
 
         /// <summary>
-        /// Gets a value indicating whether anonymous access is allowed to this API operation, typically determined
+        /// Gets or sets a value indicating whether anonymous access is allowed to this API operation, typically determined
         /// by the presence of an <see cref="AllowAnonymousAttribute"/> decorating the operation.
         /// </summary>
         public bool AnonymousAccessAllowed { get; set; }
@@ -110,7 +111,7 @@ namespace Blueprint.Api
         /// <returns>A new instance of operation this descriptor describes.</returns>
         public virtual IApiOperation CreateInstance()
         {
-            return (IApiOperation) Activator.CreateInstance(OperationType);
+            return (IApiOperation)Activator.CreateInstance(OperationType);
         }
     }
 }

@@ -12,20 +12,9 @@ namespace Blueprint.Compiler.Frames
 {
     public class MethodCall : Frame
     {
-        public Dictionary<Type, Type> Aliases { get; } = new Dictionary<Type, Type>();
-
-        public Type HandlerType { get; }
-
-        public MethodInfo Method { get; }
-        
-        public Variable ReturnVariable { get; private set; }
-
-        public static MethodCall For<T>(Expression<Action<T>> expression)
-        {
-            var method = ReflectionHelper.GetMethod(expression);
-
-            return new MethodCall(typeof(T), method);
-        }
+        private readonly Dictionary<Type, Type> aliases = new Dictionary<Type, Type>();
+        private readonly Type handlerType;
+        private readonly MethodInfo method;
 
         public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
         {
@@ -33,8 +22,8 @@ namespace Blueprint.Compiler.Frames
 
         public MethodCall(Type handlerType, MethodInfo method) : base(method.IsAsync())
         {
-            HandlerType = handlerType;
-            Method = method;
+            this.handlerType = handlerType;
+            this.method = method;
 
             var returnType = CorrectedReturnType(method.ReturnType);
             if (returnType != null)
@@ -42,7 +31,7 @@ namespace Blueprint.Compiler.Frames
                 if (returnType.IsValueTuple())
                 {
                     var values = returnType.GetGenericArguments().Select(x => new Variable(x, this)).ToArray();
-                
+
                     ReturnVariable = new ValueTypeReturnVariable(returnType, values);
                 }
                 else
@@ -50,8 +39,8 @@ namespace Blueprint.Compiler.Frames
                     var name = returnType.IsSimple() || returnType == typeof(object) || returnType == typeof(object[])
                         ? "result_of_" + method.Name
                         : Variable.DefaultArgName(returnType);
-                    
-                    ReturnVariable = new Variable(returnType, name, this); 
+
+                    ReturnVariable = new Variable(returnType, name, this);
                 }
             }
 
@@ -68,45 +57,35 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
-        private Type CorrectedReturnType(Type type)
-        {
-            if (type == typeof(Task) || type == typeof(void)) return null;
-
-            if (type.CanBeCastTo<Task>()) return type.GetGenericArguments().First();
-
-            return type;
-        }
+        public Variable ReturnVariable { get; }
 
         /// <summary>
-        /// Call a method on the current object
+        /// Gets or sets a value indicating whether this is a call a method on the current object.
         /// </summary>
         public bool IsLocal { get; set; }
 
         public Variable Target { get; set; }
 
-        private Variable FindVariable(ParameterInfo param, IMethodVariables chain)
-        {
-            var type = param.ParameterType;
-
-            if (Aliases.ContainsKey(type))
-            {
-                var actualType = Aliases[type];
-                var inner = chain.FindVariable(actualType);
-                return new CastVariable(inner, type);
-            }
-
-            return chain.TryFindVariableByName(type, param.Name, out var variable) ? variable : chain.FindVariable(type);
-        }
-
         public Variable[] Arguments { get; }
 
-        public DisposalMode DisposalMode { get; set; } = DisposalMode.UsingBlock;
+        public DisposalMode DisposalMode { get; } = DisposalMode.UsingBlock;
+
+        public static MethodCall For<T>(Expression<Action<T>> expression)
+        {
+            var method = ReflectionHelper.GetMethod(expression);
+
+            return new MethodCall(typeof(T), method);
+        }
 
         public bool TrySetArgument(Variable variable)
         {
-            var parameters = Method.GetParameters().Select(x => x.ParameterType).ToArray();
-            if (parameters.Count(x => variable.VariableType.CanBeCastTo(x)) != 1) return false;
-            
+            var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
+
+            if (parameters.Count(x => variable.VariableType.CanBeCastTo(x)) != 1)
+            {
+                return false;
+            }
+
             var index = Array.IndexOf(parameters, variable.VariableType);
             Arguments[index] = variable;
 
@@ -115,11 +94,14 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(string parameterName, Variable variable)
         {
-            var parameters = Method.GetParameters().ToArray();
+            var parameters = method.GetParameters().ToArray();
             var matching = parameters.FirstOrDefault(x =>
                 variable.VariableType.CanBeCastTo(x.ParameterType) && x.Name == parameterName);
 
-            if (matching == null) return false;
+            if (matching == null)
+            {
+                return false;
+            }
 
             var index = Array.IndexOf(parameters, matching);
             Arguments[index] = variable;
@@ -129,7 +111,7 @@ namespace Blueprint.Compiler.Frames
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
         {
-            var parameters = Method.GetParameters().ToArray();
+            var parameters = method.GetParameters().ToArray();
             for (var i = 0; i < parameters.Length; i++)
             {
                 if (Arguments[i] != null)
@@ -146,33 +128,24 @@ namespace Blueprint.Compiler.Frames
                 yield return variable;
             }
 
-            if (Method.IsStatic || IsLocal) yield break;
+            if (method.IsStatic || IsLocal)
+            {
+                yield break;
+            }
 
             if (Target == null)
             {
-                Target = chain.FindVariable(HandlerType);
+                Target = chain.FindVariable(handlerType);
             }
 
             yield return Target;
         }
 
-        private bool ShouldAssignVariableToReturnValue(GeneratedMethod method)
-        {
-            if (ReturnVariable == null) return false;
-
-            if (IsAsync && method.AsyncMode == AsyncMode.ReturnFromLastNode)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            var invokeMethod = invocationCode();
+            var invokeMethod = GetInvocationCode();
 
-            var returnValue = "";
+            var returnValue = string.Empty;
 
             if (IsAsync)
             {
@@ -199,16 +172,16 @@ namespace Blueprint.Compiler.Frames
         }
 
         /// <summary>
-        /// Code to invoke the method without any assignment to a variable
+        /// Code to invoke the method without any assignment to a variable.
         /// </summary>
         /// <returns></returns>
         public string InvocationCode()
         {
-            return IsAsync ? "await " + invocationCode() : invocationCode();
+            return IsAsync ? "await " + GetInvocationCode() : GetInvocationCode();
         }
 
         /// <summary>
-        /// Code to invoke the method and set a variable to the returned value
+        /// Code to invoke the method and set a variable to the returned value.
         /// </summary>
         /// <returns></returns>
         public string AssignmentCode()
@@ -230,29 +203,77 @@ namespace Blueprint.Compiler.Frames
 
         public override string ToString()
         {
-            return $"{nameof(HandlerType)}: {HandlerType}, {nameof(Method)}: {Method}";
+            return $"{nameof(handlerType)}: {handlerType}, {nameof(method)}: {method}";
         }
 
-        private string invocationCode()
+        private static Type CorrectedReturnType(Type type)
         {
-            var methodName = Method.Name;
-            if (Method.IsGenericMethod)
+            if (type == typeof(Task) || type == typeof(void))
             {
-                methodName += $"<{Method.GetGenericArguments().Select(x => x.FullName).Join(", ")}>";
+                return null;
+            }
+
+            if (type.CanBeCastTo<Task>())
+            {
+                return type.GetGenericArguments().First();
+            }
+
+            return type;
+        }
+
+        private Variable FindVariable(ParameterInfo param, IMethodVariables chain)
+        {
+            var type = param.ParameterType;
+
+            if (aliases.ContainsKey(type))
+            {
+                var actualType = aliases[type];
+                var inner = chain.FindVariable(actualType);
+                return new CastVariable(inner, type);
+            }
+
+            return chain.TryFindVariableByName(type, param.Name, out var variable) ? variable : chain.FindVariable(type);
+        }
+
+        private bool ShouldAssignVariableToReturnValue(GeneratedMethod method)
+        {
+            if (ReturnVariable == null)
+            {
+                return false;
+            }
+
+            if (IsAsync && method.AsyncMode == AsyncMode.ReturnFromLastNode)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private string GetInvocationCode()
+        {
+            var methodName = method.Name;
+            if (method.IsGenericMethod)
+            {
+                methodName += $"<{method.GetGenericArguments().Select(x => x.FullName).Join(", ")}>";
             }
 
             var callingCode = $"{methodName}({Arguments.Select(x => x.ArgumentDeclaration).Join(", ")})";
             var target = DetermineTarget();
             var invokeMethod = $"{target}{callingCode}";
+
             return invokeMethod;
         }
 
         private string DetermineTarget()
         {
-            if (IsLocal) return string.Empty;
+            if (IsLocal)
+            {
+                return string.Empty;
+            }
 
-            var target = Method.IsStatic
-                ? HandlerType.FullNameInCode()
+            var target = method.IsStatic
+                ? handlerType.FullNameInCode()
                 : Target.Usage;
 
             return target + ".";

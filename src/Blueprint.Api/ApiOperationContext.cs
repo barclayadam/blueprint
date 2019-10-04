@@ -37,8 +37,8 @@ namespace Blueprint.Api
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor,
-            IApiOperation instance) :
-            this(serviceProvider, dataModel, operationDescriptor)
+            IApiOperation instance)
+            : this(serviceProvider, dataModel, operationDescriptor)
         {
             Guard.NotNull(nameof(instance), instance);
 
@@ -51,7 +51,7 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Gets or sets the data model for this operation.
+        /// Gets the data model for this operation.
         /// </summary>
         public ApiDataModel DataModel { get; }
 
@@ -80,11 +80,9 @@ namespace Blueprint.Api
         public HttpContext HttpContext { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="HttpRequest" /> that initiated this API call.
+        /// Gets the <see cref="HttpRequest" /> that initiated this API call.
         /// </summary>
         public HttpRequest Request => HttpContext?.Request;
-
-        public IDictionary<string, object> RouteData { get; set; }
 
         /// <summary>
         /// Gets the <see cref="HttpResponse" /> that will eventually be written back to the client, the result
@@ -92,7 +90,7 @@ namespace Blueprint.Api
         /// </summary>
         public HttpResponse Response => HttpContext?.Response;
 
-        public Exception Exception { get; set; }
+        public IDictionary<string, object> RouteData { get; set; }
 
         public ApiOperationContext CreateChild(Type type)
         {

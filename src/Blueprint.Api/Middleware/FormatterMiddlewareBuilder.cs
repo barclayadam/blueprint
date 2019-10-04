@@ -5,7 +5,7 @@ namespace Blueprint.Api.Middleware
     public class FormatterMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <inheritdoc />
-        /// <returns><c>true</c></returns>
+        /// <returns><c>true</c>.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;

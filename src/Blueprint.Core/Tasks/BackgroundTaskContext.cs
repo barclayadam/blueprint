@@ -1,19 +1,19 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Blueprint.Core.Tasks
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents the context of a running task, providing the ability to store arbitrary pieces of
     /// data for a task (based only on task type, so shared across all runs no matter the properties).
     /// </summary>
     public class BackgroundTaskContext
     {
-        private bool loaded;
-        private bool modified;
-
         private readonly string contextKey;
         private readonly IBackgroundTaskContextProvider provider;
+
+        private bool loaded;
+        private bool modified;
 
         // NB: We only create this on first modification, or set it on first load to avoid allocating
         // empty dictionaries for every creation of context when most tasks do not require this
@@ -45,6 +45,7 @@ namespace Blueprint.Core.Tasks
         /// Creates a new <see cref="BackgroundTaskContext"/> that will be able to get data from the given dictionary, and uses
         /// an <see cref="InMemoryBackgroundTaskContextProvider"/>.
         /// </summary>
+        /// <param name="data">The data dictionary to set for the created context.</param>
         /// <returns>A new 'empty' context.</returns>
         public static BackgroundTaskContext WithData(Dictionary<string, object> data)
         {
@@ -53,7 +54,7 @@ namespace Blueprint.Core.Tasks
 
         /// <summary>
         /// Gets a value that has previously been stored in this context, loading data on-demand to avoid overhead for
-        /// every task that may not have any data (i.e. do not pre-load as most would be empty operations)
+        /// every task that may not have any data (i.e. do not pre-load as most would be empty operations).
         /// </summary>
         /// <param name="key">The key of the item to be loaded.</param>
         /// <typeparam name="T">The type of the value that has been stored.</typeparam>
@@ -84,7 +85,7 @@ namespace Blueprint.Core.Tasks
                 return (T)value;
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace Blueprint.Core.Tasks
         /// <summary>
         /// Saves any changes that have been made to the data of this context, using the supplied <see cref="IBackgroundTaskContextProvider" />.
         /// </summary>
-        /// <returns>A task representing the save operation</returns>
+        /// <returns>A task representing the save operation.</returns>
         public Task SaveAsync()
         {
             if (!modified)

@@ -16,6 +16,30 @@ namespace Blueprint.Api.Middleware
     public class ValidationMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
+        /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
+        /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
+        /// </summary>
+        /// <param name="validationException">The exception to be converted.</param>
+        /// <returns>The response to send back to the client.</returns>
+        // ReSharper disable once MemberCanBePrivate.Global This is used in generated code
+        public static ValidationErrorResponse ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException validationException)
+        {
+            var validationResult = validationException.ValidationResult;
+
+            if (!validationResult.MemberNames.Any())
+            {
+                return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
+                {
+                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage },
+                });
+            }
+
+            var errorMessages = (IEnumerable<string>)new[] { validationResult.ErrorMessage };
+
+            return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
+        }
+
+        /// <summary>
         /// Always returns true as global exception handlers are added, although no actual validation code will
         /// be output in the case that no validation attributes exist on the operation.
         /// </summary>
@@ -63,13 +87,13 @@ namespace Blueprint.Api.Middleware
                 {
                     PropertyInfoVariable = propertyInfoVariable,
                     PropertyValueVariable = propertyValueVariable,
-                    PropertyAttributesVariable = propertyAttributesVariable
+                    PropertyAttributesVariable = propertyAttributesVariable,
                 });
             }
 
             foreach (var s in sources)
             {
-                foreach(var frame in s.GetFrames(operationVariable, operationProperties))
+                foreach (var frame in s.GetFrames(operationVariable, operationProperties))
                 {
                     AddValidatorFrame(frame);
                 }
@@ -93,7 +117,8 @@ namespace Blueprint.Api.Middleware
                 var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
 
                 context.AppendFrames(
-                    new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
+                    new IfBlock(
+                        $"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
                         createResponse,
                         createResult,
                         new ReturnFrame(createResult.Variable)));
@@ -103,30 +128,6 @@ namespace Blueprint.Api.Middleware
             // and throw an exception to indicate a problem, even if the operation itself is _not_ validated
             context.RegisterUnhandledExceptionHandler(typeof(ValidationException), RegisterBlueprintExceptionHandler);
             context.RegisterUnhandledExceptionHandler(typeof(System.ComponentModel.DataAnnotations.ValidationException), RegisterDataAnnotationsExceptionHandler);
-        }
-
-        /// <summary>
-        /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
-        /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
-        /// </summary>
-        /// <param name="validationException">The exception to be converted.</param>
-        /// <returns>The response to send back to the client.</returns>
-        // ReSharper disable once MemberCanBePrivate.Global This is used in generated code
-        public static ValidationErrorResponse ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException validationException)
-        {
-            var validationResult = validationException.ValidationResult;
-
-            if (!validationResult.MemberNames.Any())
-            {
-                return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
-                {
-                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage }
-                });
-            }
-
-            var errorMessages = (IEnumerable<string>) new[] { validationResult.ErrorMessage };
-
-            return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
         }
 
         private static IEnumerable<Frame> RegisterBlueprintExceptionHandler(Variable exception)
@@ -141,7 +142,7 @@ namespace Blueprint.Api.Middleware
                 new ConstructorFrame<ValidationErrorResponse>(() =>
                     new ValidationErrorResponse((ValidationFailures)null))
                 {
-                    Parameters = { [0] = validationFailures }
+                    Parameters = { [0] = validationFailures },
                 };
 
             yield return createResponse;
@@ -158,7 +159,7 @@ namespace Blueprint.Api.Middleware
              */
             yield return new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToErrorResponse))
             {
-                Arguments = { [0] = exception }
+                Arguments = { [0] = exception },
             };
             yield return new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
             yield return new ReturnFrame(typeof(ValidationFailedResult));

@@ -15,7 +15,7 @@ namespace Blueprint.NHibernate
         /// Initializes a new instance of the <see cref="ServiceProviderJobActivator"/>
         /// class with a given <see cref="IServiceProvider"/>.
         /// </summary>
-        /// <param name="rootServiceProvider">Container that will be used to create instances of classes during the job activation process</param>
+        /// <param name="rootServiceProvider">Container that will be used to create instances of classes during the job activation process.</param>
         public ServiceProviderJobActivator(IServiceProvider rootServiceProvider)
         {
             this.rootServiceProvider = rootServiceProvider ?? throw new ArgumentNullException(nameof(rootServiceProvider));

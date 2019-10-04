@@ -9,7 +9,10 @@ namespace Blueprint.Api.Validation
     /// <summary>
     /// An exception that will be thrown in the case of validation failures.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors", Justification = "Only want ValidationException to be used in the specific way supported by the constructor.")]
+    [SuppressMessage(
+        "Microsoft.Design",
+        "CA1032:ImplementStandardExceptionConstructors",
+        Justification = "Only want ValidationException to be used in the specific way supported by the constructor.")]
     public class ValidationException : Exception
     {
         public ValidationException(string formLevelMessage)
@@ -42,7 +45,7 @@ namespace Blueprint.Api.Validation
             Guard.NotNull(nameof(validationResults), validationResults);
 
             // TODO: Is there a specialist 1-item collection we could use for performance?
-            this.ValidationResults = validationResults.ToDictionary(k => k.Key, v => (IEnumerable<string>) new [] { v.Value });
+            ValidationResults = validationResults.ToDictionary(k => k.Key, v => (IEnumerable<string>)new[] { v.Value });
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace Blueprint.Api.Validation
         {
             Guard.NotNull(nameof(validationResults), validationResults);
 
-            this.ValidationResults = validationResults;
+            ValidationResults = validationResults;
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 using NJsonSchema;
 
 namespace Blueprint.Api.Validation
@@ -14,8 +15,9 @@ namespace Blueprint.Api.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class RequiredIfAttribute : ValidationAttribute, IOpenApiValidationAttribute
     {
-        private readonly IEnumerable<string> convertedValues;
         private const string RequiredIfFieldMessage = "The {0} field is required";
+
+        private readonly IEnumerable<string> convertedValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
@@ -37,23 +39,36 @@ namespace Blueprint.Api.Validation
                 DependentValues = new[] { dependentValue };
             }
 
-            convertedValues = dependentValue == null ? new string [0] : DependentValues.Select(x => x.ToString());
+            convertedValues = dependentValue == null ? new string[0] : DependentValues.Select(x => x.ToString());
         }
 
         /// <summary>
         /// Gets the property to check for one of the dependant values.
         /// </summary>
-        public string DependentProperty { get; private set; }
+        public string DependentProperty { get; }
 
         /// <summary>
         /// Gets the dependant value.
         /// </summary>
-        public object DependentValue { get; private set; }
+        public object DependentValue { get; }
 
         /// <summary>
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
-        public IEnumerable<object> DependentValues { get; private set; }
+        public IEnumerable<object> DependentValues { get; }
+
+        public string ValidatorKeyword => "x-validator-required-if";
+
+        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
+        {
+            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
+            {
+                ["$data"] = $"1/{DependentProperty.Camelize()}",
+                ["dependentValues"] = DependentValues,
+            };
+
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Validates the specified value.
@@ -86,19 +101,6 @@ namespace Blueprint.Api.Validation
             }
 
             return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
-        }
-
-        public string ValidatorKeyword => "x-validator-required-if";
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[this.ValidatorKeyword] = new Dictionary<string, object>
-            {
-                ["$data"] = $"1/{DependentProperty.Camelize()}",
-                ["dependentValues"] = DependentValues
-            };
-
-            return Task.CompletedTask;
         }
     }
 }

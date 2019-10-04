@@ -9,91 +9,34 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Frames
 {
-    public enum ConstructorCallMode
-    {
-        Variable,
-        ReturnValue,
-        UsingNestedVariable
-    }
-
-    public class SetterArg
-    {
-        public SetterArg(string propertyName, Variable variable)
-        {
-            PropertyName = propertyName;
-            Variable = variable;
-        }
-
-        public SetterArg(string propertyName, Type propertyType)
-        {
-            PropertyName = propertyName;
-            PropertyType = propertyType;
-        }
-
-        public SetterArg(PropertyInfo property)
-        {
-            PropertyName = property.Name;
-            PropertyType = property.PropertyType;
-        }
-        
-        public SetterArg(PropertyInfo property, Variable variable)
-        {
-            PropertyName = property.Name;
-            PropertyType = property.PropertyType;
-            Variable = variable;
-        }
-
-        public string PropertyName { get; private set; }
-
-        public Variable Variable { get; private set; }
-
-        public Type PropertyType { get; private set; }
-
-        public string Assignment()
-        {
-            return $"{PropertyName} = {Variable}";
-        }
-
-        internal void FindVariable(IMethodVariables chain)
-        {
-            if (Variable == null)
-            {
-                Variable = chain.FindVariable(PropertyType);
-            }
-        }
-    }
-    
     public class ConstructorFrame : SyncFrame
     {
         public ConstructorFrame(ConstructorInfo ctor) : this(ctor.DeclaringType, ctor)
         {
-
         }
 
-        public ConstructorFrame(Type builtType, ConstructorInfo ctor) 
+        public ConstructorFrame(Type builtType, ConstructorInfo ctor)
         {
             Ctor = ctor ?? throw new ArgumentNullException(nameof(ctor));
             Parameters = new Variable[ctor.GetParameters().Length];
-            
-            
+
             BuiltType = builtType;
             Variable = new Variable(BuiltType, this);
         }
-        
-        public ConstructorFrame(Type builtType, ConstructorInfo ctor, Func<ConstructorFrame, Variable> variableSource) 
+
+        public ConstructorFrame(Type builtType, ConstructorInfo ctor, Func<ConstructorFrame, Variable> variableSource)
         {
             Ctor = ctor ?? throw new ArgumentNullException(nameof(ctor));
             Parameters = new Variable[ctor.GetParameters().Length];
-            
-            
+
             BuiltType = builtType;
             Variable = variableSource(this);
         }
 
         public Type BuiltType { get;  }
-        
+
         public Type DeclaredType { get; set; }
-        
+
         public ConstructorInfo Ctor { get; }
 
         public Variable[] Parameters { get; set; }
@@ -101,14 +44,13 @@ namespace Blueprint.Compiler.Frames
         public FramesCollection ActivatorFrames { get; } = new FramesCollection();
 
         public ConstructorCallMode Mode { get; set; } = ConstructorCallMode.Variable;
-        
+
         public IList<SetterArg> Setters { get; } = new List<SetterArg>();
-        
+
         /// <summary>
-        /// The variable set by invoking this frame. 
+        /// Gets or sets the variable set by invoking this frame.
         /// </summary>
         public Variable Variable { get; protected set; }
-
 
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
@@ -117,16 +59,16 @@ namespace Blueprint.Compiler.Frames
                 case ConstructorCallMode.Variable:
                     writer.Write(Declaration() + ";");
                     ActivatorFrames.Write(method, writer);
-                    
+
                     Next?.GenerateCode(method, writer);
                     break;
-                    
+
                 case ConstructorCallMode.ReturnValue:
                     if (ActivatorFrames.Any())
                     {
                         writer.Write(Declaration() + ";");
                         ActivatorFrames.Write(method, writer);
-                    
+
                         writer.Write($"return {Variable};");
                         Next?.GenerateCode(method, writer);
                     }
@@ -137,7 +79,7 @@ namespace Blueprint.Compiler.Frames
                     }
 
                     break;
-                    
+
                 case ConstructorCallMode.UsingNestedVariable:
                     writer.UsingBlock(Declaration(), w =>
                     {
@@ -148,10 +90,9 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
-
         public string Declaration()
         {
-            return DeclaredType == null 
+            return DeclaredType == null
                 ? $"var {Variable} = {Invocation()}"
                 : $"{DeclaredType.FullNameInCode()} {Variable} = {Invocation()}";
         }
@@ -172,7 +113,6 @@ namespace Blueprint.Compiler.Frames
             var parameters = Ctor.GetParameters();
             for (var i = 0; i < parameters.Length; i++)
             {
-                
                 if (Parameters[i] == null)
                 {
                     var parameter = parameters[i];
@@ -195,11 +135,10 @@ namespace Blueprint.Compiler.Frames
                 yield return setter.Variable;
             }
 
-
             if (ActivatorFrames.Any())
             {
                 var standin = new StandinMethodVariables(Variable, chain);
-                
+
                 foreach (var frame in ActivatorFrames)
                 {
                     foreach (var variable in frame.FindVariables(standin))
@@ -209,8 +148,7 @@ namespace Blueprint.Compiler.Frames
                 }
             }
         }
-        
-        
+
         public class StandinMethodVariables : IMethodVariables
         {
             private readonly Variable current;
@@ -237,9 +175,9 @@ namespace Blueprint.Compiler.Frames
                 return inner.TryFindVariableByName(dependency, name, out variable);
             }
 
-            public Variable TryFindVariable(Type type, VariableSource source)
+            public Variable TryFindVariable(Type type)
             {
-                return inner.TryFindVariable(type, source);
+                return inner.TryFindVariable(type);
             }
         }
     }
@@ -258,7 +196,7 @@ namespace Blueprint.Compiler.Frames
         {
             var property = ReflectionHelper.GetProperty(expression);
             var setter = new SetterArg(property, variable);
-            
+
             Setters.Add(setter);
         }
     }

@@ -11,10 +11,8 @@ namespace Blueprint.Api.Validation
     /// <summary>
     /// Requires the property this attribute is applied to, to have at least one item in its collection.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments",
-            Justification = "errorMessageAccessor belongs to the base class, thus cannot have a public accessor.")]
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property,
-            AllowMultiple = false)]
+    [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments", Justification = "errorMessageAccessor belongs to the base class, thus cannot have a public accessor.")]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class NotEmptyListAttribute : ValidationAttribute
     {
         /// <summary>

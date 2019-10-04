@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Blueprint.Core.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Blueprint.Api
 {
@@ -7,7 +7,7 @@ namespace Blueprint.Api
     /// A handler for a specific <see cref="IApiOperation"/>.
     /// </summary>
     /// <typeparam name="T">The type of API operation this component handles.</typeparam>
-    [UsedImplicitly]
+    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
     public interface IApiOperationHandler<in T> where T : IApiOperation
     {
         Task<object> Invoke(T operation, ApiOperationContext apiOperationContext);

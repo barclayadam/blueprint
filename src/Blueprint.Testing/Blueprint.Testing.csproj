@@ -8,10 +8,10 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.4" />
     <PackageReference Include="Moq" Version="4.7.99" />
-    <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="Shouldly" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\Blueprint.Postgres\Blueprint.Postgres.csproj" />
     <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
