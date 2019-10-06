@@ -40,7 +40,7 @@ namespace Blueprint.Api.Middleware
             public LoggingFrame(Type operationType)
             {
                 var message = $"API operation finished. operation_type={operationType.Name} time_taken_ms={{0}}";
-                logFrame = LogFrame.Info(message, "stopwatch.ElapsedMilliseconds");
+                logFrame = LogFrame.Information(message, "stopwatch.ElapsedMilliseconds");
             }
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
