@@ -32,7 +32,7 @@ pr:
 steps:
   - task: CacheBeta@0
     inputs:
-      key: nuget v2 | **/packages.lock.json
+      key: nuget | **/packages.lock.json
       path: $(NUGET_PACKAGES)
     displayName: Cache NuGet packages
 

@@ -35,6 +35,9 @@
     <MSBuildWarningsAsMessages>NETSDK1069</MSBuildWarningsAsMessages>
 
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 
     <PackageId>$(AssemblyName)</PackageId>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
