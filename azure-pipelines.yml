@@ -32,10 +32,10 @@ pr:
 steps:
   - task: CacheBeta@0
     inputs:
-      key: nuget | packages.lock.json
+      key: nuget | **/packages.lock.json
       path: $(NUGET_PACKAGES)
     displayName: Cache NuGet packages
-    
+
   - task: UseDotNet@2
     inputs:
       packageType: 'runtime'
