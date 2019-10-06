@@ -18,7 +18,7 @@ namespace Blueprint.Compiler
         /// Adds a "namespace [@namespace]" declaration into the code, and starts a new
         /// code block with a leading '{' character.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="namespace"></param>
         public static void Namespace(this ISourceWriter writer, string @namespace)
         {
@@ -29,7 +29,7 @@ namespace Blueprint.Compiler
         /// Adds a "using namespace;" declaration into the code for the namespace
         /// that holds the type T.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <typeparam name="T"></typeparam>
         public static void UsingNamespace<T>(this ISourceWriter writer)
         {
@@ -39,7 +39,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Adds a "using namespace;" declaration into the code for the namespace.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="namespace"></param>
         public static void UsingNamespace(this ISourceWriter writer, string @namespace)
         {
@@ -50,9 +50,9 @@ namespace Blueprint.Compiler
         /// Writes "using ([declaration])" into the code and starts a new code
         /// block with a leading '{' character.
         /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="declaration"></param>
-        /// <param name="inner"></param>
+        /// <param name="writer">Where to write to.</param>
+        /// <param name="declaration">The code that goes within the parenthesis of this using block (i.e. the expression that generates and optionally sets, the disposable object).</param>
+        /// <param name="inner">The action that writes the body of the using block, passed the same writer to avoid closure allocation.</param>
         public static void UsingBlock(this ISourceWriter writer, string declaration, Action<ISourceWriter> inner)
         {
             writer.Write($"BLOCK:using ({declaration})");
@@ -63,10 +63,42 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
+        /// Writes "try ([declaration])" into the code and starts a new code
+        /// block with a leading '{' character.
+        /// </summary>
+        /// <param name="writer">Where to write to.</param>
+        /// <param name="inner">The action that writes the body of the try block, passed the same writer to avoid closure allocation.</param>
+        public static void TryBlock(
+            this ISourceWriter writer,
+            Action<ISourceWriter> inner)
+        {
+            writer.Write("BLOCK:try");
+            inner(writer);
+            writer.FinishBlock();
+        }
+
+        /// <summary>
+        /// Writes "catch ([declaration])" into the code and starts a new code
+        /// block with a leading '{' character.
+        /// </summary>
+        /// <param name="writer">Where to write to.</param>
+        /// <param name="declaration">The code that goes within the parenthesis of this catch block (i.e. at a minimum the exception type).</param>
+        /// <param name="inner">The action that writes the body of the catch block, passed the same writer to avoid closure allocation.</param>
+        public static void CatchBlock(
+            this ISourceWriter writer,
+            string declaration,
+            Action<ISourceWriter> inner)
+        {
+            writer.Write("BLOCK:catch (" + declaration + ")");
+            inner(writer);
+            writer.FinishBlock();
+        }
+
+        /// <summary>
         /// Writes either "return;" or "return Task.CompletedTask;" into the code
         /// for synchronous or asynchronous methods.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="method"></param>
         public static void WriteReturnStatement(this ISourceWriter writer, GeneratedMethod method)
         {
@@ -83,12 +115,13 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Writes a "return [variable.Usage];" code snippet .
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="method"></param>
         /// <param name="variable"></param>
         public static void WriteReturnStatement(this ISourceWriter writer, GeneratedMethod method, Variable variable)
         {
-            object[] args = new[] { variable.Usage };
+            object[] args = { variable.Usage };
+
             writer.WriteLine(method.AsyncMode == AsyncMode.AsyncTask
                 ? $"return {variable.Usage};"
                 : string.Format(ReturnFromResult, args));
@@ -98,7 +131,7 @@ namespace Blueprint.Compiler
         /// Writes the text into the code as a comment at the current
         /// block level.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="comment"></param>
         public static void WriteComment(this ISourceWriter writer, string comment)
         {
@@ -108,7 +141,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Starts an if block in code with the opening brace and indention for following lines.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="statement">The statement to put inside the if block.</param>
         public static void WriteIf(this ISourceWriter writer, string statement)
         {
@@ -118,7 +151,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Starts an else block in code with the opening brace and indention for following lines.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         public static void WriteElse(this ISourceWriter writer)
         {
             writer.Write("BLOCK:else");
@@ -127,7 +160,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Starts a try block in code with the opening brace and indention for following lines.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         public static void WriteTry(this ISourceWriter writer)
         {
             writer.Write("BLOCK:try");
@@ -136,7 +169,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Starts a finally block in code with the opening brace and indention for following lines.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         public static void WriteFinally(this ISourceWriter writer)
         {
             writer.FinishBlock();
@@ -146,7 +179,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Writes the declaration of a new class to the source writer.
         /// </summary>
-        /// <param name="writer"></param>
+        /// <param name="writer">Where to write to.</param>
         /// <param name="className"></param>
         /// <param name="inheritsOrImplements"></param>
         public static void StartClass(this ISourceWriter writer, string className, params Type[] inheritsOrImplements)
