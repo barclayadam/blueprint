@@ -4,7 +4,7 @@ pool:
 # Build Variables
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget-packages
   Prerelease: 'ci'
   BuildConfiguration: 'Release'
 
@@ -32,7 +32,7 @@ pr:
 steps:
   - task: CacheBeta@0
     inputs:
-      key: nuget | **/packages.lock.json
+      key: nuget v2 | **/packages.lock.json
       path: $(NUGET_PACKAGES)
     displayName: Cache NuGet packages
 
