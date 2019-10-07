@@ -9,6 +9,8 @@ namespace Blueprint.Notifications
     {
         public static BlueprintConfigurer AddNotifications(this BlueprintConfigurer configurer)
         {
+            configurer.Services.AddOptions<TemplatedEmailHandlerOptions>();
+
             configurer.Services.AddTransient<INotificationRepository, EmbeddedResourceNotificationRepository>();
             configurer.Services.AddTransient<INotificationService, NotificationService>();
             configurer.Services.AddTransient<INotificationHandler, TemplatedEmailHandler>();

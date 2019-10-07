@@ -5,6 +5,7 @@ using Blueprint.Core;
 using Blueprint.Core.Utilities;
 using Blueprint.Notifications.Templates;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint.Notifications.Handlers
 {
@@ -14,11 +15,10 @@ namespace Blueprint.Notifications.Handlers
     /// </summary>
     public class TemplatedEmailHandler : NotificationHandler<EmailTemplate>
     {
-        private static readonly string EmailRecipientModifierFormat = "email:RecipientModifier".GetConfigValue(IfEmpty.ShouldThrow);
-
+        private readonly ITemplateFactory templateFactory;
         private readonly IEmailSender emailSender;
         private readonly ILogger<TemplatedEmailHandler> logger;
-        private readonly ITemplateFactory templateFactory;
+        private readonly IOptions<TemplatedEmailHandlerOptions> options;
 
         /// <summary>
         /// Initializes a new instance of the TemplatedEmailHandler class.
@@ -26,7 +26,8 @@ namespace Blueprint.Notifications.Handlers
         /// <param name="templateFactory">The template factory.</param>
         /// <param name="emailSender">The email sender.</param>
         /// <param name="logger">The logger to use.</param>
-        public TemplatedEmailHandler(ITemplateFactory templateFactory, IEmailSender emailSender, ILogger<TemplatedEmailHandler> logger)
+        /// <param name="options">The options that for this handler.</param>
+        public TemplatedEmailHandler(ITemplateFactory templateFactory, IEmailSender emailSender, ILogger<TemplatedEmailHandler> logger, IOptions<TemplatedEmailHandlerOptions> options)
         {
             Guard.NotNull(nameof(templateFactory), templateFactory);
             Guard.NotNull(nameof(emailSender), emailSender);
@@ -34,6 +35,7 @@ namespace Blueprint.Notifications.Handlers
             this.templateFactory = templateFactory;
             this.emailSender = emailSender;
             this.logger = logger;
+            this.options = options;
         }
 
         protected override void InternalHandle(EmailTemplate emailTemplate, NotificationOptions options)
@@ -77,10 +79,10 @@ namespace Blueprint.Notifications.Handlers
                 IsBodyHtml = true,
             };
 
-            // If the from addres does not have the same domain as our main sender address then we
+            // If the from address does not have the same domain as our main sender address then we
             // will set an sender to ensure email validity checks (e.g. DKIM) are executed against our
             // controlled domain, otherwise we can use the from address as the sender
-            var sender = new MailAddress("email:Sender".GetConfigValue(IfEmpty.ShouldThrow));
+            var sender = new MailAddress(this.options.Value.Sender);
             message.Sender = sender.Host != message.From.Host ? sender : message.From;
 
             foreach (var attachment in options.Attachments)
@@ -109,7 +111,7 @@ namespace Blueprint.Notifications.Handlers
 
         private string ModifyRecipient(string email)
         {
-            if (EmailRecipientModifierFormat == string.Empty)
+            if (options.Value.RecipientModifier == string.Empty)
             {
                 return email;
             }
@@ -130,7 +132,7 @@ namespace Blueprint.Notifications.Handlers
             var address = new MailAddress(email).Address;
             var safe = address.Replace("@", "#").Replace("+", "_");
 
-            var modified = EmailRecipientModifierFormat
+            var modified = options.Value.RecipientModifier
                                .Replace("{email}", email)
                                .Replace("{safe-email}", safe);
 

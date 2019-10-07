@@ -6,6 +6,7 @@ using Hangfire;
 using Hangfire.Common;
 using Hangfire.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Blueprint.Core.Tasks
@@ -15,22 +16,29 @@ namespace Blueprint.Core.Tasks
         private const char IdSplitter = ':';
 
         private readonly RecurringJobManager recurringJobManager;
+
         private readonly ITaskScheduler[] taskSchedulers;
         private readonly ILogger<TaskScheduler> logger;
+        private readonly IOptions<TaskOptions> options;
 
-        public TaskScheduler(ITaskScheduler[] taskSchedulers, ILogger<TaskScheduler> logger)
+        public TaskScheduler(ITaskScheduler[] taskSchedulers, ILogger<TaskScheduler> logger, IOptions<TaskOptions> options)
         {
+            Guard.NotNull(nameof(taskSchedulers), taskSchedulers);
+            Guard.NotNull(nameof(logger), logger);
+            Guard.NotNull(nameof(options), options);
+
             recurringJobManager = new RecurringJobManager();
 
             this.taskSchedulers = taskSchedulers;
             this.logger = logger;
+            this.options = options;
         }
 
         [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         public void RescheduleAll()
         {
             var recurringJobs = JobStorage.Current.GetConnection().GetRecurringJobs();
-            var schedulers = GetSchedulers().ToArray();
+            var schedulers = GetActiveSchedulers().ToArray();
 
             Reschedule(schedulers, recurringJobs);
         }
@@ -39,7 +47,7 @@ namespace Blueprint.Core.Tasks
         public void StartupCleanup()
         {
             var recurringJobs = JobStorage.Current.GetConnection().GetRecurringJobs();
-            var schedulers = GetSchedulers().ToArray();
+            var schedulers = GetActiveSchedulers().ToArray();
 
             using (logger.LogTimeWrapper("Purging jobs where the task scheduler no longer exists"))
             {
@@ -83,28 +91,24 @@ namespace Blueprint.Core.Tasks
         }
 
         /// <summary>
-        /// Gets all the schedulers that have been registered.
+        /// Gets all the schedulers that have been registered and are currently active.
         /// </summary>
         /// <remarks>
         /// We ask for new schedulers every time to ensure that dependencies that should be transient are (e.g. a
         /// database context should be new every time a scheduler is called).
         /// </remarks>
-        /// <returns></returns>
-        private IEnumerable<ITaskScheduler> GetSchedulers()
+        /// <returns>A list of active schedulers.</returns>
+        private IEnumerable<ITaskScheduler> GetActiveSchedulers()
         {
-            var schedulerEnabled = "Scheduler.Enabled".GetConfigValue<bool>();
+            var loadedOptions = options.Value;
+            var schedulerEnabled = loadedOptions.SchedulerEnabled;
 
             if (!schedulerEnabled)
             {
                 return Enumerable.Empty<ITaskScheduler>();
             }
 
-            return taskSchedulers.Where(s =>
-            {
-                var enableConfigKey = $"Scheduler.{s.GetType().Name}.Enabled";
-
-                return !enableConfigKey.TryGetAppSetting(out bool isEnabled) || isEnabled;
-            });
+            return taskSchedulers.Where(s => !loadedOptions.DisabledSchedulers.Contains(s.GetType().Name));
         }
 
         private void Reschedule(IEnumerable<ITaskScheduler> schedulers, List<RecurringJobDto> recurringJobs)

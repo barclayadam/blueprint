@@ -7,12 +7,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Errors;
-using Blueprint.Core.Utilities;
 using Hangfire;
 using Hangfire.Server;
-using Microsoft.CodeAnalysis.Classification;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint.Core.Tasks
 {
@@ -28,29 +27,34 @@ namespace Blueprint.Core.Tasks
         private readonly IErrorLogger errorLogger;
         private readonly IApmTool apmTool;
         private readonly ILogger<TaskExecutor> logger;
+        private readonly IOptions<TaskOptions> options;
 
         /// <summary>
-        /// Instantiates a new instance of the class TaskExecutor.
+        /// Instantiates a new instance of the TaskExecutor class.
         /// </summary>
         /// <param name="serviceProvider">The parent container.</param>
         /// <param name="errorLogger">Error logger to track thrown exceptions.</param>
         /// <param name="apmTool">APM operation tracker to track individual task executions.</param>
         /// <param name="logger">Logger to use.</param>
+        /// <param name="options">The options for this executor.</param>
         public TaskExecutor(
             IServiceProvider serviceProvider,
             IErrorLogger errorLogger,
             IApmTool apmTool,
-            ILogger<TaskExecutor> logger)
+            ILogger<TaskExecutor> logger,
+            IOptions<TaskOptions> options)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(errorLogger), errorLogger);
             Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
+            Guard.NotNull(nameof(options), options);
 
             this.serviceProvider = serviceProvider;
             this.errorLogger = errorLogger;
             this.apmTool = apmTool;
             this.logger = logger;
+            this.options = options;
         }
 
         /// <summary>
@@ -122,7 +126,7 @@ namespace Blueprint.Core.Tasks
             {
                 activity.Start();
 
-                using (logger.BeginScope(new { JobId = context.BackgroundJob.Id }))
+                using (logger.BeginScope(new {JobId = context.BackgroundJob.Id}))
                 using (var nestedContainer = serviceProvider.CreateScope())
                 {
                     await apmTool.InvokeAsync(GetOperationName(backgroundTask), async () =>
@@ -137,7 +141,7 @@ namespace Blueprint.Core.Tasks
 
                         var enableConfigKey = $"Task.{typeName}.Enabled";
 
-                        if (enableConfigKey.TryGetAppSetting(out bool isEnabled) && !isEnabled)
+                        if (options.Value.DisabledSchedulers.Contains(typeName))
                         {
                             logger.LogWarning(
                                 "Task disabled in configuration. task_type={0} handler_type={1}",
@@ -185,11 +189,7 @@ namespace Blueprint.Core.Tasks
                     throw;
                 }
 
-                var errorData = new Dictionary<string, string>
-                {
-                    ["RetryCount"] = attempt?.ToString(),
-                    ["HangfireJobId"] = context.BackgroundJob.Id,
-                };
+                var errorData = new Dictionary<string, string> {["RetryCount"] = attempt?.ToString(), ["HangfireJobId"] = context.BackgroundJob.Id,};
 
                 errorLogger.Log(e, errorData);
 
