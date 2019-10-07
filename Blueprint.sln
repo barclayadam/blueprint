@@ -58,6 +58,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{B407234C-3
 ProjectSection(SolutionItems) = preProject
 	LICENSE.md = LICENSE.md
 	README.md = README.md
+	CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+	Directory.Build.props = Directory.Build.props
 EndProjectSection
 EndProject
 Global

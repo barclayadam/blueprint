@@ -1,4 +1,6 @@
 <Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory)..\, Directory.Build.props))\Directory.Build.props" />
+
   <PropertyGroup>
     <!--
       $(MSBuildAllProjects) is a list of files that determine if a project is up-to-date or not.  By including this
@@ -8,25 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-
-    <Product>Blueprint</Product>
-    <Company>Red Sequence</Company>
-    <Copyright>(c) Red Sequence. All rights reserved</Copyright>
-    <Authors>Adam Barclay, Michael Taylor</Authors>
-
-    <DefaultLanguage>en-GB</DefaultLanguage>
-    <NeutralLanguage>en-GB</NeutralLanguage>
-
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
-
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode>true</RestoreLockedMode>
-    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
-  </ItemGroup>
 </Project>
