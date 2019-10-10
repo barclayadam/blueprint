@@ -68,7 +68,7 @@ namespace Blueprint.Compiler.Frames
 
         public Variable[] Arguments { get; }
 
-        public DisposalMode DisposalMode { get; } = DisposalMode.UsingBlock;
+        public DisposalMode DisposalMode { get; set; } = DisposalMode.UsingBlock;
 
         public static MethodCall For<T>(Expression<Action<T>> expression)
         {

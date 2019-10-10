@@ -25,7 +25,7 @@ namespace Blueprint.Compiler
 
         public GeneratedType AddType(string typeName, Type baseType)
         {
-            var generatedType = new GeneratedType(this, generationRules, typeName);
+            var generatedType = new GeneratedType(this, typeName);
 
             if (baseType.IsInterface)
             {

@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 
 namespace Blueprint.Compiler
@@ -9,6 +9,7 @@ namespace Blueprint.Compiler
         public GenerationRules(string applicationNamespace)
         {
             ApplicationNamespace = applicationNamespace;
+            AssemblyName = Assembly.GetExecutingAssembly().GetName().Name + "Generated";
             UseCompileStrategy<ToFileCompileStrategy>();
         }
 
@@ -20,9 +21,11 @@ namespace Blueprint.Compiler
 
         public Type CompileStrategy { get; private set; }
 
-        public void UseCompileStrategy<T>() where T : ICompileStrategy
+        public GenerationRules UseCompileStrategy<T>() where T : ICompileStrategy
         {
             CompileStrategy = typeof(T);
+
+            return this;
         }
     }
 }

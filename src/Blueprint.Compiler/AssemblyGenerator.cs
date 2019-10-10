@@ -22,7 +22,6 @@ namespace Blueprint.Compiler
     public class AssemblyGenerator
     {
         private readonly ILogger<AssemblyGenerator> logger;
-        private readonly IServiceProvider serviceProvider;
 
         private readonly List<MetadataReference> references = new List<MetadataReference>();
         private readonly List<Assembly> assemblies = new List<Assembly>();
@@ -30,10 +29,9 @@ namespace Blueprint.Compiler
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
         private readonly List<SourceFile> files = new List<SourceFile>();
 
-        public AssemblyGenerator(ILogger<AssemblyGenerator> logger, IServiceProvider serviceProvider)
+        public AssemblyGenerator(ILogger<AssemblyGenerator> logger)
         {
             this.logger = logger;
-            this.serviceProvider = serviceProvider;
 
             ReferenceAssemblyContainingType<object>();
             ReferenceAssemblyContainingType<AssemblyGenerator>();
@@ -109,10 +107,9 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <param name="rules">Rules that are used to control the generation of the <see cref="Assembly"/>.</param>
         /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
-        /// <exception cref="InvalidOperationException"></exception>
         public Assembly Generate(GenerationRules rules)
         {
-            var compileStrategy = (ICompileStrategy)serviceProvider.GetRequiredService(rules.CompileStrategy);
+            var compileStrategy = (ICompileStrategy)Activator.CreateInstance(rules.CompileStrategy);
             var encoding = Encoding.UTF8;
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
 
@@ -146,6 +143,7 @@ namespace Blueprint.Compiler
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
+                logger,
                 compilation,
                 (result) =>
                 {

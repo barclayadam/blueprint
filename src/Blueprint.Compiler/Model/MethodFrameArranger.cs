@@ -208,8 +208,6 @@ namespace Blueprint.Compiler.Model
                 }
             }
 
-            var classVariable = ((IVariableSource)type).TryFindVariable(variableType);
-
             foreach (var s in method.Sources)
             {
                 var created = s.TryFindVariable(variableType);
