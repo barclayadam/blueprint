@@ -28,7 +28,7 @@ namespace Blueprint.Testing
 
             var context = new ApiOperationContext(serviceProvider, dataModel, descriptor);
 
-            SetUpTestRequest(context, "https://api.blueprint.com/" + descriptor.Name);
+            context.ConfigureHttp("https://api.blueprint.com/" + descriptor.Name);
 
             return context;
         }
@@ -43,7 +43,7 @@ namespace Blueprint.Testing
         /// </remarks>
         /// <param name="context">The context to configure.</param>
         /// <param name="url">The URL to set for this context's request.</param>
-        public static void SetUpTestRequest(this ApiOperationContext context, string url)
+        public static void ConfigureHttp(this ApiOperationContext context, string url)
         {
             var uri = new Uri(url);
 
