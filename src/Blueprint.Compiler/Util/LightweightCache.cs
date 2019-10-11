@@ -9,8 +9,6 @@ namespace Blueprint.Compiler.Util
     {
         private readonly IDictionary<TKey, TValue> values;
 
-        private Func<TValue, TKey> getKey = arg => throw new NotImplementedException();
-
         private Func<TKey, TValue> onMissing = key =>
         {
             var message = $"Key '{key}' could not be found";
@@ -18,24 +16,8 @@ namespace Blueprint.Compiler.Util
         };
 
         public LightweightCache()
-            : this(new Dictionary<TKey, TValue>())
         {
-        }
-
-        public LightweightCache(Func<TKey, TValue> onMissing)
-            : this(new Dictionary<TKey, TValue>(), onMissing)
-        {
-        }
-
-        public LightweightCache(IDictionary<TKey, TValue> dictionary, Func<TKey, TValue> onMissing)
-            : this(dictionary)
-        {
-            this.onMissing = onMissing;
-        }
-
-        public LightweightCache(IDictionary<TKey, TValue> dictionary)
-        {
-            values = dictionary;
+            values = new Dictionary<TKey, TValue>();
         }
 
         public Func<TKey, TValue> OnMissing
@@ -43,40 +25,11 @@ namespace Blueprint.Compiler.Util
             set { onMissing = value; }
         }
 
-        public Func<TValue, TKey> GetKey
-        {
-            get { return getKey; }
-            set { getKey = value; }
-        }
-
-        public int Count
-        {
-            get { return values.Count; }
-        }
-
-        public TValue First
-        {
-            get
-            {
-                using (var enumerator = values.GetEnumerator())
-                {
-                    if (enumerator.MoveNext())
-                    {
-                        return enumerator.Current.Value;
-                    }
-                }
-
-                return default;
-            }
-        }
-
         public TValue this[TKey key]
         {
             get
             {
-                TValue value;
-
-                if (!values.TryGetValue(key, out value))
+                if (!values.TryGetValue(key, out var value))
                 {
                     value = onMissing(key);
 
@@ -87,18 +40,6 @@ namespace Blueprint.Compiler.Util
                 }
 
                 return value;
-            }
-
-            set
-            {
-                if (values.ContainsKey(key))
-                {
-                    values[key] = value;
-                }
-                else
-                {
-                    values.Add(key, value);
-                }
             }
         }
 
@@ -121,35 +62,12 @@ namespace Blueprint.Compiler.Util
             Fill(key, onMissing(key));
         }
 
-        public void Fill(TKey key, TValue value)
+        public TValue[] GetAll()
         {
-            if (values.ContainsKey(key))
-            {
-                return;
-            }
+            var returnValue = new TValue[values.Count];
+            values.Values.CopyTo(returnValue, 0);
 
-            values.Add(key, value);
-        }
-
-        public bool TryRetrieve(TKey key, out TValue value)
-        {
-            value = default;
-
-            if (values.ContainsKey(key))
-            {
-                value = values[key];
-                return true;
-            }
-
-            return false;
-        }
-
-        public void Each(Action<TValue> action)
-        {
-            foreach (var pair in values)
-            {
-                action(pair.Value);
-            }
+            return returnValue;
         }
 
         public void Each(Action<TKey, TValue> action)
@@ -160,65 +78,14 @@ namespace Blueprint.Compiler.Util
             }
         }
 
-        public bool Has(TKey key)
-        {
-            return values.ContainsKey(key);
-        }
-
-        public bool Exists(Predicate<TValue> predicate)
-        {
-            var returnValue = false;
-
-            Each(value => returnValue |= predicate(value));
-
-            return returnValue;
-        }
-
-        public TValue Find(Predicate<TValue> predicate)
-        {
-            foreach (var pair in values)
-            {
-                if (predicate(pair.Value))
-                {
-                    return pair.Value;
-                }
-            }
-
-            return default;
-        }
-
-        public TValue[] GetAll()
-        {
-            var returnValue = new TValue[Count];
-            values.Values.CopyTo(returnValue, 0);
-
-            return returnValue;
-        }
-
-        public void Remove(TKey key)
+        private void Fill(TKey key, TValue value)
         {
             if (values.ContainsKey(key))
             {
-                values.Remove(key);
+                return;
             }
-        }
 
-        public void Clear()
-        {
-            values.Clear();
-        }
-
-        public void WithValue(TKey key, Action<TValue> action)
-        {
-            if (values.ContainsKey(key))
-            {
-                action(this[key]);
-            }
-        }
-
-        public void ClearAll()
-        {
-            values.Clear();
+            values.Add(key, value);
         }
     }
 }

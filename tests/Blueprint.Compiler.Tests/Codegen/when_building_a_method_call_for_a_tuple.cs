@@ -38,7 +38,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void has_creation_variables_for_the_tuple_types()
         {
-            theCall.Creates.ShouldHaveTheSameElementsAs(Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>());
+            theCall.Creates.ShouldBeSubsetOf(new [] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
         }
     }
 }

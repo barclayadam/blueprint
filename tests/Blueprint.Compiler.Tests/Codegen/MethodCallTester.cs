@@ -218,7 +218,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.Arguments[2].ShouldBeOfType<OutArgument>();
 
             @call.Creates.Select(x => x.VariableType)
-                .ShouldHaveTheSameElementsAs(typeof(string), typeof(int));
+                .ShouldBeSubsetOf(new [] { typeof(string), typeof(int) });
         }
 
 
@@ -230,7 +230,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.ReturnVariable.VariableType.ShouldBe(typeof(bool));
 
             @call.Creates.Select(x => x.VariableType)
-                .ShouldHaveTheSameElementsAs(typeof(bool),typeof(string), typeof(int));
+                .ShouldBeSubsetOf(new [] { typeof(bool), typeof(string), typeof(int) });
         }
 
         [Test]
