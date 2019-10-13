@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Blueprint.Core.Utilities
@@ -61,6 +62,33 @@ namespace Blueprint.Core.Utilities
 
             var streamReader = new StreamReader(input);
             return streamReader.ReadToEndAsync();
+        }
+
+        /// <summary>
+        /// Converts this string to a Stream (currently backed by a <see cref="MemoryStream" />), using UTF8 to get
+        /// the bytes from the string.
+        /// </summary>
+        /// <param name="value">The string to convert to an in-memory <see cref="Stream"/>.</param>
+        /// <returns>A new stream of the UTF8 bytes of the string.</returns>
+        public static Stream AsUtf8Stream(this string value)
+        {
+            return AsStream(Encoding.UTF8.GetBytes(value));
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="MemoryStream" /> and writes all bytes of this array to it, seeking
+        /// back to 0 ready for immediate reading.
+        /// </summary>
+        /// <param name="bytes">The bytes to populate a stream with.</param>
+        /// <returns>A new stream with the given bytes as content.</returns>
+        public static Stream AsStream(this byte[] bytes)
+        {
+            var stream = new MemoryStream();
+
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            return stream;
         }
     }
 }
