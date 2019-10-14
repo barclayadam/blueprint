@@ -10,10 +10,6 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
 
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode>true</RestoreLockedMode>
-    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-
     <Product>Blueprint</Product>
     <Company>Red Sequence</Company>
     <Copyright>(c) Red Sequence. All rights reserved</Copyright>
