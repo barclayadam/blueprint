@@ -1,4 +1,7 @@
-﻿using Blueprint.Api.Middleware;
+﻿using Blueprint.Api.Authorisation;
+using Blueprint.Api.Middleware;
+using Blueprint.ApplicationInsights;
+using Blueprint.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +15,10 @@ namespace Blueprint.Sample.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IWeatherDataSource, WeatherDataSource>();
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IClaimsIdentityProvider, HttpRequestClaimsIdentityProvider>();
 
             services.AddControllers();
 
@@ -20,12 +26,15 @@ namespace Blueprint.Sample.WebApi
             {
                 o.WithApplicationName("SampleWebApi");
 
-//                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<ApplicationInsightsMiddleware>();
                 o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<AuthenticationMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<AuthorisationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-//                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
-//                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
                 o.Scan(typeof(Startup).Assembly);
