@@ -94,6 +94,19 @@ namespace Blueprint.Testing
             internal List<Type> MiddlewareBuilderTypes { get; } = new List<Type>();
 
             /// <summary>
+            /// Called back with the <see cref="ServiceCollection" /> that is to be used by the operator that is being
+            /// built, allowing customisation and further registrations of the DI container to be built.
+            /// </summary>
+            /// <param name="action">The action to be immediately called to configure the <see cref="ServiceCollection"/>.</param>
+            /// <returns>This instance.</returns>
+            public TestApiOperationExecutorBuilder WithServices(Action<ServiceCollection> action)
+            {
+                action(collection);
+
+                return this;
+            }
+
+            /// <summary>
             /// Configures a new handler, which will also implicitly register the operation of type <typeparamref name="T"/>
             /// with the <see cref="ApiDataModel" /> of the executor.
             /// </summary>

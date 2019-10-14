@@ -77,10 +77,12 @@ namespace Blueprint.Api
 
                     var castFrame = new ConcreteOperationCastFrame(operationContextVariable, operation.OperationType);
 
+                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
+
+                    var dependencyInjectionVariableSource = new DependencyInjectionVariableSource(executeMethod, instanceFrameProvider);
+
                     var apiOperationContextSource =
                         new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
-
-                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
 
                     var context = new MiddlewareBuilderContext(
                         executeMethod,
@@ -90,9 +92,10 @@ namespace Blueprint.Api
                         serviceScope.ServiceProvider,
                         instanceFrameProvider);
 
-                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[] { new BaseExceptionCatchFrame(context, e) });
+                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[] {new BaseExceptionCatchFrame(context, e)});
 
                     executeMethod.Sources.Add(apiOperationContextSource);
+                    executeMethod.Sources.Add(dependencyInjectionVariableSource);
 
                     var executorLoggerName = $"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor";
                     var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(executorLoggerName);
@@ -124,7 +127,8 @@ namespace Blueprint.Api
                         }
                     }
 
-                    dictionary.Add(operation.OperationType, () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
+                    dictionary.Add(operation.OperationType,
+                        () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
                 }
 
                 try
@@ -189,10 +193,28 @@ namespace Blueprint.Api
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
-                writer.Write($"var {operationVariable} = ({operationVariable.VariableType.FullNameInCode()}) {operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
+                writer.Write(
+                    $"var {operationVariable} = ({operationVariable.VariableType.FullNameInCode()}) {operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
 
                 Next?.GenerateCode(method, writer);
             }
+        }
+    }
+
+    public class DependencyInjectionVariableSource : IVariableSource
+    {
+        private readonly GeneratedMethod generatedMethod;
+        private readonly IInstanceFrameProvider instanceFrameProvider;
+
+        public DependencyInjectionVariableSource(GeneratedMethod generatedMethod, IInstanceFrameProvider instanceFrameProvider)
+        {
+            this.generatedMethod = generatedMethod;
+            this.instanceFrameProvider = instanceFrameProvider;
+        }
+
+        public Variable TryFindVariable(Type type)
+        {
+            return instanceFrameProvider.VariableFromContainer<object>(generatedMethod.GeneratedType, type).InstanceVariable;
         }
     }
 }

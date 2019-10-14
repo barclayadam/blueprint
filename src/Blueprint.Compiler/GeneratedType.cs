@@ -9,7 +9,7 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
-    [DebuggerDisplay("GeneratedType: {" + nameof(BaseType) + "}")]
+    [DebuggerDisplay(nameof(TypeName) + " : " + nameof(BaseType))]
     public class GeneratedType : IVariableSource
     {
         private readonly IList<Type> interfaces = new List<Type>();

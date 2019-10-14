@@ -119,8 +119,8 @@ namespace Blueprint.Compiler.Frames
                     continue;
                 }
 
-                var param = parameters[i];
-                Arguments[i] = FindVariable(param, chain);
+//                var param = parameters[i];
+                Arguments[i] = chain.FindVariable(parameters[i].ParameterType); // FindVariable(param, chain);
             }
 
             foreach (var variable in Arguments)
@@ -219,20 +219,6 @@ namespace Blueprint.Compiler.Frames
             }
 
             return type;
-        }
-
-        private Variable FindVariable(ParameterInfo param, IMethodVariables chain)
-        {
-            var type = param.ParameterType;
-
-            if (aliases.ContainsKey(type))
-            {
-                var actualType = aliases[type];
-                var inner = chain.FindVariable(actualType);
-                return new CastVariable(inner, type);
-            }
-
-            return chain.TryFindVariableByName(type, param.Name, out var variable) ? variable : chain.FindVariable(type);
         }
 
         private bool ShouldAssignVariableToReturnValue(GeneratedMethod method)

@@ -9,10 +9,6 @@ using Shouldly;
 
 namespace Blueprint.Tests.Api.Validator_Middleware
 {
-    public class EmptyOperation : IApiOperation
-    {
-    }
-
     public class Given_ValidationMiddleware
     {
         public class HasRequiredPropertyOperation : IApiOperation

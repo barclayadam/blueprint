@@ -32,10 +32,10 @@ namespace Blueprint.Compiler.Frames
 
             set
             {
-                if (next != null)
-                {
-                    throw new InvalidOperationException($"Frame chain is being re-arranged, tried to set {value} as the 'Next");
-                }
+//                if (next != null)
+//                {
+//                    throw new InvalidOperationException($"Frame chain is being re-arranged, tried to set {value} as the 'Next");
+//                }
 
                 next = value;
             }

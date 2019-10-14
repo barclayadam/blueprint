@@ -153,29 +153,6 @@ namespace Blueprint.Compiler.Tests.Codegen
         }
 
         [Test]
-        public void find_simple_variable_by_name_and_type()
-        {
-            var age = Variable.For<int>("age");
-            var count = Variable.For<int>("count");
-
-            var name = Variable.For<string>();
-
-            var variables = new StubMethodVariables();
-            variables.Store(age);
-            variables.Store(count);
-            variables.Store(name);
-
-            var @call = MethodCall.For<MethodCallTarget>(x => x.DoSomething(0, 0, null));
-            @call.IsLocal = true;
-
-            var found = @call.FindVariables(variables).ToArray();
-
-            @call.Arguments[0].ShouldBe(age);
-            @call.Arguments[1].ShouldBe(count);
-            @call.Arguments[2].ShouldBe(name);
-        }
-
-        [Test]
         public void find_variables_returns_all_the_set_arguments_too()
         {
             var age = Variable.For<int>("age");
