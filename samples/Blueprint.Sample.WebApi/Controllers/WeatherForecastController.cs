@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blueprint.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blueprint.Sample.WebApi.Controllers
@@ -9,20 +10,17 @@ namespace Blueprint.Sample.WebApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+        private readonly IWeatherDataSource weatherDataSource;
+
+        public WeatherForecastController(IWeatherDataSource weatherDataSource)
+        {
+            this.weatherDataSource = weatherDataSource;
+        }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get(string city)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-                {
-                    City = city,
-                    Date = DateTime.Now.AddDays(index),
-                    TemperatureC = rng.Next(-20, 55),
-                    Summary = Summaries[rng.Next(Summaries.Length)],
-                })
-                .ToArray();
+            return weatherDataSource.Get(city);
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Blueprint.Sample.WebApi
+namespace Blueprint.Sample.WebApi.Data
 {
     public class WeatherForecast
     {
