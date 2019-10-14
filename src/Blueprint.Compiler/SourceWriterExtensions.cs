@@ -145,7 +145,7 @@ namespace Blueprint.Compiler
         /// <param name="statement">The statement to put inside the if block.</param>
         public static void WriteIf(this ISourceWriter writer, string statement)
         {
-            writer.Write($"BLOCK:if({statement})");
+            writer.Write($"BLOCK:if ({statement})");
         }
 
         /// <summary>
