@@ -54,6 +54,13 @@ namespace Microsoft.AspNetCore.Builder
                 // would be exception be known to HTTP clients (the error is logged regardless)
                 routeHandler = new RouteHandler(context => throw new CompilationWrapperException(e));
             }
+            catch (Exception e) when (e.InnerException is CompilationException ce)
+            {
+                // Some DI projects wrap the CompilationException in their own (i.e. StructureMap, which throws a specific exception
+                // when trying to create an instance). This catch block attempts to handle those custom exceptions on the assumption that
+                // the inner exception would be the original CompilationException
+                routeHandler = new RouteHandler(context => throw new CompilationWrapperException(ce));
+            }
 
             // Ordering by 'indexOf {' means we put those URLs which are not placeholders
             // first (e.g. /users/{id} and /users/me will put /users/me first)
