@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Blueprint.Api.CodeGen;
@@ -12,6 +13,7 @@ namespace Blueprint.Api
     public class MiddlewareBuilderContext
     {
         private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
+        private readonly FramesCollection finallyFrames = new FramesCollection();
 
         private readonly IInstanceFrameProvider instanceFrameProvider;
 
@@ -75,6 +77,11 @@ namespace Blueprint.Api
         public IReadOnlyDictionary<Type, Func<Variable, IEnumerable<Frame>>> ExceptionHandlers => exceptionHandlers;
 
         /// <summary>
+        /// Gets the list of registered frames to execute in the operation's finally block.
+        /// </summary>
+        public IReadOnlyList<Frame> FinallyFrames => finallyFrames;
+
+        /// <summary>
         /// Adds a reference to the given <see cref="Assembly" /> to the generated assembly, ensuring that any types that are used
         /// within the generated source code is available.
         /// </summary>
@@ -113,6 +120,16 @@ namespace Blueprint.Api
             AddAssemblyReference(exceptionType.Assembly);
 
             exceptionHandlers[exceptionType] = create;
+        }
+
+        /// <summary>
+        /// Registers one or more frames that should be rendered in a "finally" block that surrounds all of the execution of an operation,
+        /// allowing middleware to always act at the end of an operation (useful for things like logging and auditing).
+        /// </summary>
+        /// <param name="frames">The frame(s) to append.</param>
+        public void RegisterFinallyFrames(params Frame[] frames)
+        {
+            finallyFrames.Append(frames);
         }
 
         /// <summary>
