@@ -9,6 +9,7 @@ using Blueprint.Api.Formatters;
 using Blueprint.Api.Infrastructure;
 using Blueprint.Api.Validation;
 using Blueprint.Compiler;
+using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
 using Microsoft.AspNetCore.Http;
@@ -41,6 +42,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IErrorLogger, ErrorLogger>();
 
             services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            services.AddScoped<IClaimInspector, ClaimInspector>();
+
+            services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
+            services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
 
             // Tasks: services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
             // Tasks: Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
