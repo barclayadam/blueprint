@@ -52,7 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
             services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
-            services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
 
             // Validation
             services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
