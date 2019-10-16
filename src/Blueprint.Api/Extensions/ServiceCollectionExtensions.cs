@@ -9,9 +9,11 @@ using Blueprint.Api.Formatters;
 using Blueprint.Api.Infrastructure;
 using Blueprint.Api.Validation;
 using Blueprint.Compiler;
+using Blueprint.Core.Apm;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
+using Blueprint.Core.Tracing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -41,17 +43,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<IErrorLogger, ErrorLogger>();
 
+            // Authentication / Authorisation
             services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
             services.AddScoped<IClaimInspector, ClaimInspector>();
 
             services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
             services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
-
-            // Tasks: services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
-            // Tasks: Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
-
-            services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
-            services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Validation
             services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
@@ -60,18 +57,31 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
             services.AddSingleton<IValidator, BlueprintValidator>();
 
+            // Cache
             services.AddSingleton<ICache, Cache>();
             services.AddSingleton(MemoryCache.Default);
             services.AddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
+            // IoC
             services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
 
             // Formatters
             services.AddSingleton<JsonTypeFormatter>();
+            services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
+
+            // Linking
+            services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Random infrastructure
             services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
+
+            services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
+            services.TryAddScoped<IApmTool, NullApmTool>();
+
+            // Tasks
+            // services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
+            // Decorate: services.AddScoped<IBackgroundTaskScheduleProvider, ActivityTrackingBackgroundTaskScheduleProvider<Hangfire>>();
 
             var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
 
