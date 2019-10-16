@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Blueprint.Tests.Api.DependencyInjectionSource
+namespace Blueprint.Tests.Api.Builder
 {
     public class Given_DependencyInjection_Container
     {

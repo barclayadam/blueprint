@@ -95,7 +95,10 @@ namespace Blueprint.Api.CodeGen
 
                 foreach (var handler in context.ExceptionHandlers)
                 {
-                    createdFrames[handler.Key] = handler.Value(new Variable(handler.Key, "e")).ToArray();
+                    var exceptionVariable = new Variable(handler.Key, "e");
+                    var allFrames = handler.Value.SelectMany(v => v(exceptionVariable));
+
+                    createdFrames[handler.Key] = allFrames.ToArray();
                 }
             }
             else

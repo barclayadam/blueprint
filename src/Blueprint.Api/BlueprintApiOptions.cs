@@ -46,7 +46,7 @@ namespace Blueprint.Api
         /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
         /// order that they will be configured.
         /// </summary>
-        public List<Type> Middlewares { get; } = new List<Type>();
+        public List<IMiddlewareBuilder> Middlewares { get; } = new List<IMiddlewareBuilder>();
 
         /// <summary>
         /// Gets or sets the name of the application, which is used when generating the DLL for the pipeline
@@ -72,9 +72,9 @@ namespace Blueprint.Api
         /// Adds the given middleware builder to the end of the current list of builders.
         /// </summary>
         /// <typeparam name="T">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</typeparam>
-        public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
+        public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder, new()
         {
-            Middlewares.Add(typeof(T));
+            Middlewares.Add(new T());
         }
 
         /// <summary>
@@ -83,7 +83,16 @@ namespace Blueprint.Api
         /// <param name="middlewareType">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</param>
         public void UseMiddlewareBuilder(Type middlewareType)
         {
-            Middlewares.Add(middlewareType);
+            Middlewares.Add((IMiddlewareBuilder)Activator.CreateInstance(middlewareType));
+        }
+
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <param name="middlewareBuilder">The middleware builder to add.</param>
+        public void UseMiddlewareBuilder(IMiddlewareBuilder middlewareBuilder)
+        {
+            Middlewares.Add(middlewareBuilder);
         }
 
         /// <summary>

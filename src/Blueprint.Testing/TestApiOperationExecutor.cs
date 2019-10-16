@@ -6,6 +6,8 @@ using Blueprint.Api.Middleware;
 using Blueprint.Compiler;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Blueprint.Testing
 {
@@ -18,9 +20,9 @@ namespace Blueprint.Testing
     /// </remarks>
     public class TestApiOperationExecutor : IApiOperationExecutor
     {
-        private readonly IApiOperationExecutor executor;
+        private readonly CodeGennedExecutor executor;
 
-        private TestApiOperationExecutor(IApiOperationExecutor executor)
+        private TestApiOperationExecutor(CodeGennedExecutor executor)
         {
             this.executor = executor;
         }
@@ -34,12 +36,16 @@ namespace Blueprint.Testing
         /// </summary>
         /// <param name="configure">An action that will configure the pipeline for the given test.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
-        public static IApiOperationExecutor Create(Action<TestApiOperationExecutorBuilder> configure)
+        public static TestApiOperationExecutor Create(Action<TestApiOperationExecutorBuilder> configure)
         {
             var collection = new ServiceCollection();
 
             var builder = new TestApiOperationExecutorBuilder(collection);
             configure(builder);
+
+            collection.AddLogging(b => b
+                .AddConsole()
+                .SetMinimumLevel(LogLevel.Debug));
 
             collection.AddBlueprintApi(o =>
             {
@@ -48,7 +54,7 @@ namespace Blueprint.Testing
 
                 o.WithApplicationName("Blueprint.Tests");
 
-                foreach (var middlewareType in builder.MiddlewareBuilderTypes)
+                foreach (var middlewareType in builder.Middlewares)
                 {
                     o.UseMiddlewareBuilder(middlewareType);
                 }
@@ -63,9 +69,38 @@ namespace Blueprint.Testing
             });
 
             var serviceProvider = collection.BuildServiceProvider();
-            var executor = serviceProvider.GetRequiredService<IApiOperationExecutor>();
+            var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();
 
             return new TestApiOperationExecutor(executor);
+        }
+
+        /// <summary>
+        /// Gets all of the code that was used to generate this executor.
+        /// </summary>
+        /// <returns>The code used to create all executors.</returns>
+        public string WhatCodeDidIGenerate()
+        {
+            return executor.WhatCodeDidIGenerate();
+        }
+
+        /// <summary>
+        /// Gets the code that was used to generate the executor for the operation specified by <paramref name="operationType" />.
+        /// </summary>
+        /// <param name="operationType">The operation type to get source code for.</param>
+        /// <returns>The executor's source code.</returns>
+        public string WhatCodeDidIGenerateFor(Type operationType)
+        {
+            return executor.WhatCodeDidIGenerateFor(operationType);
+        }
+
+        /// <summary>
+        /// Gets the code that was used to generate the executor for the operation specified by <typeparamref name="T" />.
+        /// </summary>
+        /// <typeparam name="T">The operation type to get source code for.</typeparam>
+        /// <returns>The executor's source code.</returns>
+        public string WhatCodeDidIGenerateFor<T>() where T : IApiOperation
+        {
+            return executor.WhatCodeDidIGenerateFor<T>();
         }
 
         /// <inheritdoc />
@@ -91,7 +126,7 @@ namespace Blueprint.Testing
 
             internal List<Type> OperationTypes { get; } = new List<Type>();
 
-            internal List<Type> MiddlewareBuilderTypes { get; } = new List<Type>();
+            internal List<IMiddlewareBuilder> Middlewares { get; } = new List<IMiddlewareBuilder>();
 
             /// <summary>
             /// Called back with the <see cref="ServiceCollection" /> that is to be used by the operator that is being
@@ -127,9 +162,21 @@ namespace Blueprint.Testing
             /// </summary>
             /// <typeparam name="T">The type of <see cref="IMiddlewareBuilder"/> to register.</typeparam>
             /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithMiddleware<T>() where T : IMiddlewareBuilder
+            public TestApiOperationExecutorBuilder WithMiddleware<T>() where T : IMiddlewareBuilder, new()
             {
-                MiddlewareBuilderTypes.Add(typeof(T));
+                Middlewares.Add(new T());
+
+                return this;
+            }
+
+            /// <summary>
+            /// Configures the pipeline to use the middleware builder specified by the type parameter <typeparamref name="T" />.
+            /// </summary>
+            /// <param name="middleware">The <see cref="IMiddlewareBuilder"/> to register.</param>
+            /// <returns>This instance.</returns>
+            public TestApiOperationExecutorBuilder WithMiddleware(IMiddlewareBuilder middleware)
+            {
+                Middlewares.Add(middleware);
 
                 return this;
             }

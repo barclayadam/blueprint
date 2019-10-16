@@ -42,7 +42,7 @@ namespace Blueprint.Api
             {
                 foreach (var middleware in options.Middlewares)
                 {
-                    Use((IMiddlewareBuilder)Activator.CreateInstance(middleware));
+                    Use(middleware);
                 }
 
                 var model = options.Model;
@@ -92,7 +92,13 @@ namespace Blueprint.Api
                         serviceScope.ServiceProvider,
                         instanceFrameProvider);
 
-                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[] {new BaseExceptionCatchFrame(context, e)});
+                    // For the base Exception type we will add, as the first step, logging to the exception sinks. This frame DOES NOT
+                    // include a return frame, as we add that after all the other middleware builders have had chance to potentially add
+                    // more frames to perform other operations on unknown Exception
+                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
+                    {
+                        new PushToErrorLoggerExceptionCatchFrame(context, e),
+                    });
 
                     executeMethod.Sources.Add(apiOperationContextSource);
                     executeMethod.Sources.Add(dependencyInjectionVariableSource);
@@ -127,24 +133,19 @@ namespace Blueprint.Api
                         }
                     }
 
+                    // For the base Exception type we will add, as a last frame, a return of an OperationResult.
+                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
+                    {
+                        new ReturnOperationResultCatchFrame(e),
+                    });
+
                     dictionary.Add(operation.OperationType,
                         () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
                 }
 
-                try
-                {
-                    logger.LogInformation("Compiling {0} pipeline executors", dictionary.Count);
-
-                    assembly.CompileAll(serviceProvider.GetRequiredService<AssemblyGenerator>());
-
-                    logger.LogInformation("Done compiling {0} pipeline executors", dictionary.Count);
-                }
-                catch (Exception e)
-                {
-                    logger.LogCritical(e, "Failed to compile pipeline executors");
-
-                    throw;
-                }
+                logger.LogInformation("Compiling {0} pipeline executors", dictionary.Count);
+                assembly.CompileAll(serviceProvider.GetRequiredService<AssemblyGenerator>());
+                logger.LogInformation("Done compiling {0} pipeline executors", dictionary.Count);
 
                 return new CodeGennedExecutor(serviceProvider, model, assembly, dictionary.ToDictionary(d => d.Key, d => d.Value()));
             }

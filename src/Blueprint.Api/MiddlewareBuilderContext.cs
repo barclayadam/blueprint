@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Blueprint.Api.CodeGen;
@@ -12,7 +11,7 @@ namespace Blueprint.Api
 {
     public class MiddlewareBuilderContext
     {
-        private readonly Dictionary<Type, Func<Variable, IEnumerable<Frame>>> exceptionHandlers = new Dictionary<Type, Func<Variable, IEnumerable<Frame>>>();
+        private readonly Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> exceptionHandlers = new Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>>();
         private readonly FramesCollection finallyFrames = new FramesCollection();
 
         private readonly IInstanceFrameProvider instanceFrameProvider;
@@ -74,7 +73,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets the currently registered exception handlers.
         /// </summary>
-        public IReadOnlyDictionary<Type, Func<Variable, IEnumerable<Frame>>> ExceptionHandlers => exceptionHandlers;
+        public IReadOnlyDictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> ExceptionHandlers => exceptionHandlers;
 
         /// <summary>
         /// Gets the list of registered frames to execute in the operation's finally block.
@@ -119,7 +118,12 @@ namespace Blueprint.Api
         {
             AddAssemblyReference(exceptionType.Assembly);
 
-            exceptionHandlers[exceptionType] = create;
+            if (!exceptionHandlers.TryGetValue(exceptionType, out var handlers))
+            {
+                exceptionHandlers[exceptionType] = handlers = new List<Func<Variable, IEnumerable<Frame>>>();
+            }
+
+            handlers.Add(create);
         }
 
         /// <summary>

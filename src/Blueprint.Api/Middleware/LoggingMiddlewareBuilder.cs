@@ -39,8 +39,7 @@ namespace Blueprint.Api.Middleware
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
-                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.StartNew();");
-                writer.Write($"{stopwatchVariable}.Start();");
+                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)};");
 
                 Next?.GenerateCode(method, writer);
             }
