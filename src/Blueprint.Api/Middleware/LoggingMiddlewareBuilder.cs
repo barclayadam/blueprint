@@ -39,7 +39,7 @@ namespace Blueprint.Api.Middleware
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
-                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)};");
+                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
 
                 Next?.GenerateCode(method, writer);
             }
@@ -52,8 +52,8 @@ namespace Blueprint.Api.Middleware
 
             public LoggingEndFrame(Type operationType)
             {
-                var message = $"API operation finished. operation_type={operationType.Name} time_taken_ms={{0}}";
-                logFrame = LogFrame.Information(message, "stopwatch.ElapsedMilliseconds");
+                var message = $"Operation {{0}} finished in {{1}}ms";
+                logFrame = LogFrame.Information(message, $"\"{operationType}\"", "stopwatch.ElapsedMilliseconds");
             }
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
