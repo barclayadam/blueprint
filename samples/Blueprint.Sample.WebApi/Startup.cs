@@ -31,6 +31,7 @@ namespace Blueprint.Sample.WebApi
                 o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<AuthenticationMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<UserContextLoaderMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<AuthorisationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
