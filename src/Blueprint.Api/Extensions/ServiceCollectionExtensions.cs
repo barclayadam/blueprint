@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
@@ -73,6 +74,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Random infrastructure
+            services.AddScoped(_ => ArrayPool<char>.Shared);
+            services.AddScoped(_ => ArrayPool<byte>.Shared);
+
             services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 

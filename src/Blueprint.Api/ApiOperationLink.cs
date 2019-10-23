@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Blueprint.Core;
 
@@ -25,7 +26,36 @@ namespace Blueprint.Api
             OperationDescriptor = operationDescriptor;
             UrlFormat = urlFormat.TrimStart('/');
             Rel = rel;
+
+            var placeholders = new List<string>(5);
+
+            RoutingUrl = QueryStringRegex.Replace(
+                ParameterRegex.Replace(
+                    UrlFormat,
+                    match =>
+                    {
+                        var property = match.Groups["propName"].Value;
+
+                        placeholders.Add(property);
+
+                        return "{" + property + "}";
+                    }),
+                string.Empty);
+
+            Placeholders = placeholders;
         }
+
+        /// <summary>
+        /// Gets a list of property names of placeholders for this link.
+        /// </summary>
+        public IReadOnlyList<string> Placeholders { get; set; }
+
+        /// <summary>
+        /// Gets a URL that can be used for routing, trimming the definitions
+        /// of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details).
+        /// </summary>
+        /// <returns>A URL representation of the link used in routing.</returns>
+        public string RoutingUrl { get; set; }
 
         /// <summary>
         /// Gets the format of the URL for this link, which will <b>not</b> start with a forward
@@ -52,23 +82,7 @@ namespace Blueprint.Api
         /// <returns>Whether any placeholders exist.</returns>
         public bool HasPlaceholders()
         {
-            return UrlFormat.Contains("{");
-        }
-
-        /// <summary>
-        /// Creates a URL that can be used for routing, trimming the definitions
-        /// of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details).
-        /// </summary>
-        /// <returns>A URL representation of the link used in routing.</returns>
-        public string GetFormatForRouting()
-        {
-            // We need to strip out alternate source property name else the format
-            // is incorrect for routing.
-            return QueryStringRegex.Replace(
-                ParameterRegex.Replace(
-                    UrlFormat,
-                    match => "{" + match.Groups["propName"].Value + "}"),
-                string.Empty);
+            return Placeholders.Count > 0;
         }
 
         public override string ToString()

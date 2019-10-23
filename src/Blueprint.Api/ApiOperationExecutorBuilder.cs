@@ -117,17 +117,7 @@ namespace Blueprint.Api
                         {
                             executeMethod.Frames.Add(new CommentFrame(behaviour.GetType().Name));
 
-                            try
-                            {
-                                behaviour.Build(context);
-                            }
-                            catch (Exception ex)
-                            {
-                                executorLogger.LogCritical(ex, $"An unhandled exception occurred in middleware builder {behaviour.GetType()}");
-
-                                throw new InvalidOperationException(
-                                    $"An unhandled exception occurred in middleware builder {behaviour.GetType()}", ex);
-                            }
+                            behaviour.Build(context);
 
                             executeMethod.Frames.Add(new BlankLineFrame());
                         }

@@ -20,10 +20,12 @@ namespace Blueprint.Testing
     /// </remarks>
     public class TestApiOperationExecutor : IApiOperationExecutor
     {
+        private readonly ServiceProvider serviceProvider;
         private readonly CodeGennedExecutor executor;
 
-        private TestApiOperationExecutor(CodeGennedExecutor executor)
+        private TestApiOperationExecutor(ServiceProvider serviceProvider, CodeGennedExecutor executor)
         {
+            this.serviceProvider = serviceProvider;
             this.executor = executor;
         }
 
@@ -71,7 +73,7 @@ namespace Blueprint.Testing
             var serviceProvider = collection.BuildServiceProvider();
             var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();
 
-            return new TestApiOperationExecutor(executor);
+            return new TestApiOperationExecutor(serviceProvider, executor);
         }
 
         /// <summary>
@@ -101,6 +103,20 @@ namespace Blueprint.Testing
         public string WhatCodeDidIGenerateFor<T>() where T : IApiOperation
         {
             return executor.WhatCodeDidIGenerateFor<T>();
+        }
+
+        /// <summary>
+        /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
+        /// type.
+        /// </summary>
+        /// <typeparam name="T">The type of operation to create a context for.</typeparam>
+        /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
+        public ApiOperationContext HttpContextFor<T>() where T : IApiOperation
+        {
+            var context = DataModel.CreateOperationContext(serviceProvider, typeof(T));
+            context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+
+            return context;
         }
 
         /// <inheritdoc />

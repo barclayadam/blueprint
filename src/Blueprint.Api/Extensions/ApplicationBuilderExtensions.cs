@@ -66,12 +66,10 @@ namespace Microsoft.AspNetCore.Builder
             // first (e.g. /users/{id} and /users/me will put /users/me first)
             foreach (var link in apiDataModel.Links.OrderBy(l => l.UrlFormat.IndexOf('{')))
             {
-                var safeRouteUrl = link.GetFormatForRouting();
-
                 routeBuilder.Routes.Add(new Route(
                     target: routeHandler,
                     routeName: link.UrlFormat + "-" + link.OperationDescriptor.HttpMethod,
-                    routeTemplate: apiPrefix + safeRouteUrl,
+                    routeTemplate: apiPrefix + link.RoutingUrl,
                     defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor,}),
                     constraints: new Dictionary<string, object>
                     {
