@@ -167,8 +167,12 @@ namespace Blueprint.Core.Tasks
 
                         await backgroundContext.SaveAsync();
 
-                        var postProcessor = nestedContainer.ServiceProvider.GetRequiredService<IBackgroundTaskExecutionPostProcessor>();
-                        await postProcessor.PostProcessAsync(backgroundTask);
+                        var postProcessor = nestedContainer.ServiceProvider.GetService<IBackgroundTaskExecutionPostProcessor>();
+
+                        if (postProcessor != null)
+                        {
+                            await postProcessor.PostProcessAsync(backgroundTask);
+                        }
                     });
                 }
             }
