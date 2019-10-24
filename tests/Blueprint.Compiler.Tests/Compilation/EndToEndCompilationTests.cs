@@ -81,7 +81,7 @@ namespace Blueprint.Compiler.Tests.Compilation
             compileFailure.Id.Should().Be("CS0103");
             compileFailure.Severity.Should().Be(DiagnosticSeverity.Error);
 
-            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(11,26): error CS0103: The name 'oopstwo' does not exist in the current context
+            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(14,26): error CS0103: The name 'oopstwo' does not exist in the current context
         {
 
             return one + oopstwo;
