@@ -1,26 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler.Frames
 {
-    public abstract class CompositeFrame : Frame
+    public abstract class CompositeFrame : Frame, IEnumerable<Frame>
     {
-        private readonly Frame[] inner;
+        private readonly List<Frame> inner;
 
         protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.IsAsync))
         {
-            this.inner = inner;
+            this.inner = inner.ToList();
+        }
+
+        public void Add(Frame innerFrame)
+        {
+            inner.Add(innerFrame);
         }
 
         public override IEnumerable<Variable> Creates => inner.SelectMany(x => x.Creates).ToArray();
 
         public sealed override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            if (inner.Length > 1)
+            if (inner.Count > 1)
             {
-                for (var i = 1; i < inner.Length; i++)
+                for (var i = 1; i < inner.Count; i++)
                 {
                     inner[i - 1].Next = inner[i];
                 }
@@ -42,5 +48,15 @@ namespace Blueprint.Compiler.Frames
         }
 
         protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
+
+        IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
+        {
+            return inner.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return inner.GetEnumerator();
+        }
     }
 }

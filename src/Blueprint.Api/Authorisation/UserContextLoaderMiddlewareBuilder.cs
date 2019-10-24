@@ -55,18 +55,20 @@ namespace Blueprint.Api.Authorisation
                 createContextCall.TrySetArgument(claimsIdentityVariable);
 
                 context.AppendFrames(
-                    new IfNullBlock(
-                        claimsIdentityVariable,
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage)));
+                    new IfNullBlock(claimsIdentityVariable)
+                    {
+                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                    });
 
                 context.AppendFrames(
                     userSecurityContextFactoryCreator,
                     createContextCall);
 
                 context.AppendFrames(
-                    new IfNullBlock(
-                        createContextCall.ReturnVariable,
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage)));
+                    new IfNullBlock(createContextCall.ReturnVariable)
+                    {
+                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                    });
 
                 context.AppendFrames(
                     new VariableSetterFrame(context.VariableFromContext<IUserAuthorisationContext>(), createContextCall.ReturnVariable));

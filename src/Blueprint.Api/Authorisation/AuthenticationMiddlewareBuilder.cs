@@ -20,16 +20,17 @@ namespace Blueprint.Api.Authorisation
                  context.ClaimsIdentity = claimsIdentity;
              }
             */
-            var claimVariableVariable = context.VariableFromContext<ClaimsIdentity>();
+            var claimsIdentityVariable = context.VariableFromContext<ClaimsIdentity>();
             var getClaimsIdentityProvider = context.VariableFromContainer<IClaimsIdentityProvider>();
             var getClaimsIdentity = MethodCall.For<IClaimsIdentityProvider>(p => p.Get(null));
 
             context.AppendFrames(
-                new IfNullBlock(
-                    claimVariableVariable,
+                new IfNullBlock(claimsIdentityVariable)
+                {
                     getClaimsIdentityProvider,
                     getClaimsIdentity,
-                    new VariableSetterFrame(claimVariableVariable, getClaimsIdentity.ReturnVariable)));
+                    new VariableSetterFrame(claimsIdentityVariable, getClaimsIdentity.ReturnVariable),
+                });
         }
     }
 }

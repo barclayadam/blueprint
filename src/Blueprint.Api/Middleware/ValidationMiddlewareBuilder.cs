@@ -116,11 +116,12 @@ namespace Blueprint.Api.Middleware
                 var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
 
                 context.AppendFrames(
-                    new IfBlock(
-                        $"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
+                    new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0")
+                    {
                         createResponse,
                         createResult,
-                        new ReturnFrame(createResult.Variable)));
+                        new ReturnFrame(createResult.Variable),
+                    });
             }
 
             // Always need to register extra exception handlers because the operation handler itself may do additional validation
