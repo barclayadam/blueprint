@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Tests.Scenarios;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen.Scenarios
 {
@@ -17,9 +17,9 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
             var tracer = new Tracer();
             result.Object.DoStuff(tracer);
 
-            tracer.Called.ShouldBeTrue();
+            tracer.Called.Should().BeTrue();
 
-            result.LinesOfCode.ShouldContain("arg1.Call();");
+            result.LinesOfCode.Should().Contain("arg1.Call();");
         }
 
         [Test]
@@ -30,9 +30,9 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
             var tracer = new Tracer();
             result.Object.DoStuff(tracer);
 
-            tracer.Called.ShouldBeTrue();
+            tracer.Called.Should().BeTrue();
 
-            result.LinesOfCode.ShouldContain("arg1.Call();");
+            result.LinesOfCode.Should().Contain("arg1.Call();");
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
         {
             var result = CodegenScenario.ForBuilds<int, int>((t, m) => m.Frames.Append<AddTwoFrame>());
 
-            result.Object.Create(5).ShouldBe(7);
+            result.Object.Create(5).Should().Be(7);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
         {
             var result = CodegenScenario.ForBuilds<int, int>(m => m.Frames.Append<AddTwoFrame>());
 
-            result.Object.Create(5).ShouldBe(7);
+            result.Object.Create(5).Should().Be(7);
         }
     }
 

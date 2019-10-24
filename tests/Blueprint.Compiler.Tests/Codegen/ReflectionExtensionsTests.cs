@@ -1,6 +1,6 @@
 ﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -10,7 +10,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void get_full_name_in_code_for_generic_type()
         {
             typeof(Handler<Message1>).FullNameInCode()
-                .ShouldBe($"Blueprint.Compiler.Tests.Codegen.Handler<{typeof(Message1).FullName}>");
+                .Should().Be($"Blueprint.Compiler.Tests.Codegen.Handler<{typeof(Message1).FullName}>");
         }
 
         public interface ISomeInterface<T>
@@ -21,14 +21,14 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void get_full_name_in_code_for_inner_generic_type()
         {
             typeof(ISomeInterface<string>).FullNameInCode()
-                .ShouldBe("Blueprint.Compiler.Tests.Codegen.ReflectionExtensionsTests.ISomeInterface<string>");
+                .Should().Be("Blueprint.Compiler.Tests.Codegen.ReflectionExtensionsTests.ISomeInterface<string>");
         }
 
         [Test]
         public void get_name_in_code_for_inner_generic_type()
         {
             typeof(ISomeInterface<string>).NameInCode()
-                .ShouldBe("ReflectionExtensionsTests.ISomeInterface<string>");
+                .Should().Be("ReflectionExtensionsTests.ISomeInterface<string>");
         }
 
         // SAMPLE: get-the-type-name-in-code
@@ -46,7 +46,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void alias_name_of_task(Type type, string name)
         {
             // Gets the type name
-            type.NameInCode().ShouldBe(name);
+            type.NameInCode().Should().Be(name);
         }
         // ENDSAMPLE
 
@@ -64,20 +64,20 @@ namespace Blueprint.Compiler.Tests.Codegen
         [TestCase(typeof(Handler<string>), "Blueprint.Compiler.Tests.Codegen.Handler<string>")]
         public void alias_full_name_of_task(Type type, string name)
         {
-            type.FullNameInCode().ShouldBe(name);
+            type.FullNameInCode().Should().Be(name);
         }
         // ENDSAMPLE
 
         [Test]
         public void name_in_code_of_inner_type()
         {
-            typeof(ThingHolder.Thing1).NameInCode().ShouldBe("ThingHolder.Thing1");
+            typeof(ThingHolder.Thing1).NameInCode().Should().Be("ThingHolder.Thing1");
         }
 
         [Test]
         public void full_name_in_code_of_generic_types_nested_type()
         {
-            typeof(GenericTestClassWithNested<string>.NestedTestClass).FullNameInCode().ShouldBe("Blueprint.Compiler.Tests.Codegen.GenericTestClassWithNested<string>.NestedTestClass");
+            typeof(GenericTestClassWithNested<string>.NestedTestClass).FullNameInCode().Should().Be("Blueprint.Compiler.Tests.Codegen.GenericTestClassWithNested<string>.NestedTestClass");
         }
     }
 

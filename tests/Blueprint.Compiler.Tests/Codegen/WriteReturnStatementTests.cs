@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -33,7 +33,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe("return;");
+                .Should().Be("return;");
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe(expected);
+                .Should().Be(expected);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe(expected);
+                .Should().Be(expected);
         }
 
 
@@ -71,7 +71,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe("return name;");
+                .Should().Be("return name;");
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe(expected);
+                .Should().Be(expected);
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             theWriter.WriteReturnStatement(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
-                .ShouldBe(expected);
+                .Should().Be(expected);
         }
     }
 

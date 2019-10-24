@@ -1,8 +1,8 @@
 using System.Linq;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Tests.Scenarios;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -13,7 +13,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var result = CodegenScenario.ForBaseOf<ISimpleAction>(m => m.Frames.Add(new ReturnFrame()));
 
-            result.LinesOfCode.ShouldContain("return;");
+            result.LinesOfCode.Should().Contain("return;");
         }
 
         [Test]
@@ -21,8 +21,8 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var result = CodegenScenario.ForBuilds<int, int>(m => m.Frames.Return(typeof(int)));
 
-            result.LinesOfCode.ShouldContain("return arg1;");
-            result.Object.Create(5).ShouldBe(5);
+            result.LinesOfCode.Should().Contain("return arg1;");
+            result.Object.Create(5).Should().Be(5);
         }
 
         [Test]
@@ -34,8 +34,8 @@ namespace Blueprint.Compiler.Tests.Codegen
                 m.Frames.Return(arg);
             });
 
-            result.LinesOfCode.ShouldContain("return arg1;");
-            result.Object.Create(5).ShouldBe(5);
+            result.LinesOfCode.Should().Contain("return arg1;");
+            result.Object.Create(5).Should().Be(5);
         }
     }
 

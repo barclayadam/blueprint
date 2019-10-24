@@ -1,6 +1,6 @@
 ﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -16,7 +16,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[3].ShouldBe("}");
+            lines[3].Should().Be("}");
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[2].ShouldBe("    var x = 0;");
+            lines[2].Should().Be("    var x = 0;");
         }
 
         [Test]
@@ -43,10 +43,10 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[5].ShouldBe("    }");
+            lines[5].Should().Be("    }");
 
             // There's a line break between the blocks
-            lines[7].ShouldBe("}");
+            lines[7].Should().Be("}");
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[4].ShouldBe("        var x = 0;");
+            lines[4].Should().Be("        var x = 0;");
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[0].ShouldBe("public void Go()");
-            lines[1].ShouldBe("{");
+            lines[0].Should().Be("public void Go()");
+            lines[1].Should().Be("{");
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             writer.UsingNamespace<ISourceWriter>();
             var lines = writer.Code().ReadLines().ToArray();
 
-            lines[0].ShouldBe($"using {typeof(ISourceWriter).Namespace};");
+            lines[0].Should().Be($"using {typeof(ISourceWriter).Namespace};");
         }
 
         [Test]
@@ -97,8 +97,8 @@ var x = 0;
             var lines = writer.Code().Trim().ReadLines().ToArray();
 
 
-            lines[3].ShouldBe("    else");
-            lines[4].ShouldBe("    {");
+            lines[3].Should().Be("    else");
+            lines[4].Should().Be("    {");
         }
 
         [Test]
@@ -112,10 +112,10 @@ END
 ");
 
             var lines = writer.Code().Trim().ReadLines().ToArray();
-            lines[0].ShouldBe("public void Go()");
-            lines[1].ShouldBe("{");
-            lines[2].ShouldBe("    var x = 0;");
-            lines[3].ShouldBe("}");
+            lines[0].Should().Be("public void Go()");
+            lines[1].Should().Be("{");
+            lines[2].Should().Be("    var x = 0;");
+            lines[3].Should().Be("}");
         }
 
         [Test]
@@ -126,7 +126,7 @@ END
             writer.WriteComment("Some Comment");
 
             var lines = writer.Code().ReadLines().ToArray();
-            lines.Last().ShouldBe("    // Some Comment");
+            lines.Last().Should().Be("    // Some Comment");
         }
     }
 }

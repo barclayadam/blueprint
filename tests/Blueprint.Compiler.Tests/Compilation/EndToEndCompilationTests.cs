@@ -7,7 +7,6 @@ using Blueprint.Compiler.Tests.Codegen;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Compilation
 {
@@ -25,9 +24,9 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(adder.CompiledType)
                 .As<INumberGenerator>()
-                .Generate(3, 4).ShouldBe(7);
+                .Generate(3, 4).Should().Be(7);
 
-            adder.SourceCode.ShouldContain("public class Adder : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
+            adder.SourceCode.Should().Contain("public class Adder : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
 
         [Test]
@@ -42,9 +41,9 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(multiplier.CompiledType)
                 .As<INumberGenerator>()
-                .Generate(3, 4).ShouldBe(12);
+                .Generate(3, 4).Should().Be(12);
 
-            multiplier.SourceCode.ShouldContain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
+            multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
 
         [Test]
@@ -59,9 +58,9 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(multiplier.CompiledType)
                 .As<NumberGenerator>()
-                .Generate(3, 4).ShouldBe(12);
+                .Generate(3, 4).Should().Be(12);
 
-            multiplier.SourceCode.ShouldContain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator");
+            multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator");
         }
 
         [Test]
@@ -74,13 +73,13 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Action tryCompile = () => assembly.CompileAll();
 
-            var compilationException = tryCompile.ShouldThrow<CompilationException>();
+            var compilationException = tryCompile.Should().ThrowExactly<CompilationException>().Subject.Single();
 
-            compilationException.Failures.ShouldNotBeEmpty();
+            compilationException.Failures.Should().NotBeEmpty();
 
             var compileFailure = compilationException.Failures.Single();
-            compileFailure.Id.ShouldNotBeEmpty("CS0103");
-            compileFailure.Severity.ShouldBe(DiagnosticSeverity.Error);
+            compileFailure.Id.Should().Be("CS0103");
+            compileFailure.Severity.Should().Be(DiagnosticSeverity.Error);
 
             compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(11,26): error CS0103: The name 'oopstwo' does not exist in the current context
         {

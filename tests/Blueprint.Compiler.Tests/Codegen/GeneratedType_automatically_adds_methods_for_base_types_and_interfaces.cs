@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -13,35 +13,35 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var generatedType = Builder.NewType().Implements<IHasMethods>();
 
-            generatedType.Methods.Count().ShouldBe(3);
+            generatedType.Methods.Count().Should().Be(3);
 
-            generatedType.MethodFor(nameof(IHasMethods.DoStuff)).ShouldNotBeNull();
-            generatedType.MethodFor(nameof(IHasMethods.SayStuff)).ShouldNotBeNull();
-            generatedType.MethodFor(nameof(IHasMethods.AddNumbers)).ShouldNotBeNull();
+            generatedType.MethodFor(nameof(IHasMethods.DoStuff)).Should().NotBeNull();
+            generatedType.MethodFor(nameof(IHasMethods.SayStuff)).Should().NotBeNull();
+            generatedType.MethodFor(nameof(IHasMethods.AddNumbers)).Should().NotBeNull();
         }
 
         [Test]
         public void determines_arguments_from_method_signature()
         {
             var generatedType = Builder.NewType().Implements<IHasMethods>();
-            generatedType.MethodFor("DoStuff").Arguments.Any().ShouldBeFalse();
-            generatedType.MethodFor("SayStuff").Arguments.Single().ShouldBe(Argument.For<string>("name"));
+            generatedType.MethodFor("DoStuff").Arguments.Any().Should().BeFalse();
+            generatedType.MethodFor("SayStuff").Arguments.Single().Should().Be(Argument.For<string>("name"));
 
-            generatedType.MethodFor("AddNumbers").Arguments.ShouldBe(new []{Argument.For<int>("x"), Argument.For<int>("y"), });
+            generatedType.MethodFor("AddNumbers").Arguments.Should().BeEquivalentTo(new []{Argument.For<int>("x"), Argument.For<int>("y"), });
         }
 
         [Test]
         public void generate_method_for_void_signature()
         {
             var generatedType = Builder.NewType().Implements<IHasMethods>();
-            generatedType.MethodFor("DoStuff").ReturnType.ShouldBe(typeof(void));
+            generatedType.MethodFor("DoStuff").ReturnType.Should().Be(typeof(void));
         }
 
         [Test]
         public void generate_method_for_single_return_value()
         {
             var generatedType = Builder.NewType().Implements<IHasMethods>();
-            generatedType.MethodFor("AddNumbers").ReturnType.ShouldBe(typeof(int));
+            generatedType.MethodFor("AddNumbers").ReturnType.Should().Be(typeof(int));
 
         }
 
@@ -49,14 +49,14 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void generate_method_for_return_type_of_Task()
         {
             var generatedType = Builder.NewType().Implements<IHasTaskMethods>();
-            generatedType.MethodFor("DoStuff").ReturnType.ShouldBe(typeof(Task));
+            generatedType.MethodFor("DoStuff").ReturnType.Should().Be(typeof(Task));
         }
 
         [Test]
         public void generate_method_for_Task_of_value_method()
         {
             var generatedType = Builder.NewType().Implements<IHasTaskMethods>();
-            generatedType.MethodFor("AddNumbers").ReturnType.ShouldBe(typeof(Task<int>));
+            generatedType.MethodFor("AddNumbers").ReturnType.Should().Be(typeof(Task<int>));
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var generatedType = Builder.NewType().InheritsFrom<BaseClassWithMethods>();
 
             generatedType.Methods.Select(x => x.MethodName)
-                .ShouldBe(new string[]{"Go2", "Go3", "Go5", "Go6"});
+                .Should().BeEquivalentTo(new[]{"Go2", "Go3", "Go5", "Go6"});
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var generatedType = Builder.NewType().InheritsFrom<BaseClassWithMethods>();
             foreach (var method in generatedType.Methods)
             {
-                method.Overrides.ShouldBeTrue();
+                method.Overrides.Should().BeTrue();
             }
         }
 
@@ -84,7 +84,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var generatedType = Builder.NewType().Implements<IHasTaskMethods>();
             foreach (var method in generatedType.Methods)
             {
-                method.Overrides.ShouldBeFalse();
+                method.Overrides.Should().BeFalse();
             }
         }
     }

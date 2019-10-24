@@ -1,6 +1,6 @@
 ﻿using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -12,7 +12,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var inner = Variable.For<Basketball>();
             var cast = new CastVariable(inner, typeof(Ball));
 
-            cast.Usage.ShouldBe($"(({typeof(Ball).FullNameInCode()}){inner.Usage})");
+            cast.Usage.Should().Be($"(({typeof(Ball).FullNameInCode()}){inner.Usage})");
         }
     }
 }

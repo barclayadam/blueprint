@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Blueprint.Compiler.Frames;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen.Methods
 {
@@ -22,7 +22,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Methods
 
             var number = await getter.GetNumber();
 
-            number.ShouldBe(5);
+            number.Should().Be(5);
         }
     }
 

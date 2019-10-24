@@ -2,8 +2,8 @@ using System;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Tests.Scenarios;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -48,8 +48,8 @@ namespace Blueprint.Compiler.Tests.Codegen
                 m.Frames.Return(typeof(NoArgGuy));
             });
 
-            result.LinesOfCode.ShouldContain($"var noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}();");
-            result.Object.Build().ShouldNotBeNull();
+            result.LinesOfCode.Should().Contain($"var noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}();");
+            result.Object.Build().Should().NotBeNull();
         }
 
         [Test]
@@ -61,8 +61,8 @@ namespace Blueprint.Compiler.Tests.Codegen
                 m.Frames.Return(typeof(NoArgGuy));
             });
 
-            result.LinesOfCode.ShouldContain($"{typeof(IGuy).FullNameInCode()} noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}();");
-            result.Object.Build().ShouldNotBeNull();
+            result.LinesOfCode.Should().Contain($"{typeof(IGuy).FullNameInCode()} noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}();");
+            result.Object.Build().Should().NotBeNull();
         }
 
         [Test]
@@ -74,13 +74,13 @@ namespace Blueprint.Compiler.Tests.Codegen
                 m.Frames.Call<NoArgGuyCatcher>(x => x.Catch(null));
             });
 
-            result.LinesOfCode.ShouldContain($"using (var noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}())");
+            result.LinesOfCode.Should().Contain($"using (var noArgGuy = new {typeof(NoArgGuy).FullNameInCode()}())");
 
             var catcher = new NoArgGuyCatcher();
             result.Object.DoStuff(catcher);
 
-            catcher.Guy.ShouldNotBeNull();
-            catcher.Guy.WasDisposed.ShouldBeTrue();
+            catcher.Guy.Should().NotBeNull();
+            catcher.Guy.WasDisposed.Should().BeTrue();
         }
 
         [Test]
@@ -91,8 +91,8 @@ namespace Blueprint.Compiler.Tests.Codegen
                 m.Frames.CallConstructor(() => new NoArgGuy(), c => c.Mode = ConstructorCallMode.ReturnValue);
             });
 
-            result.LinesOfCode.ShouldContain($"return new {typeof(NoArgGuy).FullNameInCode()}();");
-            result.Object.Build().ShouldNotBeNull();
+            result.LinesOfCode.Should().Contain($"return new {typeof(NoArgGuy).FullNameInCode()}();");
+            result.Object.Build().Should().NotBeNull();
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             });
 
-            result.Object.Create(11).Number.ShouldBe(11);
+            result.Object.Create(11).Number.Should().Be(11);
         }
 
         [Test]
@@ -126,8 +126,8 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var noArgGuy = result.Object.Create(11, 1.22);
-            noArgGuy.Number.ShouldBe(11);
-            noArgGuy.Double.ShouldBe(1.22);
+            noArgGuy.Number.Should().Be(11);
+            noArgGuy.Double.Should().Be(1.22);
         }
 
         [Test]
@@ -147,9 +147,9 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var noArgGuy = result.Object.Create(11, 1.22, "wow");
-            noArgGuy.Number.ShouldBe(11);
-            noArgGuy.Double.ShouldBe(1.22);
-            noArgGuy.String.ShouldBe("wow");
+            noArgGuy.Number.Should().Be(11);
+            noArgGuy.Double.Should().Be(1.22);
+            noArgGuy.String.Should().Be("wow");
         }
 
         [Test]
@@ -168,9 +168,9 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var noArgGuy = result.Object.Create(11, 1.22, "wow");
-            noArgGuy.Number.ShouldBe(11);
-            noArgGuy.Double.ShouldBe(1.22);
-            noArgGuy.String.ShouldBe("Explicit");
+            noArgGuy.Number.Should().Be(11);
+            noArgGuy.Double.Should().Be(1.22);
+            noArgGuy.String.Should().Be("Explicit");
         }
 
         public class MultiArgGuy
@@ -208,7 +208,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var guy = result.Object.Create(14);
-            guy.Number.ShouldBe(14);
+            guy.Number.Should().Be(14);
         }
 
         [Test]
@@ -221,8 +221,8 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var guy = result.Object.Create(14, 1.23);
-            guy.Number.ShouldBe(14);
-            guy.Amount.ShouldBe(1.23);
+            guy.Number.Should().Be(14);
+            guy.Amount.Should().Be(1.23);
 
         }
 
@@ -236,9 +236,9 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var guy = result.Object.Create(14, 1.23, "Beck");
-            guy.Number.ShouldBe(14);
-            guy.Amount.ShouldBe(1.23);
-            guy.Name.ShouldBe("Beck");
+            guy.Number.Should().Be(14);
+            guy.Amount.Should().Be(1.23);
+            guy.Name.Should().Be("Beck");
 
         }
 
@@ -256,9 +256,9 @@ namespace Blueprint.Compiler.Tests.Codegen
             });
 
             var guy = result.Object.Create(14, 1.23, "Beck");
-            guy.Number.ShouldBe(14);
-            guy.Amount.ShouldBe(1.23);
-            guy.Name.ShouldBe("Kent");
+            guy.Number.Should().Be(14);
+            guy.Amount.Should().Be(1.23);
+            guy.Name.Should().Be("Kent");
 
         }
 
@@ -277,7 +277,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var catcher = new NoArgGuyCatcher();
             result.Object.DoStuff(catcher);
 
-            catcher.Guy.ShouldNotBeNull();
+            catcher.Guy.Should().NotBeNull();
         }
 
         [Test]
@@ -290,14 +290,12 @@ namespace Blueprint.Compiler.Tests.Codegen
                     ctor.Mode = ConstructorCallMode.ReturnValue;
                     ctor.ActivatorFrames.Call<NoArgGuyCatcher>(x => x.Catch(null));
                 });
-
             });
-
 
             var catcher = new NoArgGuyCatcher();
             var guy = result.Object.Create(catcher);
 
-            catcher.Guy.ShouldBeSameAs(guy);
+            catcher.Guy.Should().BeSameAs(guy);
         }
 
         [Test]
@@ -317,8 +315,8 @@ namespace Blueprint.Compiler.Tests.Codegen
             var catcher = new NoArgGuyCatcher();
             result.Object.DoStuff(catcher);
 
-            catcher.Guy.ShouldNotBeNull();
-            catcher.Guy.WasDisposed.ShouldBeTrue();
+            catcher.Guy.Should().NotBeNull();
+            catcher.Guy.WasDisposed.Should().BeTrue();
         }
 
     }

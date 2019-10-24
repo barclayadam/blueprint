@@ -1,7 +1,7 @@
 ﻿using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -13,19 +13,19 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void return_variable_usage()
         {
-            theCall.ReturnVariable.Usage.ShouldBe("(var red, var blue, var green)");
+            theCall.ReturnVariable.Usage.Should().Be("(var red, var blue, var green)");
         }
 
         [Test]
         public void creates_does_not_contain_the_return_variable()
         {
-            theCall.Creates.ShouldNotContain(theCall.ReturnVariable);
+            theCall.Creates.Should().NotContain(theCall.ReturnVariable);
         }
 
         [Test]
         public void has_creation_variables_for_the_tuple_types()
         {
-            theCall.Creates.ShouldBeSubsetOf(new [] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
+            theCall.Creates.Should().BeSubsetOf(new [] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
         }
     }
 }

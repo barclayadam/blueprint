@@ -6,9 +6,8 @@ using Blueprint.Api.Errors;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Testing;
-using Blueprint.Tests.Api.Validator_Middleware;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Tests.Api.Builder
 {
@@ -37,8 +36,8 @@ namespace Blueprint.Tests.Api.Builder
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<TestApiCommand>();
-            code.ShouldContain("catch (Blueprint.Api.Errors.NotFoundException");
-            code.ShouldContain("Exception happened, oops");
+            code.Should().Contain("catch (Blueprint.Api.Errors.NotFoundException");
+            code.Should().Contain("Exception happened, oops");
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace Blueprint.Tests.Api.Builder
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<TestApiCommand>();
-            code.ShouldContain("Exception happened, oops");
+            code.Should().Contain("Exception happened, oops");
         }
 
         public class ExceptionHandlingRegisteringMiddleware : IMiddlewareBuilder

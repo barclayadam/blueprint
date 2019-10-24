@@ -5,11 +5,9 @@ using Blueprint.Api;
 using Blueprint.Api.Middleware;
 using Blueprint.Core.Utilities;
 using Blueprint.Testing;
-using Blueprint.Tests.Api.Validator_Middleware;
-using DeepEqual.Syntax;
+using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
 {
@@ -75,7 +73,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            handler.OperationPassed.ShouldDeepEqual(expected);
+            handler.OperationPassed.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -111,11 +109,11 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            handler.OperationPassed.WithDeepEqual(expected)
-                .IgnoreSourceProperty(p => p.RouteProperty)
-                .Assert();
+            handler.OperationPassed.Should().BeEquivalentTo(
+                expected,
+                o => o.Excluding(x => x.RouteProperty));
 
-            handler.OperationPassed.RouteProperty.ShouldBe(expectedRouteValue);
+            handler.OperationPassed.RouteProperty.Should().Be(expectedRouteValue);
         }
 
         [Test]
@@ -148,11 +146,11 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            handler.OperationPassed.WithDeepEqual(expected)
-                .IgnoreSourceProperty(p => p.RouteProperty)
-                .Assert();
+            handler.OperationPassed.Should().BeEquivalentTo(
+                expected,
+                o => o.Excluding(x => x.RouteProperty));
 
-            handler.OperationPassed.RouteProperty.ShouldBeNull();
+            handler.OperationPassed.RouteProperty.Should().BeNull();
         }
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, T body) where T : IApiOperation

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Middleware;
-using Blueprint.Core.Utilities;
 using Blueprint.Testing;
-using Blueprint.Tests.Api.Validator_Middleware;
-using DeepEqual.Syntax;
-using Newtonsoft.Json;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
 {
@@ -136,7 +131,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            handler.OperationPassed.ShouldDeepEqual(expected);
+            handler.OperationPassed.Should().BeEquivalentTo(expected);
         }
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string routeKey, string routeValue) where T : IApiOperation

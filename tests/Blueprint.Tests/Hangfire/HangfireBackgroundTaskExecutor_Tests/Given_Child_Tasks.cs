@@ -4,6 +4,7 @@ using Blueprint.Core.Apm;
 using Blueprint.Core.Tasks;
 using Blueprint.Core.Tracing;
 using Blueprint.Hangfire;
+using FluentAssertions;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using Shouldly;
 using JobContinuationOptions = Hangfire.JobContinuationOptions;
 
 namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
@@ -46,8 +46,8 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             await backgroundTaskScheduler.RunNowAsync();
 
             // Assert
-            parentTask.ShouldNotBeNull();
-            childTask.ShouldNotBeNull();
+            parentTask.Should().NotBeNull();
+            childTask.Should().NotBeNull();
             backgroundJobClient.Verify(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)));
             backgroundJobClient.Verify(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)));
         }

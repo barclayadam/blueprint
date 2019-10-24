@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -13,85 +13,85 @@ namespace Blueprint.Compiler.Tests.Codegen
             var variable = Variable.For<HyperdriveMotivator>();
             variable.OverrideName("thing");
 
-            variable.Usage.ShouldBe("thing");
+            variable.Usage.Should().Be("thing");
         }
 
         [Test]
         public void default_arg_name_of_normal_class()
         {
             Variable.DefaultArgName<HyperdriveMotivator>()
-                .ShouldBe("hyperdriveMotivator");
+                .Should().Be("hyperdriveMotivator");
         }
 
         [Test]
         public void default_arg_name_of_closed_interface()
         {
             Variable.DefaultArgName<IHyperdriveMotivator>()
-                .ShouldBe("hyperdriveMotivator");
+                .Should().Be("hyperdriveMotivator");
         }
 
         [Test]
         public void default_arg_name_of_array()
         {
             Variable.DefaultArgName<IWidget[]>()
-                .ShouldBe("widgetArray");
+                .Should().Be("widgetArray");
         }
 
         [Test]
         public void default_arg_name_of_List()
         {
             Variable.DefaultArgName<IList<IWidget>>()
-                .ShouldBe("widgetIList");
+                .Should().Be("widgetIList");
 
             Variable.DefaultArgName<List<IWidget>>()
-                .ShouldBe("widgetList");
+                .Should().Be("widgetList");
 
             Variable.DefaultArgName<IReadOnlyList<IWidget>>()
-                .ShouldBe("widgetIReadOnlyList");
+                .Should().Be("widgetIReadOnlyList");
         }
 
         [Test]
         public void default_arg_name_of_enumerable()
         {
             Variable.DefaultArgName<IEnumerable<IWidget>>()
-                .ShouldBe("widgetIEnumerable");
+                .Should().Be("widgetIEnumerable");
         }
 
         [Test]
         public void default_arg_name_of_generic_class_with_single_parameter()
         {
             Variable.DefaultArgName<FooHandler<HyperdriveMotivator>>()
-                .ShouldBe("fooHandler");
+                .Should().Be("fooHandler");
         }
 
         [Test]
         public void default_arg_name_of_generic_interface_with_single_parameter()
         {
             Variable.DefaultArgName<IFooHandler<HyperdriveMotivator>>()
-                .ShouldBe("fooHandler");
+                .Should().Be("fooHandler");
         }
 
         [Test]
         public void default_arg_name_of_open_generic_type()
         {
             Variable.DefaultArgName(typeof(IOpenGeneric<>))
-                .ShouldBe("openGeneric");
+                .Should().Be("openGeneric");
 
-            Variable.DefaultArgName(typeof(FooHandler<>)).ShouldBe("fooHandler");
+            Variable.DefaultArgName(typeof(FooHandler<>)).Should().Be("fooHandler");
         }
 
         [Test]
         public void default_arg_name_of_inner_class()
         {
             Variable.DefaultArgName<HyperdriveMotivator.InnerThing>()
-                .ShouldBe("innerThing");
+                .Should().Be("innerThing");
         }
 
         [Test]
         public void default_arg_name_of_inner_interface()
         {
             Variable.DefaultArgName<HyperdriveMotivator.IInnerThing>()
-                .ShouldBe("innerThing");
+                .Should().Be("innerThing");
         }
     }
 

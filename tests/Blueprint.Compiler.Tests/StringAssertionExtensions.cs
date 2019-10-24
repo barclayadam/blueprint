@@ -1,12 +1,12 @@
-﻿using Shouldly;
+﻿using FluentAssertions;
 
-namespace Blueprint.Compiler.Tests.Compilation
+namespace Blueprint.Compiler.Tests
 {
     public static class StringAssertionExtensions
     {
         public static void ShouldContainIgnoringNewlines(this string actual, string expected)
         {
-            RemoveNewLines(actual).ShouldContain(RemoveNewLines(expected));
+            RemoveNewLines(actual).Should().Contain(RemoveNewLines(expected));
         }
 
         private static string RemoveNewLines(string actual)

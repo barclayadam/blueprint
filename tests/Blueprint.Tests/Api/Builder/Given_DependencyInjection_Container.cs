@@ -4,17 +4,16 @@ using Blueprint.Api;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
 using Blueprint.Testing;
-using Blueprint.Tests.Api.Validator_Middleware;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Tests.Api.Builder
 {
     public class Given_DependencyInjection_Container
     {
         [Test]
-        public async Task When_Empty_Operation_Then_Result_Executed()
+        public async Task When_Middleware_Requests_Variable_Fulfilled_By_DI()
         {
             // Arrange
             var toReturn = 12345;
@@ -32,7 +31,7 @@ namespace Blueprint.Tests.Api.Builder
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
 
             // Assert
-            handler.OperationPassed.InjectableProperty.ShouldNotBeNull();
+            handler.OperationPassed.InjectableProperty.Should().NotBeNull();
         }
 
         public class MiddlewareWithDependencyInjectionVariable : CustomFrameMiddlewareBuilder

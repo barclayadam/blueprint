@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
@@ -46,13 +46,13 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             var frame1 = new FrameThatBuildsVariable("aaa", typeof(string));
 
-            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new Argument[]{arg1, arg2} );
+            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new[]{arg1, arg2} );
 
             method.ToArranger().FindVariableByName(typeof(string), "foo")
-                .ShouldBeSameAs(arg1);
+                .Should().BeSameAs(arg1);
 
             method.ToArranger().FindVariableByName(typeof(string), "bar")
-                .ShouldBeSameAs(arg2);
+                .Should().BeSameAs(arg2);
 
         }
 
@@ -71,10 +71,10 @@ namespace Blueprint.Compiler.Tests.Codegen
 
 
             method.ToArranger().FindVariableByName(typeof(string), "aaa")
-                .ShouldBeSameAs(frame1.Variable);
+                .Should().BeSameAs(frame1.Variable);
 
             method.ToArranger().FindVariableByName(typeof(string), "bbb")
-                .ShouldBeSameAs(frame2.Variable);
+                .Should().BeSameAs(frame2.Variable);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var frame1 = new FrameThatBuildsVariable("aaa", typeof(string));
             var frame2 = new FrameThatBuildsVariable("bbb", typeof(string));
 
-            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new Argument[]{arg1, arg2} );
+            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new[]{arg1, arg2} );
             var source1 = new StubbedSource(typeof(string), "ccc");
             var source2 = new StubbedSource(typeof(string), "ddd");
 
@@ -94,10 +94,10 @@ namespace Blueprint.Compiler.Tests.Codegen
             method.Sources.Add(source2);
 
             method.ToArranger().FindVariableByName(typeof(string), "ccc")
-                .ShouldBeSameAs(source1.Variable);
+                .Should().BeSameAs(source1.Variable);
 
             method.ToArranger().FindVariableByName(typeof(string), "ddd")
-                .ShouldBeSameAs(source2.Variable);
+                .Should().BeSameAs(source2.Variable);
         }
 
         [Test]
@@ -109,17 +109,19 @@ namespace Blueprint.Compiler.Tests.Codegen
             var frame1 = new FrameThatBuildsVariable("aaa", typeof(string));
             var frame2 = new FrameThatBuildsVariable("bbb", typeof(string));
 
-            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new Argument[]{arg1, arg2} );
+            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new[]{arg1, arg2} );
             var source1 = new StubbedSource(typeof(string), "ccc");
             var source2 = new StubbedSource(typeof(string), "ddd");
 
             method.Sources.Add(source1);
             method.Sources.Add(source2);
 
-            Exception<ArgumentOutOfRangeException>.ShouldBeThrownBy(() =>
+            Action action = () =>
             {
                 method.ToArranger().FindVariableByName(typeof(string), "missing");
-            });
+            };
+
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }
 
         [Test]
@@ -131,20 +133,20 @@ namespace Blueprint.Compiler.Tests.Codegen
             var frame1 = new FrameThatBuildsVariable("aaa", typeof(string));
             var frame2 = new FrameThatBuildsVariable("bbb", typeof(string));
 
-            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new Argument[]{arg1, arg2} );
+            var method = new GeneratedMethod(Builder.NewType(), "Something", typeof(Task), new[]{arg1, arg2} );
             var source1 = new StubbedSource(typeof(string), "ccc");
             var source2 = new StubbedSource(typeof(string), "ddd");
 
             method.Sources.Add(source1);
             method.Sources.Add(source2);
 
-            Exception<ArgumentOutOfRangeException>.ShouldBeThrownBy(() =>
+            Action action = () =>
             {
                 method.ToArranger().FindVariableByName(typeof(int), "ccc");
-            });
+            };
+
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }
-
-
     }
 
     public class StubbedSource : IVariableSource

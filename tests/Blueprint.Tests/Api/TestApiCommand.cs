@@ -1,13 +1,13 @@
-﻿using System.Net.Http;
-using Blueprint.Api;
+﻿using Blueprint.Api;
+using Blueprint.Core.Auditing;
 
-namespace Blueprint.Tests.Api 
+namespace Blueprint.Tests.Api
 {
     public class TestApiCommand : ICommand
     {
-        public static ApiOperationDescriptor NewDescriptor(string url = "/any")
-        {
-            return new ApiOperationDescriptor(typeof(TestApiCommand), HttpMethod.Post);
-        }
+        public string AStringProperty { get; set; }
+
+        [Sensitive]
+        public string ASensitiveStringProperty { get; set; }
     }
 }
