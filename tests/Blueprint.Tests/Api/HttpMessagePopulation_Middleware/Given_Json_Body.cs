@@ -105,6 +105,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             var handler = new TestApiOperationHandler<JsonOperation>(null);
             var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<HttpMessagePopulationMiddlewareBuilder>());
             var context = GetContext(executor, expected);
+            context.RouteData[nameof(JsonOperation.RouteProperty)] = expectedRouteValue;
 
             // Act
             await executor.ExecuteAsync(context);
