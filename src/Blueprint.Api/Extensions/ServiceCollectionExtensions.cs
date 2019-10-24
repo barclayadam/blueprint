@@ -46,46 +46,46 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<AssemblyGenerator>();
             services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
 
-            services.AddScoped<IErrorLogger, ErrorLogger>();
+            services.TryAddScoped<IErrorLogger, ErrorLogger>();
 
             // Authentication / Authorisation
-            services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            services.AddScoped<IClaimInspector, ClaimInspector>();
+            services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            services.TryAddScoped<IClaimInspector, ClaimInspector>();
 
             services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
             services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
 
             // Validation
-            services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
-            services.AddSingleton<IValidationSource, BlueprintValidationSource>();
-            services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
-            services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
-            services.AddSingleton<IValidator, BlueprintValidator>();
+            services.TryAddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            services.TryAddSingleton<IValidationSource, BlueprintValidationSource>();
+            services.TryAddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            services.TryAddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            services.TryAddSingleton<IValidator, BlueprintValidator>();
 
             // Cache
-            services.AddSingleton<ICache, Cache>();
-            services.AddSingleton(MemoryCache.Default);
-            services.AddSingleton<IExceptionFilter, BasicExceptionFilter>();
+            services.TryAddSingleton<ICache, Cache>();
+            services.TryAddSingleton(MemoryCache.Default);
+            services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             // IoC
-            services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
+            services.TryAddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
 
             // Formatters
-            services.AddSingleton<JsonTypeFormatter>();
-            services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
+            services.TryAddSingleton<JsonTypeFormatter>();
+            services.TryAddSingleton<ITypeFormatter, JsonTypeFormatter>();
 
             // Linking
-            services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
+            services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Random infrastructure
-            services.AddScoped(_ => ArrayPool<char>.Shared);
-            services.AddScoped(_ => ArrayPool<byte>.Shared);
+            services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
+            services.TryAddScoped<IApmTool, NullApmTool>();
+
+            services.TryAddScoped(_ => ArrayPool<char>.Shared);
+            services.TryAddScoped(_ => ArrayPool<byte>.Shared);
 
             services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
-
-            services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
-            services.TryAddScoped<IApmTool, NullApmTool>();
 
             // Tasks
             // services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
