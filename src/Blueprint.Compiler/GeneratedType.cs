@@ -34,6 +34,8 @@ namespace Blueprint.Compiler
 
         public InjectedField[] BaseConstructorArguments { get; private set; } = new InjectedField[0];
 
+        public HashSet<string> Namespaces { get; } = new HashSet<string>();
+
         public List<InjectedField> AllInjectedFields { get; } = new List<InjectedField>();
 
         public List<StaticField> AllStaticFields { get; } = new List<StaticField>();

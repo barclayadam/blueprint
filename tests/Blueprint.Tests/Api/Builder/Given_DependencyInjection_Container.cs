@@ -34,6 +34,69 @@ namespace Blueprint.Tests.Api.Builder
             handler.OperationPassed.InjectableProperty.Should().NotBeNull();
         }
 
+        [Test]
+        public void When_Singleton_Then_Injected_In_Constructor()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
+
+            // Act
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddSingleton(typeof(IInjectable), typeof(Injectable));
+                })
+                .WithHandler(handler)
+                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+
+            // Assert
+            var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
+
+            code.Should().NotContain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+        }
+
+        [Test]
+        public void When_Transient_Then_GetRequiredService_At_Runtime()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
+
+            // Act
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddTransient(typeof(IInjectable), typeof(Injectable));
+                })
+                .WithHandler(handler)
+                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+
+            // Assert
+            var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
+
+            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+        }
+
+        [Test]
+        public void When_Scoped_Then_GetRequiredService_At_Runtime()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
+
+            // Act
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddScoped(typeof(IInjectable), typeof(Injectable));
+                })
+                .WithHandler(handler)
+                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+
+            // Assert
+            var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
+
+            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+        }
+
         public class MiddlewareWithDependencyInjectionVariable : CustomFrameMiddlewareBuilder
         {
             private Variable diVariable;

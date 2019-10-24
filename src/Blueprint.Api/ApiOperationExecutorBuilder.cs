@@ -77,7 +77,7 @@ namespace Blueprint.Api
 
                     var castFrame = new ConcreteOperationCastFrame(operationContextVariable, operation.OperationType);
 
-                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? DefaultInstanceFrameProvider.Instance;
+                    var instanceFrameProvider = serviceProvider.GetService<IInstanceFrameProvider>() ?? new DefaultInstanceFrameProvider(serviceProvider);
 
                     var dependencyInjectionVariableSource = new DependencyInjectionVariableSource(executeMethod, instanceFrameProvider);
 

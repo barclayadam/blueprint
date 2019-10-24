@@ -6,7 +6,6 @@ using Blueprint.Api.CodeGen;
 using Blueprint.Api.Errors;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;

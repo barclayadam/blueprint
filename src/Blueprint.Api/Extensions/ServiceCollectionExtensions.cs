@@ -32,6 +32,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var options = new BlueprintApiOptions(optionsFunc);
 
+            // Register the collection that built the service provider so that the code generation can inspect the registrations and
+            // generate better code (i.e. inject singleton services in to the pipeline executor instead of getting them at operation execution time)
+            services.AddSingleton(services);
+
             services.AddSingleton(options);
             services.AddSingleton(options.Model);
             services.AddSingleton<ApiConfiguration>();

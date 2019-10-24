@@ -41,7 +41,7 @@ namespace Blueprint.StructureMap
 
                 // Small tweak to resolve the actual known type. Makes generated code a little nicer as it
                 // makes it obvious what is _actually_ going to be built without knowledge of the container
-                // setup
+                // setup. This is possible because SM knows how to build concrete types even if not pre-registered
                 return new TransientInstanceFrame<T>(toLoad, instanceRef.ReturnedType);
             }
 
