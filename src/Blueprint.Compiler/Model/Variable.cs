@@ -124,7 +124,7 @@ namespace Blueprint.Compiler.Model
         /// On rare occasions you may need to override the variable name.
         /// </summary>
         /// <param name="variableName"></param>
-        public virtual void OverrideName(string variableName)
+        public void OverrideName(string variableName)
         {
             Usage = variableName;
         }
@@ -133,11 +133,12 @@ namespace Blueprint.Compiler.Model
         /// Gets a new variable that represents a property from the instance this variable represents.
         /// </summary>
         /// <param name="propertyName">The name of the property to load.</param>
+        /// <param name="bindingFlags">The binding flags that can be modified to change how the property is searched for.</param>
         /// <returns>A new variable representing the child property (i.e. {thisVariable}.{propertyName}.</returns>
         /// <exception cref="ArgumentException">If the property cannot be found.</exception>
-        public Variable GetProperty(string propertyName)
+        public Variable GetProperty(string propertyName, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
         {
-            var prop = VariableType.GetProperty(propertyName);
+            var prop = VariableType.GetProperty(propertyName, bindingFlags);
 
             if (prop == null)
             {

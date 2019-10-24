@@ -55,16 +55,33 @@ namespace Blueprint.Api.Middleware
                 return null;
             }
 
-            // No conversions needed if the type is a string
-            if (propertyType == typeof(string))
-            {
-                return routeValue;
-            }
-
-            var typeConverter = TypeDescriptor.GetConverter(propertyType);
-
             try
             {
+                // No conversions needed if the type is a string
+                if (propertyType == typeof(string))
+                {
+                    return routeValue;
+                }
+
+                // A few hard-coded types that will be common in APIs are handled explicitly to avoid overhead of
+                // using TypeDescriptor.GetConverter
+                if (propertyType == typeof(Guid))
+                {
+                    return Guid.Parse((string)routeValue);
+                }
+
+                if (propertyType == typeof(int) || propertyType == typeof(int?))
+                {
+                    return int.Parse((string)routeValue);
+                }
+
+                if (propertyType == typeof(long) || propertyType == typeof(long?))
+                {
+                    return long.Parse((string)routeValue);
+                }
+
+                var typeConverter = TypeDescriptor.GetConverter(propertyType);
+
                 return typeConverter.ConvertFrom(routeValue);
             }
             catch (Exception)
@@ -154,7 +171,7 @@ namespace Blueprint.Api.Middleware
 
                 // Generates "operation.[Property] = ([propertyType]) HttpMessagePopulationMiddlewareBuilder.GetFromRoute(apiOperationContext, "[propertyName]", typeof([propertyType]));
                 context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
-                    operationVariable.GetProperty(routeProperty),
+                    operationVariable.GetProperty(property.Name),
                     $"({property.PropertyType.FullNameInCode()}) {methodCall}({operationContextVariable}, \"{routeProperty}\", typeof({property.PropertyType.FullNameInCode()}))" ));
             }
         }
