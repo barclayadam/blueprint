@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Reflection;
 using Blueprint.Api.Authorisation;
 using Blueprint.Core;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api

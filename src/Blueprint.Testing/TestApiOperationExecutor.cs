@@ -7,7 +7,6 @@ using Blueprint.Compiler;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 
 namespace Blueprint.Testing
 {

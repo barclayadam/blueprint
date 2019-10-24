@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using Blueprint.Core.ThirdParty;
-using JetBrains.Annotations;
 
 namespace Blueprint.Api
 {

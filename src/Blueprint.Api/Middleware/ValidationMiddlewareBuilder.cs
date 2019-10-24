@@ -3,7 +3,6 @@ using System.Linq;
 using Blueprint.Api.Validation;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Errors;
 using Microsoft.Extensions.DependencyInjection;
 using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
 using ValidationException = Blueprint.Api.Validation.ValidationException;

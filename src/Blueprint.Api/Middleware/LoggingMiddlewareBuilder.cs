@@ -5,7 +5,6 @@ using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api.Middleware
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Blueprint.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 

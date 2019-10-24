@@ -6,7 +6,6 @@ using System.Reflection;
 using Blueprint.Api.Authorisation;
 using Blueprint.Compiler;
 using Blueprint.Core;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 using Microsoft.CodeAnalysis;
 

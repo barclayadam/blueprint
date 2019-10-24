@@ -129,7 +129,8 @@ namespace Blueprint.Api
                         new ReturnOperationResultCatchFrame(e),
                     });
 
-                    dictionary.Add(operation.OperationType,
+                    dictionary.Add(
+                        operation.OperationType,
                         () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
                 }
 
@@ -189,23 +190,6 @@ namespace Blueprint.Api
 
                 Next?.GenerateCode(method, writer);
             }
-        }
-    }
-
-    public class DependencyInjectionVariableSource : IVariableSource
-    {
-        private readonly GeneratedMethod generatedMethod;
-        private readonly IInstanceFrameProvider instanceFrameProvider;
-
-        public DependencyInjectionVariableSource(GeneratedMethod generatedMethod, IInstanceFrameProvider instanceFrameProvider)
-        {
-            this.generatedMethod = generatedMethod;
-            this.instanceFrameProvider = instanceFrameProvider;
-        }
-
-        public Variable TryFindVariable(Type type)
-        {
-            return instanceFrameProvider.VariableFromContainer<object>(generatedMethod.GeneratedType, type).InstanceVariable;
         }
     }
 }

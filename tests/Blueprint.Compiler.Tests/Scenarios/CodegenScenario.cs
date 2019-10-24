@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Blueprint.Compiler.Tests.Codegen;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Blueprint.Compiler.Tests.Scenarios
