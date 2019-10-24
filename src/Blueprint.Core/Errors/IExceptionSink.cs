@@ -13,6 +13,6 @@ namespace Blueprint.Core.Errors
     /// <seealso cref="IErrorLogger" />
     public interface IExceptionSink
     {
-        void Record(Exception e, Dictionary<string, string> errorData, HttpContext httpContext, UserExceptionIdentifier identifier);
+        void Record(Exception e, HttpContext httpContext, UserExceptionIdentifier identifier);
     }
 }

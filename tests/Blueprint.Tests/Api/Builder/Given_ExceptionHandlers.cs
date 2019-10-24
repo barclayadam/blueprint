@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.CodeGen;
 using Blueprint.Api.Errors;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Core.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -13,6 +15,31 @@ namespace Blueprint.Tests.Api.Builder
 {
     public class Given_ExceptionHandlers
     {
+        [Test]
+        public async Task When_Unhandled_Exception_Then_Populates_Exception_Data_With_Operation_Properties_For_ErrorLogger()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<TestApiCommand>(new Exception("Oops"));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler));
+
+            // Act
+            var result = await executor.ExecuteWithNewScopeAsync(new TestApiCommand
+            {
+                AStringProperty = "the string value",
+                ASensitiveStringProperty = "the sensitive value"
+            });
+
+            // Assert
+            var exceptionResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
+            var exceptionData = exceptionResult.Exception.Data;
+
+            exceptionData.Keys.Should().Contain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.AStringProperty)}");
+
+            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ASensitiveStringProperty)}");
+            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ADoNotAuditProperty)}");
+            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ANakedPasswordProperty)}");
+        }
+
         [Test]
         public void When_Single_Custom_Exception_Handler_Registered_Then_Compiles()
         {

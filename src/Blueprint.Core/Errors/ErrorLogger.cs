@@ -60,10 +60,22 @@ namespace Blueprint.Core.Errors
 
         public ErrorLogStatus Log(string exceptionMessage, object errorData = default, HttpContext httpContext = default, UserExceptionIdentifier identifier = default)
         {
-            return Log(new Exception(exceptionMessage), errorData, httpContext, identifier);
+            var exception = new Exception(exceptionMessage);
+
+            if (errorData != null)
+            {
+                var dataAsDictionary = errorData is Dictionary<string, string> data ? data : errorData.ToStringDictionary();
+
+                foreach (var kvp in dataAsDictionary)
+                {
+                    exception.Data[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return Log(exception, httpContext, identifier);
         }
 
-        public ErrorLogStatus Log(Exception exception, object errorData = null, HttpContext httpContext = null, UserExceptionIdentifier userExceptionIdentifier = null)
+        public ErrorLogStatus Log(Exception exception, HttpContext httpContext = null, UserExceptionIdentifier userExceptionIdentifier = null)
         {
             if (ShouldIgnore(exception))
             {
@@ -82,16 +94,13 @@ namespace Blueprint.Core.Errors
                 return ErrorLogStatus.Recorded;
             }
 
-            var dataAsDictionary = errorData == null ? new Dictionary<string, string>() :
-                errorData is Dictionary<string, string> data ? data : errorData.ToStringDictionary();
-
             try
             {
-                dataAsDictionary = Populate(dataAsDictionary);
+                Populate(exception);
 
                 foreach (var sink in exceptionSinks)
                 {
-                    sink.Record(exception, dataAsDictionary, httpContext, userExceptionIdentifier);
+                    sink.Record(exception, httpContext, userExceptionIdentifier);
                 }
             }
             catch (Exception ex)
@@ -103,20 +112,12 @@ namespace Blueprint.Core.Errors
             return ErrorLogStatus.Recorded;
         }
 
-        /// <summary>
-        /// Given the error data passed by the caller of the error logging methods will give data providers
-        /// the chance to populate extra information from the environment.
-        /// </summary>
-        /// <param name="errorData">The original error data given to the logging methods.</param>
-        /// <returns>A non-null dictionary of error data, including that from registered providers.</returns>
-        private Dictionary<string, string> Populate(Dictionary<string, string> errorData)
+        private void Populate(Exception exception)
         {
             foreach (var provider in errorDataProviders)
             {
-                provider.Populate(errorData);
+                provider.Populate(exception.Data);
             }
-
-            return errorData;
         }
     }
 }

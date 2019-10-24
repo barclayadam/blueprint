@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace Blueprint.Core.Errors
 {
@@ -13,6 +14,6 @@ namespace Blueprint.Core.Errors
         /// assist debugging the exception being recorded.
         /// </summary>
         /// <param name="errorData">The dictionary to populate.</param>
-        void Populate(Dictionary<string, string> errorData);
+        void Populate(IDictionary errorData);
     }
 }

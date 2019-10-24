@@ -193,9 +193,10 @@ namespace Blueprint.Core.Tasks
                     throw;
                 }
 
-                var errorData = new Dictionary<string, string> {["RetryCount"] = attempt?.ToString(), ["HangfireJobId"] = context.BackgroundJob.Id,};
+                e.Data["RetryCount"] = attempt?.ToString();
+                e.Data["HangfireJobId"] = context.BackgroundJob.Id;
 
-                errorLogger.Log(e, errorData);
+                errorLogger.Log(e);
 
                 throw;
             }

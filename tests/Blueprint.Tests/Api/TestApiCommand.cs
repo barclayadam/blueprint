@@ -9,5 +9,10 @@ namespace Blueprint.Tests.Api
 
         [Sensitive]
         public string ASensitiveStringProperty { get; set; }
+
+        [DoNotAudit]
+        public string ADoNotAuditProperty { get; set; }
+
+        public string ANakedPasswordProperty { get; set; }
     }
 }
