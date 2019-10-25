@@ -63,7 +63,7 @@ namespace Blueprint.Api.Configuration
             return middlewareConfigurer;
         }
 
-        public static BlueprintMiddlewareConfigurer UseAuth(this BlueprintMiddlewareConfigurer middlewareConfigurer)
+        public static BlueprintMiddlewareConfigurer AddAuth(this BlueprintMiddlewareConfigurer middlewareConfigurer)
         {
             middlewareConfigurer.Services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
             middlewareConfigurer.Services.TryAddScoped<IClaimInspector, ClaimInspector>();
