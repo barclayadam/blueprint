@@ -67,7 +67,7 @@ steps:
       command: 'pack'
       outputDir: '$(Build.ArtifactStagingDirectory)/.nupkgs'
       verbosityPack: 'minimal'
-      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore'
+      nobuild: true
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - task: DotNetCoreCLI@2
