@@ -58,8 +58,7 @@ steps:
     displayName: 'dotnet test'
     inputs:
       command: 'test'
-      nobuild: true
-      arguments: '--collect "Code coverage"'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore --collect "Code coverage"'
 
   # Pack a NuGet package to a test directory
   - task: DotNetCoreCLI@2
@@ -67,9 +66,8 @@ steps:
     inputs:
       command: 'pack'
       outputDir: '$(Build.ArtifactStagingDirectory)/.nupkgs'
-      nobuild: true
       verbosityPack: 'minimal'
-      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore'
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - task: DotNetCoreCLI@2
