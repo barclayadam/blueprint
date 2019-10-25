@@ -1,5 +1,4 @@
 ﻿using System;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Caching.Configuration;
 using Blueprint.Tests.Fakes;

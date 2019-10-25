@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Blueprint.Compiler;
@@ -26,8 +27,16 @@ namespace Blueprint.Api
             this.operationTypeToPipelineType = operationTypeToPipelineType;
         }
 
+        /// <summary>
+        /// Gets the <see cref="ApiDataModel" /> that was used to create this executor, which will indicate what operations
+        /// can be executed.
+        /// </summary>
         public ApiDataModel DataModel { get; }
 
+        /// <summary>
+        /// Gets all of the code that was used to generate this executor.
+        /// </summary>
+        /// <returns>The code used to create all executors.</returns>
         public string WhatCodeDidIGenerate()
         {
             var builder = new StringBuilder();
@@ -40,11 +49,37 @@ namespace Blueprint.Api
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Gets the code that was used to generate the executor for the operation specified by <paramref name="operationType" />.
+        /// </summary>
+        /// <param name="operationType">The operation type to get source code for.</param>
+        /// <returns>The executor's source code.</returns>
+        public string WhatCodeDidIGenerateFor(Type operationType)
+        {
+            var generatedExecutor = operationTypeToPipelineType[operationType];
+            var generatedExecutorType = generatedExecutor.GetType();
+            var assemblyGeneratedType = assembly.GeneratedTypes.Single(t => t.CompiledType == generatedExecutorType);
+
+            return assemblyGeneratedType.SourceCode;
+        }
+
+        /// <summary>
+        /// Gets the code that was used to generate the executor for the operation specified by <typeparamref name="T" />.
+        /// </summary>
+        /// <typeparam name="T">The operation type to get source code for.</typeparam>
+        /// <returns>The executor's source code.</returns>
+        public string WhatCodeDidIGenerateFor<T>() where T : IApiOperation
+        {
+            return WhatCodeDidIGenerateFor(typeof(T));
+        }
+
+        /// <inheritdoc />
         public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
             return operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteAsync(context);
         }
 
+        /// <inheritdoc />
         public async Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation) where T : IApiOperation
         {
             using (var serviceScope = serviceProvider.CreateScope())

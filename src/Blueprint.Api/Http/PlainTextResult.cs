@@ -23,17 +23,21 @@ namespace Blueprint.Api.Http
             this.content = content;
         }
 
+        /// <summary>
+        /// Gets or sets the content type header, which defaults to <code>text/plain</code>.
+        /// </summary>
+        public string ContentType { get; set; } = "text/plain";
+
         /// <inheritdoc />
         public override async Task ExecuteAsync(ApiOperationContext context)
         {
             await base.ExecuteAsync(context);
 
-            context.Response.ContentType = "text/plain";
+            context.Response.ContentType = ContentType;
 
             using (var httpResponseStreamWriter = new HttpResponseStreamWriter(context.Response.Body, Encoding.UTF8))
             {
-                httpResponseStreamWriter.Write(content);
-
+                await httpResponseStreamWriter.WriteAsync(content);
                 await httpResponseStreamWriter.FlushAsync();
             }
         }

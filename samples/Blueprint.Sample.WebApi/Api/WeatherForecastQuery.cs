@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api
 {
@@ -13,20 +12,16 @@ namespace Blueprint.Sample.WebApi.Api
 
     public class WeatherForecastQueryHandler : IApiOperationHandler<WeatherForecastQuery>
     {
-        private static readonly string[] Summaries = new[] {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+        private readonly IWeatherDataSource weatherDataSource;
 
-        public async Task<object> Invoke(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
+        public WeatherForecastQueryHandler(IWeatherDataSource weatherDataSource)
         {
-            var rng = new Random();
+            this.weatherDataSource = weatherDataSource;
+        }
 
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-                {
-                    City = operation.City,
-                    Date = DateTime.Now.AddDays(index),
-                    TemperatureC = rng.Next(-20, 55),
-                    Summary = Summaries[rng.Next(Summaries.Length)]
-                })
-                .ToArray();
+        public Task<object> Invoke(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
+        {
+            return Task.FromResult((object)weatherDataSource.Get(operation.City));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Blueprint.Api;
+using Blueprint.Testing;
 
 namespace Blueprint.Tests.Api
 {

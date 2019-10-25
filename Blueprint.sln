@@ -58,7 +58,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{B407234C-3
 ProjectSection(SolutionItems) = preProject
 	LICENSE.md = LICENSE.md
 	README.md = README.md
+	CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+	Directory.Build.props = Directory.Build.props
 EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -122,6 +126,10 @@ Global
 		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -141,6 +149,7 @@ Global
 		{8AA96541-267F-42FD-8399-37952881347F} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{2A11A316-1F23-4FED-B480-2DC55B9C4A31} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{1ADB1F40-BD86-43D4-84A3-23C524060314} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}

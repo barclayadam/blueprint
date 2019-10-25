@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Blueprint.Api;
 
-namespace Blueprint.Tests.Api.Validator_Middleware
+namespace Blueprint.Tests.Api
 {
     public class TestApiOperationHandler<T> : IApiOperationHandler<T> where T : IApiOperation
     {
@@ -9,6 +10,13 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             ResultToReturn = toReturn;
         }
+
+        public TestApiOperationHandler(Exception toThrow)
+        {
+            ToThrow = toThrow;
+        }
+
+        public Exception ToThrow { get; }
 
         public object ResultToReturn { get; }
 
@@ -23,6 +31,11 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             WasCalled = true;
             OperationPassed = operation;
             ContextPassed = apiOperationContext;
+
+            if (ToThrow != null)
+            {
+                throw ToThrow;
+            }
 
             return Task.FromResult(ResultToReturn);
         }

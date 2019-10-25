@@ -1,10 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Blueprint.Api.Authorisation;
 using Blueprint.Core;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api
@@ -13,6 +13,7 @@ namespace Blueprint.Api
     /// A descriptor of an <see cref="IApiOperation" />, containing details such as the URL from
     /// which the operation can be executed, and the type that represents the actual operation.
     /// </summary>
+    [DebuggerVisualizer(nameof(HttpMethod) + ": " + nameof(Name))]
     public class ApiOperationDescriptor
     {
         public ApiOperationDescriptor(Type apiOperationType, HttpMethod httpMethod)

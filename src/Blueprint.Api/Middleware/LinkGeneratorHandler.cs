@@ -36,7 +36,7 @@ namespace Blueprint.Api.Middleware
                 }
                 else
                 {
-                    await AddResourceLinksAsync(logger, generators, context, innerResult);
+                    okResult.Content = await AddResourceLinksAsync(logger, generators, context, innerResult);
                 }
             }
         }

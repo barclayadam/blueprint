@@ -14,7 +14,7 @@ Blueprint provides a framework to create HTTP APIs, background task processors a
 are built using a simple operation + handler architecture with a pipeline of middlewares that perform
 cross-cutting concerns such as auditing, authorisation and error handling.
 
-Blueprint uses runtime code generation using [Rosyln](https://github.com/dotnet/roslyn) to generate efficient executors for each individual 
+Blueprint uses runtime code compilation using [Rosyln](https://github.com/dotnet/roslyn) to generate efficient executors for each individual 
 operation at startup.
 
 [Report Bug](https://github.com/barclayadam/blueprint/issues)
@@ -25,17 +25,12 @@ operation at startup.
 
 * [About the Project](#about-the-project)
   * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
+* [Installation](#installation)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
-
-
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -46,6 +41,7 @@ namespace Blueprint.Sample.WebApi.Api
     [RootLink("echoName")]
     public class EchoNameQuery : IQuery
     {
+        [Required]
         public string Name { get; set; }
     }
 
@@ -59,14 +55,19 @@ namespace Blueprint.Sample.WebApi.Api
 }
 ````
 
-Blueprint provides a runtime-generated pipeline runner of operations that can be used in multiple contexts, enabling a codebase
+Blueprint provides a runtime-compiled pipeline runner of operations that can be used in multiple contexts, enabling a codebase
 to have a homogeneous way of organising command and queries whilst having a common means of adding cross-cutting concerns.
 
-Blueprint builds a class per operation found at runtime, with middleware builders contributing cross-cutting concerns. Because we
+Blueprint compiles a class per operation, with middleware builders contributing cross-cutting concerns. Because we
 build the pipeline dynamically per type builders are able to eliminate unused code per type, remove reflection over property
 types and with DI integration potentially eliminate DI calls and replace them with direct constructor calls in some cases.
 
-### Installation
+### Built With
+
+ * [Roslyn](https://github.com/dotnet/roslyn) - For runtime code compilation
+ * [Newtonsoft.Json](https://www.newtonsoft.com/json) - For JSON handling
+
+## Installation
 
 To use Blueprint API in your ASP.NET app:
 
@@ -125,6 +126,14 @@ To use Blueprint API in your ASP.NET app:
                 app.UseBlueprintApi("api/");
             }
     ```
+   
+### Compilation
+
+At runtime Blueprint will, for every operation it finds, generate a class that is used for running an operation with
+all the configured middlewares.
+
+The pipeline is fully customisable with many built-in middlewares such as APM integration, logging, auditing, link (HATEOAS) 
+generation and validation. 
 
 ## Roadmap
 
@@ -140,18 +149,18 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the Apache 2.0 License. See `LICENSE.md` for more information.
 
-<!-- CONTACT -->
 ## Contact
 
 Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
 
-<!-- ACKNOWLEDGEMENTS -->
-<!-- TBD -->
+## Acknowledgements
+
+ * [LamarCompiler/LamarCodeGeneration](https://github.com/JasperFx/lamar/tree/master/src/LamarCodeGeneration) Blueprint.Compiler is a modified version of LamarCompiler that
+ was present in Lamar before being changed to using Expressions for compilation
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [build-shield]: https://img.shields.io/azure-devops/build/blueprint-api/blueprint/1?style=flat-square

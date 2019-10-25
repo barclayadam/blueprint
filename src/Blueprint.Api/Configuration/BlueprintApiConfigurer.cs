@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,18 +9,24 @@ using Blueprint.Api.Errors;
 using Blueprint.Api.Formatters;
 using Blueprint.Api.Infrastructure;
 using Blueprint.Api.Middleware;
+using Blueprint.Api.Validation;
 using Blueprint.Compiler;
 using Blueprint.Core;
+using Blueprint.Core.Apm;
+using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
+using Blueprint.Core.Tracing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Configuration
 {
     public class BlueprintApiConfigurer
     {
-        private readonly Dictionary<MiddlewareStage, List<Type>> middlewareStages = new Dictionary<MiddlewareStage, List<Type>>();
+        private readonly Dictionary<MiddlewareStage, List<IMiddlewareBuilder>> middlewareStages = new Dictionary<MiddlewareStage, List<IMiddlewareBuilder>>();
 
         private readonly BlueprintApiOptions options;
 
@@ -60,15 +67,15 @@ namespace Blueprint.Api.Configuration
         }
 
         public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage)
-            where T : IMiddlewareBuilder
+            where T : IMiddlewareBuilder, new()
         {
             if (middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
             {
-                middlewareTypes.Add(typeof(T));
+                middlewareTypes.Add(new T());
             }
             else
             {
-                middlewareStages.Add(middlewareStage, new List<Type> { typeof(T) });
+                middlewareStages.Add(middlewareStage, new List<IMiddlewareBuilder> { new T() });
             }
         }
 
@@ -83,6 +90,10 @@ namespace Blueprint.Api.Configuration
 
             ComposeMiddlewareBuilders();
 
+            // Register the collection that built the service provider so that the code generation can inspect the registrations and
+            // generate better code (i.e. inject singleton services in to the pipeline executor instead of getting them at operation execution time)
+            Services.AddSingleton(Services);
+
             Services.AddSingleton(options);
             Services.AddSingleton(options.Model);
             Services.AddSingleton<ApiConfiguration>();
@@ -93,27 +104,47 @@ namespace Blueprint.Api.Configuration
             Services.AddSingleton<AssemblyGenerator>();
             Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
 
-            // Logging only?
-            Services.AddScoped<IErrorLogger, ErrorLogger>();
+            // Logging
+            Services.TryAddScoped<IErrorLogger, ErrorLogger>();
 
-            // Auth only?
+            // Authentication / Authorisation
+            Services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            Services.TryAddScoped<IClaimInspector, ClaimInspector>();
+
+            Services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
             Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
-            Services.AddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
 
-            Services.AddSingleton<ITypeFormatter, JsonTypeFormatter>();
-            Services.AddSingleton<JsonTypeFormatter>();
+            // Validation
+            Services.TryAddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            Services.TryAddSingleton<IValidationSource, BlueprintValidationSource>();
+            Services.TryAddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            Services.TryAddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            Services.TryAddSingleton<IValidator, BlueprintValidator>();
 
-            Services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
-            Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
-            Services.AddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
+            // Cache
+            Services.TryAddSingleton<ICache, Cache>();
+            Services.TryAddSingleton(MemoryCache.Default);
+            Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
-            Services.AddSingleton<ICache, Cache>();
-            Services.AddSingleton(MemoryCache.Default);
-            Services.AddSingleton<IExceptionFilter, BasicExceptionFilter>();
+            // IoC
+            Services.TryAddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
 
-            Services.AddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
+            // Formatters
+            Services.TryAddSingleton<JsonTypeFormatter>();
+            Services.TryAddSingleton<ITypeFormatter, JsonTypeFormatter>();
+
+            // Linking
+            Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Random infrastructure
+            Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
+            Services.TryAddScoped<IApmTool, NullApmTool>();
+
+            Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            Services.TryAddScoped(_ => ArrayPool<char>.Shared);
+            Services.TryAddScoped(_ => ArrayPool<byte>.Shared);
+
             Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 

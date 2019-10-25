@@ -69,6 +69,16 @@ namespace Blueprint.Compiler
 
         public FramesCollection Frames { get; } = new FramesCollection();
 
+        public static GeneratedMethod ForNoArg(GeneratedType type, string name)
+        {
+            return new GeneratedMethod(type, name, typeof(void), new Argument[0]);
+        }
+
+        public static GeneratedMethod ForNoArg<TReturn>(GeneratedType type, string name)
+        {
+            return new GeneratedMethod(type, name, typeof(TReturn), new Argument[0]);
+        }
+
         public void WriteMethod(ISourceWriter writer)
         {
             if (top == null)

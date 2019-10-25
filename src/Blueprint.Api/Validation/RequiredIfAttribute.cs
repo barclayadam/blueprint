@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core.ThirdParty;
-using JetBrains.Annotations;
 using NJsonSchema;
 
 namespace Blueprint.Api.Validation

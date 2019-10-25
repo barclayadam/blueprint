@@ -36,7 +36,7 @@ namespace Blueprint.Api.Authorisation
             {
                 // Generates:
                 //
-                // if (context.ClaimsIdentity == null)
+                // if (context.ClaimsIdentity == null || context.ClaimsIdentity.IsAuthenticated == false)
                 // {
                 //     throw new SecurityException("Access denied. Anonymous access is not allowed.");
                 // }
@@ -55,18 +55,20 @@ namespace Blueprint.Api.Authorisation
                 createContextCall.TrySetArgument(claimsIdentityVariable);
 
                 context.AppendFrames(
-                    new IfNullBlock(
-                        claimsIdentityVariable,
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage)));
+                    new IfBlock($"{claimsIdentityVariable} == null || {claimsIdentityVariable.GetProperty(nameof(ClaimsIdentity.IsAuthenticated))} == false")
+                    {
+                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                    });
 
                 context.AppendFrames(
                     userSecurityContextFactoryCreator,
                     createContextCall);
 
                 context.AppendFrames(
-                    new IfNullBlock(
-                        createContextCall.ReturnVariable,
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage)));
+                    new IfNullBlock(createContextCall.ReturnVariable)
+                    {
+                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                    });
 
                 context.AppendFrames(
                     new VariableSetterFrame(context.VariableFromContext<IUserAuthorisationContext>(), createContextCall.ReturnVariable));

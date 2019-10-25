@@ -12,7 +12,7 @@ namespace Blueprint.Api.CodeGen
     /// A frame that is output when catching all unhandled exceptions, logging as much information about
     /// the operation, request, exception and user through the use of <see cref="IErrorLogger" />.
     /// </summary>
-    public class BaseExceptionCatchFrame : SyncFrame
+    public class PushToErrorLoggerExceptionCatchFrame : SyncFrame
     {
         private readonly MiddlewareBuilderContext context;
 
@@ -21,7 +21,7 @@ namespace Blueprint.Api.CodeGen
 
         private Variable contextVariable;
 
-        public BaseExceptionCatchFrame(MiddlewareBuilderContext context, Variable exceptionVariable)
+        public PushToErrorLoggerExceptionCatchFrame(MiddlewareBuilderContext context, Variable exceptionVariable)
         {
             this.context = context;
             this.exceptionVariable = exceptionVariable;
@@ -29,20 +29,20 @@ namespace Blueprint.Api.CodeGen
             getErrorLoggerFrame = context.VariableFromContainer<IErrorLogger>();
         }
 
+        /// <inheritdoc />
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
             getErrorLoggerFrame.GenerateCode(method, writer);
 
-            writer.Write($"var errorData = new {typeof(Dictionary<string, string>).FullNameInCode()}();");
-            writer.Write($"var userAuthorisationContext = {contextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
+            writer.Write($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
             writer.Write($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
 
             writer.BlankLine();
 
             // 1. Allow user context to populate metadata to the error data dictionary if it exists
-            writer.Write($"userAuthorisationContext?.{nameof(IUserAuthorisationContext.PopulateMetadata)}((k, v) => errorData[k] = v?.ToString());");
+            writer.Write($"userAuthorisationContext?.PopulateMetadata((k, v) => {exceptionVariable}.Data[k] = v?.ToString());");
 
-            // 2. For every property of the operation output a value to the errorData dictionary. ALl properties that are
+            // 2. For every property of the operation output a value to the exception.Data dictionary. ALl properties that are
             // not considered sensitive
             foreach (var prop in context.Descriptor.Properties)
             {
@@ -54,20 +54,17 @@ namespace Blueprint.Api.CodeGen
                 // If the type is primitive we need to leave off the '?' null-coalesce method call operator
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
-                writer.Write($"errorData[\"{context.Descriptor.Name}.{prop.Name}\"] = " +
+                writer.Write($"{exceptionVariable}.Data[\"{context.Descriptor.OperationType.Name}.{prop.Name}\"] = " +
                              $"{context.ApiContextVariableSource.OperationVariable}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks
             writer.BlankLine();
-            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.{nameof(IErrorLogger.Log)}({exceptionVariable}, errorData, {contextVariable}.{nameof(ApiOperationContext.HttpContext)}, identifier);");
+            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.Log({exceptionVariable}, {contextVariable}.HttpContext, identifier);");
             writer.BlankLine();
-
-            // 4. Return UnhandledExceptionOperationResult that will attempt to determine best status code etc. depending
-            // on exception type.
-            writer.Write($"return new {typeof(UnhandledExceptionOperationResult).FullNameInCode()}({exceptionVariable});");
         }
 
+        /// <inheritdoc />
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
         {
             contextVariable = chain.FindVariable(typeof(ApiOperationContext));

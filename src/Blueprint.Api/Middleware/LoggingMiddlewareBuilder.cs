@@ -5,7 +5,6 @@ using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api.Middleware
 {
@@ -24,45 +23,52 @@ namespace Blueprint.Api.Middleware
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            var message = $"API operation finished. operation_type={context.Descriptor.OperationType.Name}";
-
-            var methodCall = new MethodCall(typeof(StopwatchLogger), nameof(StopwatchLogger.LogTime));
-            methodCall.TrySetArgument("message", new Variable(typeof(string), $"\"{message}\""));
-            methodCall.TrySetArgument("args", new Variable(typeof(object[]), "System.Array.Empty<object>()"));
-
-            context.ExecuteMethod.Frames.Add(new LoggingFrame(context.Descriptor.OperationType));
+            context.ExecuteMethod.Frames.Add(new LoggingStartFrame());
+            context.RegisterFinallyFrames(new LoggingEndFrame(context.Descriptor.OperationType));
         }
 
-        private class LoggingFrame : SyncFrame
+        private class LoggingStartFrame : SyncFrame
         {
-            private readonly LogFrame logFrame;
+            private readonly Variable stopwatchVariable;
 
-            public LoggingFrame(Type operationType)
+            public LoggingStartFrame()
             {
-                var message = $"API operation finished. operation_type={operationType.Name} time_taken_ms={{0}}";
-                logFrame = LogFrame.Info(message, "stopwatch.ElapsedMilliseconds");
+                stopwatchVariable = new Variable(typeof(Stopwatch), this);
             }
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
-                writer.Write($"var stopwatch = {typeof(Stopwatch).FullNameInCode()}.StartNew();");
-                writer.Write("stopwatch.Start();");
+                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
 
-                writer.Write("BLOCK:try");
                 Next?.GenerateCode(method, writer);
-                writer.FinishBlock();
+            }
+        }
 
-                writer.Write("BLOCK:finally");
-                writer.Write("stopwatch.Stop();");
+        private class LoggingEndFrame : SyncFrame
+        {
+            private readonly LogFrame logFrame;
+            private Variable stopwatchVariable;
 
+            public LoggingEndFrame(Type operationType)
+            {
+                var message = $"Operation {{0}} finished in {{1}}ms";
+                logFrame = LogFrame.Information(message, $"\"{operationType}\"", "stopwatch.ElapsedMilliseconds");
+            }
+
+            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            {
+                writer.Write($"{stopwatchVariable}.Stop();");
                 logFrame.GenerateCode(method, writer);
-
-                writer.FinishBlock();
             }
 
             public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
             {
-                return logFrame.FindVariables(chain);
+                yield return stopwatchVariable = chain.FindVariable(typeof(Stopwatch));
+
+                foreach (var v in logFrame.FindVariables(chain))
+                {
+                    yield return v;
+                }
             }
         }
     }

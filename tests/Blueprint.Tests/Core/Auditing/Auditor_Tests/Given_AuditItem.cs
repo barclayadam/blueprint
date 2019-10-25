@@ -21,9 +21,8 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
             var expectedResult = "{\"Property\":\"Something Interesting\"}";
             var wasSuccessful = true;
 
-            var auditItem = new AuditItem(
-                correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new SqlServerAuditor(CreateFactory(), new OptionsWrapper<SqlServerAuditorConfiguration>(new SqlServerAuditorConfiguration()));
+            var auditItem = new AuditItem(correlationId, wasSuccessful, resultMessage, username, details);
+            var auditor = CreateAuditor();
 
             // Act
             auditor.Write(auditItem);
@@ -60,9 +59,8 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
             var expectedResult = "{\"DoAuditProperty\":\"Something boring\"}";
             var wasSuccessful = true;
 
-            var auditItem = new AuditItem(
-                correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new SqlServerAuditor(CreateFactory(), new OptionsWrapper<SqlServerAuditorConfiguration>(new SqlServerAuditorConfiguration()));
+            var auditItem = new AuditItem(correlationId, wasSuccessful, resultMessage, username, details);
+            var auditor = CreateAuditor();
 
             // Act
             auditor.Write(auditItem);
@@ -99,9 +97,8 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
             var expectedResult = "{\"DoAuditProperty\":\"Something boring\"}";
             var wasSuccessful = true;
 
-            var auditItem = new AuditItem(
-                correlationId, wasSuccessful, resultMessage, username, details);
-            var auditor = new SqlServerAuditor(CreateFactory(), new OptionsWrapper<SqlServerAuditorConfiguration>(new SqlServerAuditorConfiguration()));
+            var auditItem = new AuditItem(correlationId, wasSuccessful, resultMessage, username, details);
+            var auditor = CreateAuditor();
 
             // Act
             auditor.Write(auditItem);
@@ -125,6 +122,14 @@ namespace Blueprint.Tests.Core.Auditing.Auditor_Tests
                     }).Single();
 
             count.Should().Be(1);
+        }
+
+        private SqlServerAuditor CreateAuditor()
+        {
+            return new SqlServerAuditor(CreateFactory(), new OptionsWrapper<SqlServerAuditorConfiguration>(new SqlServerAuditorConfiguration
+            {
+                QualifiedTableName = "AuditTrail"
+            }));
         }
     }
 

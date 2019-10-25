@@ -49,23 +49,12 @@ namespace Blueprint.Api.CodeGen
         /// <inheritdoc />
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            // TODO: This may not be correct depending on the lifecycle. Refactor the creation of instances
-            // to allow this frame to have access to the container and therefore make decisions based on the configured lifecycle and
-            // potentially even look at the registered instances and make these same optimisations if only a single instance has been
-            // declared for the interface type.
+            // We import this namespace to allow using extension method invocation, which cleans up the
+            // generated code quite a bit for this use case.
+            method.GeneratedType.Namespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
 
-            // If the type that we want to create is a concrete class with no public constructors then
-            // we can new up directly and avoid any container overhead
-            if (HasNoDeclaredConstructors(constructedType))
-            {
-                writer.Write(
-                    $"var {InstanceVariable} = new {constructedType.FullNameInCode()}();");
-            }
-            else
-            {
-                writer.Write(
-                    $"var {InstanceVariable} = {typeof(ServiceProviderServiceExtensions).FullNameInCode()}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>({serviceProviderVariable});");
-            }
+            writer.Write(
+                $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>();");
 
             Next?.GenerateCode(method, writer);
         }
@@ -76,11 +65,6 @@ namespace Blueprint.Api.CodeGen
             serviceProviderVariable = chain.FindVariable(typeof(IServiceProvider));
 
             yield return serviceProviderVariable;
-        }
-
-        private static bool HasNoDeclaredConstructors(Type type)
-        {
-            return type.IsClass && type.IsAbstract == false && type.GetConstructors().Length == 1 && type.GetConstructors()[0].GetParameters().Length == 0;
         }
     }
 }

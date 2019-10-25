@@ -27,7 +27,7 @@ namespace Blueprint.Api.CodeGen
         {
             get
             {
-                return GetAllPossibleFrames().SelectMany(x => x.Creates).ToArray();
+                return GetAllPossibleCatchFrames().SelectMany(x => x.Creates).ToArray();
             }
         }
 
@@ -48,6 +48,18 @@ namespace Blueprint.Api.CodeGen
 
                 writer.FinishBlock();
             }
+
+            if (context.FinallyFrames.Any())
+            {
+                writer.Write($"BLOCK:finally");
+
+                foreach (var frame in context.FinallyFrames)
+                {
+                    frame.GenerateCode(method, writer);
+                }
+
+                writer.FinishBlock();
+            }
         }
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
@@ -56,7 +68,15 @@ namespace Blueprint.Api.CodeGen
 
             yield return contextVariable;
 
-            foreach (var f in GetAllPossibleFrames())
+            foreach (var f in GetAllPossibleCatchFrames())
+            {
+                foreach (var v in f.FindVariables(chain))
+                {
+                    yield return v;
+                }
+            }
+
+            foreach (var f in context.FinallyFrames)
             {
                 foreach (var v in f.FindVariables(chain))
                 {
@@ -65,7 +85,7 @@ namespace Blueprint.Api.CodeGen
             }
         }
 
-        private IEnumerable<Frame> GetAllPossibleFrames()
+        private IEnumerable<Frame> GetAllPossibleCatchFrames()
         {
             // We must create the frames only once, as otherwise the compiler is not able to handle the assignment of
             // variables etc. as they would be created multiple times.
@@ -75,7 +95,10 @@ namespace Blueprint.Api.CodeGen
 
                 foreach (var handler in context.ExceptionHandlers)
                 {
-                    createdFrames[handler.Key] = handler.Value(new Variable(handler.Key, "e")).ToArray();
+                    var exceptionVariable = new Variable(handler.Key, "e");
+                    var allFrames = handler.Value.SelectMany(v => v(exceptionVariable));
+
+                    createdFrames[handler.Key] = allFrames.ToArray();
                 }
             }
             else

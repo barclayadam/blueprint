@@ -106,7 +106,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}", "a.rel");
 
             // Assert
-            link.GetFormatForRouting().Should().Be("aUrl/{clientid}");
+            link.RoutingUrl.Should().Be("aUrl/{clientid}");
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}?format=pdf", "a.rel");
 
             // Assert
-            link.GetFormatForRouting().Should().Be("aUrl/{clientid}");
+            link.RoutingUrl.Should().Be("aUrl/{clientid}");
         }
     }
 }

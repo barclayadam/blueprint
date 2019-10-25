@@ -9,16 +9,15 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
-    [DebuggerDisplay("GeneratedType: {" + nameof(BaseType) + "}")]
+    [DebuggerDisplay(nameof(TypeName) + " : " + nameof(BaseType))]
     public class GeneratedType : IVariableSource
     {
         private readonly IList<Type> interfaces = new List<Type>();
         private readonly IList<GeneratedMethod> methods = new List<GeneratedMethod>();
 
-        internal GeneratedType(GeneratedAssembly generatedAssembly, GenerationRules rules, string typeName)
+        internal GeneratedType(GeneratedAssembly generatedAssembly, string typeName)
         {
             GeneratedAssembly = generatedAssembly;
-            Rules = rules;
             TypeName = typeName;
         }
 
@@ -27,8 +26,6 @@ namespace Blueprint.Compiler
         /// </summary>
         public GeneratedAssembly GeneratedAssembly { get; }
 
-        public GenerationRules Rules { get; }
-
         public IList<Setter> Setters { get; } = new List<Setter>();
 
         public string TypeName { get; }
@@ -36,6 +33,8 @@ namespace Blueprint.Compiler
         public Type BaseType { get; private set; }
 
         public InjectedField[] BaseConstructorArguments { get; private set; } = new InjectedField[0];
+
+        public HashSet<string> Namespaces { get; } = new HashSet<string>();
 
         public List<InjectedField> AllInjectedFields { get; } = new List<InjectedField>();
 

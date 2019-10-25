@@ -3,7 +3,6 @@ using System.Linq;
 using Blueprint.Api.Validation;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Errors;
 using Microsoft.Extensions.DependencyInjection;
 using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
 using ValidationException = Blueprint.Api.Validation.ValidationException;
@@ -117,11 +116,12 @@ namespace Blueprint.Api.Middleware
                 var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
 
                 context.AppendFrames(
-                    new IfBlock(
-                        $"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0",
+                    new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0")
+                    {
                         createResponse,
                         createResult,
-                        new ReturnFrame(createResult.Variable)));
+                        new ReturnFrame(createResult.Variable),
+                    });
             }
 
             // Always need to register extra exception handlers because the operation handler itself may do additional validation

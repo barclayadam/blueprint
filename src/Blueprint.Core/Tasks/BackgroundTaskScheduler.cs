@@ -15,7 +15,7 @@ namespace Blueprint.Core.Tasks
         private readonly IServiceProvider serviceProvider;
         private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
-        private readonly ILogger logger;
+        private readonly ILogger<BackgroundTaskScheduler> logger;
 
         private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
 
@@ -24,7 +24,7 @@ namespace Blueprint.Core.Tasks
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
             IVersionInfoProvider versionInfoProvider,
             IApmTool apmTool,
-            ILogger logger)
+            ILogger<BackgroundTaskScheduler> logger)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);

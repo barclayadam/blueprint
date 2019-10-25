@@ -9,10 +9,9 @@ namespace Blueprint.Core.Utilities
     {
         private static readonly char[] SettingsSeparator = { ';' };
 
-        public static X509Certificate2 Load(string settingsKey)
+        public static X509Certificate2 Load(string settingsValue)
         {
-            var settingValue = settingsKey.GetConfigValue(IfEmpty.ShouldThrow);
-            var arguments = settingValue.Split(SettingsSeparator);
+            var arguments = settingsValue.Split(SettingsSeparator);
             var loadType = arguments[0];
             var loadArguments = arguments.Skip(1).ToArray();
 
@@ -50,9 +49,9 @@ namespace Blueprint.Core.Utilities
             }
 
             return CertificateLoader.ExtractCertificateFromResource(
-                                                                    assembly,
-                                                                    resourceName,
-                                                                    password);
+                assembly,
+                resourceName,
+                password);
         }
 
         private static X509Certificate2 LoadByThumbprint(string[] arguments)

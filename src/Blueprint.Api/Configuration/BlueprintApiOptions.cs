@@ -6,7 +6,6 @@ using System.Reflection;
 using Blueprint.Api.Authorisation;
 using Blueprint.Compiler;
 using Blueprint.Core;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 using Microsoft.CodeAnalysis;
 
@@ -32,6 +31,8 @@ namespace Blueprint.Api.Configuration
 
             AddOperation<RootMetadataOperation>();
             configure?.Invoke(this);
+
+            Rules.AssemblyName = Rules.AssemblyName ?? ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
         }
 
         public GenerationRules Rules { get; }
@@ -40,11 +41,15 @@ namespace Blueprint.Api.Configuration
         /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
         /// order that they will be configured.
         /// </summary>
-        public List<Type> Middlewares { get; } = new List<Type>();
+        public List<IMiddlewareBuilder> Middlewares { get; } = new List<IMiddlewareBuilder>();
+
+        /// <summary>
+        /// Gets the name of the application, which is used when generating the DLL for the pipeline
+        /// executors.
+        /// </summary>
+        public string ApplicationName { get; private set; }
 
         public ApiDataModel Model => dataModel;
-
-        public string ApplicationName { get; private set; }
 
         /// <summary>
         /// Sets  the name of the application, which is used when generating the DLL for the pipeline
@@ -58,21 +63,31 @@ namespace Blueprint.Api.Configuration
             ApplicationName = applicationName;
         }
 
-        public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <typeparam name="T">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</typeparam>
+        public void UseMiddlewareBuilder<T>() where T : IMiddlewareBuilder, new()
         {
-            Middlewares.Add(typeof(T));
+            Middlewares.Add(new T());
         }
 
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <param name="middlewareType">The middleware builder to add (must inherit from <see cref="IMiddlewareBuilder"/>.</param>
         public void UseMiddlewareBuilder(Type middlewareType)
         {
-            if (!typeof(IMiddlewareBuilder).IsAssignableFrom(middlewareType))
-            {
-                throw new ArgumentException(
-                    $"Builder type must implement {nameof(IMiddlewareBuilder)}, but {middlewareType} does not.",
-                    nameof(middlewareType));
-            }
+            Middlewares.Add((IMiddlewareBuilder)Activator.CreateInstance(middlewareType));
+        }
 
-            Middlewares.Add(middlewareType);
+        /// <summary>
+        /// Adds the given middleware builder to the end of the current list of builders.
+        /// </summary>
+        /// <param name="middlewareBuilder">The middleware builder to add.</param>
+        public void UseMiddlewareBuilder(IMiddlewareBuilder middlewareBuilder)
+        {
+            Middlewares.Add(middlewareBuilder);
         }
 
         /// <summary>

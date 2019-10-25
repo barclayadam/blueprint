@@ -75,6 +75,11 @@ namespace Blueprint.Api.CodeGen
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.Descriptor));
             }
 
+            if (type == typeof(ApiOperationContext))
+            {
+                return operationContextVariable;
+            }
+
             if (type == typeof(IApiOperation))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation));

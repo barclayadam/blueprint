@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Api.Authorisation
 {

@@ -16,10 +16,11 @@ namespace Blueprint.Api
         private readonly IApiOperation selfQuery;
 
         private readonly Dictionary<string, object> metadata = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> secureData = new Dictionary<string, object>();
 
         protected ResourceEvent(ResourceEventChangeType changeType, string eventType, Type resourceType, IApiOperation selfQuery)
         {
-            Guard.EnumDefined("changeType", changeType);
+            Guard.EnumDefined(nameof(changeType), changeType);
             Guard.NotNull(nameof(resourceType), resourceType);
             Guard.NotNull(nameof(selfQuery), selfQuery);
 
@@ -98,9 +99,14 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Gets the metadata dictionary of this resource event, a simple bag of key value pairs
-        /// of useful information that can be stored freeform against an event.
+        /// of useful information that can be stored free-form against an event.
         /// </summary>
         public Dictionary<string, object> Metadata => metadata;
+
+        /// <summary>
+        /// Gets a dictionary of security-related data that will NOT be persisted anywhere
+        /// </summary>
+        public Dictionary<string, object> SecureData => secureData;
 
         /// <summary>
         /// Gets or sets the correlation id for this event, which can be used to tie it back to
@@ -114,9 +120,32 @@ namespace Blueprint.Api
         [JsonIgnore]
         public IApiOperation Operation { get; set; }
 
+        /// <summary>
+        /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be
+        /// used to store pieces of information that can be exposed to other parts of the system and API consumers
+        /// but <strong>MAY</strong> also be persisted (i.e. for auditing purposes)
+        /// </summary>
+        /// <param name="key">The key of the item to add.</param>
+        /// <param name="value">The value of the item to add.</param>
+        /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
         public ResourceEvent WithMetadata(string key, object value)
         {
             metadata[key] = value;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given key value pair to this event's <see cref="SecureData" /> dictionary, which can be
+        /// used to store pieces of information that can be exposed to other parts of the system and API consumers
+        /// but <strong>MUST NOT</strong> be persisted (i.e. for auditing purposes)
+        /// </summary>
+        /// <param name="key">The key of the item to add.</param>
+        /// <param name="value">The value of the item to add.</param>
+        /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
+        public ResourceEvent WithSecurityData(string key, object value)
+        {
+            secureData[key] = value;
 
             return this;
         }

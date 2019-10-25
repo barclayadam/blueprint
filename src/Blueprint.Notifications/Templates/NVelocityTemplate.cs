@@ -4,7 +4,6 @@ using Blueprint.Core;
 using Commons.Collections;
 using NVelocity;
 using NVelocity.App;
-using NVelocity.Exception;
 
 namespace Blueprint.Notifications.Templates
 {

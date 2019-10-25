@@ -4,15 +4,11 @@ using Blueprint.Api;
 using Blueprint.Api.Http;
 using Blueprint.Api.Middleware;
 using Blueprint.Testing;
+using FluentAssertions;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Blueprint.Tests.Api.Validator_Middleware
 {
-    public class EmptyOperation : IApiOperation
-    {
-    }
-
     public class Given_ValidationMiddleware
     {
         public class HasRequiredPropertyOperation : IApiOperation
@@ -34,9 +30,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var result = await executor.ExecuteWithNewScopeAsync(new EmptyOperation());
 
             // Assert
-            var okResult = result.ShouldBeOfType<OkResult>();
-            okResult.Content.ShouldBe(toReturn);
-            handler.WasCalled.ShouldBeTrue();
+            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            okResult.Content.Should().Be(toReturn);
+            handler.WasCalled.Should().BeTrue();
         }
 
         [Test]
@@ -52,9 +48,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = "something not null"});
 
             // Assert
-            var okResult = result.ShouldBeOfType<OkResult>();
-            okResult.Content.ShouldBe(toReturn);
-            handler.WasCalled.ShouldBeTrue();
+            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            okResult.Content.Should().Be(toReturn);
+            handler.WasCalled.Should().BeTrue();
         }
 
         [Test]
@@ -68,7 +64,7 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
 
             // Assert
-            handler.WasCalled.ShouldBeFalse();
+            handler.WasCalled.Should().BeFalse();
         }
 
         [Test]
@@ -82,8 +78,8 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
 
             // Assert
-            var validationResult = result.ShouldBeOfType<ValidationFailedResult>();
-            validationResult.Content.Errors.ShouldContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
+            var validationResult = result.Should().BeOfType<ValidationFailedResult>().Subject;
+            validationResult.Content.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
         }
     }
 }

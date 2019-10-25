@@ -1,7 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
 using Blueprint.Api.Infrastructure;
-using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api.Formatters

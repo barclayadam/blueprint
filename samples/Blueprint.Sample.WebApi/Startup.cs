@@ -1,6 +1,6 @@
-﻿using System;
-using Blueprint.Api;
+using Blueprint.Api.Authorisation;
 using Blueprint.Api.Middleware;
+using Blueprint.ApplicationInsights;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,13 +21,17 @@ namespace Blueprint.Sample.WebApi
             services.AddBlueprintApi(o =>
             {
                 o.WithApplicationName("SampleWebApi");
-
-//                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
+                
+                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<ApplicationInsightsMiddleware>();
+                o.UseMiddlewareBuilder<HttpMessagePopulationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<AuthenticationMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<UserContextLoaderMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<AuthorisationMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-//                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
-//                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
+                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
                 o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
 
                 o.ScanForOperations(typeof(Startup).Assembly);

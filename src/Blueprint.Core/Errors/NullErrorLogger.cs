@@ -6,7 +6,7 @@ namespace Blueprint.Core.Errors
 {
     public class NullErrorLogger : IErrorLogger
     {
-        public ErrorLogStatus Log(Exception exception, object errorData = default, HttpContext httpContext = default, UserExceptionIdentifier identifier = default)
+        public ErrorLogStatus Log(Exception exception, HttpContext httpContext = default, UserExceptionIdentifier identifier = default)
         {
             return ErrorLogStatus.Recorded;
         }

@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      $(MSBuildAllProjects) is a list of files that determine if a project is up-to-date or not.  By including this
+      file in the list, it ensures that all projects will be rebuilt if it changes.
+    -->
+    <MsBuildAllProjects>$(MsBuildAllProjects);$(MsBuildThisFileFullPath)</MsBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+
+    <Product>Blueprint</Product>
+    <Company>Red Sequence</Company>
+    <Copyright>(c) Red Sequence. All rights reserved</Copyright>
+    <Authors>Adam Barclay, Michael Taylor</Authors>
+
+    <DefaultLanguage>en-GB</DefaultLanguage>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+
+    <RepositoryUrl>https://github.com/barclayadam/blueprint.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
+
+    <DefineConstants>$(DefineConstants);JETBRAINS_ANNOTATIONS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
+  </ItemGroup>
+</Project>

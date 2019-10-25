@@ -9,6 +9,8 @@ namespace Blueprint.Core.Utilities
     /// </summary>
     public static class DateTimeExtensions
     {
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         /// <summary>
         /// Given a DateTime will get the last second of the day that it represents, with ticks set to 0,
         /// that is 23:59:59.000.
@@ -81,6 +83,26 @@ namespace Blueprint.Core.Utilities
             }
 
             return date;
+        }
+
+        /// <summary>
+        /// Converts from UNIX timestamp (seconds) to a DateTime.
+        /// </summary>
+        /// <param name="unixTime">The UNIX timestamp to convert.</param>
+        /// <returns>The equivalent DateTime.</returns>
+        public static DateTime FromUnixTimeSeconds(this long unixTime)
+        {
+            return UnixEpoch.AddSeconds(unixTime);
+        }
+
+        /// <summary>
+        /// Converts from a DateTime to UNIX timestamp (seconds).
+        /// </summary>
+        /// <param name="date">The DateTime to convert.</param>
+        /// <returns>The equivalent UNIX timestamp.</returns>
+        public static long ToUnixTimeSeconds(this DateTime date)
+        {
+            return Convert.ToInt64((date - UnixEpoch).TotalSeconds);
         }
     }
 }

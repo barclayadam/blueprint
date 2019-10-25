@@ -4,29 +4,30 @@ namespace Blueprint.Api.Authorisation
 {
     public struct ExecutionAllowed
     {
-        public static readonly ExecutionAllowed Yes = new ExecutionAllowed(true, null, null, null);
+        public static readonly ExecutionAllowed Yes = new ExecutionAllowed
+        {
+            IsAllowed = true,
+        };
 
         public static readonly Task<ExecutionAllowed> YesTask = Task.FromResult(Yes);
 
-        private ExecutionAllowed(bool isAllowed, string reason, string message, ExecutionAllowedFailureType? failureType)
-        {
-            IsAllowed = isAllowed;
-            Reason = reason;
-            Message = message;
-            FailureType = failureType;
-        }
+        public bool IsAllowed { get; private set; }
 
-        public bool IsAllowed { get; }
+        public string Reason { get; private set; }
 
-        public string Reason { get; }
+        public string Message { get; private set; }
 
-        public string Message { get; }
-
-        public ExecutionAllowedFailureType? FailureType { get; }
+        public ExecutionAllowedFailureType? FailureType { get; private set; }
 
         public static ExecutionAllowed No(string reason, string message, ExecutionAllowedFailureType failureType)
         {
-            return new ExecutionAllowed(false, reason, message, failureType);
+            return new ExecutionAllowed
+            {
+                IsAllowed = false,
+                Reason = reason,
+                Message = message,
+                FailureType = failureType,
+            };
         }
     }
 }

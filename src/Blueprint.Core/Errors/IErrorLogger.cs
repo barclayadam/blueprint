@@ -15,14 +15,12 @@ namespace Blueprint.Core.Errors
         /// recorded at all (not recorded in essence suppresses the exception).
         /// </summary>
         /// <param name="exception">The exception to attempt to log.</param>
-        /// <param name="errorData">Custom data that will be associated with the log entry for this exception (likely an anonymous object).</param>
         /// <param name="httpContext">The Asp.Net Core HttpContext, if available.</param>
         /// <param name="identifier">A user identifier that will be sent along with this error to track by-user.</param>
         /// <returns>The status of recording, useful to determine the next course of action depending
         /// on application.</returns>
         ErrorLogStatus Log(
             Exception exception,
-            object errorData = default,
             HttpContext httpContext = default,
             UserExceptionIdentifier identifier = default);
 

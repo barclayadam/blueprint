@@ -18,14 +18,7 @@ namespace Blueprint.Compiler
 {
     public class ToFileCompileStrategy : ICompileStrategy
     {
-        private readonly ILogger<InMemoryOnlyCompileStrategy> logger;
-
-        public ToFileCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
-        {
-            this.logger = logger;
-        }
-
-        public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
+        public Assembly Compile(ILogger logger, CSharpCompilation compilation, Action<EmitResult> check)
         {
             var sourceTexts = compilation.SyntaxTrees.Select(s => s.GetText());
             var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
@@ -63,7 +56,7 @@ namespace Blueprint.Compiler
             {
                 logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
-                Compile(compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
+                Compile(logger, compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
 
                 File.WriteAllText(manifestFile, sourceTextHash);
             }
@@ -93,6 +86,7 @@ namespace Blueprint.Compiler
         }
 
         private void Compile(
+            ILogger logger,
             CSharpCompilation compilation,
             Action<EmitResult> check,
             IEnumerable<SyntaxTree> syntaxTrees,
