@@ -14,15 +14,17 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddBlueprintApi(
             this IServiceCollection services,
-            Func<BlueprintApiConfigurer, BlueprintApiConfigurer> configureApi)
+            Action<BlueprintApiConfigurer> configureApi)
         {
             Guard.NotNull(nameof(configureApi), configureApi);
 
             EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
 
-            var blueprintApiConfigurer = configureApi(new BlueprintApiConfigurer(services));
+            var apiConfigurer = new BlueprintApiConfigurer(services);
 
-            blueprintApiConfigurer.Build();
+            configureApi(apiConfigurer);
+
+            apiConfigurer.Build();
 
             return services;
         }
