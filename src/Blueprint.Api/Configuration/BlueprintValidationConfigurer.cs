@@ -17,16 +17,16 @@ namespace Blueprint.Api.Configuration
 
         public BlueprintValidationConfigurer UseBlueprintSource()
         {
-            middlewareConfigurer.Services.TryAddSingleton<IValidationSource, BlueprintValidationSource>();
-            middlewareConfigurer.Services.TryAddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            middlewareConfigurer.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
+            middlewareConfigurer.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
 
             return this;
         }
 
         public BlueprintValidationConfigurer UseDataAnnotationSource()
         {
-            middlewareConfigurer.Services.TryAddSingleton<IValidationSource, DataAnnotationsValidationSource>();
-            middlewareConfigurer.Services.TryAddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            middlewareConfigurer.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            middlewareConfigurer.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
 
             return this;
         }
