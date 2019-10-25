@@ -3,10 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Configuration
 {
-    public static class AuditorMiddlewareConfigurers
-    {
-    }
-
     public class BlueprintAuditConfigurer
     {
         private readonly BlueprintMiddlewareConfigurer blueprintApiConfigurer;

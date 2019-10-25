@@ -23,16 +23,30 @@ namespace Blueprint.Api.Configuration
 
             configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
             {
-                if (string.IsNullOrEmpty(tableName))
-                {
-                    return;
-                }
-
                 c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
             });
 
             configurer.Services.AddScoped<IDatabaseConnectionFactory>(
                 s => new SqlServerDatabaseConnectionFactory(connectionString, s.GetRequiredService<ILogger<SqlServerDatabaseConnectionFactory>>()));
+
+            configurer.UseAuditor<SqlServerAuditor>();
+        }
+
+        /// <summary>
+        /// Configures Blueprint to use SQL Server to store audit information, using the table specified to store data. This will configure the auditor
+        /// and <see cref="SqlServerAuditorConfiguration" />, but relies on a <see cref="IDatabaseConnectionFactory" /> registration being made
+        /// elsewhere.
+        /// </summary>
+        public static void StoreInSqlServer(
+            this BlueprintAuditConfigurer configurer,
+            string tableName)
+        {
+            Guard.NotNullOrEmpty(nameof(tableName), tableName);
+
+            configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
+            {
+                c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
+            });
 
             configurer.UseAuditor<SqlServerAuditor>();
         }
