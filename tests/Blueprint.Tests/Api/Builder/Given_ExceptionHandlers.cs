@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.CodeGen;
+using Blueprint.Api.Configuration;
 using Blueprint.Api.Errors;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -58,7 +59,7 @@ namespace Blueprint.Tests.Api.Builder
 
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithHandler(handler)
-                .WithMiddleware(middleware));
+                .Pipeline(p => p.AddMiddleware(middleware, MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<TestApiCommand>();
@@ -84,7 +85,7 @@ namespace Blueprint.Tests.Api.Builder
 
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithHandler(handler)
-                .WithMiddleware(middleware));
+                .Pipeline(p => p.AddMiddleware(middleware, MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<TestApiCommand>();

@@ -53,14 +53,14 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddBlueprintApi(b => b
                         .SetApplicationName(AppName)
                         .ScanForOperations(typeof(Program).Assembly)
-                        .Middlewares(m => m
-                            .Logging(l => l.UseNLog())
-                            .Validation(v => v
+                        .Pipeline(m => m
+                            .AddLogging()
+                            .AddValidation(v => v
                                 .UseBlueprintSource()
                                 .UseDataAnnotationSource()
                             )
-                            .Auditing(a => a
-                                .StoreInSqlServer("connectionString", "[counter].[AuditTrail]")
+                            .AddAuditing(a => a
+                                .StoreInSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint-examples;Integrated Security=True", "AuditTrail")
                             )
                         ));
 

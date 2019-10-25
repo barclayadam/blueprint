@@ -18,7 +18,7 @@ namespace Blueprint.Api.Configuration
     /// </summary>
     public class BlueprintApiOptions
     {
-        private readonly ApiDataModel dataModel;
+        private readonly ApiDataModel dataModel = new ApiDataModel();
 
         public BlueprintApiOptions(Action<BlueprintApiOptions> configure = null)
         {
@@ -27,12 +27,9 @@ namespace Blueprint.Api.Configuration
                 OptimizationLevel = OptimizationLevel.Release,
             };
 
-            dataModel = new ApiDataModel();
-
             AddOperation<RootMetadataOperation>();
-            configure?.Invoke(this);
 
-            Rules.AssemblyName = Rules.AssemblyName ?? ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
+            configure?.Invoke(this);
         }
 
         public GenerationRules Rules { get; }

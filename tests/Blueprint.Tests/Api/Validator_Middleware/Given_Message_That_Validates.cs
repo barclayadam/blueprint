@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Configuration;
 using Blueprint.Api.Http;
 using Blueprint.Api.Middleware;
 using Blueprint.Testing;
@@ -24,7 +25,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<EmptyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<ValidationMiddlewareBuilder>());
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Pipeline(p => p.AddValidation()));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new EmptyOperation());
@@ -42,7 +45,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<ValidationMiddlewareBuilder>());
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Pipeline(p => p.AddValidation()));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = "something not null"});
@@ -58,7 +63,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<ValidationMiddlewareBuilder>());
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Pipeline(p => p.AddValidation()));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
@@ -72,7 +79,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<ValidationMiddlewareBuilder>());
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Pipeline(p => p.AddValidation()));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });

@@ -3,23 +3,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Configuration
 {
+    public static class AuditorMiddlewareConfigurers
+    {
+    }
+
     public class BlueprintAuditConfigurer
     {
-        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
-        private readonly MiddlewareStage? middlewareStage;
+        private readonly BlueprintMiddlewareConfigurer blueprintApiConfigurer;
 
-        public BlueprintAuditConfigurer(BlueprintApiConfigurer blueprintApiConfigurer, MiddlewareStage? middlewareStage = null)
+        public BlueprintAuditConfigurer(BlueprintMiddlewareConfigurer blueprintApiConfigurer)
         {
             this.blueprintApiConfigurer = blueprintApiConfigurer;
-            this.middlewareStage = middlewareStage;
         }
 
         public IServiceCollection Services => blueprintApiConfigurer.Services;
 
         public void UseAuditor<T>() where T : class, IAuditor
         {
-            // blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.PreExecute);
-
             Services.AddScoped<IAuditor, T>();
         }
     }

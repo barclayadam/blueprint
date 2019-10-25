@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Configuration;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
 using Blueprint.Testing;
@@ -25,7 +26,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddSingleton(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -47,7 +48,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddSingleton(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -68,7 +69,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddTransient(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -89,7 +90,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddScoped(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .WithMiddleware<MiddlewareWithDependencyInjectionVariable>());
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();

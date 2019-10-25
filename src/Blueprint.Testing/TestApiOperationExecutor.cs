@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
-using Blueprint.Api.Middleware;
+using Blueprint.Api.Configuration;
 using Blueprint.Compiler;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,26 +48,15 @@ namespace Blueprint.Testing
                 .AddConsole()
                 .SetMinimumLevel(LogLevel.Debug));
 
-            collection.AddBlueprintApi(o =>
-            {
-                o.Rules.OptimizationLevel = OptimizationLevel.Debug;
-                o.Rules.UseCompileStrategy<InMemoryOnlyCompileStrategy>();
-
-                o.WithApplicationName("Blueprint.Tests");
-
-                foreach (var middlewareType in builder.Middlewares)
+            collection.AddBlueprintApi(o => o
+                .SetApplicationName("Blueprint.Tests")
+                .Compilation(r =>
                 {
-                    o.UseMiddlewareBuilder(middlewareType);
-                }
-
-                o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
-
-                foreach (var operationType in builder.OperationTypes)
-                {
-                    o.AddOperation(operationType);
-                }
-            });
+                    r.OptimizationLevel = OptimizationLevel.Debug;
+                    r.UseCompileStrategy<InMemoryOnlyCompileStrategy>();
+                })
+                .Pipeline(builder.PipelineConfigurer)
+                .AddOperations(builder.OperationTypes));
 
             var serviceProvider = collection.BuildServiceProvider();
             var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();
@@ -133,6 +122,7 @@ namespace Blueprint.Testing
         public class TestApiOperationExecutorBuilder
         {
             private readonly ServiceCollection collection;
+            private Action<BlueprintMiddlewareConfigurer> pipelineConfigurer = c => {};
 
             internal TestApiOperationExecutorBuilder(ServiceCollection collection)
             {
@@ -141,7 +131,7 @@ namespace Blueprint.Testing
 
             internal List<Type> OperationTypes { get; } = new List<Type>();
 
-            internal List<IMiddlewareBuilder> Middlewares { get; } = new List<IMiddlewareBuilder>();
+            internal Action<BlueprintMiddlewareConfigurer> PipelineConfigurer => pipelineConfigurer;
 
             /// <summary>
             /// Called back with the <see cref="ServiceCollection" /> that is to be used by the operator that is being
@@ -172,26 +162,9 @@ namespace Blueprint.Testing
                 return this;
             }
 
-            /// <summary>
-            /// Configures the pipeline to use the middleware builder specified by the type parameter <typeparamref name="T" />.
-            /// </summary>
-            /// <typeparam name="T">The type of <see cref="IMiddlewareBuilder"/> to register.</typeparam>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithMiddleware<T>() where T : IMiddlewareBuilder, new()
+            public TestApiOperationExecutorBuilder Pipeline(Action<BlueprintMiddlewareConfigurer> configurer)
             {
-                Middlewares.Add(new T());
-
-                return this;
-            }
-
-            /// <summary>
-            /// Configures the pipeline to use the middleware builder specified by the type parameter <typeparamref name="T" />.
-            /// </summary>
-            /// <param name="middleware">The <see cref="IMiddlewareBuilder"/> to register.</param>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithMiddleware(IMiddlewareBuilder middleware)
-            {
-                Middlewares.Add(middleware);
+                this.pipelineConfigurer = configurer;
 
                 return this;
             }

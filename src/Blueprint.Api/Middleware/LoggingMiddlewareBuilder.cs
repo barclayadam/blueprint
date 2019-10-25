@@ -5,6 +5,7 @@ using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Middleware
 {
@@ -46,29 +47,32 @@ namespace Blueprint.Api.Middleware
 
         private class LoggingEndFrame : SyncFrame
         {
-            private readonly LogFrame logFrame;
+            private readonly Type operationType;
             private Variable stopwatchVariable;
+            private Variable loggerVariable;
 
             public LoggingEndFrame(Type operationType)
             {
-                var message = $"Operation {{0}} finished in {{1}}ms";
-                logFrame = LogFrame.Information(message, $"\"{operationType}\"", "stopwatch.ElapsedMilliseconds");
+                this.operationType = operationType;
             }
 
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
                 writer.Write($"{stopwatchVariable}.Stop();");
-                logFrame.GenerateCode(method, writer);
+
+                LogFrame.Information(
+                    method,
+                    writer,
+                    loggerVariable,
+                    "Operation {0} finished in {1}ms",
+                    $"\"{operationType}\"",
+                    $"{stopwatchVariable}.{nameof(Stopwatch.Elapsed)}.{nameof(TimeSpan.TotalMilliseconds)}");
             }
 
             public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
             {
                 yield return stopwatchVariable = chain.FindVariable(typeof(Stopwatch));
-
-                foreach (var v in logFrame.FindVariables(chain))
-                {
-                    yield return v;
-                }
+                yield return loggerVariable = chain.FindVariable(typeof(ILogger));
             }
         }
     }

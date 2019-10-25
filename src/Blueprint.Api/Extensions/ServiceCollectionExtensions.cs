@@ -27,22 +27,6 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddBlueprintApi(
-            this IServiceCollection services,
-            Action<BlueprintApiOptions> optionsFunc)
-        {
-            Guard.NotNull(nameof(optionsFunc), optionsFunc);
-
-            EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
-
-            var options = new BlueprintApiOptions(optionsFunc);
-            var blueprintApiConfigurer = new BlueprintApiConfigurer(services, options);
-
-            blueprintApiConfigurer.Build();
-
-            return services;
-        }
-
         public static IServiceCollection AddBlueprintTasks(
             this IServiceCollection services,
             Func<BlueprintTasksConfigurer, BlueprintTasksConfigurer> configureTasks)
@@ -54,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddApiOperationHandlers(
+        internal static IServiceCollection AddApiOperationHandlers(
             this IServiceCollection services,
             IEnumerable<ApiOperationDescriptor> operations)
         {

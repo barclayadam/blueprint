@@ -1,11 +1,42 @@
-﻿namespace Blueprint.Api.Configuration
+﻿using System.Security.Claims;
+
+namespace Blueprint.Api.Configuration
 {
     public enum MiddlewareStage
     {
-        OperationChecks,
+        /// <summary>
+        /// This stage happens at the very start and is typically used to setup "global" frames like logging or APM integration.
+        /// </summary>
+        Setup,
 
-        PreExecute,
+        /// <summary>
+        /// This stage is when the operation is populated, for example when we populate from the current HTTP request.
+        /// </summary>
+        Population,
 
-        PostExecute,
+        /// <summary>
+        /// This stage is when we authenticate the user, which may mean simply loading the ambient <see cref="ClaimsIdentity" />
+        /// from the HTTP request (i.e. integration with ASP.NET's existing auth providers)
+        /// </summary>
+        Authentication,
+
+        /// <summary>
+        /// This stage is when we authorise the user against the rules of the operation. At this point it is expected that the
+        /// operation has been completely populated from both incoming request data (if HTTP) and other sources, for example
+        /// from the user loading during authentication.
+        /// </summary>
+        Authorisation,
+
+        /// <summary>
+        /// This stage validates the operation, using libraries such as DataAnnotations, to ensure the data is as expected to
+        /// successfully process the operation.
+        /// </summary>
+        Validation,
+
+        /// <summary>
+        /// The execution is the calling of an <see cref="IApiOperationHandler{T}"/> that can process the operation, the actual unique
+        /// logic per operation.
+        /// </summary>
+        Execution,
     }
 }

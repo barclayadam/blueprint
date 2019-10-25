@@ -1,9 +1,7 @@
-using Blueprint.Api.Authorisation;
-using Blueprint.Api.Middleware;
-using Blueprint.ApplicationInsights;
+using Blueprint.Api.Configuration;
+using Blueprint.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -14,28 +12,23 @@ namespace Blueprint.Sample.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddControllers();
 
-            services.AddBlueprintApi(o =>
-            {
-                o.WithApplicationName("SampleWebApi");
-                
-                o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<ApplicationInsightsMiddleware>();
-                o.UseMiddlewareBuilder<HttpMessagePopulationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<AuthenticationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<UserContextLoaderMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<AuthorisationMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
-                o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
+            services.AddSingleton<IWeatherDataSource, WeatherDataSource>();
 
-                o.ScanForOperations(typeof(Startup).Assembly);
-            });
+            services.AddApplicationInsightsTelemetry();
+
+            services.AddBlueprintApi(o => o
+                .SetApplicationName("SampleWebApi")
+                .ScanForOperations(typeof(Startup).Assembly)
+                .Pipeline(m => m
+                    .AddLogging()
+                    .AddApplicationInsights()
+                    .AddHttp()
+                    .AddValidation()
+                    .AddHateoasLinks()
+                    .AddResourceEvents()
+                ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

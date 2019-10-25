@@ -4,7 +4,7 @@ using Blueprint.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-// This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
+// This should be discoverable when configuring without extra namespace imports
 // ReSharper disable once CheckNamespace
 namespace Blueprint.Api.Configuration
 {
@@ -16,13 +16,11 @@ namespace Blueprint.Api.Configuration
         public static void StoreInSqlServer(
             this BlueprintAuditConfigurer configurer,
             string connectionString,
-            string tableName,
-            bool automaticallyCreateTables = true)
+            string tableName)
         {
-            Guard.NotNull(nameof(configurer), configurer);
             Guard.NotNullOrEmpty(nameof(connectionString), connectionString);
+            Guard.NotNullOrEmpty(nameof(tableName), tableName);
 
-            configurer.Services.AddOptions();
             configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
             {
                 if (string.IsNullOrEmpty(tableName))

@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
-using Blueprint.Api.Authorisation;
 using Blueprint.Api.Errors;
-using Blueprint.Api.Formatters;
 using Blueprint.Api.Infrastructure;
-using Blueprint.Api.Middleware;
-using Blueprint.Api.Validation;
 using Blueprint.Compiler;
 using Blueprint.Core;
 using Blueprint.Core.Apm;
-using Blueprint.Core.Authorisation;
 using Blueprint.Core.Caching;
 using Blueprint.Core.Errors;
 using Blueprint.Core.Tracing;
@@ -26,8 +20,6 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintApiConfigurer
     {
-        private readonly Dictionary<MiddlewareStage, List<IMiddlewareBuilder>> middlewareStages = new Dictionary<MiddlewareStage, List<IMiddlewareBuilder>>();
-
         private readonly BlueprintApiOptions options;
 
         public BlueprintApiConfigurer(IServiceCollection services, BlueprintApiOptions options = null)
@@ -38,6 +30,8 @@ namespace Blueprint.Api.Configuration
         }
 
         public IServiceCollection Services { get; }
+
+        internal BlueprintApiOptions Options => options;
 
         public BlueprintApiConfigurer SetApplicationName(string applicationName)
         {
@@ -57,26 +51,50 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
-        public BlueprintApiConfigurer Middlewares(Action<BlueprintMiddlewareConfigurer> configurer)
+        public BlueprintApiConfigurer AddOperation<T>() where T : IApiOperation
         {
-            Guard.NotNull(nameof(configurer), configurer);
-
-            configurer(new BlueprintMiddlewareConfigurer(this));
+            options.AddOperation<T>();
 
             return this;
         }
 
-        public void AddMiddlewareBuilderToStage<T>(MiddlewareStage middlewareStage)
-            where T : IMiddlewareBuilder, new()
+        public BlueprintApiConfigurer AddOperation(Type operationType)
         {
-            if (middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
+            options.AddOperation(operationType);
+
+            return this;
+        }
+
+        public BlueprintApiConfigurer AddOperations(IEnumerable<Type> operationTypes)
+        {
+            foreach (var operationType in operationTypes)
             {
-                middlewareTypes.Add(new T());
+                options.AddOperation(operationType);
             }
-            else
-            {
-                middlewareStages.Add(middlewareStage, new List<IMiddlewareBuilder> { new T() });
-            }
+
+            return this;
+        }
+
+        public BlueprintApiConfigurer Pipeline(Action<BlueprintMiddlewareConfigurer> configurer)
+        {
+            Guard.NotNull(nameof(configurer), configurer);
+
+            var blueprintMiddlewareConfigurer = new BlueprintMiddlewareConfigurer(this);
+
+            configurer(blueprintMiddlewareConfigurer);
+
+            blueprintMiddlewareConfigurer.Register();
+
+            return this;
+        }
+
+        public BlueprintApiConfigurer Compilation(Action<GenerationRules> configurer)
+        {
+            Guard.NotNull(nameof(configurer), configurer);
+
+            configurer(options.Rules);
+
+            return this;
         }
 
         internal void Build()
@@ -86,9 +104,8 @@ namespace Blueprint.Api.Configuration
                 throw new InvalidOperationException("An app name MUST be set");
             }
 
-            options.Rules.AssemblyName = options.Rules.AssemblyName ?? options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
-
-            ComposeMiddlewareBuilders();
+            options.Rules.AssemblyName = options.Rules.AssemblyName ??
+                                         options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
 
             // Register the collection that built the service provider so that the code generation can inspect the registrations and
             // generate better code (i.e. inject singleton services in to the pipeline executor instead of getting them at operation execution time)
@@ -106,35 +123,14 @@ namespace Blueprint.Api.Configuration
 
             // Logging
             Services.TryAddScoped<IErrorLogger, ErrorLogger>();
-
-            // Authentication / Authorisation
-            Services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            Services.TryAddScoped<IClaimInspector, ClaimInspector>();
-
-            Services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
-            Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
-
-            // Validation
-            Services.TryAddSingleton<IValidationSource, DataAnnotationsValidationSource>();
-            Services.TryAddSingleton<IValidationSource, BlueprintValidationSource>();
-            Services.TryAddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
-            Services.TryAddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
-            Services.TryAddSingleton<IValidator, BlueprintValidator>();
+            Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             // Cache
             Services.TryAddSingleton<ICache, Cache>();
             Services.TryAddSingleton(MemoryCache.Default);
-            Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             // IoC
             Services.TryAddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
-
-            // Formatters
-            Services.TryAddSingleton<JsonTypeFormatter>();
-            Services.TryAddSingleton<ITypeFormatter, JsonTypeFormatter>();
-
-            // Linking
-            Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             // Random infrastructure
             Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
@@ -149,36 +145,6 @@ namespace Blueprint.Api.Configuration
             Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
             Services.AddApiOperationHandlers(options.Model.Operations);
-        }
-
-        private void ComposeMiddlewareBuilders()
-        {
-            if (options.Middlewares.Any())
-            {
-                return;
-            }
-
-            AddMiddlewareBuilders(MiddlewareStage.OperationChecks);
-            AddMiddlewareBuilders(MiddlewareStage.PreExecute);
-
-            // Execute
-            options.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-            options.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
-
-            AddMiddlewareBuilders(MiddlewareStage.PostExecute);
-        }
-
-        private void AddMiddlewareBuilders(MiddlewareStage middlewareStage)
-        {
-            if (!middlewareStages.TryGetValue(middlewareStage, out var middlewareTypes))
-            {
-                return;
-            }
-
-            foreach (var middlewareType in middlewareTypes)
-            {
-                options.Middlewares.Add(middlewareType);
-            }
         }
     }
 }

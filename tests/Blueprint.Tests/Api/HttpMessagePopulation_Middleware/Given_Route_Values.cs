@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Blueprint.Api;
+using Blueprint.Api.Configuration;
 using Blueprint.Api.Middleware;
 using Blueprint.Testing;
 using FluentAssertions;
@@ -122,7 +123,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).WithMiddleware<HttpMessagePopulationMiddlewareBuilder>());
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
 
             // These tests are checking whether a conversion happens, so we will always put the route data as the ToString() value of the object
             var context = GetContext<TOperation>(executor, routeDataKeyOverride ?? nameof(expected.RouteProperty), expected.RouteProperty.ToString());

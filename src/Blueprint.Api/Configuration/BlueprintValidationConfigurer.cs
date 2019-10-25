@@ -1,33 +1,32 @@
-﻿using Blueprint.Api.Middleware;
-using Blueprint.Api.Validation;
+﻿using Blueprint.Api.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blueprint.Api.Configuration
 {
     public class BlueprintValidationConfigurer
     {
-        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
+        private readonly BlueprintMiddlewareConfigurer middlewareConfigurer;
 
-        public BlueprintValidationConfigurer(BlueprintApiConfigurer blueprintApiConfigurer, MiddlewareStage? middlewareStage = null)
+        public BlueprintValidationConfigurer(BlueprintMiddlewareConfigurer middlewareConfigurer)
         {
-            this.blueprintApiConfigurer = blueprintApiConfigurer;
+            this.middlewareConfigurer = middlewareConfigurer;
 
-            blueprintApiConfigurer.Services.AddSingleton<IValidator, BlueprintValidator>();
-            blueprintApiConfigurer.AddMiddlewareBuilderToStage<ValidationMiddlewareBuilder>(middlewareStage ?? MiddlewareStage.OperationChecks);
+            middlewareConfigurer.Services.TryAddSingleton<IValidator, BlueprintValidator>();
         }
 
         public BlueprintValidationConfigurer UseBlueprintSource()
         {
-            blueprintApiConfigurer.Services.AddScoped<IValidationSource, BlueprintValidationSource>();
-            blueprintApiConfigurer.Services.AddScoped<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            middlewareConfigurer.Services.TryAddSingleton<IValidationSource, BlueprintValidationSource>();
+            middlewareConfigurer.Services.TryAddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
 
             return this;
         }
 
         public BlueprintValidationConfigurer UseDataAnnotationSource()
         {
-            blueprintApiConfigurer.Services.AddScoped<IValidationSource, DataAnnotationsValidationSource>();
-            blueprintApiConfigurer.Services.AddScoped<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            middlewareConfigurer.Services.TryAddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            middlewareConfigurer.Services.TryAddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
 
             return this;
         }
