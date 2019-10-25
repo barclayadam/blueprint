@@ -92,20 +92,19 @@ To use Blueprint API in your ASP.NET app:
                 // MVC Core is currently a requirement
                 services.AddMvcCore();
     
-                services.AddBlueprintApi(o =>
-                {
-                    o.WithApplicationName("MyApplication");
+                services.AddApplicationInsightsTelemetry();
     
-                    o.UseMiddlewareBuilder<LoggingMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<MessagePopulationMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<ValidationMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<OperationExecutorMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<ResourceEventHandlerMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<LinkGeneratorMiddlewareBuilder>();
-                    o.UseMiddlewareBuilder<FormatterMiddlewareBuilder>();
-    
-                    o.Scan(typeof(Startup).Assembly);
-                });
+                services.AddBlueprintApi(o => o
+                    .SetApplicationName("SampleWebApi")
+                    .ScanForOperations(typeof(Startup).Assembly)
+                    .Pipeline(m => m
+                        .AddLogging()
+                        .AddApplicationInsights()
+                        .AddHttp()
+                        .AddValidation()
+                        .AddHateoasLinks()
+                        .AddResourceEvents()
+                    ));
             }
     ```
 4. Add Blueprint.Api to `Startup.Configure`
@@ -181,4 +180,3 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
 [issues-url]: https://github.com/barclayadam/blueprint/issues
 [license-shield]: https://img.shields.io/github/license/barclayadam/blueprint.svg?style=flat-square
 [license-url]: https://github.com/barclayadam/blueprint/blob/master/LICENSE.md
-[product-screenshot]: images/web-api-sample.png
