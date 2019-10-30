@@ -32,9 +32,15 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            writer.Write($"throw new {typeof(T).FullNameInCode()}(\"{exceptionMessage.Replace("\"", "\\\"")}\"); ");
+            writer.Write(ToString());
 
             Next?.GenerateCode(method, writer);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"throw new {typeof(T).FullNameInCode()}(\"{exceptionMessage.Replace("\"", "\\\"")}\"); ";
         }
     }
 }

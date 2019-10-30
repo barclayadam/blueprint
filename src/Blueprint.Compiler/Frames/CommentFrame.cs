@@ -15,5 +15,11 @@ namespace Blueprint.Compiler.Frames
 
             Next?.GenerateCode(method, writer);
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"// {commentText}";
+        }
     }
 }

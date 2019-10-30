@@ -66,5 +66,12 @@ namespace Blueprint.Api.CodeGen
 
             yield return serviceProviderVariable;
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return
+                $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
+        }
     }
 }

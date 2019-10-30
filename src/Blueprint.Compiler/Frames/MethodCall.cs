@@ -12,7 +12,6 @@ namespace Blueprint.Compiler.Frames
 {
     public class MethodCall : Frame
     {
-        private readonly Dictionary<Type, Type> aliases = new Dictionary<Type, Type>();
         private readonly Type handlerType;
         private readonly MethodInfo method;
 
@@ -119,8 +118,7 @@ namespace Blueprint.Compiler.Frames
                     continue;
                 }
 
-//                var param = parameters[i];
-                Arguments[i] = chain.FindVariable(parameters[i].ParameterType); // FindVariable(param, chain);
+                Arguments[i] = chain.FindVariable(parameters[i].ParameterType);
             }
 
             foreach (var variable in Arguments)
@@ -203,7 +201,7 @@ namespace Blueprint.Compiler.Frames
 
         public override string ToString()
         {
-            return $"{nameof(handlerType)}: {handlerType}, {nameof(method)}: {method}";
+            return InvocationCode();
         }
 
         private static Type CorrectedReturnType(Type type)

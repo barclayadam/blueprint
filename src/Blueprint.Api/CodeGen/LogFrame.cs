@@ -213,6 +213,12 @@ namespace Blueprint.Api.CodeGen
             yield return loggerVariable;
         }
 
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"Log.{level}({message})";
+        }
+
         private static void WriteLog(
             GeneratedMethod method,
             ISourceWriter writer,

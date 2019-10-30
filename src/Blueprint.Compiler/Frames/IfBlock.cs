@@ -43,5 +43,11 @@ namespace Blueprint.Compiler.Frames
             inner.GenerateCode(method, writer);
             writer.FinishBlock();
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"if ({condition})";
+        }
     }
 }

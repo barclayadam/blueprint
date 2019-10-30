@@ -27,8 +27,7 @@ namespace Blueprint.Compiler.Frames
 
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            var code = ReturnedVariable == null ? "return;" : $"return {ReturnedVariable};";
-            writer.Write(code);
+            writer.Write(ToString());
         }
 
         public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
@@ -42,6 +41,12 @@ namespace Blueprint.Compiler.Frames
             {
                 yield return ReturnedVariable;
             }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return ReturnedVariable == null ? "return;" : $"return {ReturnedVariable};";
         }
     }
 }

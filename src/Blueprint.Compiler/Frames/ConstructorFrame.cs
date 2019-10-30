@@ -149,6 +149,12 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"new {BuiltType.Name}(...);";
+        }
+
         public class StandinMethodVariables : IMethodVariables
         {
             private readonly Variable current;

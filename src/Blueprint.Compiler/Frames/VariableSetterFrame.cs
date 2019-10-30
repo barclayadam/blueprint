@@ -37,9 +37,15 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
-            writer.Write($"{lhs} = {rhs};");
+            writer.Write(ToString());
 
             Next?.GenerateCode(method, writer);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{lhs} = {rhs};";
         }
     }
 }
