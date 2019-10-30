@@ -28,6 +28,12 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             public string RouteProperty { get; set; }
         }
 
+        [RootLink("/string/{RouteProperty:ADifferentName}")]
+        public class StringOperationWithAlternativeName : RouteableOperation<string>
+        {
+            public string RouteProperty { get; set; }
+        }
+
         [RootLink("/string/{routeproperty}")]
         public class IncorrectCasedRoutePropertyOperation : RouteableOperation<string>
         {
@@ -63,6 +69,16 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         {
             // Arrange
             await AssertPopulatedFromRoute<StringOperation, string>(new StringOperation
+            {
+                RouteProperty = "expected-route-value"
+            });
+        }
+
+        [Test]
+        public async Task When_String_Property_With_Alternate_Name_Then_Populates()
+        {
+            // Arrange
+            await AssertPopulatedFromRoute<StringOperationWithAlternativeName, string>(new StringOperationWithAlternativeName
             {
                 RouteProperty = "expected-route-value"
             });
@@ -116,7 +132,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             await AssertPopulatedFromRoute<IncorrectCasedRoutePropertyOperation, string>(new IncorrectCasedRoutePropertyOperation
             {
                 RouteProperty = "expected-route-value"
-            }, "routeproperty");
+            });
         }
 
         private static async Task AssertPopulatedFromRoute<TOperation, TPropertyType>(TOperation expected, string routeDataKeyOverride = null) where TOperation : RouteableOperation<TPropertyType>

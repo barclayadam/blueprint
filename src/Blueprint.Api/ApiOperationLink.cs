@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Blueprint.Core;
 
@@ -27,18 +28,27 @@ namespace Blueprint.Api
             UrlFormat = urlFormat.TrimStart('/');
             Rel = rel;
 
-            var placeholders = new List<string>(5);
+            var placeholders = new List<PropertyInfo>(5);
 
             RoutingUrl = QueryStringRegex.Replace(
                 ParameterRegex.Replace(
                     UrlFormat,
                     match =>
                     {
-                        var property = match.Groups["propName"].Value;
+                        var propertyName = match.Groups["propName"].Value;
+                        var property = operationDescriptor.OperationType.GetProperty(
+                            propertyName,
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+                        if (property == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Property {propertyName} does not exist on operation type {operationDescriptor.OperationType.Name}.");
+                        }
 
                         placeholders.Add(property);
 
-                        return "{" + property + "}";
+                        return "{" + propertyName + "}";
                     }),
                 string.Empty);
 
@@ -48,7 +58,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets a list of property names of placeholders for this link.
         /// </summary>
-        public IReadOnlyList<string> Placeholders { get; set; }
+        public IReadOnlyList<PropertyInfo> Placeholders { get; set; }
 
         /// <summary>
         /// Gets a URL that can be used for routing, trimming the definitions

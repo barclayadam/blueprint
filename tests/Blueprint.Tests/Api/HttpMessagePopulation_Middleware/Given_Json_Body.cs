@@ -44,6 +44,15 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             public Dictionary<string, int> StringIntegerDictionary { get; set; }
         }
 
+
+        [HttpPost]
+        [RootLink("/route/{RouteProperty}")]
+        [RootLink("/route-without-property")]
+        public class MultipleRouteOperation : IApiOperation
+        {
+            public string RouteProperty { get; set; }
+        }
+
         [Test]
         public async Task When_Json_Body_Then_Populates()
         {
@@ -151,6 +160,27 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
                 o => o.Excluding(x => x.RouteProperty));
 
             handler.OperationPassed.RouteProperty.Should().BeNull();
+        }
+
+        [Test]
+        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_With_Multiple_Routes_Then_Sets()
+        {
+            // Arrange
+            var expected = new MultipleRouteOperation
+            {
+                RouteProperty = "expectedValue"
+            };
+
+            var handler = new TestApiOperationHandler<MultipleRouteOperation>(null);
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var context = GetContext(executor, expected);
+
+            // Act
+            await executor.ExecuteAsync(context);
+
+            // Assert
+            handler.OperationPassed.Should().BeEquivalentTo(expected);
+            handler.OperationPassed.RouteProperty.Should().Be(expected.RouteProperty);
         }
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, T body) where T : IApiOperation

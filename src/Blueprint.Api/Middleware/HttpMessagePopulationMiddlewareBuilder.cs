@@ -124,8 +124,13 @@ namespace Blueprint.Api.Middleware
 
         public void Build(MiddlewareBuilderContext context)
         {
-            var placeholderProperties = context.Model.GetLinksForOperation(context.Descriptor.OperationType).SelectMany(l => l.Placeholders).ToList();
-            var nonPlaceholderPropertiesCount = context.Descriptor.Properties.Length - placeholderProperties.Count;
+            var allLinks = context.Model.GetLinksForOperation(context.Descriptor.OperationType).ToList();
+            var placeholderProperties = allLinks.SelectMany(l => l.Placeholders).ToList();
+
+            // We want to find all properties that are not in _every_ link for an operation. If there are properties that could not possibly
+            // be fulfilled by a route value then we know we can must try populating from body / QS, otherwise if the values should ONLY come from the
+            // route data we can exclude any population of content from the HTTP body / QS
+            var nonPlaceholderPropertiesCount = context.Descriptor.Properties.Length - placeholderProperties.Count(p => allLinks.All(l => l.Placeholders.Contains(p)));
 
             // We can completely eliminate populating from body and query string if all properties come from the router only
             if (nonPlaceholderPropertiesCount > 0)
@@ -149,30 +154,32 @@ namespace Blueprint.Api.Middleware
 
             foreach (var routeProperty in placeholderProperties)
             {
-                var property = context.Descriptor.OperationType.GetProperty(
-                    routeProperty,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+                var inAllRoutes = allLinks.All(l => l.Placeholders.Contains(routeProperty));
 
-                // TODO: Move this check earlier in the pipeline, should not be able to create links for an operation type if the format is invalid or
-                // points to missing properties
-                if (property == null)
+                if (routeProperty.PropertyType != typeof(string) && !TypeDescriptor.GetConverter(routeProperty.PropertyType).CanConvertFrom(typeof(string)))
                 {
                     throw new InvalidOperationException(
-                        $"Property {routeProperty} does not exist on operation type {context.Descriptor.OperationType.Name}.");
-                }
-
-                if (property.PropertyType != typeof(string) && !TypeDescriptor.GetConverter(property.PropertyType).CanConvertFrom(typeof(string)))
-                {
-                    throw new InvalidOperationException(
-                        $"Property {context.Descriptor.OperationType.Name}.{property.Name} cannot be used in routes, it cannot be converted from string");
+                        $"Property {context.Descriptor.OperationType.Name}.{routeProperty.Name} cannot be used in routes, it cannot be converted from string");
                 }
 
                 var methodCall = $"{typeof(HttpMessagePopulationMiddlewareBuilder).FullNameInCode()}.{nameof(GetValueFromRoute)}";
+                var operationProperty = operationVariable.GetProperty(routeProperty.Name);
 
-                // Generates "operation.[Property] = ([propertyType]) HttpMessagePopulationMiddlewareBuilder.GetFromRoute(apiOperationContext, "[propertyName]", typeof([propertyType]));
-                context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
-                    operationVariable.GetProperty(property.Name),
-                    $"({property.PropertyType.FullNameInCode()}) {methodCall}({operationContextVariable}, \"{routeProperty}\", typeof({property.PropertyType.FullNameInCode()}))" ));
+                if (inAllRoutes)
+                {
+                    // Generates "operation.[Property] = ([propertyType]) HttpMessagePopulationMiddlewareBuilder.GetFromRoute(apiOperationContext, "[propertyName]", typeof([propertyType]));
+                    context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
+                        operationProperty,
+                        $"({routeProperty.PropertyType.FullNameInCode()}) {methodCall}({operationContextVariable}, \"{routeProperty.Name}\", typeof({routeProperty.PropertyType.FullNameInCode()}))"));
+                }
+                else
+                {
+                    // This is NOT a placeholder that is present in ALL links, therefore we cannot JUST override from route if it did does not exist
+                    // Generates "operation.[Property] = ([propertyType]) HttpMessagePopulationMiddlewareBuilder.GetFromRoute(apiOperationContext, "[propertyName]", typeof([propertyType])) ?? operation.[Property];
+                    context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
+                        operationProperty,
+                        $"({routeProperty.PropertyType.FullNameInCode()}) {methodCall}({operationContextVariable}, \"{routeProperty.Name}\", typeof({routeProperty.PropertyType.FullNameInCode()})) ?? {operationProperty}"));
+                }
             }
         }
 

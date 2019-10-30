@@ -1,3 +1,4 @@
+using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Builder;
@@ -27,7 +28,7 @@ namespace Blueprint.Sample.WebApi
                     .AddHttp()
                     .AddValidation()
                     .AddHateoasLinks()
-                    .AddResourceEvents()
+                    .AddResourceEvents<NullResourceEventRepository>()
                 ));
         }
 
