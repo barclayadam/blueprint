@@ -65,11 +65,7 @@ namespace Blueprint.Api.Configuration
 
         public static BlueprintMiddlewareConfigurer AddAuth(this BlueprintMiddlewareConfigurer middlewareConfigurer)
         {
-            middlewareConfigurer.Services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            middlewareConfigurer.Services.TryAddScoped<IClaimInspector, ClaimInspector>();
-
-            middlewareConfigurer.Services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
-            middlewareConfigurer.Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
+            AddAuthServices(middlewareConfigurer);
 
             middlewareConfigurer.AddMiddleware<AuthenticationMiddlewareBuilder>(MiddlewareStage.Authentication);
             middlewareConfigurer.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authorisation);
@@ -80,6 +76,9 @@ namespace Blueprint.Api.Configuration
 
         public static BlueprintMiddlewareConfigurer AddHateoasLinks(this BlueprintMiddlewareConfigurer middlewareConfigurer)
         {
+            // Resource events needs authoriser services to be registered
+            AddAuthServices(middlewareConfigurer);
+
             middlewareConfigurer.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             middlewareConfigurer.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution);
@@ -87,17 +86,22 @@ namespace Blueprint.Api.Configuration
             return middlewareConfigurer;
         }
 
-        public static BlueprintMiddlewareConfigurer AddResourceEvents(this BlueprintMiddlewareConfigurer middlewareConfigurer)
+        public static BlueprintMiddlewareConfigurer AddResourceEvents<T>(this BlueprintMiddlewareConfigurer middlewareConfigurer) where T : class, IResourceEventRepository
         {
-            middlewareConfigurer.Services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            middlewareConfigurer.Services.TryAddScoped<IClaimInspector, ClaimInspector>();
-
-            middlewareConfigurer.Services.AddScoped<IApiAuthoriser, ClaimsRequiredApiAuthoriser>();
-            middlewareConfigurer.Services.AddScoped<IApiAuthoriser, MustBeAuthenticatedApiAuthoriser>();
+            middlewareConfigurer.Services.AddScoped<IResourceEventRepository, T>();
 
             middlewareConfigurer.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution);
 
             return middlewareConfigurer;
+        }
+
+        private static void AddAuthServices(BlueprintMiddlewareConfigurer middlewareConfigurer)
+        {
+            middlewareConfigurer.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            middlewareConfigurer.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();
+
+            middlewareConfigurer.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(ClaimsRequiredApiAuthoriser)));
+            middlewareConfigurer.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(MustBeAuthenticatedApiAuthoriser)));
         }
     }
 }
