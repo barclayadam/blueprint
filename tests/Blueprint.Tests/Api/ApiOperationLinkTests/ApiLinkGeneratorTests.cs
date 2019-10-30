@@ -9,7 +9,16 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
 {
     public class ApiLinkGeneratorTests
     {
-        private readonly ApiOperationDescriptor descriptor = new ApiOperationDescriptor(typeof(TestApiOperation), HttpMethod.Get);
+        private class LinkGeneratorTestsOperation : IApiOperation
+        {
+            public int ClientId { get; set; }
+
+            public string Category { get; set; }
+
+            public DateTime Date { get; set; }
+        }
+
+        private readonly ApiOperationDescriptor descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), HttpMethod.Get);
 
         private ApiDataModel dataModel;
         private ApiConfiguration configuration;
@@ -82,10 +91,10 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Specifies_Alternate_Property_And_Followed_By_Another_Placeholder_Then_Uses_That_Property_From_Instance_Values()
         {
             // Act
-            var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}/{aProperty}", "a.rel");
+            var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}/{category}", "a.rel");
 
             // Assert
-            linkGenerator.CreateUrlFromLink(link, new { id = 15484, aProperty = "value" }).Should().EndWith("aUrl/15484/value");
+            linkGenerator.CreateUrlFromLink(link, new { id = 15484, category = "value" }).Should().EndWith("aUrl/15484/value");
         }
 
         [Test]
