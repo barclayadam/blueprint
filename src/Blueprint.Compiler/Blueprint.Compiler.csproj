@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Runtime Roslyn Compiler</Description>
-    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <Title>Blueprint - Compiler</Title>
     <Description>Blueprint: Frame-based runtime code compiler using Roslyn</Description>
     <PackageTags>Roslyn;Compiler;$(PackageBaseTags)</PackageTags>
@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.10.0" />
-    
+
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
 

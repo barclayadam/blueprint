@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <Title>Blueprint - HangFire Provider</Title>
     <Description>Blueprint: Integrates HangFire with Blueprint API projects</Description>
     <PackageTags>Hangfire;Tasks;Background;$(PackageBaseTags)</PackageTags>
