@@ -34,7 +34,7 @@ namespace Blueprint.Notifications
         {
             Guard.NotNull(nameof(logger), logger);
 
-            assembliesToScan = new [] { Assembly.GetExecutingAssembly() };
+            assembliesToScan = new[] { Assembly.GetExecutingAssembly() };
             this.logger = logger;
         }
 
@@ -74,7 +74,7 @@ namespace Blueprint.Notifications
 
         /// <summary>
         /// Gets the notification template by the specified name, which should be the full name given to the embedded
-        /// resource (i.e. Containing.Namespace.File.extension)
+        /// resource (i.e. Containing.Namespace.File.extension).
         /// </summary>
         /// <param name="name">The name of the template to load.</param>
         /// <returns>Returns a notification email template.</returns>

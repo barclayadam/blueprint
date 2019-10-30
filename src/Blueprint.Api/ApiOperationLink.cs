@@ -58,14 +58,14 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets a list of property names of placeholders for this link.
         /// </summary>
-        public IReadOnlyList<PropertyInfo> Placeholders { get; set; }
+        public IReadOnlyList<PropertyInfo> Placeholders { get; }
 
         /// <summary>
         /// Gets a URL that can be used for routing, trimming the definitions
         /// of placeholders to something simpler (i.e. turns /users/{Id:UserId}/more-details?staticQuery=true to /users/{Id}/more-details).
         /// </summary>
         /// <returns>A URL representation of the link used in routing.</returns>
-        public string RoutingUrl { get; set; }
+        public string RoutingUrl { get; }
 
         /// <summary>
         /// Gets the format of the URL for this link, which will <b>not</b> start with a forward
