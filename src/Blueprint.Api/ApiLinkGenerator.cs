@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Text;
 using Blueprint.Api.Configuration;
 using Blueprint.Core;
 
@@ -16,9 +15,6 @@ namespace Blueprint.Api
     {
         private static readonly char[] PathSeparatorChars = { '/' };
 
-        private static readonly Regex ParameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
-        private static readonly Regex QueryStringRegex = new Regex("\\?.*", RegexOptions.Compiled);
-
         private readonly string baseUri;
         private readonly ApiDataModel apiDataModel;
 
@@ -27,7 +23,7 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="apiConfiguration">The configuration of the API we are generating links for.</param>
         /// <param name="apiDataModel">The data model used to find links and operations to create URLs for.</param>
-        public ApiLinkGenerator(ApiConfiguration apiConfiguration, ApiDataModel apiDataModel)
+        public ApiLinkGenerator(BlueprintApiOptions apiConfiguration, ApiDataModel apiDataModel)
         {
             Guard.NotNull(nameof(apiConfiguration), apiConfiguration);
             Guard.NotNull(nameof(apiDataModel), apiDataModel);
@@ -62,7 +58,7 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Creates a fully qualified URL (using <see cref="ApiConfiguration.BaseApiUrl" />) for the specified link
+        /// Creates a fully qualified URL (using <see cref="BlueprintApiOptions.BaseApiUrl" />) for the specified link
         /// and "result" object that is used to fill the placeholders of the link.
         /// </summary>
         /// <param name="link">The link to generate URL for.</param>
@@ -70,6 +66,19 @@ namespace Blueprint.Api
         /// <returns>A fully-qualified URL.</returns>
         public string CreateUrlFromLink(ApiOperationLink link, object result = null)
         {
+            // This duplicates the checks in CreateRelativeUrlFromLink for the purpose of not creating a new instance
+            // of StringBuilder unnecessarily
+            if (result == null)
+            {
+                return baseUri + link.UrlFormat;
+            }
+
+            // We can short-circuit in the (relatively uncommon case) of no placeholders
+            if (!link.HasPlaceholders())
+            {
+                return baseUri + link.UrlFormat;
+            }
+
             // baseUri always has / at end, relative never has at start
             return baseUri + CreateRelativeUrlFromLink(link, result);
         }
@@ -88,8 +97,8 @@ namespace Blueprint.Api
         public string CreateUrl(IApiOperation operation)
         {
             var operationType = operation.GetType();
-            var consumedProperties = new List<PropertyInfo>();
-            var properties = operationType.GetProperties(BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            var operationDescriptor = apiDataModel.Operations.Single(o => o.OperationType == operationType);
+            var properties = operationDescriptor.Properties;
             var link = apiDataModel.GetLinksForOperation(operationType).FirstOrDefault();
 
             if (link == null)
@@ -97,31 +106,15 @@ namespace Blueprint.Api
                 throw new InvalidOperationException($"No links exist for the operation {operationType.FullName}.");
             }
 
-            var routeUrl = ParameterRegex.Replace(link.UrlFormat, match =>
-            {
-                var propertyName = match.Groups["propName"];
-                var format = match.Groups["format"].Success ? "{0:" + match.Groups["format"].Value + "}" : "{0}";
-
-                var sourcePropertyName = propertyName.Value;
-
-                var property = properties.SingleOrDefault(p => p.Name.Equals(sourcePropertyName, StringComparison.OrdinalIgnoreCase));
-
-                if (property == null)
-                {
-                    throw new InvalidOperationException($"Cannot find property '{propertyName}' on type '{operationType.FullName}'. Definition is {match.Value}.");
-                }
-
-                consumedProperties.Add(property);
-
-                return Uri.EscapeDataString(string.Format(format, property.GetValue(operation)));
-            });
+            var routeUrl = CreateRelativeUrlFromLink(link, operation);
 
             var addedQs = false;
 
             // Now, for every property that has a value but has NOT been placed in to the route will be added as a query string
             foreach (var property in properties)
             {
-                if (consumedProperties.Contains(property))
+                // This property has already been handled by the route generation generation above
+                if (link.Placeholders.Any(p => p.Property == property))
                 {
                     continue;
                 }
@@ -136,15 +129,17 @@ namespace Blueprint.Api
 
                 if (!addedQs)
                 {
-                    routeUrl += "?";
+                    routeUrl.Append("?");
                     addedQs = true;
                 }
                 else
                 {
-                    routeUrl += "&";
+                    routeUrl.Append("&");
                 }
 
-                routeUrl += property.Name + "=" + Uri.EscapeDataString(value.ToString());
+                routeUrl.Append(property.Name);
+                routeUrl.Append('=');
+                routeUrl.Append(Uri.EscapeDataString(value.ToString()));
             }
 
             return baseUri + routeUrl;
@@ -155,37 +150,94 @@ namespace Blueprint.Api
             return t.IsValueType ? Activator.CreateInstance(t) : null;
         }
 
-        private string CreateRelativeUrlFromLink(ApiOperationLink link, object result)
+        private StringBuilder CreateRelativeUrlFromLink(ApiOperationLink link, object result)
         {
             if (result == null)
             {
-                return link.UrlFormat;
+                return new StringBuilder(link.UrlFormat);
             }
 
-            return ParameterRegex.Replace(link.UrlFormat, match =>
+            // We can short-circuit in the (relatively uncommon case) of no placeholders
+            if (!link.HasPlaceholders())
             {
-                var propertyName = match.Groups["propName"];
-                var alternatePropName = match.Groups["alternatePropName"];
-                var format = match.Groups["format"].Success ? "{0:" + match.Groups["format"].Value + "}" : "{0}";
+                return new StringBuilder(link.UrlFormat);
+            }
 
-                var sourcePropertyName = alternatePropName.Success ? alternatePropName.Value : propertyName.Value;
+            var builtUrl = new StringBuilder();
+            var currentIndex = 0;
 
-                var property = result.GetType().GetProperty(sourcePropertyName, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            foreach (var placeholder in link.Placeholders)
+            {
+                // Grab the static bit of the URL _before_ this placeholder.
+                builtUrl.Append(link.UrlFormat.Substring(currentIndex, placeholder.Index - currentIndex));
 
-                if (property == null)
+                // Now skip over the actual placeholder for the next iteration
+                currentIndex = placeholder.Index + placeholder.Length;
+
+                object placeholderValue;
+
+                if (link.OperationDescriptor.OperationType == result.GetType())
                 {
-                    if (alternatePropName.Success)
+                    // Do not have to deal with "alternate" names, we know the original name is correct
+                    placeholderValue = placeholder.Property.GetValue(result);
+                }
+                else
+                {
+                    // We cannot use the existing PropertyInfo on placeholder because the type is different, even though they are the same name
+                    var property = result
+                        .GetType()
+                        .GetProperty(placeholder.AlternatePropertyName ?? placeholder.Property.Name, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+
+                    if (property == null)
                     {
+                        if (placeholder.AlternatePropertyName != null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Cannot find property '{placeholder.AlternatePropertyName}' (specified as alternate name) on type '{result.GetType()}'");
+                        }
+
                         throw new InvalidOperationException(
-                            $"Cannot find property '{alternatePropName}' (specified as alternate name) on type '{result.GetType()}'. Definition is {match.Value}.");
+                            $"Cannot find property '{placeholder.Property.Name}' on type '{result.GetType()}'");
                     }
 
-                    throw new InvalidOperationException(
-                        $"Cannot find property '{propertyName}' on type '{result.GetType()}'. Definition is {match.Value}.");
+                    placeholderValue = property.GetValue(result);
                 }
 
-                return Uri.EscapeDataString(string.Format(format, property.GetValue(result)));
-            });
+                if (placeholder.Format != null)
+                {
+                    builtUrl.Append(Uri.EscapeDataString(string.Format(placeholder.FormatSpecifier, placeholderValue)));
+                }
+                else
+                {
+                    // We do not have a format so just ToString the result. We pick a few common types to cast directly to avoid indirect
+                    // call to ToString when doing it as (object).ToString()
+                    switch (placeholderValue)
+                    {
+                        case string s:
+                            builtUrl.Append(Uri.EscapeDataString(s));
+                            break;
+                        case Guid g:
+                            builtUrl.Append(Uri.EscapeDataString(g.ToString()));
+                            break;
+                        case int i:
+                            builtUrl.Append(Uri.EscapeDataString(i.ToString()));
+                            break;
+                        case long l:
+                            builtUrl.Append(Uri.EscapeDataString(l.ToString()));
+                            break;
+                        default:
+                            builtUrl.Append(Uri.EscapeDataString(placeholderValue.ToString()));
+                            break;
+                    }
+                }
+            }
+
+            if (currentIndex < link.UrlFormat.Length)
+            {
+                builtUrl.Append(link.UrlFormat.Substring(currentIndex));
+            }
+
+            return builtUrl;
         }
     }
 }

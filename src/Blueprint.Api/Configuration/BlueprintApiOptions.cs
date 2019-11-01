@@ -27,6 +27,8 @@ namespace Blueprint.Api.Configuration
                 OptimizationLevel = OptimizationLevel.Release,
             };
 
+            BaseApiUrl = string.Empty;
+
             AddOperation<RootMetadataOperation>();
 
             configure?.Invoke(this);
@@ -45,6 +47,12 @@ namespace Blueprint.Api.Configuration
         /// executors.
         /// </summary>
         public string ApplicationName { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the Base URL for the API, the fully-qualified URL that represents where the
+        /// root of the API can be accessed from (i.e. https://api.somewhere.com/api/).
+        /// </summary>
+        public string BaseApiUrl { get; set; }
 
         public ApiDataModel Model => dataModel;
 

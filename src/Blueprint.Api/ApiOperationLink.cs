@@ -6,6 +6,43 @@ using Blueprint.Core;
 
 namespace Blueprint.Api
 {
+    public class ApiOperationLinkPlaceholder
+    {
+        public ApiOperationLinkPlaceholder(string text, int index, int length, PropertyInfo property, string alternatePropertyName, string format)
+        {
+            Text = text;
+            Index = index;
+            Length = length;
+            Property = property;
+            AlternatePropertyName = alternatePropertyName;
+            Format = format;
+            FormatSpecifier = "{0:" + format + "}";
+        }
+
+        public string Text { get; }
+
+        public int Index { get; }
+
+        public int Length { get; }
+
+        public PropertyInfo Property { get; }
+
+        public string AlternatePropertyName { get; }
+
+        public string Format { get; }
+
+        /// <summary>
+        /// Returns the <see cref="Format" /> string as "{0:`Format`}" to be used in a call to string.Format, pre-built
+        /// here to avoid string concatenation at link generation time.
+        /// </summary>
+        internal string FormatSpecifier { get; }
+
+        public override string ToString()
+        {
+            return Text;
+        }
+    }
+
     public class ApiOperationLink
     {
         private static readonly Regex ParameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
@@ -28,7 +65,7 @@ namespace Blueprint.Api
             UrlFormat = urlFormat.TrimStart('/');
             Rel = rel;
 
-            var placeholders = new List<PropertyInfo>(5);
+            var placeholders = new List<ApiOperationLinkPlaceholder>(5);
 
             RoutingUrl = QueryStringRegex.Replace(
                 ParameterRegex.Replace(
@@ -46,7 +83,13 @@ namespace Blueprint.Api
                                 $"Property {propertyName} does not exist on operation type {operationDescriptor.OperationType.Name}.");
                         }
 
-                        placeholders.Add(property);
+                        placeholders.Add(new ApiOperationLinkPlaceholder(
+                            match.Value,
+                            match.Index,
+                            match.Length,
+                            property,
+                            match.Groups["alternatePropName"].Success ? match.Groups["alternatePropName"].Value : null,
+                            match.Groups["format"].Success ? match.Groups["format"].Value : null));
 
                         return "{" + propertyName + "}";
                     }),
@@ -58,7 +101,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets a list of property names of placeholders for this link.
         /// </summary>
-        public IReadOnlyList<PropertyInfo> Placeholders { get; }
+        public IReadOnlyList<ApiOperationLinkPlaceholder> Placeholders { get; }
 
         /// <summary>
         /// Gets a URL that can be used for routing, trimming the definitions

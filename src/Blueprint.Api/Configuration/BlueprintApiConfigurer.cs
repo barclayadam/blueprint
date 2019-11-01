@@ -113,7 +113,6 @@ namespace Blueprint.Api.Configuration
 
             Services.AddSingleton(options);
             Services.AddSingleton(options.Model);
-            Services.AddSingleton<ApiConfiguration>();
             Services.AddSingleton<ApiLinkGenerator>();
             Services.AddSingleton<AssemblyGenerator>();
             Services.AddSingleton<ToFileCompileStrategy>();

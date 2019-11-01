@@ -152,9 +152,10 @@ namespace Blueprint.Api.Middleware
             var operationVariable = context.VariableFromContext(context.Descriptor.OperationType);
             var operationContextVariable = context.VariableFromContext(typeof(ApiOperationContext));
 
-            foreach (var routeProperty in placeholderProperties)
+            foreach (var routePropertyPlaceholder in placeholderProperties)
             {
-                var inAllRoutes = allLinks.All(l => l.Placeholders.Contains(routeProperty));
+                var routeProperty = routePropertyPlaceholder.Property;
+                var inAllRoutes = allLinks.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty));
 
                 if (routeProperty.PropertyType != typeof(string) && !TypeDescriptor.GetConverter(routeProperty.PropertyType).CanConvertFrom(typeof(string)))
                 {
