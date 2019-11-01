@@ -8,9 +8,16 @@ namespace Blueprint.Core.Tasks
     {
         private readonly Dictionary<string, object> data;
 
-        public InMemoryBackgroundTaskContextProvider(Dictionary<string, object> data = null)
+        public InMemoryBackgroundTaskContextProvider()
         {
-            this.data = data ?? new Dictionary<string, object>();
+            data = new Dictionary<string, object>();
+        }
+
+        public InMemoryBackgroundTaskContextProvider(Dictionary<string, object> data)
+        {
+            Guard.NotNull(nameof(data), data);
+
+            this.data = data;
         }
 
         public Task<BackgroundTaskContextDataItem> GetDataAsync(string contextKey)

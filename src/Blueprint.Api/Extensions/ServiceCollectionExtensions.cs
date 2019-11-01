@@ -29,17 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddBlueprintTasks(
-            this IServiceCollection services,
-            Func<BlueprintTasksConfigurer, BlueprintTasksConfigurer> configureTasks)
-        {
-            EnsureNotAlreadySetup(services, typeof(IBackgroundTaskScheduler));
-
-            configureTasks(new BlueprintTasksConfigurer(services));
-
-            return services;
-        }
-
         internal static IServiceCollection AddApiOperationHandlers(
             this IServiceCollection services,
             IEnumerable<ApiOperationDescriptor> operations)

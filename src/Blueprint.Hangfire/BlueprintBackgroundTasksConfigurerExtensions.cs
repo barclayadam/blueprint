@@ -1,6 +1,8 @@
 ﻿using Blueprint.Core;
 using Blueprint.Core.Tasks;
 using Blueprint.Hangfire;
+using Hangfire;
+using Microsoft.Extensions.DependencyInjection;
 
 // This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -12,8 +14,9 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer.UseBackgroundTaskScheduleProvider<HangfireBackgroundTaskScheduleProvider>();
-            configurer.UseBackgroundTaskScheduleProvider<ActivityTrackingBackgroundTaskScheduleProvider>();
+            configurer.Services.AddSingleton<IBackgroundTaskScheduleProvider, HangfireBackgroundTaskScheduleProvider>();
+
+            configurer.UseProvider<HangfireBackgroundTaskScheduleProvider>();
 
             return configurer;
         }

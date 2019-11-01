@@ -18,7 +18,7 @@ namespace Blueprint.Api.Configuration
 
             // Special-case this last middleware to have high priority as we MUST have this as the very last middleware, regardless of what else will
             // be registered
-            Add(new FormatterMiddlewareBuilder(), MiddlewareStage.Execution, int.MaxValue);
+            Add(new FormatterMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
         }
 
         public IServiceCollection Services => blueprintApiConfigurer.Services;

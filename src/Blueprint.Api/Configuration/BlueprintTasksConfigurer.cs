@@ -1,5 +1,6 @@
 ﻿using Blueprint.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blueprint.Api.Configuration
 {
@@ -9,14 +10,18 @@ namespace Blueprint.Api.Configuration
         {
             Services = services;
 
-            Services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
+            Services.TryAddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
+            Services.TryAddSingleton<IBackgroundTaskContextProvider, InMemoryBackgroundTaskContextProvider>();
         }
 
         public IServiceCollection Services { get; }
 
-        public void UseBackgroundTaskScheduleProvider<T>() where T : class, IBackgroundTaskScheduleProvider
+        public void UseProvider<T>() where T : class, IBackgroundTaskScheduleProvider
         {
-            Services.AddScoped<IBackgroundTaskScheduleProvider, T>();
+            // Register the concrete type, and then register the "real" provider that is `ActivityTrackingBackgroundTaskScheduleProvider`, with
+            // the provided T as it's inner implementation
+            Services.AddScoped<T, T>();
+            Services.AddScoped<IBackgroundTaskScheduleProvider>(c => new ActivityTrackingBackgroundTaskScheduleProvider(c.GetService<T>()));
         }
     }
 }

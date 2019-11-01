@@ -53,6 +53,7 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddBlueprintApi(b => b
                         .SetApplicationName(AppName)
                         .ScanForOperations(typeof(Program).Assembly)
+                        .AddBackgroundTasks(a => a.UseHangfire())
                         .Pipeline(m => m
                             .AddLogging()
                             .AddValidation(v => v
@@ -62,10 +63,8 @@ namespace Blueprint.Sample.Console.CounterApp
                             .AddAuditing(a => a
                                 .StoreInSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint-examples;Integrated Security=True", "AuditTrail")
                             )
+                            .AddTaskRunner()
                         ));
-
-                    // Configure Blueprint Tasks
-                    services.AddBlueprintTasks(b => b.UseHangfire());
 
                     // Configure Hosted Services
                     services.AddHostedService<CounterService>();

@@ -38,5 +38,16 @@ namespace Blueprint.Api.Configuration
         /// logic per operation.
         /// </summary>
         Execution,
+
+        /// <summary>
+        /// This stage happens after the actual execution, useful for things like auditing.
+        /// </summary>
+        PostExecution,
+
+        /// <summary>
+        /// This stage happens last, just before returning the result and is intended to clean up any resources as necessary (note that this
+        /// <strong>does not</strong> imply the middleware frames would be executed when an exception is thrown, this is for the "happy path".
+        /// </summary>
+        Cleanup,
     }
 }
