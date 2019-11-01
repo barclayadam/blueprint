@@ -51,7 +51,7 @@ namespace Blueprint.Api.Middleware
                         return;
                     }
 
-                    resourceEvent.Href = apiLinkGenerator.CreateUrlFromLink(selfLink, resourceEvent.SelfQuery);
+                    resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.SelfQuery);
 
                     await PopulateResourceEventData(resourceEventRepository, context, resourceEvent, selfLink);
 

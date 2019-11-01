@@ -9,6 +9,6 @@ namespace Blueprint.Api
     /// </summary>
     public interface IResourceLinkGenerator
     {
-        Task AddLinksAsync(ApiOperationContext context, ILinkableResource linkableResource);
+        Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource);
     }
 }

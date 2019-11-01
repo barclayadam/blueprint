@@ -20,6 +20,8 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public string AnotherProp { get; set; }
 
             public int AndAnotherOne { get; set; }
+
+            public DateTime Date { get; set; }
         }
 
         private ApiOperationDescriptor descriptor;
@@ -47,7 +49,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new object()).Should().Be("http://api.example.com/api/aUrl");
+                linkGenerator.CreateUrl(link, new object()).Should().Be("http://api.example.com/api/aUrl");
             }
 
             [Test]
@@ -57,7 +59,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new object()).Should().EndWith("aUrl");
+                linkGenerator.CreateUrl(link, new object()).Should().EndWith("aUrl");
             }
 
             [Test]
@@ -67,7 +69,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{category}", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {category = "cats"}).Should().EndWith("aUrl/cats");
+                linkGenerator.CreateUrl(link, new {category = "cats"}).Should().EndWith("aUrl/cats");
             }
 
             [Test]
@@ -77,7 +79,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{category}", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {category = "all dogs"}).Should().EndWith("aUrl/all%20dogs");
+                linkGenerator.CreateUrl(link, new {category = "all dogs"}).Should().EndWith("aUrl/all%20dogs");
             }
 
             [Test]
@@ -87,7 +89,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {id = 15484}).Should().EndWith("aUrl/15484");
+                linkGenerator.CreateUrl(link, new {id = 15484}).Should().EndWith("aUrl/15484");
             }
 
             [Test]
@@ -97,7 +99,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}/some-more", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {id = 15484}).Should().EndWith("aUrl/15484/some-more");
+                linkGenerator.CreateUrl(link, new {id = 15484}).Should().EndWith("aUrl/15484/some-more");
             }
 
             [Test]
@@ -107,7 +109,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}/{category}", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {id = 15484, category = "value"}).Should().EndWith("aUrl/15484/value");
+                linkGenerator.CreateUrl(link, new {id = 15484, category = "value"}).Should().EndWith("aUrl/15484/value");
             }
 
             [Test]
@@ -118,7 +120,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 var link = new ApiOperationLink(descriptor, "/aUrl/{date(yyyy-MM-dd)}", "a.rel");
 
                 // Assert
-                linkGenerator.CreateUrlFromLink(link, new {date}).Should().EndWith("aUrl/2012-04-21");
+                linkGenerator.CreateUrl(link, new {date}).Should().EndWith("aUrl/2012-04-21");
             }
         }
 

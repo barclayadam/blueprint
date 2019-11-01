@@ -9,7 +9,11 @@ namespace Blueprint.Api.Middleware
 {
     public static class LinkGeneratorHandler
     {
-        public static async Task AddLinksAsync(IEnumerable<IResourceLinkGenerator> registeredGenerators, ApiOperationContext context, OperationResult result)
+        public static async Task AddLinksAsync(
+            IApiLinkGenerator apiLinkGenerator,
+            IEnumerable<IResourceLinkGenerator> registeredGenerators,
+            ApiOperationContext context,
+            OperationResult result)
         {
             var logger = context.ServiceProvider.GetRequiredService<ILogger<LinkGeneratorMiddlewareBuilder>>();
             var generators = registeredGenerators.ToList();
@@ -31,25 +35,26 @@ namespace Blueprint.Api.Middleware
                     {
                         logger.LogTrace("Adding links to ResourceEvent.Data");
 
-                        resourceEvent.Data = await AddResourceLinksAsync(logger, generators, context, resourceEvent.Data);
+                        resourceEvent.Data = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, resourceEvent.Data);
                     }
                 }
                 else
                 {
-                    okResult.Content = await AddResourceLinksAsync(logger, generators, context, innerResult);
+                    okResult.Content = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, innerResult);
                 }
             }
         }
 
         private static async Task<object> AddResourceLinksAsync(
             ILogger<LinkGeneratorMiddlewareBuilder> logger,
+            IApiLinkGenerator apiLinkGenerator,
             List<IResourceLinkGenerator> generators,
             ApiOperationContext context,
             object resource)
         {
             if (resource is ApiResource apiResource)
             {
-                await AddLinksAsync(logger, generators, context, apiResource);
+                await AddLinksAsync(logger, apiLinkGenerator, generators, context, apiResource);
             }
 
             if (logger.IsEnabled(LogLevel.Trace))
@@ -82,7 +87,7 @@ namespace Blueprint.Api.Middleware
                 {
                     if (obj is ApiResource apiResourceItem)
                     {
-                        await AddLinksAsync(logger, generators, context, apiResourceItem);
+                        await AddLinksAsync(logger, apiLinkGenerator, generators, context, apiResourceItem);
                     }
                     else
                     {
@@ -101,7 +106,12 @@ namespace Blueprint.Api.Middleware
             return resource;
         }
 
-        private static async Task AddLinksAsync(ILogger<LinkGeneratorMiddlewareBuilder> logger, List<IResourceLinkGenerator> generators, ApiOperationContext context, ILinkableResource result)
+        private static async Task AddLinksAsync(
+            ILogger<LinkGeneratorMiddlewareBuilder> logger,
+            IApiLinkGenerator apiLinkGenerator,
+            List<IResourceLinkGenerator> generators,
+            ApiOperationContext context,
+            ILinkableResource result)
         {
             foreach (var resourceLinkGenerator in generators)
             {
@@ -110,7 +120,7 @@ namespace Blueprint.Api.Middleware
                     logger.LogTrace("Generating links. generator={0} result_type={1}", resourceLinkGenerator.GetType().Name, result.GetType().Name);
                 }
 
-                await resourceLinkGenerator.AddLinksAsync(context, result);
+                await resourceLinkGenerator.AddLinksAsync(apiLinkGenerator, context, result);
             }
         }
     }

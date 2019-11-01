@@ -24,7 +24,7 @@ namespace Blueprint.Api
             this.logger = logger;
         }
 
-        public async Task AddLinksAsync(ApiOperationContext context, ILinkableResource linkableResource)
+        public async Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
         {
             Guard.NotNull(nameof(context), context);
             Guard.NotNull(nameof(linkableResource), linkableResource);
@@ -71,7 +71,7 @@ namespace Blueprint.Api
         {
             return new Link
             {
-                Href = linkGenerator.CreateUrlFromLink(link, result),
+                Href = linkGenerator.CreateUrl(link, result),
             };
         }
     }

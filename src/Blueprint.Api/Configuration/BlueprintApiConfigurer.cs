@@ -42,6 +42,21 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
+        /// <summary>
+        /// Sets the "base" URL of this HTTP API, which is used throughout to, for example, generate API links (see <see cref="ApiResource.Links" />)
+        /// with absolute paths.
+        /// </summary>
+        /// <param name="baseUrl">The fully-qualified URL to set.</param>
+        /// <returns>This configurer</returns>
+        public BlueprintApiConfigurer SetHttpBaseUrl(string baseUrl)
+        {
+            Guard.NotNullOrEmpty(nameof(baseUrl), baseUrl);
+
+            options.BaseApiUrl = baseUrl;
+
+            return this;
+        }
+
         public BlueprintApiConfigurer ScanForOperations(params Assembly[] assemblies)
         {
             Guard.NotNull(nameof(assemblies), assemblies);

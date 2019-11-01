@@ -11,7 +11,7 @@ namespace Blueprint.Api
     /// The API link generator is responsible for creating the URLs that would be used, for example, to generate
     /// the $links properties of returned resources from registered <see cref="ApiOperationLink"/>s.
     /// </summary>
-    public class ApiLinkGenerator
+    public class ApiLinkGenerator : IApiLinkGenerator
     {
         private static readonly char[] PathSeparatorChars = { '/' };
 
@@ -32,39 +32,61 @@ namespace Blueprint.Api
             baseUri = apiConfiguration.BaseApiUrl.TrimEnd(PathSeparatorChars) + '/';
         }
 
-        /// <summary>
-        /// Creates the "self" link for the resource type represented by <typeparamref name="T" />, filling in
-        /// the URL placeholders with values from the <paramref name="idDefinition" /> parameter.
-        /// </summary>
-        /// <param name="idDefinition">An object that contains properties used to fill the link (typically the ApiResource represented by the links'
-        /// <see cref="ApiOperationLink.ResourceType"/> property specified as <typeparamref name="T" />).
-        /// </param>
-        /// <typeparam name="T">The resource type.</typeparam>
-        /// <returns>A Link representing 'self' for the given resource type.</returns>
-        public Link CreateSelfLink<T>(object idDefinition) where T : ApiResource
+        /// <inheritdoc />
+        public Link CreateSelfLink<T>(int id, object queryString = null) where T : ApiResource
         {
+            return CreateSelfLink<T>(new {id}, queryString);
+        }
+
+        /// <inheritdoc />
+        public Link CreateSelfLink<T>(long id, object queryString = null) where T : ApiResource
+        {
+            return CreateSelfLink<T>(new {id}, queryString);
+        }
+
+        /// <inheritdoc />
+        public Link CreateSelfLink<T>(string id, object queryString = null) where T : ApiResource
+        {
+            return CreateSelfLink<T>(new {id}, queryString);
+        }
+
+        /// <inheritdoc />
+        public Link CreateSelfLink<T>(Guid id, object queryString = null) where T : ApiResource
+        {
+            return CreateSelfLink<T>(new {id}, queryString);
+        }
+
+        /// <inheritdoc />
+        public Link CreateSelfLink<T>(object idDefinition, object queryString = null) where T : ApiResource
+        {
+            Guard.NotNull(nameof(idDefinition), idDefinition);
+
             var selfLink = apiDataModel.GetLinkFor(typeof(T), "self");
 
             if (selfLink == null)
             {
-                return null;
+                throw new InvalidOperationException(
+                    $"Cannot generate a self link for the resource type {typeof(T).Name} as one has not been registered. Make sure an operation link has " +
+                    "been registered with the ApiDataModel of this generator with a rel of 'self', which can be achieved by using the [SelfLink] attribute on an IApiOperation.");
+            }
+
+            // baseUri always has / at end, relative never has at start
+            var routeUrl = CreateRelativeUrlFromLink(selfLink, idDefinition);
+
+            if (queryString != null)
+            {
+                AppendAsQueryString(routeUrl, queryString.GetType().GetProperties(), queryString, p => true);
             }
 
             return new Link
             {
-                Href = CreateUrlFromLink(selfLink, idDefinition),
+                Href = baseUri + routeUrl.ToString(),
                 Type = ApiResource.GetTypeName(typeof(T)),
             };
         }
 
-        /// <summary>
-        /// Creates a fully qualified URL (using <see cref="BlueprintApiOptions.BaseApiUrl" />) for the specified link
-        /// and "result" object that is used to fill the placeholders of the link.
-        /// </summary>
-        /// <param name="link">The link to generate URL for.</param>
-        /// <param name="result">The "result" object used to populate placeholder values of the specified link route.</param>
-        /// <returns>A fully-qualified URL.</returns>
-        public string CreateUrlFromLink(ApiOperationLink link, object result = null)
+        /// <inheritdoc />
+        public string CreateUrl(ApiOperationLink link, object result = null)
         {
             // This duplicates the checks in CreateRelativeUrlFromLink for the purpose of not creating a new instance
             // of StringBuilder unnecessarily
@@ -83,17 +105,7 @@ namespace Blueprint.Api
             return baseUri + CreateRelativeUrlFromLink(link, result);
         }
 
-        /// <summary>
-        /// Given a populated <see cref="IApiOperation" /> will generate a fully-qualified URL that, when hit, would execute the operation
-        /// with the specified values.
-        /// </summary>
-        /// <remarks>
-        /// This will use the <em>first</em> link (route) specified for the operation.
-        /// </remarks>
-        /// <param name="operation">The operation to generate a URL for.</param>
-        /// <returns>A fully-qualified URL that, if hit, would execute the passed in operation with the same values.</returns>
-        /// <exception cref="InvalidOperationException">If the URL link has a malformed placeholder (i.e. the property it names cannot be found).</exception>
-        /// <exception cref="InvalidOperationException">If no links / routes have been specified for the given operation.</exception>
+        /// <inheritdoc />
         public string CreateUrl(IApiOperation operation)
         {
             var operationType = operation.GetType();
@@ -108,18 +120,27 @@ namespace Blueprint.Api
 
             var routeUrl = CreateRelativeUrlFromLink(link, operation);
 
+            // Append any _extra_ properties to the generated URL. The shouldInclude check will return true if the property to
+            // be written does NOT exist as a placeholder in the link and therefore would NOT have already been "consumed"
+            AppendAsQueryString(routeUrl, properties, operation, p => link.Placeholders.All(ph => ph.Property != p));
+
+            return baseUri + routeUrl;
+        }
+
+        private static void AppendAsQueryString(StringBuilder routeUrl, PropertyInfo[] properties, object values, Func<PropertyInfo, bool> shouldInclude)
+        {
             var addedQs = false;
 
             // Now, for every property that has a value but has NOT been placed in to the route will be added as a query string
             foreach (var property in properties)
             {
                 // This property has already been handled by the route generation generation above
-                if (link.Placeholders.Any(p => p.Property == property))
+                if (!shouldInclude(property))
                 {
                     continue;
                 }
 
-                var value = property.GetValue(operation, null);
+                var value = property.GetValue(values, null);
 
                 // Ignore default values, they are unnecessary to pass back through the URL
                 if (value == null || Equals(GetDefaultValue(property.PropertyType), value))
@@ -141,8 +162,6 @@ namespace Blueprint.Api
                 routeUrl.Append('=');
                 routeUrl.Append(Uri.EscapeDataString(value.ToString()));
             }
-
-            return baseUri + routeUrl;
         }
 
         private static object GetDefaultValue(Type t)
