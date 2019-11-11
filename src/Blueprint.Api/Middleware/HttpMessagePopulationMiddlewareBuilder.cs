@@ -38,7 +38,7 @@ namespace Blueprint.Api.Middleware
             {
                 if (request.ContentType.Contains("application/x-www-form-urlencoded") || request.ContentType.Contains("multipart/form-data"))
                 {
-                    PopulateFromForm(logger, context);
+                    await PopulateFromFormAsync(logger, context);
                 }
                 else if (request.ContentType.Contains("application/json"))
                 {
@@ -184,13 +184,13 @@ namespace Blueprint.Api.Middleware
             }
         }
 
-        private static void PopulateFromForm(ILogger<HttpMessagePopulationMiddlewareBuilder> logger, ApiOperationContext context)
+        private static async Task PopulateFromFormAsync(ILogger<HttpMessagePopulationMiddlewareBuilder> logger, ApiOperationContext context)
         {
             var request = context.Request;
             var operation = context.Operation;
             var properties = context.Descriptor.Properties;
 
-            var form = request.Form;
+            var form = await request.ReadFormAsync();
 
             foreach (var item in form)
             {
