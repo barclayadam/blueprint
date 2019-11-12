@@ -48,6 +48,19 @@ namespace Blueprint.Api
                     // pipeline executor which will only be constructed once.
                     var injected = new InjectedField(toLoad);
 
+                    foreach (var alreadyInjected in generatedType.AllInjectedFields)
+                    {
+                        // We already have injected an instance of this interface as a concrete class, leading to a duplicate
+                        if (injected.ArgumentName == alreadyInjected.ArgumentName)
+                        {
+                            throw new InvalidOperationException(
+                                "An attempt has been made to request a service form the DI container that will lead " +
+                                "to a duplicate constructor argument. This happens when a service is requested by an interface AND " +
+                                $"it's concrete type when they differ only be the I prefix (i.e. {toLoad.FullName} vs {alreadyInjected.VariableType.FullName}).\n\n" +
+                                $"To fix this ensure that this service is only referenced by it's interface type of {toLoad.FullName}");
+                        }
+                    }
+
                     generatedType.AllInjectedFields.Add(injected);
 
                     return new InjectedFrame<T>(injected);
