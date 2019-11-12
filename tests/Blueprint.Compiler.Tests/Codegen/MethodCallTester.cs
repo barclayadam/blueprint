@@ -49,7 +49,6 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.ReturnVariable.Creator.Should().BeSameAs(@call);
         }
 
-
         [Test]
         public void determine_return_value_of_not_simple_type_in_a_task()
         {

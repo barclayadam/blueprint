@@ -76,15 +76,28 @@ namespace Blueprint.Compiler.Model
                 return argPrefix + suffix;
             }
 
-            var parts = argType.Name.SplitPascalCase().Split(' ');
-            if (argType.GetTypeInfo().IsInterface && parts.First() == "I")
+            var underlyingNullableType = Nullable.GetUnderlyingType(argType);
+            if (underlyingNullableType != null)
             {
-                parts = parts.Skip(1).ToArray();
+                // The suffix is the underlying type (with first character uppercased). i.e. int32 -> nullableInt32
+                var suffix = DefaultArgName(underlyingNullableType);
+                suffix = char.ToUpperInvariant(suffix[0]).ToString() + suffix.Substring(1);
+
+                return "nullable" + suffix;
             }
 
-            var raw = (parts.First().ToLower() + parts.Skip(1).Join(string.Empty)).Split('`').First();
+            var charsToSkip = 0;
 
-            return raw;
+            // If an interface type that starts with I, strip that I from the name (i.e. IErrorObject -> errorObject)
+            if (argType.IsInterface && argType.Name[0] == 'I')
+            {
+                charsToSkip = 1;
+            }
+
+            var fullName = argType.Name.Substring(charsToSkip + 1);
+            var withoutGenerics = argType.IsGenericTypeDefinition || argType.IsGenericType ? fullName.Substring(0, fullName.IndexOf('`')) : fullName;
+
+            return char.ToLowerInvariant(argType.Name[charsToSkip]).ToString() + withoutGenerics;
         }
 
         public static string DefaultArgName<T>()
