@@ -75,7 +75,6 @@ namespace Blueprint.Api
         /// </remarks>
         /// <param name="operation">The operation to generate a URL for.</param>
         /// <returns>A fully-qualified URL that, if hit, would execute the passed in operation with the same values.</returns>
-        /// <exception cref="InvalidOperationException">If the URL link has a malformed placeholder (i.e. the property it names cannot be found).</exception>
         /// <exception cref="InvalidOperationException">If no links / routes have been specified for the given operation.</exception>
         string CreateUrl(IApiOperation operation);
     }

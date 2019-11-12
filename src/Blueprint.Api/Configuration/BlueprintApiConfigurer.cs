@@ -47,7 +47,7 @@ namespace Blueprint.Api.Configuration
         /// with absolute paths.
         /// </summary>
         /// <param name="baseUrl">The fully-qualified URL to set.</param>
-        /// <returns>This configurer</returns>
+        /// <returns>This configurer.</returns>
         public BlueprintApiConfigurer SetHttpBaseUrl(string baseUrl)
         {
             Guard.NotNullOrEmpty(nameof(baseUrl), baseUrl);

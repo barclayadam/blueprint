@@ -19,7 +19,7 @@ namespace Blueprint.Api.Middleware
 
         public static async Task HandleAsync(
             IResourceEventRepository resourceEventRepository,
-            ApiLinkGenerator apiLinkGenerator,
+            IApiLinkGenerator apiLinkGenerator,
             ApiOperationContext context,
             OperationResult result)
         {

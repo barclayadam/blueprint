@@ -13,7 +13,7 @@ namespace Blueprint.Api.Middleware
         public void Build(MiddlewareBuilderContext context)
         {
             var getResourceEventRepository = context.VariableFromContainer<IResourceEventRepository>();
-            var getApiLinkGenerator = context.VariableFromContainer<ApiLinkGenerator>();
+            var getApiLinkGenerator = context.VariableFromContainer<IApiLinkGenerator>();
 
             context.AppendFrames(
                 getResourceEventRepository,
