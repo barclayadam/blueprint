@@ -136,7 +136,7 @@ namespace Blueprint.Api
                 }
 
                 logger.LogInformation("Compiling {0} pipeline executors", dictionary.Count);
-                assembly.CompileAll(serviceProvider.GetRequiredService<AssemblyGenerator>());
+                assembly.CompileAll(serviceProvider.GetRequiredService<IAssemblyGenerator>());
                 logger.LogInformation("Done compiling {0} pipeline executors", dictionary.Count);
 
                 return new CodeGennedExecutor(serviceProvider, model, assembly, dictionary.ToDictionary(d => d.Key, d => d.Value()));

@@ -41,7 +41,7 @@ namespace Blueprint.Compiler
             return generatedType;
         }
 
-        public void CompileAll(AssemblyGenerator generator)
+        public void CompileAll(IAssemblyGenerator generator)
         {
             foreach (var assemblyReference in assemblies)
             {
