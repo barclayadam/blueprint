@@ -11,7 +11,6 @@ namespace Blueprint.Api.Authorisation
     {
         private static readonly Task<ExecutionAllowed> UserUnauthenticated = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
         private static readonly Task<ExecutionAllowed> UserInactive = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is inactive", "Your account has been deactivated", ExecutionAllowedFailureType.Authentication));
-        private static readonly Task<ExecutionAllowed> MissingClaim = Task.FromResult(ExecutionAllowed.No("User does not have required claim", "You do not have permission", ExecutionAllowedFailureType.Authorisation));
 
         private readonly IClaimInspector claimInspector;
 
@@ -73,7 +72,10 @@ namespace Blueprint.Api.Authorisation
 
             if (!result)
             {
-                return MissingClaim;
+                return Task.FromResult(ExecutionAllowed.No(
+                    $"User does not have required claim {requiredClaim.Type} {requiredClaim.ValueType} for {requiredClaim.Value}",
+                    "You do not have enough permissions to perform this action",
+                    ExecutionAllowedFailureType.Authorisation));
             }
 
             return ExecutionAllowed.YesTask;

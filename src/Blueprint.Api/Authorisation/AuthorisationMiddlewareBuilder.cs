@@ -53,7 +53,7 @@ namespace Blueprint.Api.Authorisation
 
                 if (result.FailureType == ExecutionAllowedFailureType.Authorisation)
                 {
-                    throw new ForbiddenException(result.Message);
+                    throw new ForbiddenException(result);
                 }
 
                 throw new SecurityException(result.Message);
