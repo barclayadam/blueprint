@@ -22,13 +22,11 @@ namespace Blueprint.Api
         /// Initializes a new instance of the <see cref="ApiLinkGenerator"/> class.
         /// </summary>
         /// <param name="apiConfiguration">The configuration of the API we are generating links for.</param>
-        /// <param name="apiDataModel">The data model used to find links and operations to create URLs for.</param>
-        public ApiLinkGenerator(BlueprintApiOptions apiConfiguration, ApiDataModel apiDataModel)
+        public ApiLinkGenerator(BlueprintApiOptions apiConfiguration)
         {
             Guard.NotNull(nameof(apiConfiguration), apiConfiguration);
-            Guard.NotNull(nameof(apiDataModel), apiDataModel);
 
-            this.apiDataModel = apiDataModel;
+            apiDataModel = apiConfiguration.Model;
             baseUri = apiConfiguration.BaseApiUrl.TrimEnd(PathSeparatorChars) + '/';
         }
 

@@ -100,7 +100,7 @@ namespace Blueprint.Tests.Api.Builder
         }
 
         [Test]
-        public async Task When_Requesting_Singleton_Service_By_Interface_And_Concrete_Then_Chooses_Concrete_To_Inject()
+        public void When_Requesting_Singleton_Service_By_Interface_And_Concrete_Then_Chooses_Concrete_To_Inject()
         {
             // Arrange
             var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);

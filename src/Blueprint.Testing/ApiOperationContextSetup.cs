@@ -55,6 +55,7 @@ namespace Blueprint.Testing
             httpContext.Request.Path = new PathString(uri.LocalPath);
             httpContext.Request.QueryString = new QueryString(uri.Query);
             httpContext.Request.Method = context.Descriptor.HttpMethod.ToString();
+            httpContext.Request.Headers["Content-Type"] = "application/test-data";
 
             context.HttpContext = httpContext;
             context.RouteData = new Dictionary<string, object>();
