@@ -22,8 +22,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
         public static GenerationRules Rules(string @namespace = "Blueprint.Compiler.Tests")
         {
-            return new GenerationRules(@namespace)
-                .UseCompileStrategy<InMemoryOnlyCompileStrategy>();
+            return new GenerationRules(@namespace);
         }
     }
 

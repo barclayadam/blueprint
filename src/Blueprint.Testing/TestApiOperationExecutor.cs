@@ -50,11 +50,9 @@ namespace Blueprint.Testing
 
             collection.AddBlueprintApi(o => o
                 .SetApplicationName("Blueprint.Tests")
-                .Compilation(r =>
-                {
-                    r.OptimizationLevel = OptimizationLevel.Debug;
-                    r.UseCompileStrategy<InMemoryOnlyCompileStrategy>();
-                })
+                .Compilation(r => r
+                    .UseOptimizationLevel(OptimizationLevel.Debug)
+                    .UseCompileStrategy<InMemoryOnlyCompileStrategy>())
                 .Pipeline(builder.PipelineConfigurer)
                 .AddOperations(builder.OperationTypes));
 

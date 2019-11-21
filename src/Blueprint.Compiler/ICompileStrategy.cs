@@ -8,6 +8,6 @@ namespace Blueprint.Compiler
 {
     public interface ICompileStrategy
     {
-        Assembly Compile(ILogger logger, CSharpCompilation compilation, Action<EmitResult> check);
+        Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check);
     }
 }

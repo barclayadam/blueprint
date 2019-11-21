@@ -25,17 +25,17 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         }
 
         private ApiOperationDescriptor descriptor;
-        private BlueprintApiOptions configuration;
+        private BlueprintApiOptions options;
         private ApiLinkGenerator linkGenerator;
 
         [SetUp]
         public void CreateGenerator()
         {
-            configuration = new BlueprintApiOptions();
-            configuration.AddOperation<LinkGeneratorTestsOperation>();
+            options = new BlueprintApiOptions();
+            options.AddOperation<LinkGeneratorTestsOperation>();
 
-            linkGenerator = new ApiLinkGenerator(configuration, configuration.Model);
-            descriptor = configuration.Model.Operations.Single(o => o.OperationType == typeof(LinkGeneratorTestsOperation));
+            linkGenerator = new ApiLinkGenerator(options);
+            descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(LinkGeneratorTestsOperation));
         }
 
         public class CreateUrlFromLink : ApiLinkGeneratorTests
@@ -44,7 +44,8 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
             {
                 // Arrange
-                linkGenerator = new ApiLinkGenerator(new BlueprintApiOptions {BaseApiUrl = "http://api.example.com/api/"}, configuration.Model);
+                options.BaseApiUrl = "http://api.example.com/api/";
+                linkGenerator = new ApiLinkGenerator(options);
 
                 var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
 
@@ -130,7 +131,8 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
             {
                 // Arrange
-                linkGenerator = new ApiLinkGenerator(new BlueprintApiOptions {BaseApiUrl = "http://api.example.com/api/"}, configuration.Model);
+                options.BaseApiUrl = "http://api.example.com/api/";
+                linkGenerator = new ApiLinkGenerator(options);
 
                 var link = new LinkGeneratorTestsOperation
                 {

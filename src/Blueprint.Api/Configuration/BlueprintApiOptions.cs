@@ -34,6 +34,8 @@ namespace Blueprint.Api.Configuration
             configure?.Invoke(this);
         }
 
+        public ApiDataModel Model => dataModel;
+
         public GenerationRules Rules { get; }
 
         /// <summary>
@@ -53,8 +55,6 @@ namespace Blueprint.Api.Configuration
         /// root of the API can be accessed from (i.e. https://api.somewhere.com/api/).
         /// </summary>
         public string BaseApiUrl { get; set; }
-
-        public ApiDataModel Model => dataModel;
 
         /// <summary>
         /// Sets  the name of the application, which is used when generating the DLL for the pipeline

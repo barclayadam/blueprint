@@ -6,7 +6,7 @@ namespace Blueprint.Compiler.Tests
     {
         public static void CompileAll(this GeneratedAssembly assembly)
         {
-            assembly.CompileAll(new AssemblyGenerator(new NullLogger<AssemblyGenerator>()));
+            assembly.CompileAll(new AssemblyGenerator(new NullLogger<AssemblyGenerator>(), new InMemoryOnlyCompileStrategy(new NullLogger<InMemoryOnlyCompileStrategy>())));
         }
     }
 }

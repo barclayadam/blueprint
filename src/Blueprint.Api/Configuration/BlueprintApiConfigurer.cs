@@ -103,11 +103,11 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
-        public BlueprintApiConfigurer Compilation(Action<GenerationRules> configurer)
+        public BlueprintApiConfigurer Compilation(Action<BlueprintCompilationConfigurer> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer(options.Rules);
+            configurer(new BlueprintCompilationConfigurer(this));
 
             return this;
         }
@@ -119,21 +119,23 @@ namespace Blueprint.Api.Configuration
                 throw new InvalidOperationException("An app name MUST be set");
             }
 
-            options.Rules.AssemblyName = options.Rules.AssemblyName ??
-                                         options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
+            options.Rules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
+
+            Services.AddLogging();
 
             // Register the collection that built the service provider so that the code generation can inspect the registrations and
             // generate better code (i.e. inject singleton services in to the pipeline executor instead of getting them at operation execution time)
             Services.AddSingleton(Services);
 
+            // Compilation
+            Services.TryAddSingleton<IAssemblyGenerator, AssemblyGenerator>();
+            Services.TryAddSingleton<ICompileStrategy, ToFileCompileStrategy>();
+            Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
+
+            // Model / Links / Options
             Services.AddSingleton(options);
             Services.AddSingleton(options.Model);
-            Services.AddSingleton<ApiLinkGenerator>();
-            Services.AddSingleton<AssemblyGenerator>();
-            Services.AddSingleton<ToFileCompileStrategy>();
-            Services.AddSingleton<InMemoryOnlyCompileStrategy>();
-            Services.AddSingleton<AssemblyGenerator>();
-            Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
+            Services.TryAddSingleton<IApiLinkGenerator, ApiLinkGenerator>();
 
             // Logging
             Services.TryAddScoped<IErrorLogger, ErrorLogger>();

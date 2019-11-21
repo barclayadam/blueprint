@@ -15,7 +15,14 @@ namespace Blueprint.Compiler
 {
     public class InMemoryOnlyCompileStrategy : ICompileStrategy
     {
-        public Assembly Compile(ILogger logger, CSharpCompilation compilation, Action<EmitResult> check)
+        private readonly ILogger<InMemoryOnlyCompileStrategy> logger;
+
+        public InMemoryOnlyCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
+        {
+            this.logger = logger;
+        }
+
+        public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
             logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
 

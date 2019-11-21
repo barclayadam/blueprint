@@ -9,18 +9,15 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 
-#if !NET472
-
-#endif
-
 namespace Blueprint.Compiler
 {
     /// <summary>
     /// Use to compile C# code to in memory assemblies using the Roslyn compiler.
     /// </summary>
-    public class AssemblyGenerator
+    public class AssemblyGenerator : IAssemblyGenerator
     {
         private readonly ILogger<AssemblyGenerator> logger;
+        private readonly ICompileStrategy compileStrategy;
 
         private readonly List<MetadataReference> references = new List<MetadataReference>();
         private readonly List<Assembly> assemblies = new List<Assembly>();
@@ -28,29 +25,28 @@ namespace Blueprint.Compiler
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
         private readonly List<SourceFile> files = new List<SourceFile>();
 
-        public AssemblyGenerator(ILogger<AssemblyGenerator> logger)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AssemblyGenerator" /> class.
+        /// </summary>
+        /// <param name="logger">A logger for this class.</param>
+        /// <param name="compileStrategy">The compilation strategy to use to actually build and load the assemblies.</param>
+        public AssemblyGenerator(ILogger<AssemblyGenerator> logger, ICompileStrategy compileStrategy)
         {
             this.logger = logger;
+            this.compileStrategy = compileStrategy;
 
             ReferenceAssemblyContainingType<object>();
             ReferenceAssemblyContainingType<AssemblyGenerator>();
             ReferenceAssemblyContainingType<Task>();
         }
 
-        /// <summary>
-        /// Reference the assembly containing the type "T".
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <inheritdoc />
         public void ReferenceAssemblyContainingType<T>()
         {
             ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
         }
 
-        /// <summary>
-        /// Tells Roslyn to reference the given assembly and any of its dependencies
-        /// when compiling code.
-        /// </summary>
-        /// <param name="assembly"></param>
+        /// <inheritdoc />
         public void ReferenceAssembly(Assembly assembly)
         {
             if (assembly == null)
@@ -96,6 +92,7 @@ namespace Blueprint.Compiler
             }
         }
 
+        /// <inheritdoc />
         public void AddFile(string fileName, string code)
         {
             files.Add(new SourceFile(fileName, code));
@@ -108,7 +105,6 @@ namespace Blueprint.Compiler
         /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
         public Assembly Generate(GenerationRules rules)
         {
-            var compileStrategy = (ICompileStrategy)Activator.CreateInstance(rules.CompileStrategy);
             var encoding = Encoding.UTF8;
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
 
@@ -142,15 +138,16 @@ namespace Blueprint.Compiler
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
-                logger,
                 compilation,
                 (result) =>
                 {
                     if (!result.Success)
                     {
-                        var failures = result.Diagnostics.Where(diagnostic =>
-                            diagnostic.IsWarningAsError ||
-                            diagnostic.Severity == DiagnosticSeverity.Error);
+                        var failures = result.Diagnostics
+                            .Where(diagnostic =>
+                                diagnostic.IsWarningAsError ||
+                                diagnostic.Severity == DiagnosticSeverity.Error)
+                            .ToList();
 
                         var exceptionMessage = new StringBuilder();
 

@@ -1,7 +1,4 @@
-﻿
-using System;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Linq;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using FluentAssertions;
@@ -25,24 +22,25 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         }
 
         private ApiOperationDescriptor descriptor;
-        private BlueprintApiOptions configuration;
+        private BlueprintApiOptions options;
         private ApiLinkGenerator linkGenerator;
 
         [SetUp]
         public void CreateGenerator()
         {
-            configuration = new BlueprintApiOptions();
-            configuration.AddOperation<SelfLinkGeneratorTestsOperation>();
+            options = new BlueprintApiOptions();
+            options.AddOperation<SelfLinkGeneratorTestsOperation>();
 
-            linkGenerator = new ApiLinkGenerator(configuration, configuration.Model);
-            descriptor = configuration.Model.Operations.Single(o => o.OperationType == typeof(SelfLinkGeneratorTestsOperation));
+            linkGenerator = new ApiLinkGenerator(options);
+            descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(SelfLinkGeneratorTestsOperation));
         }
 
         [Test]
         public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
         {
             // Arrange
-            linkGenerator = new ApiLinkGenerator(new BlueprintApiOptions {BaseApiUrl = "http://api.example.com/api/"}, configuration.Model);
+            options.BaseApiUrl = "http://api.example.com/api/";
+            linkGenerator = new ApiLinkGenerator(options);
 
             var link = new SelfLinkGeneratorTestsOperation
             {

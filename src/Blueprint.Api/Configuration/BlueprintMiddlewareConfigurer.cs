@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Api.Middleware;
+using Blueprint.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Configuration

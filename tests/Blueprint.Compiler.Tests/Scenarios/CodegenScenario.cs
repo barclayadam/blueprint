@@ -10,11 +10,11 @@ namespace Blueprint.Compiler.Tests.Scenarios
     /// </summary>
     public static class CodegenScenario
     {
-        public static CodegenResult<TObject> ForBaseOf<TObject>(Action<GeneratedMethod> configuration,
+        public static CodegenResult<TObject> ForBaseOf<TObject>(
+            Action<GeneratedMethod> configuration,
             GenerationRules rules = null)
         {
             return ForBaseOf<TObject>((t, m) => configuration(m), rules);
-
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Blueprint.Compiler.Tests.Scenarios
 
             configuration(generatedType, method);
 
-            var generator = new AssemblyGenerator(new NullLogger<AssemblyGenerator>());
+            var generator = new AssemblyGenerator(new NullLogger<AssemblyGenerator>(), new InMemoryOnlyCompileStrategy(new NullLogger<InMemoryOnlyCompileStrategy>()));
 
             if (typeof(TObject).IsGenericType)
             {
@@ -85,7 +85,6 @@ namespace Blueprint.Compiler.Tests.Scenarios
         {
             return ForBaseOf<IAction<TResult, T1, T2, T3>>(configuration, rules);
         }
-
 
         public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
         {

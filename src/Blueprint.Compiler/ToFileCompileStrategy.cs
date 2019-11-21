@@ -18,7 +18,20 @@ namespace Blueprint.Compiler
 {
     public class ToFileCompileStrategy : ICompileStrategy
     {
-        public Assembly Compile(ILogger logger, CSharpCompilation compilation, Action<EmitResult> check)
+        private static readonly string[] PotentialPaths =
+        {
+            Path.GetDirectoryName(typeof(ToFileCompileStrategy).Assembly.Location),
+            Path.Combine(Path.GetTempPath(), "Blueprint.Compiler"),
+        };
+
+        private readonly ILogger<ToFileCompileStrategy> logger;
+
+        public ToFileCompileStrategy(ILogger<ToFileCompileStrategy> logger)
+        {
+            this.logger = logger;
+        }
+
+        public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
             var sourceTexts = compilation.SyntaxTrees.Select(s => s.GetText());
             var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
@@ -27,45 +40,77 @@ namespace Blueprint.Compiler
             var symbolsName = Path.ChangeExtension(assemblyName, "pdb");
             var manifestName = Path.ChangeExtension(assemblyName, "manifest");
 
-            var outputFolder = Path.Combine(Path.GetTempPath(), "Blueprint.Compiler");
-            var assemblyFile = Path.Combine(outputFolder, assemblyName);
-            var symbolsFile = Path.Combine(outputFolder, symbolsName);
-            var manifestFile = Path.Combine(outputFolder, manifestName);
-
-            var needsCompile = true;
-
-            // If we have a previously generated DLL _and_ the manifest we have saved is the same hash
-            // as we have now we can skip the actual compilation and re-use the existing DLL.
-            //
-            // This enables a quick restart of an API if required, such as normal recycling of processes
-            // etc. and can also help local development as the source would only change with an API operation
-            // definition change, not _any_ code change in the solution
-            if (File.Exists(assemblyFile) && File.Exists(manifestFile))
+            // Search through the potential paths for a candidate DLL to load. If we find one we load and return
+            // from the foreach, otherwise we know it need to be compiled (see below loop).
+            foreach (var outputFolder in PotentialPaths)
             {
-                var previousHash = File.ReadAllText(manifestFile);
+                var assemblyFile = Path.Combine(outputFolder, assemblyName);
+                var manifestFile = Path.Combine(outputFolder, manifestName);
 
-                if (previousHash == sourceTextHash)
+                // If we have a previously generated DLL _and_ the manifest we have saved is the same hash
+                // as we have now we can skip the actual compilation and re-use the existing DLL.
+                //
+                // This enables a quick restart of an API if required, such as normal recycling of processes
+                // etc. and can also help local development as the source would only change with an API operation
+                // definition change, not _any_ code change in the solution
+                if (File.Exists(assemblyFile) && File.Exists(manifestFile))
                 {
-                    logger.LogInformation("NOT compiling as previous compilation exists at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+                    var previousHash = File.ReadAllText(manifestFile);
 
-                    needsCompile = false;
+                    if (previousHash == sourceTextHash)
+                    {
+                        logger.LogInformation("NOT compiling as previous compilation exists at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+
+#if !NET472
+                        return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
+#else
+                        return Assembly.LoadFrom(assemblyFile);
+#endif
+                    }
                 }
             }
 
-            if (needsCompile)
+            var ioExceptions = new Dictionary<string, Exception>();
+
+            // Search through the potential paths for a candidate DLL to load. If we find one we load and return
+            // from the foreach, otherwise we know it need to be compiled (see below loop).
+            foreach (var outputFolder in PotentialPaths)
             {
-                logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+                var assemblyFile = Path.Combine(outputFolder, assemblyName);
+                var symbolsFile = Path.Combine(outputFolder, symbolsName);
+                var manifestFile = Path.Combine(outputFolder, manifestName);
 
-                Compile(logger, compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
+                try
+                {
+                    logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
-                File.WriteAllText(manifestFile, sourceTextHash);
-            }
+                    Compile(compilation, check, compilation.SyntaxTrees, outputFolder, assemblyFile, symbolsFile);
+
+                    File.WriteAllText(manifestFile, sourceTextHash);
 
 #if !NET472
-            return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
+                    return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
-            return Assembly.LoadFrom(assemblyFile);
+                    return Assembly.LoadFrom(assemblyFile);
 #endif
+                }
+                catch (IOException e)
+                {
+                    logger.LogWarning(e, "Could not compile to directory '{0}'.", outputFolder);
+
+                    ioExceptions[outputFolder] = e;
+
+                    // We cannot, for whatever reason, write to this output folder so try another one. At this point the exception is
+                    // not considered harmful, only if we exit the loop without being able to write anywhere
+                    continue;
+                }
+            }
+
+            var attempted = string.Join("\n", ioExceptions.Select(k => $"    {k.Key}: {k.Value.Message}"));
+
+            throw new InvalidOperationException(
+                $"Failed to write to any candidate path when compiling. Check the below attempted paths and their exception messages and either " +
+                $"fix the issues to enable writing to one of the paths, or switch to using the in memory compile strategy.:\n\n{attempted}");
         }
 
         private static string GetSha256Hash(string input)
@@ -86,7 +131,6 @@ namespace Blueprint.Compiler
         }
 
         private void Compile(
-            ILogger logger,
             CSharpCompilation compilation,
             Action<EmitResult> check,
             IEnumerable<SyntaxTree> syntaxTrees,
@@ -94,8 +138,13 @@ namespace Blueprint.Compiler
             string assemblyFile,
             string symbolsFile)
         {
-            using (var assemblyStream = new MemoryStream())
-            using (var symbolsStream = new MemoryStream())
+            if (!Directory.Exists(outputFolder))
+            {
+                Directory.CreateDirectory(outputFolder);
+            }
+
+            using (var assemblyStream = File.OpenWrite(assemblyFile))
+            using (var symbolsStream = File.OpenWrite(symbolsFile))
             {
                 var emitOptions = new EmitOptions(
                     debugInformationFormat: DebugInformationFormat.PortablePdb);
@@ -110,21 +159,9 @@ namespace Blueprint.Compiler
 
                 check(result);
 
-                assemblyStream.Seek(0, SeekOrigin.Begin);
-                symbolsStream.Seek(0, SeekOrigin.Begin);
-
-                if (!Directory.Exists(outputFolder))
-                {
-                    Directory.CreateDirectory(outputFolder);
-                }
-
-                var assemblyBytes = assemblyStream.ToArray();
-                logger.LogInformation($"Writing assembly file to \"{assemblyFile}\" with {assemblyBytes.Length} bytes");
-                File.WriteAllBytes(assemblyFile, assemblyBytes);
-
-                var symbolBytes = symbolsStream.ToArray();
-                logger.LogInformation($"Writing symbol file to \"{symbolsFile}\" with {symbolBytes.Length} bytes");
-                File.WriteAllBytes(symbolsFile, symbolBytes);
+                logger.LogInformation(
+                    $"Compiled assembly to \"{assemblyFile}\" ({new FileInfo(assemblyFile).Length} bytes) and " +
+                             $"symbols to \"{symbolsFile}\" ({new FileInfo(symbolsFile).Length} bytes)");
             }
         }
     }
