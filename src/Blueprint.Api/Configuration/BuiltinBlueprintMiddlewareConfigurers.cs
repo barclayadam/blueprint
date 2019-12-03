@@ -134,8 +134,16 @@ namespace Blueprint.Api.Configuration
             middlewareConfigurer.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
             middlewareConfigurer.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();
 
-            middlewareConfigurer.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(ClaimsRequiredApiAuthoriser)));
-            middlewareConfigurer.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(MustBeAuthenticatedApiAuthoriser)));
+            // We add the authoriser to the enumerable of `IApiAuthoriser`, as well as registering itself as a concrete type so that it can
+            // be grabbed from default DI container by it's type (as is required by the code gen)
+            void AddAuthoriser<T>() where T : class, IApiAuthoriser
+            {
+                middlewareConfigurer.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(T)));
+                middlewareConfigurer.Services.TryAddSingleton<T, T>();
+            }
+
+            AddAuthoriser<ClaimsRequiredApiAuthoriser>();
+            AddAuthoriser<MustBeAuthenticatedApiAuthoriser>();
         }
     }
 }
