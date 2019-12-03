@@ -7,12 +7,12 @@ namespace Blueprint.Api
     public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     {
         private readonly IApiAuthoriserAggregator apiAuthoriserAggregator;
-        private readonly ApiLinkGenerator linkGenerator;
+        private readonly IApiLinkGenerator linkGenerator;
         private readonly ILogger<EntityOperationResourceLinkGenerator> logger;
 
         public EntityOperationResourceLinkGenerator(
             IApiAuthoriserAggregator apiAuthoriserAggregator,
-            ApiLinkGenerator linkGenerator,
+            IApiLinkGenerator linkGenerator,
             ILogger<EntityOperationResourceLinkGenerator> logger)
         {
             Guard.NotNull(nameof(apiAuthoriserAggregator), apiAuthoriserAggregator);

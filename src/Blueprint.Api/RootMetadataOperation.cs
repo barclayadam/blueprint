@@ -18,9 +18,9 @@ namespace Blueprint.Api
 
     public class RootMetadataOperationHandler : SyncApiOperationHandler<RootMetadataOperation>
     {
-        private readonly ApiLinkGenerator linkGenerator;
+        private readonly IApiLinkGenerator linkGenerator;
 
-        public RootMetadataOperationHandler(ApiLinkGenerator linkGenerator)
+        public RootMetadataOperationHandler(IApiLinkGenerator linkGenerator)
         {
             Guard.NotNull(nameof(linkGenerator), linkGenerator);
 

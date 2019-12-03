@@ -113,7 +113,6 @@ namespace Blueprint.Api.Configuration
             // Resource events needs authoriser services to be registered
             TryAddAuthServices(middlewareConfigurer);
 
-            middlewareConfigurer.Services.TryAddSingleton<IApiLinkGenerator, ApiLinkGenerator>();
             middlewareConfigurer.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
             middlewareConfigurer.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution);
