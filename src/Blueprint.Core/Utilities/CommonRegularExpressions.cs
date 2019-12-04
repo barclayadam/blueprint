@@ -120,6 +120,6 @@ namespace Blueprint.Core.Utilities
 
         private const string UrlProtocolPattern = @"((([Hh][Tt]|[Ff])[Tt][Pp]([Ss]?))\://)";
         private const string UrlWithProtocolPattern = UrlProtocolPattern + UrlDomainPattern;
-        private const string UrlDomainPattern = @"([wW]{3}.|[a-zA-Z0-9].)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%\$#\=~_\-]+))*";
+        private const string UrlDomainPattern = @"([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}|localhost)(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%\$#\=~_\-]+))*";
     }
 }
