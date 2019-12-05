@@ -154,9 +154,6 @@ namespace Blueprint.Api.Configuration
 
             Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            Services.TryAddScoped(_ => ArrayPool<char>.Shared);
-            Services.TryAddScoped(_ => ArrayPool<byte>.Shared);
-
             Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
