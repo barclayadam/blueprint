@@ -160,6 +160,9 @@ namespace Blueprint.Api.Configuration
             Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
+            Services.TryAddSingleton(ArrayPool<byte>.Shared);
+            Services.TryAddSingleton(ArrayPool<char>.Shared);
+
             Services.AddApiOperationHandlers(options.Model.Operations);
         }
     }
