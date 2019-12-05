@@ -75,6 +75,8 @@ namespace Blueprint.Api.Configuration
             middlewareConfigurer.Services.TryAddSingleton<JsonTypeFormatter>();
             middlewareConfigurer.Services.TryAddSingleton<ITypeFormatter, JsonTypeFormatter>();
 
+            middlewareConfigurer.Services.TryAddSingleton<IClaimsIdentityProvider, HttpRequestClaimsIdentityProvider>();
+
             middlewareConfigurer.AddMiddleware<HttpMessagePopulationMiddlewareBuilder>(MiddlewareStage.Population);
 
             return middlewareConfigurer;
