@@ -49,6 +49,17 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
+    <!-- We embed the PDB files directly with the nuget package for now as we are publishing to
+         Azure DevOps which does not support Symbol (.snupkg) packages -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+
+    <!--
+      Move to the below when we start to publish On NuGet:
+
+      <IncludeSymbols>true</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    -->
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Rules.ruleset</CodeAnalysisRuleset>
