@@ -34,7 +34,7 @@ namespace Blueprint.Api.Middleware
             var logger = context.ServiceProvider.GetRequiredService<ILogger<HttpMessagePopulationMiddlewareBuilder>>();
             var request = context.Request;
 
-            if (request.Body != null)
+            if (request.Body != null && request.ContentType != null)
             {
                 if (request.ContentType.Contains("application/x-www-form-urlencoded") || request.ContentType.Contains("multipart/form-data"))
                 {
@@ -44,6 +44,10 @@ namespace Blueprint.Api.Middleware
                 {
                     await PopulateFromJsonBodyAsync(logger, context);
                 }
+            }
+            else
+            {
+                logger.LogTrace("Not populating '{0}' as either no HTTP body or no Content-Type header", context.Descriptor.Name);
             }
         }
 
