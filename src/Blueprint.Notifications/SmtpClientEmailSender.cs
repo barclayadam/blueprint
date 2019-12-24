@@ -14,10 +14,12 @@ namespace Blueprint.Notifications
     public class SmtpClientEmailSender : IEmailSender
     {
         private readonly ILogger<SmtpClientEmailSender> logger;
+        private readonly SmtpClient smtpClient;
 
-        public SmtpClientEmailSender(ILogger<SmtpClientEmailSender> logger)
+        public SmtpClientEmailSender(ILogger<SmtpClientEmailSender> logger, SmtpClient smtpClient)
         {
             this.logger = logger;
+            this.smtpClient = smtpClient;
         }
 
         /// <summary>
@@ -60,10 +62,7 @@ namespace Blueprint.Notifications
         {
             Guard.NotNull(nameof(message), message);
 
-            using (var client = new SmtpClient())
-            {
-                client.Send(message);
-            }
+            smtpClient.Send(message);
         }
     }
 }
