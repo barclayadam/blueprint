@@ -6,13 +6,16 @@
     <Description>Blueprint: Frame-based runtime code compiler using Roslyn</Description>
     <PackageTags>Roslyn;Compiler;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);NET472</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.10.0" />
@@ -21,9 +24,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
 
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.3" PrivateAssets="All" />
   </ItemGroup>
 </Project>
