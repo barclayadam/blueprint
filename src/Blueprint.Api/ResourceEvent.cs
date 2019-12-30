@@ -104,7 +104,7 @@ namespace Blueprint.Api
         public Dictionary<string, object> Metadata => metadata;
 
         /// <summary>
-        /// Gets a dictionary of security-related data that will NOT be persisted anywhere
+        /// Gets a dictionary of security-related data that will NOT be persisted anywhere.
         /// </summary>
         public Dictionary<string, object> SecureData => secureData;
 
@@ -123,7 +123,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be
         /// used to store pieces of information that can be exposed to other parts of the system and API consumers
-        /// but <strong>MAY</strong> also be persisted (i.e. for auditing purposes)
+        /// but <strong>MAY</strong> also be persisted (i.e. for auditing purposes).
         /// </summary>
         /// <param name="key">The key of the item to add.</param>
         /// <param name="value">The value of the item to add.</param>
@@ -138,7 +138,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="SecureData" /> dictionary, which can be
         /// used to store pieces of information that can be exposed to other parts of the system and API consumers
-        /// but <strong>MUST NOT</strong> be persisted (i.e. for auditing purposes)
+        /// but <strong>MUST NOT</strong> be persisted (i.e. for auditing purposes).
         /// </summary>
         /// <param name="key">The key of the item to add.</param>
         /// <param name="value">The value of the item to add.</param>

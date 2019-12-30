@@ -15,7 +15,6 @@ namespace Blueprint.Compiler.Frames
         private readonly List<Variable> uses = new List<Variable>();
 
         private bool hasResolved;
-        private Frame next;
 
         protected Frame(bool isAsync)
         {
@@ -26,20 +25,7 @@ namespace Blueprint.Compiler.Frames
 
         public bool Wraps { get; protected set; } = false;
 
-        public Frame Next
-        {
-            get => next;
-
-            set
-            {
-//                if (next != null)
-//                {
-//                    throw new InvalidOperationException($"Frame chain is being re-arranged, tried to set {value} as the 'Next");
-//                }
-
-                next = value;
-            }
-        }
+        public Frame Next { get; set; }
 
         public IEnumerable<Variable> Uses => uses;
 

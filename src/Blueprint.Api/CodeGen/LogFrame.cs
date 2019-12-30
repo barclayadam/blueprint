@@ -32,7 +32,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Trace" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Trace" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -44,8 +44,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Trace" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Trace" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>
@@ -58,7 +58,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Debug" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -70,8 +70,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Debug" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>
@@ -84,7 +84,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Information" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Information" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -96,8 +96,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Information" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Information" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>
@@ -110,7 +110,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Warning" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -122,8 +122,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Warning" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>
@@ -136,7 +136,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Error" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Error" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -148,8 +148,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Error" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Error" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>
@@ -162,7 +162,7 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Constructs a new <see cref="LogFrame" /> with the <see cref="LogLevel.Critical" /> level and given
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
         /// message.
         /// </summary>
         /// <param name="message">The message to output.</param>
@@ -174,8 +174,8 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="LogLevel.Critical" />, enabling the
-        /// re-use of the logic within a custom <see cref="Frame" />.
+        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" />,
+        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
         /// </summary>
         /// <param name="method">The method this line is being written to.</param>
         /// <param name="writer">The writer to output the given log message to.</param>

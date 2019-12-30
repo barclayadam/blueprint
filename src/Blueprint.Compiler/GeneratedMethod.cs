@@ -130,6 +130,14 @@ namespace Blueprint.Compiler
             Frames.Return(ReturnType);
         }
 
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var arguments = Arguments.Select(x => x.Declaration).Join(", ");
+
+            return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
+        }
+
         private void WriteReturnStatement(ISourceWriter writer)
         {
             if (ReturnVariable != null)
@@ -147,14 +155,6 @@ namespace Blueprint.Compiler
             return AsyncMode == AsyncMode.AsyncTask
                 ? "async " + ReturnType.FullNameInCode()
                 : ReturnType.FullNameInCode();
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            var arguments = Arguments.Select(x => x.Declaration).Join(", ");
-
-            return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
         }
     }
 }

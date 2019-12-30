@@ -4,7 +4,7 @@ using Blueprint.Compiler.Model;
 namespace Blueprint.Compiler.Frames
 {
     /// <summary>
-    /// Represents a <code>if</code> statement, containing an expression (or <see cref="Variable"/>) that if evaluating to <code>true</code>
+    /// Represents an <code>if</code> statement, containing an expression (or <see cref="Variable"/>) that if evaluating to <code>true</code>
     /// at runtime runs the 'inner' frames of this <see cref="CompositeFrame" />.
     /// </summary>
     public class IfBlock : CompositeFrame
@@ -12,7 +12,7 @@ namespace Blueprint.Compiler.Frames
         private readonly string condition;
 
         /// <summary>
-        /// Initialises a new instance of an <see cref="IfBlock"/>, using the specified <see cref="Variable"/>
+        /// Initialises a new instance of an <see cref="IfBlock"/>, using the specified <see cref="Variable"/>.
         /// </summary>
         /// <param name="variable">A boolean variable.</param>
         /// <param name="inner">The (optional) set of frames to be the inner of this block. Note the preferred way of
@@ -36,18 +36,18 @@ namespace Blueprint.Compiler.Frames
             this.condition = condition;
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"if ({condition})";
+        }
+
+        /// <inheritdoc />
         protected override void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner)
         {
             writer.Write($"BLOCK:if ({condition})");
             inner.GenerateCode(method, writer);
             writer.FinishBlock();
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"if ({condition})";
         }
     }
 }

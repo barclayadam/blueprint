@@ -15,12 +15,12 @@ namespace Blueprint.Compiler.Frames
             this.inner = inner.ToList();
         }
 
+        public override IEnumerable<Variable> Creates => inner.SelectMany(x => x.Creates).ToArray();
+
         public void Add(Frame innerFrame)
         {
             inner.Add(innerFrame);
         }
-
-        public override IEnumerable<Variable> Creates => inner.SelectMany(x => x.Creates).ToArray();
 
         public sealed override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
         {
@@ -47,8 +47,6 @@ namespace Blueprint.Compiler.Frames
             return inner.Last().CanReturnTask();
         }
 
-        protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
-
         IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
         {
             return inner.GetEnumerator();
@@ -58,5 +56,7 @@ namespace Blueprint.Compiler.Frames
         {
             return inner.GetEnumerator();
         }
+
+        protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
     }
 }

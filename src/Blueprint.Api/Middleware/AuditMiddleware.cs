@@ -17,6 +17,28 @@ namespace Blueprint.Api.Middleware
     /// </summary>
     public class AuditMiddleware : IMiddlewareBuilder
     {
+        [UsedImplicitly]
+        public static void WriteSuccess(IAuditor auditor, ApiOperationContext context)
+        {
+            auditor.Write(new AuditItem(
+                Activity.Current?.Id ?? "no-activity-id",
+                true,
+                "Success",
+                GetUserId(context),
+                context.Operation));
+        }
+
+        [UsedImplicitly]
+        public static void WriteFailure(IAuditor auditor, ApiOperationContext context, Exception e)
+        {
+            auditor.Write(new AuditItem(
+                Activity.Current?.Id ?? "no-activity-id",
+                false,
+                e.Message,
+                GetUserId(context),
+                context.Operation));
+        }
+
         /// <summary>
         /// Determines whether to apply this middleware to the pipeline for the operation, which is
         /// <c>true</c> if <see cref="ApiOperationDescriptor.ShouldAudit" /> is <c>true</c> AND the
@@ -43,28 +65,6 @@ namespace Blueprint.Api.Middleware
                     methodCall,
                 };
             });
-        }
-
-        [UsedImplicitly]
-        public static void WriteSuccess(IAuditor auditor, ApiOperationContext context)
-        {
-            auditor.Write(new AuditItem(
-                Activity.Current?.Id ?? "no-activity-id",
-                true,
-                "Success",
-                GetUserId(context),
-                context.Operation));
-        }
-
-        [UsedImplicitly]
-        public static void WriteFailure(IAuditor auditor, ApiOperationContext context, Exception e)
-        {
-            auditor.Write(new AuditItem(
-                Activity.Current?.Id ?? "no-activity-id",
-                false,
-                e.Message,
-                GetUserId(context),
-                context.Operation));
         }
 
         private static string GetUserId(ApiOperationContext context)

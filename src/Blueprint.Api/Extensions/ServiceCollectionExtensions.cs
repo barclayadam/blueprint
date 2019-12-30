@@ -69,17 +69,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (problems.Any())
             {
-                throw new Exception(string.Join("\n", problems));
+                throw new InvalidOperationException(string.Join("\n", problems));
             }
 
             services.AddSingleton(allFound);
 
             return services;
-        }
-
-        private static Type FindApiOperationHandler(ApiOperationDescriptor apiOperationDescriptor, Type apiOperationHandlerType)
-        {
-            return apiOperationDescriptor.OperationType.Assembly.GetExportedTypes().SingleOrDefault(apiOperationHandlerType.IsAssignableFrom);
         }
 
         private static void EnsureNotAlreadySetup(IServiceCollection services, Type type)

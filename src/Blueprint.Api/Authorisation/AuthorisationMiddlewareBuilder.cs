@@ -9,31 +9,6 @@ namespace Blueprint.Api.Authorisation
 {
     public class AuthorisationMiddlewareBuilder : IMiddlewareBuilder
     {
-        public bool Matches(ApiOperationDescriptor operation)
-        {
-            return operation.AnonymousAccessAllowed == false;
-        }
-
-        public void Build(MiddlewareBuilderContext context)
-        {
-            foreach (var checker in context.ServiceProvider.GetServices<IApiAuthoriser>())
-            {
-                if (checker.AppliesTo(context.Descriptor))
-                {
-                    var getInstanceVariable = context.VariableFromContainer(checker.GetType());
-                    var methodCall = new MethodCall(typeof(AuthorisationMiddlewareBuilder), nameof(EnforceAsync));
-
-                    // HACK: We cannot set just by variable type as compiler fails with index out of range (believe this
-                    // is because the declared type is IApiAuthoriser but variable is subtype)
-                    methodCall.TrySetArgument("authoriser", getInstanceVariable.InstanceVariable);
-
-                    context.AppendFrames(
-                        getInstanceVariable,
-                        methodCall);
-                }
-            }
-        }
-
         // ReSharper disable once MemberCanBePrivate.Global
         public static async Task EnforceAsync(IApiAuthoriser authoriser, ApiOperationContext context)
         {
@@ -57,6 +32,31 @@ namespace Blueprint.Api.Authorisation
                 }
 
                 throw new SecurityException(result.Message);
+            }
+        }
+
+        public bool Matches(ApiOperationDescriptor operation)
+        {
+            return operation.AnonymousAccessAllowed == false;
+        }
+
+        public void Build(MiddlewareBuilderContext context)
+        {
+            foreach (var checker in context.ServiceProvider.GetServices<IApiAuthoriser>())
+            {
+                if (checker.AppliesTo(context.Descriptor))
+                {
+                    var getInstanceVariable = context.VariableFromContainer(checker.GetType());
+                    var methodCall = new MethodCall(typeof(AuthorisationMiddlewareBuilder), nameof(EnforceAsync));
+
+                    // HACK: We cannot set just by variable type as compiler fails with index out of range (believe this
+                    // is because the declared type is IApiAuthoriser but variable is subtype)
+                    methodCall.TrySetArgument("authoriser", getInstanceVariable.InstanceVariable);
+
+                    context.AppendFrames(
+                        getInstanceVariable,
+                        methodCall);
+                }
             }
         }
     }

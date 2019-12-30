@@ -70,7 +70,7 @@ namespace Microsoft.AspNetCore.Builder
                     target: routeHandler,
                     routeName: link.UrlFormat + "-" + link.OperationDescriptor.HttpMethod,
                     routeTemplate: apiPrefix + link.RoutingUrl,
-                    defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor,}),
+                    defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor}),
                     constraints: new Dictionary<string, object>
                     {
                         ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString()),
@@ -160,8 +160,7 @@ namespace Microsoft.AspNetCore.Builder
                     {
                         var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation)
                         {
-                            RouteData = context.RouteData.Values,
-                            HttpContext = context.HttpContext,
+                            RouteData = context.RouteData.Values, HttpContext = context.HttpContext,
                         };
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);

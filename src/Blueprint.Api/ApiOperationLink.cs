@@ -6,43 +6,6 @@ using Blueprint.Core;
 
 namespace Blueprint.Api
 {
-    public class ApiOperationLinkPlaceholder
-    {
-        public ApiOperationLinkPlaceholder(string text, int index, int length, PropertyInfo property, string alternatePropertyName, string format)
-        {
-            Text = text;
-            Index = index;
-            Length = length;
-            Property = property;
-            AlternatePropertyName = alternatePropertyName;
-            Format = format;
-            FormatSpecifier = "{0:" + format + "}";
-        }
-
-        public string Text { get; }
-
-        public int Index { get; }
-
-        public int Length { get; }
-
-        public PropertyInfo Property { get; }
-
-        public string AlternatePropertyName { get; }
-
-        public string Format { get; }
-
-        /// <summary>
-        /// Returns the <see cref="Format" /> string as "{0:`Format`}" to be used in a call to string.Format, pre-built
-        /// here to avoid string concatenation at link generation time.
-        /// </summary>
-        internal string FormatSpecifier { get; }
-
-        public override string ToString()
-        {
-            return Text;
-        }
-    }
-
     public class ApiOperationLink
     {
         private static readonly Regex ParameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);

@@ -22,6 +22,7 @@ namespace Blueprint.Api.Configuration
         /// <remarks>
         /// Blueprint validation attributes are similar to DataAnnotations but have access to <see cref="ApiOperationContext" /> in addition to being
         /// async when validating.
+        /// </remarks>
         /// <returns>This configurer.</returns>
         public BlueprintValidationConfigurer UseBlueprintSource()
         {

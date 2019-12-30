@@ -6,7 +6,7 @@ namespace Blueprint.Api.Middleware
     /// <summary>
     /// A scanner that can be used to search for a way of handling <see cref="IApiOperation"/>s that have been registered with an <see cref="ApiDataModel" />,
     /// being responsible for searching through referenced assemblies to find as many <see cref="IOperationExecutorBuilder"/> as it can (missing ones are handled
-    /// by the coordinator, not the individual scanners)
+    /// by the coordinator, not the individual scanners).
     /// </summary>
     public interface IOperationExecutorBuilderScanner
     {

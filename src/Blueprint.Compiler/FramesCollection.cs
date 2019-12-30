@@ -12,8 +12,8 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Adds a ReturnFrame to the method that will return a variable of the specified type.
         /// </summary>
-        /// <param name="returnType"></param>
-        /// <returns></returns>
+        /// <param name="returnType">The type of variable to be returned.</param>
+        /// <returns>This frame collection.</returns>
         public FramesCollection Return(Type returnType)
         {
             var frame = new ReturnFrame(returnType);
@@ -25,8 +25,8 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Adds a ReturnFrame for the specified variable.
         /// </summary>
-        /// <param name="returnVariable"></param>
-        /// <returns></returns>
+        /// <param name="returnVariable">The variable to be returned.</param>
+        /// <returns>This frame collection.</returns>
         public FramesCollection Return(Variable returnVariable)
         {
             var frame = new ReturnFrame(returnVariable);
@@ -41,7 +41,7 @@ namespace Blueprint.Compiler
         /// <param name="constructor"></param>
         /// <param name="configure">Optional, any additional configuration for the constructor frame.</param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>This frame collection.</returns>
         /// <exception cref="NotImplementedException"></exception>
         public FramesCollection CallConstructor<T>(Expression<Func<T>> constructor, Action<ConstructorFrame<T>> configure = null)
         {
@@ -56,7 +56,7 @@ namespace Blueprint.Compiler
         /// Add a frame to the end by its type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>This frame collection.</returns>
         public FramesCollection Append<T>() where T : Frame, new()
         {
             return Append(new T());
@@ -66,7 +66,7 @@ namespace Blueprint.Compiler
         /// Append one or more frames to the end.
         /// </summary>
         /// <param name="frames"></param>
-        /// <returns></returns>
+        /// <returns>This frame collection.</returns>
         public FramesCollection Append(params Frame[] frames)
         {
             AddRange(frames);
@@ -80,7 +80,7 @@ namespace Blueprint.Compiler
         /// <param name="expression"></param>
         /// <param name="configure">Optional configuration of the MethodCall.</param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>This frame collection.</returns>
         public FramesCollection Call<T>(Expression<Action<T>> expression, Action<MethodCall> configure = null)
         {
             var @call = MethodCall.For(expression);
