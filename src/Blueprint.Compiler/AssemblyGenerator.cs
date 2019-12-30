@@ -202,10 +202,12 @@ namespace Blueprint.Compiler
                             exceptionMessage.AppendLine();
                         }
 
+                        var allCode = string.Join("\n\n", files.Select(f => f.Code));
+
                         throw new CompilationException(exceptionMessage.ToString())
                         {
                             Failures = failures,
-                            Code = string.Join("\n\n", files.Select(f => f.Code)),
+                            Code = allCode,
                         };
                     }
                 });
@@ -243,6 +245,11 @@ namespace Blueprint.Compiler
             public string FileName { get; }
 
             public string Code { get; }
+
+            public override string ToString()
+            {
+                return FileName;
+            }
         }
     }
 }

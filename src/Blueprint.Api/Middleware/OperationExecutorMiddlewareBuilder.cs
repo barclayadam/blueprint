@@ -1,14 +1,16 @@
-﻿using Blueprint.Api.CodeGen;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Blueprint.Api.Http;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Middleware
 {
     /// <summary>
-    /// An <see cref="IMiddlewareBuilder"/> that will be last in the chain for a pipeline that will call out to a
-    /// new instance (from registered container) of <see cref="IApiOperationHandler{T}"/> for the current operation.
+    /// An <see cref="IMiddlewareBuilder"/> that will find the registered <see cref="IOperationExecutorBuilder" /> for the operation being
+    /// built for, delegating the actual code generation of calling the correct handler for the operation.
     /// </summary>
     public class OperationExecutorMiddlewareBuilder : IMiddlewareBuilder
     {
@@ -19,19 +21,16 @@ namespace Blueprint.Api.Middleware
             return true;
         }
 
+        /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            var handlerType = typeof(IApiOperationHandler<>).MakeGenericType(context.Descriptor.OperationType);
+            var allHandlers = context.ServiceProvider.GetRequiredService<List<IOperationExecutorBuilder>>();
+            var handler = allHandlers.Single(h => h.Operation == context.Descriptor);
 
-            var getInstanceFrame = context.VariableFromContainer(handlerType);
-            var handlerInvokeCall = new MethodCall(handlerType, nameof(IApiOperationHandler<IApiOperation>.Invoke));
-            handlerInvokeCall.ReturnVariable.OverrideName("handlerResult");
+            var returnVariable = handler.Build(context);
+            returnVariable.OverrideName("handlerResult");
 
-            context.AppendFrames(
-                getInstanceFrame,
-                LogFrame.Debug("Executing API operation. handler_type={0}", $"{getInstanceFrame.InstanceVariable}.GetType().Name"),
-                handlerInvokeCall,
-                new OperationResultCastFrame(handlerInvokeCall.ReturnVariable));
+            context.AppendFrames(new OperationResultCastFrame(returnVariable));
         }
 
         /// <summary>
@@ -53,11 +52,21 @@ namespace Blueprint.Api.Middleware
             public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
             {
                 var operationResultName = typeof(OperationResult).FullNameInCode();
-                var okResultName = typeof(OkResult).FullNameInCode();
 
-                writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
-                              "r : " +
-                             $"new {okResultName}({resultVariable});");
+                // If the declared type is already a type of OperationResult we can eliminate the ternary operator check and
+                // immediately assign to the operationResult variable
+                if (typeof(OperationResult).IsAssignableFrom(resultVariable.VariableType))
+                {
+                    writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable};");
+                }
+                else
+                {
+                    var okResultName = typeof(OkResult).FullNameInCode();
+
+                    writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
+                                 "r : " +
+                                 $"new {okResultName}({resultVariable});");
+                }
 
                 Next?.GenerateCode(method, writer);
             }

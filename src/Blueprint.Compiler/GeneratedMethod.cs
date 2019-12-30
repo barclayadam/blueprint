@@ -148,5 +148,13 @@ namespace Blueprint.Compiler
                 ? "async " + ReturnType.FullNameInCode()
                 : ReturnType.FullNameInCode();
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var arguments = Arguments.Select(x => x.Declaration).Join(", ");
+
+            return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
+        }
     }
 }

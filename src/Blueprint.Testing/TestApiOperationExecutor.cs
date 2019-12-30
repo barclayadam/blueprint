@@ -160,9 +160,22 @@ namespace Blueprint.Testing
                 return this;
             }
 
+            /// <summary>
+            /// Configures a new operation with no specific registered handler, meaning the default scanning logic for handlers
+            /// will be used.
+            /// </summary>
+            /// <typeparam name="T">The type of operation for this handler.</typeparam>
+            /// <returns>This instance.</returns>
+            public TestApiOperationExecutorBuilder WithOperation<T>() where T : IApiOperation
+            {
+                OperationTypes.Add(typeof(T));
+
+                return this;
+            }
+
             public TestApiOperationExecutorBuilder Pipeline(Action<BlueprintMiddlewareConfigurer> configurer)
             {
-                this.pipelineConfigurer = configurer;
+                pipelineConfigurer = configurer;
 
                 return this;
             }

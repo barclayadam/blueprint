@@ -114,5 +114,11 @@ namespace Blueprint.Api
         {
             return (IApiOperation)Activator.CreateInstance(OperationType);
         }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return OperationType.FullName;
+        }
     }
 }

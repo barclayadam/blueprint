@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Middleware;
 using Blueprint.Core;
 using Blueprint.Core.Tasks;
 
@@ -31,39 +32,47 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddApiOperationHandlers(
             this IServiceCollection services,
-            IEnumerable<ApiOperationDescriptor> operations)
+            List<ApiOperationDescriptor> operations)
         {
-            var missingApiOperationHandlers = new List<ApiOperationDescriptor>();
-
-            if (!operations.Any())
+            var allFound = new List<IOperationExecutorBuilder>();
+            var scanners = new IOperationExecutorBuilderScanner[]
             {
-                // TODO
-            }
+                new ApiOperationHandlerExecutorBuilderScanner(),
+                new ApiOperationInClassConventionExecutorBuilderScanner(),
+            };
 
-            foreach (var operation in operations)
+            var problems = new List<string>();
+
+            foreach (var scanner in scanners)
             {
-                var apiOperationHandlerType = typeof(IApiOperationHandler<>).MakeGenericType(operation.OperationType);
-                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType);
-
-                if (apiOperationHandler == null)
+                foreach (var found in scanner.FindHandlers(services, operations))
                 {
-                    // We will search for anything that has already been registered before adding to the "not registered"
-                    // pile
-                    if (services.All(d => apiOperationHandlerType.IsAssignableFrom(d.ServiceType)))
+                    var existing = allFound.Where(e => e.Operation == found.Operation).ToList();
+
+                    if (existing.Any())
                     {
-                        missingApiOperationHandlers.Add(operation);
+                        var all = string.Join(", ", existing.Select(e => e.ToString()));
+
+                        problems.Add($"Multiple handlers have been found for the operation {found}: {all} ");
                     }
 
-                    continue;
+                    allFound.Add(found);
                 }
-
-                services.AddScoped(apiOperationHandlerType, apiOperationHandler);
             }
 
-            if (missingApiOperationHandlers.Any())
+            var missing = operations.Where(o => allFound.All(f => f.Operation != o)).ToList();
+
+            if (missing.Any())
             {
-                throw new MissingApiOperationHandlerException(missingApiOperationHandlers.ToArray());
+                throw new MissingApiOperationHandlerException(missing.ToArray());
             }
+
+            if (problems.Any())
+            {
+                throw new Exception(string.Join("\n", problems));
+            }
+
+            services.AddSingleton(allFound);
 
             return services;
         }

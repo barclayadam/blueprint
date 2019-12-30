@@ -127,7 +127,7 @@ namespace Blueprint.Api
                     // For the base Exception type we will add, as a last frame, a return of an OperationResult.
                     context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
                     {
-                        new ReturnOperationResultCatchFrame(e),
+                        new ReturnFrame(new Variable(typeof(UnhandledExceptionOperationResult), $"new {typeof(UnhandledExceptionOperationResult).FullNameInCode()}({e})")),
                     });
 
                     dictionary.Add(

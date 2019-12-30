@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
 using Blueprint.Api.Errors;
@@ -160,7 +161,7 @@ namespace Blueprint.Api.Configuration
             Services.TryAddSingleton(ArrayPool<byte>.Shared);
             Services.TryAddSingleton(ArrayPool<char>.Shared);
 
-            Services.AddApiOperationHandlers(options.Model.Operations);
+            Services.AddApiOperationHandlers(options.Model.Operations.ToList());
         }
     }
 }

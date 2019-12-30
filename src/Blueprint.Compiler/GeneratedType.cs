@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -9,7 +8,6 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
-    [DebuggerDisplay(nameof(TypeName) + " : " + nameof(BaseType))]
     public class GeneratedType : IVariableSource
     {
         private readonly IList<Type> interfaces = new List<Type>();
@@ -210,6 +208,12 @@ namespace Blueprint.Compiler
             }
         }
 
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return GetDeclaration();
+        }
+
         Variable IVariableSource.TryFindVariable(Type variableType)
         {
             foreach (var v in AllInjectedFields)
@@ -284,17 +288,19 @@ namespace Blueprint.Compiler
 
         private void WriteDeclaration(ISourceWriter writer)
         {
+            writer.Write($"BLOCK:{GetDeclaration()}");
+        }
+
+        private string GetDeclaration()
+        {
             var implemented = Implements().ToArray();
 
             if (implemented.Any())
             {
-                writer.Write(
-                    $"BLOCK:public class {TypeName} : {implemented.Select(x => x.FullNameInCode()).Join(", ")}");
+                return $"public class {TypeName} : {implemented.Select(x => x.FullNameInCode()).Join(", ")}";
             }
-            else
-            {
-                writer.Write($"BLOCK:public class {TypeName}");
-            }
+
+            return $":public class {TypeName}";
         }
 
         private IEnumerable<Type> Implements()
