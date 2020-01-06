@@ -53,19 +53,28 @@ namespace Blueprint.Api.Middleware
             {
                 var operationResultName = typeof(OperationResult).FullNameInCode();
 
-                // If the declared type is already a type of OperationResult we can eliminate the ternary operator check and
-                // immediately assign to the operationResult variable
                 if (typeof(OperationResult).IsAssignableFrom(resultVariable.VariableType))
                 {
+                    // If the declared type is already a type of OperationResult we can eliminate the ternary operator check and
+                    // immediately assign to the operationResult variable
                     writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable};");
                 }
-                else
+                else if (resultVariable.VariableType.IsAssignableFrom(typeof(OperationResult)))
                 {
+                    // If the variable type _could_ be an OperationResult then we use a ternary operator to check whether it
+                    // actually is, and either use it directly or wrap in an OkResult
                     var okResultName = typeof(OkResult).FullNameInCode();
 
                     writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
                                  "r : " +
                                  $"new {okResultName}({resultVariable});");
+                }
+                else
+                {
+                    // The type is NOT related to OperationResult at all, so we always create a wrapping OkResult
+                    var okResultName = typeof(OkResult).FullNameInCode();
+
+                    writer.Write($"{operationResultName} {operationResultVariable} = new {okResultName}({resultVariable});");
                 }
 
                 Next?.GenerateCode(method, writer);
