@@ -51,7 +51,7 @@ namespace Blueprint.Api
             }
 
             return comparison.Differences
-                .ToDictionary(d => d.PropertyName.TrimStart('.'), d => d.Object1.Target);
+                .ToDictionary(d => d.PropertyName.TrimStart('.'), d => d.Object1);
         }
 
         private class DateTimeOffsetComparer : BaseTypeComparer

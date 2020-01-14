@@ -7,7 +7,7 @@
     <PackageTags>Rosln;CodeGen;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CompareNETObjects" Version="3.8.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.57.0" />
     <PackageReference Include="MediatR" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.1" />
