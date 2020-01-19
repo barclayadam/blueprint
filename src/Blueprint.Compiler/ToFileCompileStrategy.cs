@@ -61,12 +61,31 @@ namespace Blueprint.Compiler
                     {
                         logger.LogInformation("NOT compiling as previous compilation exists at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
+                        try
+                        {
 #if !NET472
-                        return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
+                            return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
 #else
-                        return Assembly.LoadFrom(assemblyFile);
+                            return Assembly.LoadFrom(assemblyFile);
 #endif
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogError(e, "Unable to load existing DLL '{0}", assemblyFile);
+                        }
                     }
+                    else
+                    {
+                        logger.LogInformation(
+                            "NOT using assembly at {0} because it's manifest {1} does NOT match required {2}",
+                            assemblyFile,
+                            previousHash,
+                            sourceTextHash);
+                    }
+                }
+                else
+                {
+                    logger.LogInformation("No previously generated DLL exists at '{0}'", assemblyFile);
                 }
             }
 
@@ -107,10 +126,12 @@ namespace Blueprint.Compiler
             }
 
             var attempted = string.Join("\n", ioExceptions.Select(k => $"    {k.Key}: {k.Value.Message}"));
+            var errorMessage = "Failed to write to any candidate path when compiling. Check the below attempted paths and their exception messages and either " +
+                          $"fix the issues to enable writing to one of the paths, or switch to using the in memory compile strategy.:\n\n{attempted}";
 
-            throw new InvalidOperationException(
-                $"Failed to write to any candidate path when compiling. Check the below attempted paths and their exception messages and either " +
-                $"fix the issues to enable writing to one of the paths, or switch to using the in memory compile strategy.:\n\n{attempted}");
+            logger.LogCritical(errorMessage);
+
+            throw new InvalidOperationException(errorMessage);
         }
 
         private static string GetSha256Hash(string input)
