@@ -69,6 +69,27 @@ namespace Blueprint.Api
         /// </summary>
         public IServiceProvider ServiceProvider { get; }
 
+        /// <summary>
+        /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.
+        /// </summary>
+        public ApiOperationContext Parent { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this is a child context, meaning it has been created as a child of an
+        /// existing context, used to execute another operation in the context of an existing one.
+        /// </summary>
+        public bool IsChild => Parent != null;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
+        /// which should be used with extreme care.
+        /// </summary>
+        /// <remarks>
+        /// This is typically used when running a child operation where the authorisation of the parent is enough to indicate
+        /// the child can be successfully executed.
+        /// </remarks>
+        public bool SkipAuthorisation { get; set; }
+
         public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
         public ClaimsIdentity ClaimsIdentity { get; set; }
@@ -96,10 +117,7 @@ namespace Blueprint.Api
 
             var context = DataModel.CreateOperationContext(ServiceProvider, type);
 
-            context.Data = Data;
-            context.HttpContext = HttpContext;
-            context.ClaimsIdentity = ClaimsIdentity;
-            context.UserAuthorisationContext = UserAuthorisationContext;
+            PopulateChild(context);
 
             return context;
         }
@@ -110,12 +128,18 @@ namespace Blueprint.Api
 
             var context = DataModel.CreateOperationContext(ServiceProvider, operation);
 
-            context.Data = Data;
-            context.HttpContext = HttpContext;
-            context.ClaimsIdentity = ClaimsIdentity;
-            context.UserAuthorisationContext = UserAuthorisationContext;
+            PopulateChild(context);
 
             return context;
+        }
+
+        private void PopulateChild(ApiOperationContext childContext)
+        {
+            childContext.Parent = this;
+            childContext.Data = Data;
+            childContext.HttpContext = HttpContext;
+            childContext.ClaimsIdentity = ClaimsIdentity;
+            childContext.UserAuthorisationContext = UserAuthorisationContext;
         }
     }
 }

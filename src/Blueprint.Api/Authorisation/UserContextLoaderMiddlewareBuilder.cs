@@ -1,4 +1,3 @@
-using System.Security;
 using System.Security.Claims;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -8,8 +7,6 @@ namespace Blueprint.Api.Authorisation
 {
     public class UserContextLoaderMiddlewareBuilder : IMiddlewareBuilder
     {
-        private const string AccessDeniedExceptionMessage = "Access denied. Anonymous access is not allowed.";
-
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;
@@ -29,25 +26,18 @@ namespace Blueprint.Api.Authorisation
 
                 context.AppendFrames(
                     new VariableSetterFrame(
-                            context.VariableFromContext<IUserAuthorisationContext>(),
-                            Variable.StaticFrom<AnonymousUserAuthorisationContext>(nameof(AnonymousUserAuthorisationContext.Instance))));
+                        context.VariableFromContext<IUserAuthorisationContext>(),
+                        Variable.StaticFrom<AnonymousUserAuthorisationContext>(nameof(AnonymousUserAuthorisationContext.Instance))));
             }
             else
             {
                 // Generates:
                 //
-                // if (context.ClaimsIdentity == null || context.ClaimsIdentity.IsAuthenticated == false)
+                // if (context.ClaimsIdentity != null && context.ClaimsIdentity.IsAuthenticated == true)
                 // {
-                //     throw new SecurityException("Access denied. Anonymous access is not allowed.");
+                //     var userSecurityContext = await this.userSecurityContextFactory.CreateContextAsync(context.ClaimsIdentity);
+                //     context.UserAuthorisationContext = userSecurityContext;
                 // }
-                //
-                // var userSecurityContext = await this.userSecurityContextFactory.CreateContextAsync(context.ClaimsIdentity);
-                // if (userSecurityContext == null)
-                // {
-                //     throw new SecurityException("Access denied. Anonymous access is not allowed.");
-                // }
-                //
-                //  context.UserAuthorisationContext = userSecurityContext;
                 var claimsIdentityVariable = context.VariableFromContext<ClaimsIdentity>();
 
                 var userSecurityContextFactoryCreator = context.VariableFromContainer<IUserAuthorisationContextFactory>();
@@ -55,23 +45,12 @@ namespace Blueprint.Api.Authorisation
                 createContextCall.TrySetArgument(claimsIdentityVariable);
 
                 context.AppendFrames(
-                    new IfBlock($"{claimsIdentityVariable} == null || {claimsIdentityVariable.GetProperty(nameof(ClaimsIdentity.IsAuthenticated))} == false")
+                    new IfBlock($"{claimsIdentityVariable} != null && {claimsIdentityVariable.GetProperty(nameof(ClaimsIdentity.IsAuthenticated))} == true")
                     {
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                        userSecurityContextFactoryCreator,
+                        createContextCall,
+                        new VariableSetterFrame(context.VariableFromContext<IUserAuthorisationContext>(), createContextCall.ReturnVariable),
                     });
-
-                context.AppendFrames(
-                    userSecurityContextFactoryCreator,
-                    createContextCall);
-
-                context.AppendFrames(
-                    new IfNullBlock(createContextCall.ReturnVariable)
-                    {
-                        new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
-                    });
-
-                context.AppendFrames(
-                    new VariableSetterFrame(context.VariableFromContext<IUserAuthorisationContext>(), createContextCall.ReturnVariable));
             }
         }
     }

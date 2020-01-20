@@ -1,7 +1,11 @@
-﻿using System.Security;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api.Errors;
 using Blueprint.Compiler.Frames;
+using Blueprint.Core.Authorisation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +13,8 @@ namespace Blueprint.Api.Authorisation
 {
     public class AuthorisationMiddlewareBuilder : IMiddlewareBuilder
     {
+        private const string AccessDeniedExceptionMessage = "Access denied. Anonymous access is not allowed.";
+
         // ReSharper disable once MemberCanBePrivate.Global
         public static async Task EnforceAsync(IApiAuthoriser authoriser, ApiOperationContext context)
         {
@@ -42,6 +48,28 @@ namespace Blueprint.Api.Authorisation
 
         public void Build(MiddlewareBuilderContext context)
         {
+            var checkFrames = new List<Frame>();
+
+            // Generates:
+            //
+            // if (!context.SkipAuthorisation)
+            // {
+            //     if (context.UserAuthorisationContext == null)
+            //     {
+            //         throw new SecurityException("Access denied. Anonymous access is not allowed.");
+            //     }
+            //
+            //     foreach (authorisers) { await a.EnforceAsync(); }
+            // }
+
+            var authorisationContextVariable = context.VariableFromContext<IUserAuthorisationContext>();
+
+            checkFrames.Add(
+                new IfBlock($"{authorisationContextVariable} == null")
+                {
+                    new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                });
+
             foreach (var checker in context.ServiceProvider.GetServices<IApiAuthoriser>())
             {
                 if (checker.AppliesTo(context.Descriptor))
@@ -53,11 +81,16 @@ namespace Blueprint.Api.Authorisation
                     // is because the declared type is IApiAuthoriser but variable is subtype)
                     methodCall.TrySetArgument("authoriser", getInstanceVariable.InstanceVariable);
 
-                    context.AppendFrames(
-                        getInstanceVariable,
-                        methodCall);
+                    checkFrames.Add(getInstanceVariable);
+                    checkFrames.Add(methodCall);
                 }
             }
+
+            // We only run authorisation checks if SkipAuthorisation is false, which it will be by default
+            context.AppendFrames(
+                new IfBlock(
+                    $"{context.VariableFromContext<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
+                    checkFrames.ToArray()));
         }
     }
 }
