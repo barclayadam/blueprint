@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 {
-    public class Given_ResourceEventMiddleware
+    public class Given_ResourceCreated_Result
     {
         public class CreationOperation : ICommand
         {
