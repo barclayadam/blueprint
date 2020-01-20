@@ -52,15 +52,19 @@ namespace Blueprint.Api
 
         /// <summary>
         /// Gets the type name (exposed as 'object' from the API) of the given resource type, applying
-        /// default conventions of removing 'Resource' and 'DTO' string from the type name.
+        /// default conventions of removing 'ApiResource', 'Resource' and 'DTO' string from the type name.
         /// </summary>
-        /// <param name="resourceType"></param>
-        /// <returns></returns>
+        /// <param name="resourceType">The type of the resource (extending from <see cref="ApiResource"/>).</param>
+        /// <returns>The public "type name" of the resource type. Used in properties like <see cref="Object"/>.</returns>
         public static string GetTypeName(Type resourceType)
         {
             return TypeNameCache.GetOrAdd(
                 resourceType,
-                t => t.Name.Replace("Resource", string.Empty).Camelize());
+                t => t.Name
+                    .Replace("ApiResource", string.Empty)
+                    .Replace("Resource", string.Empty)
+                    .Replace("DTO", string.Empty)
+                    .Camelize());
         }
 
         /// <summary>

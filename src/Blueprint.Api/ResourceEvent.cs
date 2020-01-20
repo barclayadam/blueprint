@@ -29,7 +29,7 @@ namespace Blueprint.Api
             this.resourceType = resourceType;
             this.selfQuery = selfQuery;
 
-            created = DateTimeOffset.UtcNow;
+            created = SystemTime.UtcNow;
         }
 
         /// <summary>

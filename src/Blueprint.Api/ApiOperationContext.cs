@@ -98,6 +98,22 @@ namespace Blueprint.Api
 
             context.Data = Data;
             context.HttpContext = HttpContext;
+            context.ClaimsIdentity = ClaimsIdentity;
+            context.UserAuthorisationContext = UserAuthorisationContext;
+
+            return context;
+        }
+
+        public ApiOperationContext CreateChild(IApiOperation operation)
+        {
+            Guard.NotNull(nameof(operation), operation);
+
+            var context = DataModel.CreateOperationContext(ServiceProvider, operation);
+
+            context.Data = Data;
+            context.HttpContext = HttpContext;
+            context.ClaimsIdentity = ClaimsIdentity;
+            context.UserAuthorisationContext = UserAuthorisationContext;
 
             return context;
         }

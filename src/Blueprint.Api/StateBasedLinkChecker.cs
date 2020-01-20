@@ -27,7 +27,7 @@ namespace Blueprint.Api
 
         public Task<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
-            if (resource is TResource && !IsLinkAvailableForOperation(operationContext, (TResource)resource))
+            if (resource is TResource r && !IsLinkAvailableForOperation(operationContext, r))
             {
                 return StateCheckFailed;
             }

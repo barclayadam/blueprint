@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Blueprint.Api.Http;
+using Blueprint.Api.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +12,10 @@ namespace Blueprint.Api.Middleware
     /// <summary>
     /// A middleware component that will take any <see cref="ResourceEvent" /> objects returned from
     /// API operations and populate the return with extra information such as the resource itself
-    /// an it's canonical 'self' link for consumption elsewhere.
+    /// as it's canonical 'self' link for consumption elsewhere.
     /// </summary>
     public static class ResourceEventHandler
     {
-        private static readonly MethodInfo GetByIdMethod =
-            typeof(ResourceEventHandler).GetMethod(nameof(GetById), BindingFlags.Static | BindingFlags.NonPublic);
-
         public static async Task HandleAsync(
             IResourceEventRepository resourceEventRepository,
             IApiLinkGenerator apiLinkGenerator,
@@ -33,9 +32,9 @@ namespace Blueprint.Api.Middleware
 
                     logger.LogDebug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
 
-                    context.UserAuthorisationContext.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
+                    context.UserAuthorisationContext?.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
 
-                    resourceEvent.CorrelationId = Activity.Current.Id;
+                    resourceEvent.CorrelationId = Activity.Current?.Id;
                     resourceEvent.Operation = context.Operation;
 
                     PopulateClientData(context, resourceEvent);
@@ -53,7 +52,7 @@ namespace Blueprint.Api.Middleware
 
                     resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.SelfQuery);
 
-                    await PopulateResourceEventData(resourceEventRepository, context, resourceEvent, selfLink);
+                    await PopulateResourceEventData(resourceEventRepository, context, resourceEvent);
 
                     await resourceEventRepository.AddAsync(resourceEvent);
                 }
@@ -80,15 +79,12 @@ namespace Blueprint.Api.Middleware
         private static async Task PopulateResourceEventData(
             IResourceEventRepository resourceEventRepository,
             ApiOperationContext context,
-            ResourceEvent resourceEvent,
-            ApiOperationLink selfLink)
+            ResourceEvent resourceEvent)
         {
             // Get the latest after creation or update (cannot, obviously, get for a deleted record)
             if (resourceEvent.ChangeType != ResourceEventChangeType.Deleted)
             {
-                resourceEvent.Data = await (Task<object>)GetByIdMethod
-                    .MakeGenericMethod(selfLink.OperationDescriptor.OperationType)
-                    .Invoke(null, new object[] { context, resourceEvent.SelfQuery });
+                resourceEvent.Data = await GetByIdAsync(context, resourceEvent.SelfQuery);
             }
 
             if (resourceEvent.ChangeType == ResourceEventChangeType.Updated)
@@ -107,11 +103,32 @@ namespace Blueprint.Api.Middleware
             }
         }
 
-        private static Task<object> GetById<T>(ApiOperationContext context, T operation) where T : IApiOperation
+        private static async Task<object> GetByIdAsync(ApiOperationContext context, IApiOperation operation)
         {
-            var handler = context.ServiceProvider.GetRequiredService<IApiOperationHandler<T>>();
+            var operationType = operation.GetType();
+            var childContext = context.CreateChild(operation);
+            var executor = context.ServiceProvider.GetRequiredService<IApiOperationExecutor>();
 
-            return handler.Invoke(operation, context);
+            var result = await executor.ExecuteAsync(childContext);
+
+            if (result is ValidationFailedResult validationFailedResult)
+            {
+                throw new ValidationException($"GetById for operation {operationType.Name} validation failed", validationFailedResult.Content.Errors);
+            }
+
+            if (result is UnhandledExceptionOperationResult exceptionOperationResult)
+            {
+                ExceptionDispatchInfo.Capture(exceptionOperationResult.Exception).Throw();
+
+                return default;
+            }
+
+            if (result is OkResult okResult)
+            {
+                return okResult.Content;
+            }
+
+            throw new InvalidOperationException($"Operation {operationType.Name} returned unexpected result type {result.GetType().Name}");
         }
     }
 }
