@@ -12,7 +12,7 @@ namespace Blueprint.Api
         {
             var settings = new JsonSerializerSettings
             {
-                DateParseHandling = DateParseHandling.DateTime,
+                DateParseHandling = DateParseHandling.DateTimeOffset,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
 
