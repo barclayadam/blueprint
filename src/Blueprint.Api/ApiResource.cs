@@ -74,8 +74,15 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="rel">The relation the link has to this resource.</param>
         /// <param name="link">The link to be added.</param>
+        /// <exception cref="InvalidOperationException">If a link with the same relation type has already been added.</exception>
         public void AddLink(string rel, Link link)
         {
+            if (links.ContainsKey(rel))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add multiple links with the same relation of '{rel}' to the api resource '{GetType().Name}'");
+            }
+
             // Allow exception to bubble if link already exists. Allow normal success path to be quicker instead
             // of checking for duplicates (could do so in tests?)
             links.Add(rel, link);
