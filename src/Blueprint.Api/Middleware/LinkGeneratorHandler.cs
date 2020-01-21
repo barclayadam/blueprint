@@ -20,28 +20,7 @@ namespace Blueprint.Api.Middleware
 
             if (result is OkResult okResult)
             {
-                var innerResult = okResult.Content;
-
-                if (innerResult is ResourceEvent resourceEvent)
-                {
-                    if (resourceEvent.ChangeType == ResourceEventChangeType.Deleted)
-                    {
-                        // We will not generate any links for a deleted resource. The payload is there more
-                        // for convenience to identify what has been deleted. Even self links do not make sense
-                        // as the resource no longer exists
-                        logger.LogTrace("No links being generated for a deleted ResourceEvent");
-                    }
-                    else if (resourceEvent.Data != null)
-                    {
-                        logger.LogTrace("Adding links to ResourceEvent.Data");
-
-                        resourceEvent.Data = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, resourceEvent.Data);
-                    }
-                }
-                else
-                {
-                    okResult.Content = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, innerResult);
-                }
+                okResult.Content = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, okResult.Content);
             }
         }
 
@@ -52,14 +31,14 @@ namespace Blueprint.Api.Middleware
             ApiOperationContext context,
             object resource)
         {
-            if (resource is ApiResource apiResource)
+            if (resource is ILinkableResource linkableResource)
             {
-                await AddLinksAsync(logger, apiLinkGenerator, generators, context, apiResource);
+                await AddLinksAsync(logger, apiLinkGenerator, generators, context, linkableResource);
             }
 
             if (logger.IsEnabled(LogLevel.Trace))
             {
-                logger.LogTrace("Resource type is not a LinkableResource. resource_type={0}", resource.GetType().Name);
+                logger.LogTrace("Resource type is not an ILinkableResource. resource_type={0}", resource.GetType().Name);
             }
 
             var enumerableResult = resource as IEnumerable<object>;
