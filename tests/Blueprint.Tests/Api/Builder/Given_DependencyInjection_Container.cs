@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -26,13 +27,38 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddSingleton(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
 
             // Assert
             handler.OperationPassed.InjectableProperty.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task When_Middleware_Requests_Enumerable_Variable_With_Single_Registered_Service_Fulfilled_By_DI()
+        {
+            // Arrange
+            var toReturn = 12345;
+
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddSingleton(typeof(IInjectable), typeof(Injectable));
+                })
+                .WithHandler(handler)
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IEnumerable<IInjectable>>>(MiddlewareStage.Execution)));
+
+            // Act
+            await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
+
+            // Assert
+            handler.OperationPassed.InjectableProperty.Should().NotBeNull();
+
+            var propertyArray = (IEnumerable<IInjectable>)handler.OperationPassed.InjectableProperty;
+            propertyArray.Should().HaveCount(1);
         }
 
         [Test]
@@ -48,12 +74,13 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddSingleton(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
 
-            code.Should().NotContain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+            code.Should().NotContain(
+                "context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
         }
 
         [Test]
@@ -69,7 +96,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddTransient(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -90,7 +117,7 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddScoped(typeof(IInjectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable>(MiddlewareStage.Execution)));
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -115,10 +142,11 @@ namespace Blueprint.Tests.Api.Builder
 
             // Assert
             buildExecutor.Should().Throw<InvalidOperationException>()
-                .And.Message.Should().Contain("An attempt has been made to request a service form the DI container that will lead to a duplicate constructor argument.");
+                .And.Message.Should()
+                .Contain("An attempt has been made to request a service form the DI container that will lead to a duplicate constructor argument.");
         }
 
-        public class MiddlewareWithDependencyInjectionVariable : CustomFrameMiddlewareBuilder
+        public class MiddlewareWithDependencyInjectionVariable<T> : CustomFrameMiddlewareBuilder
         {
             public MiddlewareWithDependencyInjectionVariable() : base(false)
             {
@@ -132,7 +160,7 @@ namespace Blueprint.Tests.Api.Builder
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var operationVariable = variables.FindVariable(typeof(OperationWithInjectable));
-                var diVariable = variables.FindVariable(typeof(IInjectable));
+                var diVariable = variables.FindVariable(typeof(T));
 
                 writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diVariable};");
                 next();
@@ -165,10 +193,15 @@ namespace Blueprint.Tests.Api.Builder
 
         public class OperationWithInjectable : ICommand
         {
-            public IInjectable InjectableProperty { get; set; }
+            public object InjectableProperty { get; set; }
         }
 
-        public interface IInjectable {}
-        public class Injectable : IInjectable {}
+        public interface IInjectable
+        {
+        }
+
+        public class Injectable : IInjectable
+        {
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
+using Blueprint.Core.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api
@@ -18,6 +19,13 @@ namespace Blueprint.Api
 
         public GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
+            // If the requested type is enumerable we will always return a transient frame as, even with nothing registered, we
+            // want to fulfil this request as it's expected that a 0-filled enumerable is acceptable
+            if (toLoad.IsEnumerable())
+            {
+                return new TransientInstanceFrame<T>(toLoad);
+            }
+
             var registrations = (IServiceCollection)provider.GetService(typeof(IServiceCollection));
             var registrationsForType = registrations.Where(r => r.ServiceType == toLoad).ToList();
 
