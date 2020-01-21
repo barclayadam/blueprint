@@ -162,16 +162,22 @@ namespace Blueprint.Core.Tasks
                         var contextKey = typeName;
                         var backgroundContext = new BackgroundTaskContext(contextKey, contextProvider);
 
+                        // 1. Handle the actual execution of the task
                         await handler.HandleAsync(backgroundTask, backgroundContext);
 
-                        await backgroundContext.SaveAsync();
-
+                        // 2. Allow any further processing to happen (i.e. may be to save changes in a UoW)
                         var postProcessor = nestedContainer.ServiceProvider.GetService<IBackgroundTaskExecutionPostProcessor>();
 
                         if (postProcessor != null)
                         {
                             await postProcessor.PostProcessAsync(backgroundTask);
                         }
+
+                        // 3. Save any context data that may have changed
+                        await backgroundContext.SaveAsync();
+
+                        // 4. Schedule any new tasks that have been added by the task
+                        await nestedContainer.ServiceProvider.GetRequiredService<IBackgroundTaskScheduler>().RunNowAsync();
                     });
                 }
             }
