@@ -27,12 +27,14 @@ namespace Blueprint.Compiler
             logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
 
             using (var assemblyStream = new MemoryStream())
+            using (var symbolsStream = new MemoryStream())
             {
-                var emitOptions = new EmitOptions(debugInformationFormat: DebugInformationFormat.Embedded);
+                var emitOptions = new EmitOptions(debugInformationFormat: DebugInformationFormat.PortablePdb);
                 var embeddedTexts = compilation.SyntaxTrees.Select(s => EmbeddedText.FromSource(s.FilePath, s.GetText()));
 
                 var result = compilation.Emit(
                     peStream: assemblyStream,
+                    pdbStream: symbolsStream,
                     embeddedTexts: embeddedTexts,
                     options: emitOptions);
 
@@ -41,9 +43,9 @@ namespace Blueprint.Compiler
                 assemblyStream.Seek(0, SeekOrigin.Begin);
 
 #if !NET472
-                return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+                return AssemblyLoadContext.Default.LoadFromStream(assemblyStream, symbolsStream);
 #else
-                return Assembly.Load(assemblyStream.ToArray());
+                return Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
 #endif
             }
         }

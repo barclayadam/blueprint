@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Blueprint.Api;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
@@ -19,13 +19,6 @@ namespace Blueprint.ApplicationInsights
     /// </remarks>
     public class ApplicationInsightsMiddleware : IMiddlewareBuilder
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="ApplicationInsightsMiddleware" /> middleware builder.
-        /// </summary>
-        public ApplicationInsightsMiddleware()
-        {
-        }
-
         /// <inheritdoc />
         /// <returns><c>true</c>.</returns>
         public bool Matches(ApiOperationDescriptor operation)
@@ -36,52 +29,43 @@ namespace Blueprint.ApplicationInsights
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
+            context.ExecuteMethod.Sources.Add(new RequestTelemetrySource());
+
             context.ExecuteMethod.Frames.Add(new LoggingStartFrame(context));
+
             context.RegisterFinallyFrames(new LoggingEndFrame());
         }
 
         private class LoggingStartFrame : SyncFrame
         {
             private readonly MiddlewareBuilderContext builderContext;
-            private readonly Variable requestTelemetryVariable;
-
-            private Variable httpContextVariable;
 
             public LoggingStartFrame(MiddlewareBuilderContext builderContext)
             {
                 this.builderContext = builderContext;
-                requestTelemetryVariable = new Variable(typeof(RequestTelemetry), this);
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
+                var requestTelemetryVariable = variables.FindVariable(typeof(RequestTelemetry));
                 var operationName = builderContext.Descriptor.HttpMethod + " " + builderContext.Descriptor.OperationType.Name;
-
-                writer.Write($"var {requestTelemetryVariable} = {httpContextVariable}.{nameof(HttpContext.Features)}.Get<{typeof(RequestTelemetry).FullNameInCode()}>();");
-                writer.BlankLine();
 
                 // Must check if requestTelemetry actually exists. Set the operation name to that of the HTTP method + operation class name
                 writer.WriteIf($"{requestTelemetryVariable} != null");
                 writer.Write($"{requestTelemetryVariable}.Name = \"{operationName}\";");
                 writer.FinishBlock();
 
-                Next?.GenerateCode(method, writer);
-            }
-
-            /// <inheritdoc />
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                yield return httpContextVariable = chain.FindVariable(typeof(HttpContext));
+                next();
             }
         }
 
         private class LoggingEndFrame : SyncFrame
         {
-            private Variable requestTelemetryVariable;
-            private Variable apiOperationContextVariable;
-
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
+                var requestTelemetryVariable = variables.FindVariable(typeof(RequestTelemetry));
+                var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
+
                 // ALWAYS, in a finally statement, try to set the user details if we have them available
                 // This is so the UserAuthorisationContext variable isn't reordered above the try of this middleware.
                 writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
@@ -90,11 +74,45 @@ namespace Blueprint.ApplicationInsights
                 writer.Write($"{requestTelemetryVariable}.Context.User.AccountId = userContext.{nameof(IUserAuthorisationContext.AccountId)};");
                 writer.FinishBlock();
             }
+        }
 
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
+        private class RequestTelemetrySource : IVariableSource
+        {
+            public Variable TryFindVariable(IMethodVariables variables, Type type)
             {
-                yield return requestTelemetryVariable = chain.FindVariable(typeof(RequestTelemetry));
-                yield return apiOperationContextVariable = chain.FindVariable(typeof(ApiOperationContext));
+                if (type == typeof(RequestTelemetry))
+                {
+                    var httpContextVariable = variables.FindVariable(typeof(HttpContext));
+
+                    return new VariableSourceFrame(
+                        type,
+                        $"{httpContextVariable}.{nameof(HttpContext.Features)}.{nameof(HttpContext.Features.Get)}<{typeof(RequestTelemetry).FullNameInCode()}>()")
+                        .SourceVariable;
+                }
+
+                return null;
+            }
+        }
+
+        private class VariableSourceFrame : SyncFrame
+        {
+            private readonly Variable sourceVariable;
+            private readonly string use;
+
+            public VariableSourceFrame(Type type, string use)
+            {
+                sourceVariable = new Variable(type, this);
+
+                this.use = use;
+            }
+
+            public Variable SourceVariable => sourceVariable;
+
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
+            {
+                writer.Write($"var {sourceVariable} = {use};");
+
+                next();
             }
         }
     }
