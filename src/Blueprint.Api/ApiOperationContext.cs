@@ -140,6 +140,7 @@ namespace Blueprint.Api
             childContext.HttpContext = HttpContext;
             childContext.ClaimsIdentity = ClaimsIdentity;
             childContext.UserAuthorisationContext = UserAuthorisationContext;
+            childContext.RouteData = RouteData;
         }
     }
 }
