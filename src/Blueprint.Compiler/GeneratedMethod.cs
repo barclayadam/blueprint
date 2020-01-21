@@ -401,7 +401,7 @@ namespace Blueprint.Compiler
             {
                 variable = null;
 
-                var sourced = method.Sources.Select(x => x.TryFindVariable(dependency)).Where(x => x != null);
+                var sourced = method.Sources.Select(x => x.TryFindVariable(this, dependency)).Where(x => x != null);
                 var created = method.Frames.SelectMany(x => x.Creates);
 
                 var candidate = method.variables.Values
@@ -481,7 +481,7 @@ namespace Blueprint.Compiler
 
                 foreach (var s in method.Sources)
                 {
-                    var created = s.TryFindVariable(variableType);
+                    var created = s.TryFindVariable(this, variableType);
 
                     if (created != null)
                     {

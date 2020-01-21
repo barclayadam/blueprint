@@ -4,6 +4,6 @@ namespace Blueprint.Compiler.Model
 {
     public interface IVariableSource
     {
-        Variable TryFindVariable(Type type);
+        Variable TryFindVariable(IMethodVariables variables, Type type);
     }
 }

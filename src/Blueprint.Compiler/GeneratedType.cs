@@ -211,7 +211,7 @@ namespace Blueprint.Compiler
             return GetDeclaration();
         }
 
-        Variable IVariableSource.TryFindVariable(Type variableType)
+        Variable IVariableSource.TryFindVariable(IMethodVariables variables, Type variableType)
         {
             foreach (var v in AllInjectedFields)
             {

@@ -28,6 +28,12 @@ namespace Blueprint.Api.CodeGen
     {
         private readonly Argument operationContextVariable;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiOperationContextVariableSource" /> class.
+        /// </summary>
+        /// <param name="operationContextVariable">The <see cref="ApiOperationContext"/> variable of the method.</param>
+        /// <param name="castFrameCastOperationVariable">The variable representing the <see cref="IApiOperation"/> as it's actual
+        /// type.</param>
         public ApiOperationContextVariableSource(Argument operationContextVariable, Variable castFrameCastOperationVariable)
         {
             this.operationContextVariable = operationContextVariable;
@@ -51,19 +57,17 @@ namespace Blueprint.Api.CodeGen
         /// <returns>The corresponding <see cref="Variable"/> for the type.</returns>
         public Variable Get(Type type)
         {
-            return TryFindVariable(type) ?? throw new ArgumentException(
-                       $"{nameof(ApiOperationContextVariableSource)} cannot build variable of type {type.Name}");
+            return DoTryFindVariable(type) ??
+                   throw new ArgumentException($"{nameof(ApiOperationContextVariableSource)} cannot build variable of type {type.Name}");
         }
 
-        public Variable GetOperationProperty(PropertyInfo property)
+        /// <inheritdoc />
+        public Variable TryFindVariable(IMethodVariables variables, Type type)
         {
-            var operationPropertyVariable = new Variable(property.PropertyType, $"{OperationVariable}.{property.Name}");
-            operationPropertyVariable.Dependencies.Add(OperationVariable);
-
-            return operationPropertyVariable;
+            return DoTryFindVariable(type);
         }
 
-        public Variable TryFindVariable(Type type)
+        private Variable DoTryFindVariable(Type type)
         {
             if (type == typeof(ApiDataModel))
             {
