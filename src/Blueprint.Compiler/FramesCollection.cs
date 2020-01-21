@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -7,8 +8,67 @@ using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler
 {
-    public class FramesCollection : List<Frame>
+    public class FramesCollection : IReadOnlyList<Frame>
     {
+        private readonly List<Frame> frames = new List<Frame>();
+
+        /// <summary>
+        /// Adds the specified <see cref="Frame" /> to this collection.
+        /// </summary>
+        /// <param name="frame">The non-null Frame.</param>
+        /// <exception cref="ArgumentNullException">If the frame is <c>null</c>.</exception>
+        public void Add(Frame frame)
+        {
+            if (frame == null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            frames.Add(frame);
+        }
+
+        /// <summary>
+        /// Inserts the specified <see cref="Frame" /> to this collection at the given index.
+        /// </summary>
+        /// <param name="index">The index at which to insert the frame.</param>
+        /// <param name="frame">The non-null Frame.</param>
+        /// <exception cref="ArgumentNullException">If the frame is <c>null</c>.</exception>
+        public void Insert(int index, Frame frame)
+        {
+            if (frame == null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            frames.Insert(index, frame);
+        }
+
+        /// <summary>
+        /// Adds all of the given frames to this collection.
+        /// </summary>
+        /// <param name="framesToAdd">The frames to add.</param>
+        /// <exception cref="ArgumentNullException">If any one of the frames to add is <c>null</c>.</exception>
+        public void AddRange(IEnumerable<Frame> framesToAdd)
+        {
+            foreach (var frame in framesToAdd)
+            {
+                if (frame == null)
+                {
+                    throw new ArgumentNullException(nameof(frame));
+                }
+
+                frames.Add(frame);
+            }
+        }
+
+        /// <summary>
+        /// Clears all existing frames from this collection.
+        /// </summary>
+        public void Clear()
+        {
+            frames.Clear();
+        }
+
         /// <summary>
         /// Adds a ReturnFrame to the method that will return a variable of the specified type.
         /// </summary>
@@ -97,5 +157,23 @@ namespace Blueprint.Compiler
                 frame.GenerateCode(variables, method, writer);
             }
         }
+
+        /// <inherit-doc />
+        IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
+        {
+            return frames.GetEnumerator();
+        }
+
+        /// <inherit-doc />
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)frames).GetEnumerator();
+        }
+
+        /// <inherit-doc />
+        public int Count => frames.Count;
+
+        /// <inherit-doc />
+        public Frame this[int index] => frames[index];
     }
 }
