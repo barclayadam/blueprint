@@ -18,7 +18,7 @@ namespace Blueprint.StructureMap
             this.container = container;
         }
 
-        public GetInstanceFrame<T> VariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
+        public GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
             var config = container.Model.For(toLoad);
 

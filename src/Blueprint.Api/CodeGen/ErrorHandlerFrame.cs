@@ -15,35 +15,28 @@ namespace Blueprint.Api.CodeGen
     {
         private readonly MiddlewareBuilderContext context;
 
-        private Variable contextVariable;
-        private Dictionary<Type, Frame[]> createdFrames;
-
         public ErrorHandlerFrame(MiddlewareBuilderContext context)
         {
             this.context = context;
         }
 
-        public override IEnumerable<Variable> Creates
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            get
-            {
-                return GetAllPossibleCatchFrames().SelectMany(x => x.Creates).ToArray();
-            }
-        }
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
-        {
-            writer.Write("BLOCK:try");
-            Next?.GenerateCode(method, writer);
+            writer.Block("try");
+            next();
             writer.FinishBlock();
 
             foreach (var handler in context.ExceptionHandlers.OrderBy(k => k.Key, new CatchClauseComparer()))
             {
-                writer.Write($"BLOCK:catch ({handler.Key.FullNameInCode()} e)");
+                writer.Block($"catch ({handler.Key.FullNameInCode()} e)");
 
-                foreach (var frame in createdFrames[handler.Key])
+                // Key == exception type being caught
+                var exceptionVariable = new Variable(handler.Key, "e");
+                var allFrames = handler.Value.SelectMany(v => v(exceptionVariable)).ToList();
+
+                foreach (var frame in allFrames)
                 {
-                    frame.GenerateCode(method, writer);
+                    frame.GenerateCode(variables, method, writer);
                 }
 
                 writer.FinishBlock();
@@ -51,65 +44,15 @@ namespace Blueprint.Api.CodeGen
 
             if (context.FinallyFrames.Any())
             {
-                writer.Write($"BLOCK:finally");
+                writer.Block("finally");
 
                 foreach (var frame in context.FinallyFrames)
                 {
-                    frame.GenerateCode(method, writer);
+                    frame.GenerateCode(variables, method, writer);
                 }
 
                 writer.FinishBlock();
             }
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            contextVariable = chain.FindVariable(typeof(ApiOperationContext));
-
-            yield return contextVariable;
-
-            foreach (var f in GetAllPossibleCatchFrames())
-            {
-                foreach (var v in f.FindVariables(chain))
-                {
-                    yield return v;
-                }
-            }
-
-            foreach (var f in context.FinallyFrames)
-            {
-                foreach (var v in f.FindVariables(chain))
-                {
-                    yield return v;
-                }
-            }
-        }
-
-        private IEnumerable<Frame> GetAllPossibleCatchFrames()
-        {
-            // We must create the frames only once, as otherwise the compiler is not able to handle the assignment of
-            // variables etc. as they would be created multiple times.
-            if (createdFrames == null)
-            {
-                createdFrames = new Dictionary<Type, Frame[]>();
-
-                foreach (var handler in context.ExceptionHandlers)
-                {
-                    var exceptionVariable = new Variable(handler.Key, "e");
-                    var allFrames = handler.Value.SelectMany(v => v(exceptionVariable));
-
-                    createdFrames[handler.Key] = allFrames.ToArray();
-                }
-            }
-            else
-            {
-                if (createdFrames.Count != context.ExceptionHandlers.Count)
-                {
-                    throw new InvalidOperationException("Unhandled exception handler has been modified after code generation.");
-                }
-            }
-
-            return createdFrames.SelectMany(f => f.Value);
         }
 
         /// <summary>

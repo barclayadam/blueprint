@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -81,7 +80,7 @@ namespace Blueprint.Compiler.Tests.Compilation
             compileFailure.Id.Should().Be("CS0103");
             compileFailure.Severity.Should().Be(DiagnosticSeverity.Error);
 
-            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(14,26): error CS0103: The name 'oopstwo' does not exist in the current context
+            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(13,26): error CS0103: The name 'oopstwo' does not exist in the current context
         {
 
             return one + oopstwo;
@@ -110,52 +109,34 @@ namespace Blueprint.Compiler.Tests
 
     public class SyntaxErrorFrame : SyncFrame
     {
-        private Variable one;
-        private Variable two;
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            var one = variables.FindVariableByName(typeof(int), "one");
+            var two = variables.FindVariableByName(typeof(int), "two");
+
             writer.WriteLine($"return {one} + oops{two};");
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            yield return one = chain.FindVariableByName(typeof(int), "one");
-            yield return two = chain.FindVariableByName(typeof(int), "two");
         }
     }
 
     public class AddFrame : SyncFrame
     {
-        private Variable one;
-        private Variable two;
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            var one = variables.FindVariableByName(typeof(int), "one");
+            var two = variables.FindVariableByName(typeof(int), "two");
+
             writer.WriteLine($"return {one} + {two};");
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            yield return one = chain.FindVariableByName(typeof(int), "one");
-            yield return two = chain.FindVariableByName(typeof(int), "two");
         }
     }
 
     public class MultiplyFrame : SyncFrame
     {
-        private Variable one;
-        private Variable two;
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            var one = variables.FindVariableByName(typeof(int), "one");
+            var two = variables.FindVariableByName(typeof(int), "two");
+
             writer.WriteLine($"return {one} * {two};");
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            yield return one = chain.FindVariableByName(typeof(int), "one");
-            yield return two = chain.FindVariableByName(typeof(int), "two");
         }
     }
 

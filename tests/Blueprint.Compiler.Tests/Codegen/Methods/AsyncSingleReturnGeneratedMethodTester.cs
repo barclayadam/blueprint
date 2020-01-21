@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Blueprint.Compiler.Frames;
+using Blueprint.Compiler.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -33,7 +35,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Methods
             return true;
         }
 
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             writer.Write("return Task.FromResult(5);");
         }

@@ -96,86 +96,6 @@ namespace Blueprint.Compiler.Tests.Codegen
         }
 
         [Test]
-        public void find_handler_if_not_local()
-        {
-            var @call = MethodCall.For<MethodCallTarget>(x => x.GetValue());
-            var targetVariable = Variable.For<MethodCallTarget>();
-
-            var chain = new StubMethodVariables()
-            {
-                Variables =
-                {
-                    [typeof(MethodCallTarget)] = targetVariable
-                }
-            };
-
-            @call.FindVariables(chain).Single()
-                .Should().BeSameAs(targetVariable);
-        }
-
-        [Test]
-        public void find_no_handler_if_local()
-        {
-            var @call = MethodCall.For<MethodCallTarget>(x => x.GetValue());
-            @call.IsLocal = true;
-
-            var targetVariable = Variable.For<MethodCallTarget>();
-
-            var chain = new StubMethodVariables()
-            {
-                Variables =
-                {
-                    [typeof(MethodCallTarget)] = targetVariable
-                }
-            };
-
-            @call.FindVariables(chain).Any().Should().BeFalse();
-        }
-
-        [Test]
-        public void find_no_handler_variable_if_it_is_static()
-        {
-            var @call = new MethodCall(typeof(MethodCallTarget), nameof(MethodCallTarget.GoStatic));
-            @call.IsLocal = true;
-
-            var targetVariable = Variable.For<MethodCallTarget>();
-
-            var chain = new StubMethodVariables()
-            {
-                Variables =
-                {
-                    [typeof(MethodCallTarget)] = targetVariable
-                }
-            };
-
-            @call.FindVariables(chain).Any().Should().BeFalse();
-        }
-
-        [Test]
-        public void find_variables_returns_all_the_set_arguments_too()
-        {
-            var age = Variable.For<int>("age");
-            var count = Variable.For<int>("count");
-
-            var name = Variable.For<string>();
-
-            var variables = new StubMethodVariables();
-            //variables.Store(age);
-            variables.Store(count);
-            variables.Store(name);
-
-            var @call = MethodCall.For<MethodCallTarget>(x => x.DoSomething(0, 0, null));
-            @call.IsLocal = true;
-            @call.TrySetArgument("age", age).Should().BeTrue();
-
-            var found = @call.FindVariables(variables).ToArray();
-
-            found.Should().Contain(age);
-            found.Should().Contain(count);
-            found.Should().Contain(name);
-        }
-
-        [Test]
         public void default_disposal_mode_is_using()
         {
             MethodCall.For<MethodCallTarget>(x => x.Throw(null))
@@ -208,38 +128,20 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.Creates.Select(x => x.VariableType)
                 .Should().BeSubsetOf(new [] { typeof(bool), typeof(string), typeof(int) });
         }
-
-        [Test]
-        public void generate_code_with_output_variables()
-        {
-            var @call = new MethodCall(typeof(MethodCallTarget), nameof(MethodCallTarget.ReturnAndOuts));
-            @call.Arguments[0] = new Variable(typeof(string), "input");
-            @call.IsLocal = true;
-
-            var writer = new SourceWriter();
-            @call.GenerateCode(new GeneratedMethod(Builder.NewType(), "Go", typeof(void)), writer);
-
-            writer.Code().Trim().Should().Be("var result_of_ReturnAndOuts = ReturnAndOuts(input, out var string, out var int32);");
-        }
-
-
     }
 
     public class Ball
     {
-
     }
 
     public class Basketball : Ball
     {
-
     }
 
     public class MethodCallTarget
     {
         public void Throw(Ball ball)
         {
-
         }
 
         public void WithOuts(string in1, out string out1, out int out2)
@@ -263,7 +165,6 @@ namespace Blueprint.Compiler.Tests.Codegen
 
         public static void GoStatic()
         {
-
         }
 
         public ErrorMessage GetError()
@@ -278,12 +179,10 @@ namespace Blueprint.Compiler.Tests.Codegen
 
         public void Go(string text)
         {
-
         }
 
         public void DoSomething(int age, int count, string name)
         {
-
         }
 
         public Task<string> GetString()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -19,8 +20,6 @@ namespace Blueprint.Api.CodeGen
         private readonly Variable exceptionVariable;
         private readonly GetInstanceFrame<IErrorLogger> getErrorLoggerFrame;
 
-        private Variable contextVariable;
-
         public PushToErrorLoggerExceptionCatchFrame(MiddlewareBuilderContext context, Variable exceptionVariable)
         {
             this.context = context;
@@ -30,9 +29,11 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <inheritdoc />
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            getErrorLoggerFrame.GenerateCode(method, writer);
+            var contextVariable = variables.FindVariable(typeof(ApiOperationContext));
+
+            getErrorLoggerFrame.GenerateCode(variables, method, writer);
 
             writer.Write($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
             writer.Write($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
@@ -62,19 +63,6 @@ namespace Blueprint.Api.CodeGen
             writer.BlankLine();
             writer.Write($"{getErrorLoggerFrame.InstanceVariable}.Log({exceptionVariable}, {contextVariable}.HttpContext, identifier);");
             writer.BlankLine();
-        }
-
-        /// <inheritdoc />
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            contextVariable = chain.FindVariable(typeof(ApiOperationContext));
-
-            yield return contextVariable;
-
-            foreach (var v in getErrorLoggerFrame.FindVariables(chain))
-            {
-                yield return v;
-            }
         }
     }
 }

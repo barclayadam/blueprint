@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -121,9 +120,6 @@ namespace Blueprint.Tests.Api.Builder
 
         public class MiddlewareWithDependencyInjectionVariable : CustomFrameMiddlewareBuilder
         {
-            private Variable diVariable;
-            private Variable operationVariable;
-
             public MiddlewareWithDependencyInjectionVariable() : base(false)
             {
             }
@@ -133,25 +129,18 @@ namespace Blueprint.Tests.Api.Builder
                 return operation.OperationType == typeof(OperationWithInjectable);
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diVariable};");
-                Next?.GenerateCode(method, writer);
-            }
+                var operationVariable = variables.FindVariable(typeof(OperationWithInjectable));
+                var diVariable = variables.FindVariable(typeof(IInjectable));
 
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                yield return operationVariable = chain.FindVariable(typeof(OperationWithInjectable));
-                yield return diVariable = chain.FindVariable(typeof(IInjectable));
+                writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diVariable};");
+                next();
             }
         }
 
         public class MiddlewareWithMultipleDependencyInjectionVariable : CustomFrameMiddlewareBuilder
         {
-            private Variable diInterfaceVariable;
-            private Variable diConcreteVariable;
-            private Variable operationVariable;
-
             public MiddlewareWithMultipleDependencyInjectionVariable() : base(false)
             {
             }
@@ -161,18 +150,16 @@ namespace Blueprint.Tests.Api.Builder
                 return operation.OperationType == typeof(OperationWithInjectable);
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
+                var operationVariable = variables.FindVariable(typeof(OperationWithInjectable));
+                var diInterfaceVariable = variables.FindVariable(typeof(IInjectable));
+                var diConcreteVariable = variables.FindVariable(typeof(Injectable));
+
                 writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diInterfaceVariable};");
                 writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diConcreteVariable};");
-                Next?.GenerateCode(method, writer);
-            }
 
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                yield return operationVariable = chain.FindVariable(typeof(OperationWithInjectable));
-                yield return diInterfaceVariable = chain.FindVariable(typeof(IInjectable));
-                yield return diConcreteVariable = chain.FindVariable(typeof(Injectable));
+                next();
             }
         }
 

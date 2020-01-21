@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler.Frames
 {
@@ -30,11 +31,11 @@ namespace Blueprint.Compiler.Frames
         }
 
         /// <inheritdoc />
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             writer.Write(ToString());
 
-            Next?.GenerateCode(method, writer);
+            next();
         }
 
         /// <inheritdoc />

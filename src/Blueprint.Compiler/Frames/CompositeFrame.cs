@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,31 +16,35 @@ namespace Blueprint.Compiler.Frames
             this.inner = inner.ToList();
         }
 
-        public override IEnumerable<Variable> Creates => inner.SelectMany(x => x.Creates).ToArray();
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="CompositeFrame"/> is async, determined by whether
+        /// any of the children <see cref="Frame.IsAsync"/> properties are <c>true</c>.
+        /// </summary>
+        public override bool IsAsync => inner.Any(i => i.IsAsync);
+
+        public List<Frame> Inner
+        {
+            get => inner;
+        }
 
         public void Add(Frame innerFrame)
         {
             inner.Add(innerFrame);
         }
 
-        public sealed override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             if (inner.Count > 1)
             {
                 for (var i = 1; i < inner.Count; i++)
                 {
-                    inner[i - 1].Next = inner[i];
+                    inner[i - 1].NextFrame = inner[i];
                 }
             }
 
-            GenerateCode(method, writer, inner[0]);
+            GenerateCode(variables, method, writer, inner[0]);
 
-            Next?.GenerateCode(method, writer);
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            return inner.SelectMany(x => x.FindVariables(chain)).Distinct();
+            next();
         }
 
         public override bool CanReturnTask()
@@ -57,6 +62,6 @@ namespace Blueprint.Compiler.Frames
             return inner.GetEnumerator();
         }
 
-        protected abstract void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner);
+        protected abstract void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Frame inner);
     }
 }

@@ -138,16 +138,20 @@ namespace Blueprint.Api.Middleware
              * return validationResult;
              */
             var validationFailures = new Variable(typeof(ValidationFailures), $"{exception}.{nameof(ValidationException.ValidationResults)}");
-            var createResponse =
-                new ConstructorFrame<ValidationErrorResponse>(() =>
-                    new ValidationErrorResponse((ValidationFailures)null))
-                {
-                    Parameters = { [0] = validationFailures },
-                };
+
+            var createResponse = new ConstructorFrame<ValidationErrorResponse>(() => new ValidationErrorResponse((ValidationFailures)null))
+            {
+                Parameters = { [0] = validationFailures },
+            };
+
+            var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null))
+            {
+                Parameters = { [0] = createResponse.Variable },
+            };
 
             yield return createResponse;
-            yield return new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
-            yield return new ReturnFrame(typeof(ValidationFailedResult));
+            yield return createResult;
+            yield return new ReturnFrame(createResult.Variable);
         }
 
         private static IEnumerable<Frame> RegisterDataAnnotationsExceptionHandler(Variable exception)
@@ -157,12 +161,19 @@ namespace Blueprint.Api.Middleware
              * var validationResult = new Blueprint.Core.Api.Middleware.ValidationResult(validationErrorResponse);
              * return validationResult;
              */
-            yield return new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToErrorResponse))
+            var createResponse = new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToErrorResponse))
             {
                 Arguments = { [0] = exception },
             };
-            yield return new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
-            yield return new ReturnFrame(typeof(ValidationFailedResult));
+
+            var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null))
+            {
+                Parameters = { [0] = createResponse.ReturnVariable },
+            };
+
+            yield return createResponse;
+            yield return createResult;
+            yield return new ReturnFrame(createResult.Variable);
         }
     }
 }

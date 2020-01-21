@@ -5,11 +5,11 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Model
 {
-    public class ValueTypeReturnVariable : Variable
+    public class TupleReturnVariable : Variable
     {
         private readonly Variable[] inner;
 
-        public ValueTypeReturnVariable(Type returnType, Variable[] inner) : base(returnType)
+        public TupleReturnVariable(Type returnType, Variable[] inner) : base(returnType)
         {
             this.inner = inner;
         }

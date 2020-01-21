@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Api.Http;
 using Blueprint.Compiler;
@@ -49,7 +50,7 @@ namespace Blueprint.Api.Middleware
                 operationResultVariable = new Variable(typeof(OperationResult), this);
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var operationResultName = typeof(OperationResult).FullNameInCode();
 
@@ -77,7 +78,7 @@ namespace Blueprint.Api.Middleware
                     writer.Write($"{operationResultName} {operationResultVariable} = new {okResultName}({resultVariable});");
                 }
 
-                Next?.GenerateCode(method, writer);
+                next();
             }
         }
     }

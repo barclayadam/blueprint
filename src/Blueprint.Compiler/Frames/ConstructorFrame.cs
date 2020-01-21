@@ -52,30 +52,45 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         public Variable Variable { get; protected set; }
 
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            var parameters = Ctor.GetParameters();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                if (Parameters[i] == null)
+                {
+                    var parameter = parameters[i];
+                    Parameters[i] = variables.FindVariable(parameter.ParameterType);
+                }
+            }
+
+            foreach (var setter in Setters)
+            {
+                setter.FindVariable(variables);
+            }
+
             switch (Mode)
             {
                 case ConstructorCallMode.Variable:
                     writer.Write(Declaration() + ";");
-                    ActivatorFrames.Write(method, writer);
+                    ActivatorFrames.Write(variables, method, writer);
 
-                    Next?.GenerateCode(method, writer);
+                    next();
                     break;
 
                 case ConstructorCallMode.ReturnValue:
                     if (ActivatorFrames.Any())
                     {
                         writer.Write(Declaration() + ";");
-                        ActivatorFrames.Write(method, writer);
+                        ActivatorFrames.Write(variables, method, writer);
 
                         writer.Write($"return {Variable};");
-                        Next?.GenerateCode(method, writer);
+                        next();
                     }
                     else
                     {
                         writer.Write($"return {Invocation()};");
-                        Next?.GenerateCode(method, writer);
+                        next();
                     }
 
                     break;
@@ -83,8 +98,8 @@ namespace Blueprint.Compiler.Frames
                 case ConstructorCallMode.UsingNestedVariable:
                     writer.UsingBlock(Declaration(), w =>
                     {
-                        ActivatorFrames.Write(method, writer);
-                        Next?.GenerateCode(method, w);
+                        ActivatorFrames.Write(variables, method, writer);
+                        NextFrame?.GenerateCode(variables, method, writer);
                     });
                     break;
             }
@@ -106,47 +121,6 @@ namespace Blueprint.Compiler.Frames
             }
 
             return invocation;
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            var parameters = Ctor.GetParameters();
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                if (Parameters[i] == null)
-                {
-                    var parameter = parameters[i];
-                    Parameters[i] = chain.FindVariable(parameter.ParameterType);
-                }
-            }
-
-            foreach (var parameter in Parameters)
-            {
-                yield return parameter;
-            }
-
-            foreach (var setter in Setters)
-            {
-                setter.FindVariable(chain);
-            }
-
-            foreach (var setter in Setters)
-            {
-                yield return setter.Variable;
-            }
-
-            if (ActivatorFrames.Any())
-            {
-                var standin = new StandinMethodVariables(Variable, chain);
-
-                foreach (var frame in ActivatorFrames)
-                {
-                    foreach (var variable in frame.FindVariables(standin))
-                    {
-                        yield return variable;
-                    }
-                }
-            }
         }
 
         /// <inheritdoc />

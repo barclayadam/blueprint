@@ -12,7 +12,7 @@ namespace Blueprint.Compiler
         private int level;
         private string leadingSpaces = string.Empty;
 
-        public int IndentionLevel
+        public int IndentationLevel
         {
             get
             {
@@ -47,15 +47,6 @@ namespace Blueprint.Compiler
                 {
                     BlankLine();
                 }
-                else if (line.StartsWith("BLOCK:"))
-                {
-                    WriteLine(line.Substring(6));
-                    StartBlock();
-                }
-                else if (line.StartsWith("END"))
-                {
-                    FinishBlock(line.Substring(3));
-                }
                 else
                 {
                     WriteLine(line);
@@ -68,14 +59,22 @@ namespace Blueprint.Compiler
             writer.WriteLine(leadingSpaces + text);
         }
 
+        public void Block(string text)
+        {
+            WriteLine(text);
+            WriteLine("{");
+
+            IndentationLevel++;
+        }
+
         public void FinishBlock(string extra = null)
         {
-            if (IndentionLevel == 0)
+            if (IndentationLevel == 0)
             {
                 throw new InvalidOperationException("Not currently in a code block");
             }
 
-            IndentionLevel--;
+            IndentationLevel--;
 
             if (string.IsNullOrEmpty(extra))
             {
@@ -92,12 +91,6 @@ namespace Blueprint.Compiler
         public string Code()
         {
             return writer.ToString();
-        }
-
-        private void StartBlock()
-        {
-            WriteLine("{");
-            IndentionLevel++;
         }
     }
 }

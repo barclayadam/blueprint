@@ -29,7 +29,7 @@ namespace Blueprint.Api.Configuration
 
             BaseApiUrl = string.Empty;
 
-            AddOperation<RootMetadataOperation>();
+            // AddOperation<RootMetadataOperation>();
 
             configure?.Invoke(this);
         }

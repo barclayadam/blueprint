@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -44,20 +43,6 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Trace" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Trace(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Trace, message, parameters);
-        }
-
-        /// <summary>
         /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" /> level and given
         /// message.
         /// </summary>
@@ -67,20 +52,6 @@ namespace Blueprint.Api.CodeGen
         public static LogFrame Debug(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Debug, message, parameters);
-        }
-
-        /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Debug(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Debug, message, parameters);
         }
 
         /// <summary>
@@ -96,20 +67,6 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Information" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Information(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Information, message, parameters);
-        }
-
-        /// <summary>
         /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
         /// message.
         /// </summary>
@@ -119,20 +76,6 @@ namespace Blueprint.Api.CodeGen
         public static LogFrame Warning(string message, params string[] parameters)
         {
             return new LogFrame(LogLevel.Warning, message, parameters);
-        }
-
-        /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Warning(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Warning, message, parameters);
         }
 
         /// <summary>
@@ -148,20 +91,6 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Error" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Error(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Error, message, parameters);
-        }
-
-        /// <summary>
         /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
         /// message.
         /// </summary>
@@ -173,23 +102,10 @@ namespace Blueprint.Api.CodeGen
             return new LogFrame(LogLevel.Critical, message, parameters);
         }
 
-        /// <summary>
-        /// Writes directly to the given <see cref="ISourceWriter" /> a <see cref="LogFrame" /> of level <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" />,
-        /// enabling the re-use of the logic within a custom <see cref="Frame" />.
-        /// </summary>
-        /// <param name="method">The method this line is being written to.</param>
-        /// <param name="writer">The writer to output the given log message to.</param>
-        /// <param name="loggerVariable">The logger variable that represents the method's injected <see cref="ILogger" />.</param>
-        /// <param name="message">The message to output.</param>
-        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-        public static void Critical(GeneratedMethod method, ISourceWriter writer, Variable loggerVariable, string message, params string[] parameters)
-        {
-            WriteLog(method, writer, loggerVariable, LogLevel.Critical, message, parameters);
-        }
-
         /// <inheritdoc />
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            loggerVariable = (LoggerVariable)variables.FindVariable(typeof(ILogger));
             var safeMessage = message.Replace("\"", "\\\"");
 
             if (loggerVariable.Logger.IsEnabled(level))
@@ -202,38 +118,13 @@ namespace Blueprint.Api.CodeGen
                     : $"{methodCall}({logLevel}, \"{safeMessage}\", {string.Join(", ", parameters)});");
             }
 
-            Next?.GenerateCode(method, writer);
-        }
-
-        /// <inheritdoc />
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            loggerVariable = (LoggerVariable)chain.FindVariable(typeof(ILogger));
-
-            yield return loggerVariable;
+            next();
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
             return $"Log.{level}({message})";
-        }
-
-        private static void WriteLog(
-            GeneratedMethod method,
-            ISourceWriter writer,
-            Variable loggerVariable,
-            LogLevel level,
-            string message,
-            params string[] parameters)
-        {
-            if (!(loggerVariable is LoggerVariable))
-            {
-                throw new InvalidOperationException($"Cannot pass {loggerVariable} that is not of type {nameof(LoggerVariable)}.");
-            }
-
-            var frame = new LogFrame(level, message, parameters) {loggerVariable = (LoggerVariable)loggerVariable};
-            frame.GenerateCode(method, writer);
         }
     }
 }

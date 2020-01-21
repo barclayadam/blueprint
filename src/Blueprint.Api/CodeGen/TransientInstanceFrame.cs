@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -15,7 +14,6 @@ namespace Blueprint.Api.CodeGen
     public class TransientInstanceFrame<T> : GetInstanceFrame<T>
     {
         private readonly Type constructedType;
-        private Variable serviceProviderVariable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransientInstanceFrame{T}"/> class with the specified
@@ -47,8 +45,10 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <inheritdoc />
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            var serviceProviderVariable = variables.FindVariable(typeof(IServiceProvider));
+
             // We import this namespace to allow using extension method invocation, which cleans up the
             // generated code quite a bit for this use case.
             method.GeneratedType.Namespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
@@ -56,22 +56,14 @@ namespace Blueprint.Api.CodeGen
             writer.Write(
                 $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>();");
 
-            Next?.GenerateCode(method, writer);
-        }
-
-        /// <inheritdoc />
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            serviceProviderVariable = chain.FindVariable(typeof(IServiceProvider));
-
-            yield return serviceProviderVariable;
+            next();
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
             return
-                $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
+                $"var {InstanceVariable} = services.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
         }
     }
 }

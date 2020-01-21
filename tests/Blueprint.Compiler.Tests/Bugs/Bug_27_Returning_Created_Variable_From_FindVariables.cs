@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Tests.Codegen;
@@ -31,14 +32,9 @@ namespace Blueprint.Compiler.Tests.Bugs
 
             public Variable Variable { get; }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 // nothing
-            }
-
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                yield return Variable;
             }
         }
 

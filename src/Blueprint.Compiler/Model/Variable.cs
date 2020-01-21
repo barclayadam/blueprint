@@ -24,7 +24,7 @@ namespace Blueprint.Compiler.Model
         {
             if (creator != null)
             {
-                this.Creator = creator;
+                Creator = creator;
                 creator.AddCreates(this);
             }
         }

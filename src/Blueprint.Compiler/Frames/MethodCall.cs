@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,37 +12,37 @@ namespace Blueprint.Compiler.Frames
     public class MethodCall : Frame
     {
         private readonly Type handlerType;
-        private readonly MethodInfo method;
+        private readonly MethodInfo methodInfo;
 
         public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
         {
         }
 
-        public MethodCall(Type handlerType, MethodInfo method) : base(method.IsAsync())
+        public MethodCall(Type handlerType, MethodInfo methodInfo) : base(methodInfo.IsAsync())
         {
             this.handlerType = handlerType;
-            this.method = method;
+            this.methodInfo = methodInfo;
 
-            var returnType = CorrectedReturnType(method.ReturnType);
+            var returnType = CorrectedReturnType(methodInfo.ReturnType);
             if (returnType != null)
             {
                 if (returnType.IsValueTuple())
                 {
                     var values = returnType.GetGenericArguments().Select(x => new Variable(x, this)).ToArray();
 
-                    ReturnVariable = new ValueTypeReturnVariable(returnType, values);
+                    ReturnVariable = new TupleReturnVariable(returnType, values);
                 }
                 else
                 {
                     var name = returnType.IsSimple() || returnType == typeof(object) || returnType == typeof(object[])
-                        ? "result_of_" + method.Name
+                        ? "result_of_" + methodInfo.Name
                         : Variable.DefaultArgName(returnType);
 
                     ReturnVariable = new Variable(returnType, name, this);
                 }
             }
 
-            var parameters = method.GetParameters();
+            var parameters = methodInfo.GetParameters();
             Arguments = new Variable[parameters.Length];
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -78,7 +77,7 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(Variable variable)
         {
-            var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
+            var parameters = methodInfo.GetParameters().Select(x => x.ParameterType).ToArray();
 
             if (parameters.Count(x => variable.VariableType.CanBeCastTo(x)) != 1)
             {
@@ -93,7 +92,7 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(string parameterName, Variable variable)
         {
-            var parameters = method.GetParameters().ToArray();
+            var parameters = methodInfo.GetParameters().ToArray();
             var matching = parameters.FirstOrDefault(x =>
                 variable.VariableType.CanBeCastTo(x.ParameterType) && x.Name == parameterName);
 
@@ -108,9 +107,9 @@ namespace Blueprint.Compiler.Frames
             return true;
         }
 
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var parameters = method.GetParameters().ToArray();
+            var parameters = methodInfo.GetParameters().ToArray();
             for (var i = 0; i < parameters.Length; i++)
             {
                 if (Arguments[i] != null)
@@ -118,29 +117,15 @@ namespace Blueprint.Compiler.Frames
                     continue;
                 }
 
-                Arguments[i] = chain.FindVariable(parameters[i].ParameterType);
+                Arguments[i] = variables.FindVariable(parameters[i].ParameterType);
             }
 
-            foreach (var variable in Arguments)
+            // If we do not have an explicit Target variable already and we need one, try and find it
+            if (Target == null && !(methodInfo.IsStatic || IsLocal))
             {
-                yield return variable;
+                Target = variables.FindVariable(handlerType);
             }
 
-            if (method.IsStatic || IsLocal)
-            {
-                yield break;
-            }
-
-            if (Target == null)
-            {
-                Target = chain.FindVariable(handlerType);
-            }
-
-            yield return Target;
-        }
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
-        {
             var invokeMethod = GetInvocationCode();
 
             var returnValue = string.Empty;
@@ -159,13 +144,13 @@ namespace Blueprint.Compiler.Frames
 
             if (isDisposable && DisposalMode == DisposalMode.UsingBlock)
             {
-                writer.UsingBlock($"{returnValue}{invokeMethod}", w => Next?.GenerateCode(method, writer));
+                writer.UsingBlock($"{returnValue}{invokeMethod}", w => next());
             }
             else
             {
                 writer.Write($"{returnValue}{invokeMethod};");
 
-                Next?.GenerateCode(method, writer);
+                next();
             }
         }
 
@@ -236,10 +221,10 @@ namespace Blueprint.Compiler.Frames
 
         private string GetInvocationCode()
         {
-            var methodName = method.Name;
-            if (method.IsGenericMethod)
+            var methodName = methodInfo.Name;
+            if (methodInfo.IsGenericMethod)
             {
-                methodName += $"<{method.GetGenericArguments().Select(x => x.FullName).Join(", ")}>";
+                methodName += $"<{methodInfo.GetGenericArguments().Select(x => x.FullName).Join(", ")}>";
             }
 
             var callingCode = $"{methodName}({Arguments.Select(x => x.ArgumentDeclaration).Join(", ")})";
@@ -256,7 +241,7 @@ namespace Blueprint.Compiler.Frames
                 return string.Empty;
             }
 
-            var target = method.IsStatic
+            var target = methodInfo.IsStatic
                 ? handlerType.FullNameInCode()
                 : Target.Usage;
 

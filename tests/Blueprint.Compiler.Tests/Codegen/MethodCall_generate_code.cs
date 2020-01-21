@@ -11,79 +11,74 @@ namespace Blueprint.Compiler.Tests.Codegen
 {
     public class MethodCall_generate_code
     {
-        public readonly GeneratedMethod theMethod = GeneratedMethod.ForNoArg(Builder.NewType(), "Foo");
-        protected string[] WriteMethod(Expression<Action<MethodTarget>> expression, Action<MethodCall> configure = null)
-        {
-            var @call = MethodCall.For(expression);
-            @call.Target = Variable.For<MethodTarget>("target");
-            configure?.Invoke(@call);
-
-            var writer = new SourceWriter();
-            @call.GenerateCode(theMethod, writer);
-
-            return writer.Code().ReadLines().ToArray();
-        }
-
+        private readonly GeneratedMethod theMethod = GeneratedMethod.ForNoArg(Builder.NewType(), "Foo");
 
         [Test]
         public void no_return_values_no_arguments()
         {
-            WriteMethod(x => x.Go()).Single()
+            GenerateMethodBody(x => x.Go())
+                .Single()
                 .Should().Be("target.Go();");
         }
 
         [Test]
         public void no_target_when_local()
         {
-            WriteMethod(x => x.Go(), x => x.IsLocal = true)
-                .Single().Should().Be("Go();");
+            GenerateMethodBody(x => x.Go(), x => x.IsLocal = true)
+                .Single()
+                .Should().Be("Go();");
         }
 
         [Test]
         public void call_a_sync_generic_method()
         {
-            WriteMethod(x => x.Go<string>()).Single()
+            GenerateMethodBody(x => x.Go<string>())
+                .Single()
                 .Should().Be("target.Go<System.String>();");
         }
 
         [Test]
         public void call_a_sync_generic_method_with_multiple_arguments()
         {
-            WriteMethod(x => x.Go<string, int, bool>()).Single()
+            GenerateMethodBody(x => x.Go<string, int, bool>())
+                .Single()
                 .Should().Be("target.Go<System.String, System.Int32, System.Boolean>();");
         }
 
         [Test]
         public void multiple_arguments()
         {
-            WriteMethod(x => x.GoMultiple(null, null, null), x =>
+            GenerateMethodBody(x => x.GoMultiple(null, null, null), x =>
                 {
                     x.TrySetArgument(Variable.For<Arg1>());
                     x.TrySetArgument(Variable.For<Arg2>());
                     x.TrySetArgument(Variable.For<Arg3>());
-                }).Single()
+                })
+                .Single()
                 .Should().Be("target.GoMultiple(arg1, arg2, arg3);");
         }
 
         [Test]
         public void return_a_value_from_sync_method()
         {
-            WriteMethod(x => x.Add(1, 2), x =>
-            {
-                x.Arguments[0] = Variable.For<int>("x");
-                x.Arguments[1] = Variable.For<int>("y");
-            }).Single()
+            GenerateMethodBody(x => x.Add(1, 2), x =>
+                {
+                    x.Arguments[0] = Variable.For<int>("x");
+                    x.Arguments[1] = Variable.For<int>("y");
+                })
+                .Single()
                 .Should().Be("var result_of_Add = target.Add(x, y);");
         }
 
         [Test]
         public void return_non_simple_value()
         {
-            WriteMethod(x => x.Other(null, null), x =>
+            GenerateMethodBody(x => x.Other(null, null), x =>
                 {
                     x.Arguments[0] = Variable.For<Arg1>();
                     x.Arguments[1] = Variable.For<Arg2>();
-                }).Single()
+                })
+                .Single()
                 .Should().Be("var arg3 = target.Other(arg1, arg2);");
         }
 
@@ -92,7 +87,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void return_task_as_return_from_last_node()
         {
             theMethod.AsyncMode = AsyncMode.ReturnFromLastNode;
-            WriteMethod(x => x.GoAsync())
+            GenerateMethodBody(x => x.GoAsync())
                 .Single()
                 .Should().Be("return target.GoAsync();");
         }
@@ -101,7 +96,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void return_task_as_async()
         {
             theMethod.AsyncMode = AsyncMode.AsyncTask;
-            WriteMethod(x => x.GoAsync())
+            GenerateMethodBody(x => x.GoAsync())
                 .Single()
                 .Should().Be("await target.GoAsync();");
         }
@@ -110,11 +105,12 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void return_async_value_with_return_from_last_node()
         {
             theMethod.AsyncMode = AsyncMode.ReturnFromLastNode;
-            WriteMethod(x => x.OtherAsync(null, null), x =>
-            {
-                x.Arguments[0] = Variable.For<Arg2>();
-                x.Arguments[1] = Variable.For<Arg3>();
-            }).Single()
+            GenerateMethodBody(x => x.OtherAsync(null, null), x =>
+                {
+                    x.Arguments[0] = Variable.For<Arg2>();
+                    x.Arguments[1] = Variable.For<Arg3>();
+                })
+                .Single()
                 .Should().Be("return target.OtherAsync(arg2, arg3);");
         }
 
@@ -122,18 +118,19 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void return_async_value_with_async_task()
         {
             theMethod.AsyncMode = AsyncMode.AsyncTask;
-            WriteMethod(x => x.OtherAsync(null, null), x =>
+            GenerateMethodBody(x => x.OtherAsync(null, null), x =>
                 {
                     x.Arguments[0] = Variable.For<Arg2>();
                     x.Arguments[1] = Variable.For<Arg3>();
-                }).Single()
+                })
+                .Single()
                 .Should().Be("var arg1 = await target.OtherAsync(arg2, arg3);");
         }
 
         [Test]
         public void disposable_return_value_on_sync_and_disposal_using()
         {
-            var lines = WriteMethod(x => x.GetDisposable());
+            var lines = GenerateMethodBody(x => x.GetDisposable());
             lines[0].Should().Be("using (var disposableThing = target.GetDisposable())");
             lines.Should().Contain("{");
             lines.Should().Contain("}");
@@ -142,28 +139,25 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void disposable_return_value_on_sync_no_disposal()
         {
-            WriteMethod(x => x.GetDisposable(), x => x.DisposalMode = DisposalMode.None)
+            GenerateMethodBody(x => x.GetDisposable(), x => x.DisposalMode = DisposalMode.None)
                 .Single()
                 .Should().Be("var disposableThing = target.GetDisposable();");
-
-
         }
 
         [Test]
         public void async_disposable_return_from_last_node()
         {
             theMethod.AsyncMode = AsyncMode.ReturnFromLastNode;
-            WriteMethod(x => x.AsyncDisposable())
+            GenerateMethodBody(x => x.AsyncDisposable())
                 .Single()
                 .Should().Be("return target.AsyncDisposable();");
-
         }
 
         [Test]
         public void async_disposable_async_task()
         {
             theMethod.AsyncMode = AsyncMode.AsyncTask;
-            var lines = WriteMethod(x => x.AsyncDisposable());
+            var lines = GenerateMethodBody(x => x.AsyncDisposable());
             lines[0].Should().Be("using (var disposableThing = await target.AsyncDisposable())");
             lines.Should().Contain("{");
             lines.Should().Contain("}");
@@ -173,16 +167,15 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void async_disposable_async_task_no_dispose()
         {
             theMethod.AsyncMode = AsyncMode.AsyncTask;
-            WriteMethod(x => x.AsyncDisposable(), x => x.DisposalMode = DisposalMode.None)
+            GenerateMethodBody(x => x.AsyncDisposable(), x => x.DisposalMode = DisposalMode.None)
                 .Single()
                 .Should().Be("var disposableThing = await target.AsyncDisposable();");
-
         }
 
         [Test]
         public void generate_code_for_a_method_that_returns_a_tuple()
         {
-            var usage = WriteMethod(x => x.ReturnTuple())
+            var usage = GenerateMethodBody(x => x.ReturnTuple())
                 .First();
             usage.Should().Contain("(var red, var blue, var green) = target.ReturnTuple();");
             usage.Should().NotContain("var (var red, var blue, var green) = target.ReturnTuple();");
@@ -192,18 +185,41 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void generate_code_for_a_method_that_returns_a_task_of_tuple_as_await()
         {
             theMethod.AsyncMode = AsyncMode.AsyncTask;
-            var usage = WriteMethod(x => x.AsyncReturnTuple())
+            var usage = GenerateMethodBody(x => x.AsyncReturnTuple())
                 .First();
             usage.Should().Contain("(var red, var blue, var green) = await target.AsyncReturnTuple();");
             usage.Should().NotContain("var (var red, var blue, var green) = await target.AsyncReturnTuple();");
         }
 
+        private string[] GenerateMethodBody(Expression<Action<MethodTarget>> expression, Action<MethodCall> configure = null)
+        {
+            var @call = MethodCall.For(expression);
+            @call.Target = Variable.For<MethodTarget>("target");
+            configure?.Invoke(@call);
 
+            var writer = new SourceWriter();
+            theMethod.Frames.Clear();
+            theMethod.Frames.Add(@call);
+            theMethod.WriteMethod(writer);
+
+            var allLines = writer.Code().ReadLines().Select(l => l.Trim()).ToArray();
+            var bodyOnly = allLines.AsSpan().Slice(2, allLines.Length - 4);
+
+            return bodyOnly.ToArray();
+        }
     }
 
-    public class Blue{}
-    public class Green{}
-    public class Red{}
+    public class Blue
+    {
+    }
+
+    public class Green
+    {
+    }
+
+    public class Red
+    {
+    }
 
     public class MethodTarget
     {
@@ -250,38 +266,37 @@ namespace Blueprint.Compiler.Tests.Codegen
 
         public void Go()
         {
-
         }
 
         public void GoMultiple(Arg1 one, Arg2 two, Arg3 three)
         {
-
         }
 
         public void Go<T>()
         {
-
         }
 
         public void Go<T, T1, T2>()
         {
-
         }
-
-
-
-
     }
 
-    public class Arg1{}
-    public class Arg2{}
-    public class Arg3{}
+    public class Arg1
+    {
+    }
+
+    public class Arg2
+    {
+    }
+
+    public class Arg3
+    {
+    }
 
     public class DisposableThing : IDisposable
     {
         public void Dispose()
         {
-
         }
     }
 }

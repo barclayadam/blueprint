@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Compiler.Model;
 
@@ -25,8 +24,13 @@ namespace Blueprint.Compiler.Frames
 
         public Variable ReturnedVariable { get; private set; }
 
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
+            if (ReturnedVariable == null && returnType != null)
+            {
+                ReturnedVariable = variables.FindVariable(returnType);
+            }
+
             if (ReturnedVariable == null)
             {
                 writer.Write("return;");
@@ -50,19 +54,6 @@ namespace Blueprint.Compiler.Frames
                 {
                     writer.Write($"return {ReturnedVariable};");
                 }
-            }
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            if (ReturnedVariable == null && returnType != null)
-            {
-                ReturnedVariable = chain.FindVariable(returnType);
-            }
-
-            if (ReturnedVariable != null)
-            {
-                yield return ReturnedVariable;
             }
         }
 

@@ -184,12 +184,12 @@ namespace Blueprint.Api
 
             public Variable CastOperationVariable => operationVariable;
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 writer.Write(
                     $"var {operationVariable} = ({operationVariable.VariableType.FullNameInCode()}) {operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
 
-                Next?.GenerateCode(method, writer);
+                next();
             }
         }
     }

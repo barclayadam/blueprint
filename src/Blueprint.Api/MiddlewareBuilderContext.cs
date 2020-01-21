@@ -6,6 +6,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core;
+using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api
 {
@@ -176,9 +177,7 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
-            AddAssemblyReference(typeof(T).Assembly);
-
-            return instanceFrameProvider.VariableFromContainer<T>(GeneratedType, typeof(T));
+            return GetVariableFromContainer<T>(typeof(T));
         }
 
         /// <summary>
@@ -193,9 +192,30 @@ namespace Blueprint.Api
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
+            return GetVariableFromContainer<object>(type);
+        }
+
+        private GetInstanceFrame<T> GetVariableFromContainer<T>(Type type)
+        {
             AddAssemblyReference(type.Assembly);
 
-            return instanceFrameProvider.VariableFromContainer<object>(GeneratedType, type);
+            var variable = instanceFrameProvider.TryGetVariableFromContainer<T>(GeneratedType, type);
+
+            if (variable == null)
+            {
+                // If we are trying to grab a list of services then having none registered is OK, as we assume
+                // the user of this service expects 0 or more
+                if (!type.IsEnumerable())
+                {
+                    throw new InvalidOperationException(
+                        $"No registrations exist for the service type {type.FullName}. If you are using the default IoC container that is " +
+                        "built-in (Microsoft.Extensions.DependencyInjection) then you MUST register all services up-front, including concrete classes. If you " +
+                        "are using an IoC container that does allow creating unregistered types (i.e. StructureMap) make sure you have registered that within " +
+                        "your Blueprint setup.");
+                }
+            }
+
+            return variable;
         }
     }
 }

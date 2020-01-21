@@ -1,3 +1,6 @@
+using System;
+using Blueprint.Compiler.Model;
+
 namespace Blueprint.Compiler.Frames
 {
     public class CommentFrame : SyncFrame
@@ -9,11 +12,11 @@ namespace Blueprint.Compiler.Frames
             this.commentText = commentText;
         }
 
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             writer.WriteComment(commentText);
 
-            Next?.GenerateCode(method, writer);
+            next();
         }
 
         /// <inheritdoc />

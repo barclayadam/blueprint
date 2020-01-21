@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
@@ -12,13 +12,11 @@ namespace Blueprint.Api
             InstanceVariable = field;
         }
 
-        public override IEnumerable<Variable> Creates => new[] { InstanceVariable };
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            // DO nothing here, we need to have this class so we can return a GetInstanceFrame
+            // Do nothing here, we need to have this class so we can return a GetInstanceFrame
             // instance, but the actual variable is injected and therefore we need no code output
-            Next?.GenerateCode(method, writer);
+            next();
         }
     }
 }

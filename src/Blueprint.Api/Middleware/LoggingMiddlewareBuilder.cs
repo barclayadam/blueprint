@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Middleware
 {
@@ -37,42 +35,34 @@ namespace Blueprint.Api.Middleware
                 stopwatchVariable = new Variable(typeof(Stopwatch), this);
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
 
-                Next?.GenerateCode(method, writer);
+                next();
             }
         }
 
         private class LoggingEndFrame : SyncFrame
         {
             private readonly Type operationType;
-            private Variable stopwatchVariable;
-            private Variable loggerVariable;
 
             public LoggingEndFrame(Type operationType)
             {
                 this.operationType = operationType;
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
+                var stopwatchVariable = variables.FindVariable(typeof(Stopwatch));
+
                 writer.Write($"{stopwatchVariable}.Stop();");
 
-                LogFrame.Information(
-                    method,
-                    writer,
-                    loggerVariable,
-                    "Operation {0} finished in {1}ms",
-                    $"\"{operationType}\"",
-                    $"{stopwatchVariable}.{nameof(Stopwatch.Elapsed)}.{nameof(TimeSpan.TotalMilliseconds)}");
-            }
-
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                yield return stopwatchVariable = chain.FindVariable(typeof(Stopwatch));
-                yield return loggerVariable = chain.FindVariable(typeof(ILogger));
+                writer.Write(
+                    LogFrame.Information(
+                        "Operation {0} finished in {1}ms",
+                        $"\"{operationType}\"",
+                        $"{stopwatchVariable}.{nameof(Stopwatch.Elapsed)}.{nameof(TimeSpan.TotalMilliseconds)}"));
             }
         }
     }

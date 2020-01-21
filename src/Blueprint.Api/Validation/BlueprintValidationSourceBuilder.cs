@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Compiler;
@@ -25,31 +26,20 @@ namespace Blueprint.Api.Validation
 
         private class BlueprintValidatorFrame : AttributeBasedValidatorFrame<BlueprintValidationAttribute>
         {
-            private Variable contextVariable;
-
             public BlueprintValidatorFrame(OperationProperty property) : base(true, property)
             {
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
+                var contextVariable = variables.FindVariable(typeof(ApiOperationContext));
+
                 LoopAttributes(
+                    variables,
                     writer,
                     $"{nameof(BlueprintValidationAttribute.GetValidationResultAsync)}({Property.PropertyValueVariable}, \"{Property.PropertyInfoVariable.Property.Name}\", {contextVariable})");
 
-                Next?.GenerateCode(method, writer);
-            }
-
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                contextVariable = chain.FindVariable(typeof(ApiOperationContext));
-
-                yield return contextVariable;
-
-                foreach (var v in base.FindVariables(chain))
-                {
-                    yield return v;
-                }
+                next();
             }
         }
     }

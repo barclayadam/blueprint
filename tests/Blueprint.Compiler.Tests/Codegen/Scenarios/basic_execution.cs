@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Tests.Scenarios;
@@ -52,7 +52,6 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
         }
     }
 
-
     public class Tracer
     {
         public void Call()
@@ -63,21 +62,12 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
         public bool Called { get; set; }
     }
 
-
-
     public class AddTwoFrame : SyncFrame
     {
-        private Variable _number;
-
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.Write($"return {_number.Usage} + 2;");
-        }
-
-        public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-        {
-            _number = chain.FindVariable(typeof(int));
-            yield return _number;
+            var number = variables.FindVariable(typeof(int));
+            writer.Write($"return {number.Usage} + 2;");
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Blueprint.Api
 {
     public interface IInstanceFrameProvider
     {
-        GetInstanceFrame<T> VariableFromContainer<T>(GeneratedType generatedType, Type toLoad);
+        GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad);
     }
 }

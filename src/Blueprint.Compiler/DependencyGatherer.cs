@@ -38,17 +38,7 @@ namespace Blueprint.Compiler
 
         private IEnumerable<Frame> FindDependencies(Frame frame)
         {
-            frame.ResolveVariables(methodVariables);
-
-            foreach (var dependency in frame.Dependencies)
-            {
-                yield return dependency;
-
-                foreach (var child in dependencies[dependency])
-                {
-                    yield return child;
-                }
-            }
+            // frame.ResolveVariables(methodVariables);
 
             foreach (var variable in frame.Uses)
             {

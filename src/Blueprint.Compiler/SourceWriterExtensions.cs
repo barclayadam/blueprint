@@ -22,7 +22,7 @@ namespace Blueprint.Compiler
         /// <param name="namespace"></param>
         public static void Namespace(this ISourceWriter writer, string @namespace)
         {
-            writer.Write($"BLOCK:namespace {@namespace}");
+            writer.Block($"namespace {@namespace}");
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Blueprint.Compiler
         /// <param name="inner">The action that writes the body of the using block, passed the same writer to avoid closure allocation.</param>
         public static void UsingBlock(this ISourceWriter writer, string declaration, Action<ISourceWriter> inner)
         {
-            writer.Write($"BLOCK:using ({declaration})");
+            writer.Block($"using ({declaration})");
 
             inner(writer);
 
@@ -72,7 +72,7 @@ namespace Blueprint.Compiler
             this ISourceWriter writer,
             Action<ISourceWriter> inner)
         {
-            writer.Write("BLOCK:try");
+            writer.Block("try");
             inner(writer);
             writer.FinishBlock();
         }
@@ -89,7 +89,7 @@ namespace Blueprint.Compiler
             string declaration,
             Action<ISourceWriter> inner)
         {
-            writer.Write("BLOCK:catch (" + declaration + ")");
+            writer.Block("catch (" + declaration + ")");
             inner(writer);
             writer.FinishBlock();
         }
@@ -145,7 +145,7 @@ namespace Blueprint.Compiler
         /// <param name="statement">The statement to put inside the if block.</param>
         public static void WriteIf(this ISourceWriter writer, string statement)
         {
-            writer.Write($"BLOCK:if ({statement})");
+            writer.Block($"if ({statement})");
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Blueprint.Compiler
         /// <param name="writer">Where to write to.</param>
         public static void WriteElse(this ISourceWriter writer)
         {
-            writer.Write("BLOCK:else");
+            writer.Block("else");
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Blueprint.Compiler
         /// <param name="writer">Where to write to.</param>
         public static void WriteTry(this ISourceWriter writer)
         {
-            writer.Write("BLOCK:try");
+            writer.Block("try");
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Blueprint.Compiler
         public static void WriteFinally(this ISourceWriter writer)
         {
             writer.FinishBlock();
-            writer.Write("BLOCK:finally");
+            writer.Block("finally");
         }
 
         /// <summary>
@@ -186,11 +186,11 @@ namespace Blueprint.Compiler
         {
             if (inheritsOrImplements.Length == 0)
             {
-                writer.Write($"BLOCK:public class {className}");
+                writer.Block($"public class {className}");
             }
             else
             {
-                writer.Write($"BLOCK:public class {className} : {inheritsOrImplements.Select(x => x.FullNameInCode()).Join(", ")}");
+                writer.Block($"public class {className} : {inheritsOrImplements.Select(x => x.FullNameInCode()).Join(", ")}");
             }
         }
     }

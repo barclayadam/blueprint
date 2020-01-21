@@ -10,8 +10,8 @@ namespace Blueprint.Compiler.Model
         /// <summary>
         /// Find or create a variable with the supplied type, throwing an exception if that is not possible.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">The type of the variable to find.</param>
+        /// <returns>The <see cref="Variable" /> of the specified type.</returns>
         Variable FindVariable(Type type);
 
         /// <summary>

@@ -90,11 +90,11 @@ namespace Blueprint.Compiler
             return this;
         }
 
-        public void Write(GeneratedMethod method, ISourceWriter writer)
+        public void Write(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer)
         {
             foreach (var frame in this)
             {
-                frame.GenerateCode(method, writer);
+                frame.GenerateCode(variables, method, writer);
             }
         }
     }

@@ -1,3 +1,6 @@
+using System;
+using Blueprint.Compiler.Model;
+
 namespace Blueprint.Compiler.Frames
 {
     /// <summary>
@@ -6,11 +9,11 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class BlankLineFrame : SyncFrame
     {
-        public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             writer.BlankLine();
 
-            Next?.GenerateCode(method, writer);
+            next();
         }
 
         /// <inheritdoc />

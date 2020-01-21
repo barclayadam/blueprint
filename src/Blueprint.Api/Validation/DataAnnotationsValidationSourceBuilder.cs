@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -52,7 +53,6 @@ namespace Blueprint.Api.Validation
         {
             private readonly Variable validationContextVariable;
             private readonly Variable operationVariable;
-            private Variable resultsVariable;
 
             public ValidatableObjectFrame(Variable validationContextVariable, Variable operationVariable)
             {
@@ -60,20 +60,15 @@ namespace Blueprint.Api.Validation
                 this.operationVariable = operationVariable;
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write($"BLOCK:foreach (var classFailure in (({typeof(IValidatableObject).FullNameInCode()}){operationVariable}).{nameof(IValidatableObject.Validate)}({validationContextVariable}))");
+                var resultsVariable = variables.FindVariable(typeof(ValidationFailures));
+
+                writer.Block($"foreach (var classFailure in (({typeof(IValidatableObject).FullNameInCode()}){operationVariable}).{nameof(IValidatableObject.Validate)}({validationContextVariable}))");
                 writer.Write($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(classFailure);");
                 writer.FinishBlock();
 
-                Next?.GenerateCode(method, writer);
-            }
-
-            public override IEnumerable<Variable> FindVariables(IMethodVariables chain)
-            {
-                resultsVariable = chain.FindVariable(typeof(ValidationFailures));
-
-                yield return resultsVariable;
+                next();
             }
         }
 
@@ -87,15 +82,18 @@ namespace Blueprint.Api.Validation
                 this.contextVariable = contextVariable;
             }
 
-            public override void GenerateCode(GeneratedMethod method, ISourceWriter writer)
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 writer.Write($"{contextVariable}.MemberName = \"{Property.PropertyInfoVariable.Property.Name}\";");
                 writer.Write($"{contextVariable}.DisplayName = \"{Property.PropertyInfoVariable.Property.Name}\";");
                 writer.BlankLine();
 
-                LoopAttributes(writer, $"{nameof(ValidationAttribute.GetValidationResult)}({Property.PropertyValueVariable}, {contextVariable})");
+                LoopAttributes(
+                    variables,
+                    writer,
+                    $"{nameof(ValidationAttribute.GetValidationResult)}({Property.PropertyValueVariable}, {contextVariable})");
 
-                Next?.GenerateCode(method, writer);
+                next();
             }
         }
     }

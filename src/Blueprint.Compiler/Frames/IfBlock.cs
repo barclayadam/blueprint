@@ -43,10 +43,10 @@ namespace Blueprint.Compiler.Frames
         }
 
         /// <inheritdoc />
-        protected override void GenerateCode(GeneratedMethod method, ISourceWriter writer, Frame inner)
+        protected override void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Frame inner)
         {
-            writer.Write($"BLOCK:if ({condition})");
-            inner.GenerateCode(method, writer);
+            writer.Block($"if ({condition})");
+            inner.GenerateCode(variables, method, writer);
             writer.FinishBlock();
         }
     }

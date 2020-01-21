@@ -133,6 +133,17 @@ namespace Blueprint.Compiler
 
         public void Write(ISourceWriter writer)
         {
+            // We MUST generate the methods first, because during the writing of a method
+            // it is possible it will find injected / static fields that are added to
+            // this type that need to be written out below
+            var methodWriter = new SourceWriter();
+
+            foreach (var method in methods)
+            {
+                methodWriter.BlankLine();
+                method.WriteMethod(methodWriter);
+            }
+
             WriteDeclaration(writer);
 
             if (AllStaticFields.Any())
@@ -146,13 +157,7 @@ namespace Blueprint.Compiler
                 WriteConstructorMethod(writer, AllInjectedFields);
             }
 
-            WriteSetters(writer);
-
-            foreach (var method in methods)
-            {
-                writer.BlankLine();
-                method.WriteMethod(writer);
-            }
+            writer.Write(methodWriter.Code());
 
             writer.FinishBlock();
         }
@@ -160,14 +165,6 @@ namespace Blueprint.Compiler
         public void FindType(Type[] generated)
         {
             CompiledType = generated.Single(x => x.Name == TypeName);
-        }
-
-        public void ArrangeFrames()
-        {
-            foreach (var method in methods)
-            {
-                method.ArrangeFrames(this);
-            }
         }
 
         public IEnumerable<Assembly> AssemblyReferences()
@@ -249,14 +246,14 @@ namespace Blueprint.Compiler
         private void WriteConstructorMethod(ISourceWriter writer, IList<InjectedField> args)
         {
             var ctorArgs = args.Select(x => x.CtorArgDeclaration).Join(", ");
-            var declaration = $"BLOCK:public {TypeName}({ctorArgs})";
+            var declaration = $"public {TypeName}({ctorArgs})";
 
             if (BaseConstructorArguments.Any())
             {
                 declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.ArgumentName).Join(", ")})";
             }
 
-            writer.Write(declaration);
+            writer.Block(declaration);
 
             foreach (var field in args)
             {
@@ -288,7 +285,7 @@ namespace Blueprint.Compiler
 
         private void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Write($"BLOCK:{GetDeclaration()}");
+            writer.Block($"{GetDeclaration()}");
         }
 
         private string GetDeclaration()

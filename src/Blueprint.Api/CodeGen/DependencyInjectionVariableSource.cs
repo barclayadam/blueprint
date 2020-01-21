@@ -27,7 +27,9 @@ namespace Blueprint.Api.CodeGen
         /// <inheritdoc />
         public Variable TryFindVariable(Type type)
         {
-            return instanceFrameProvider.VariableFromContainer<object>(generatedMethod.GeneratedType, type).InstanceVariable;
+            return instanceFrameProvider
+                .TryGetVariableFromContainer<object>(generatedMethod.GeneratedType, type)
+                ?.InstanceVariable;
         }
     }
 }
