@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Blueprint.Core.ThirdParty;
-using Blueprint.Core.Utilities;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api
@@ -13,7 +13,7 @@ namespace Blueprint.Api
     /// </summary>
     public class ApiResource : ILinkableResource
     {
-        private static readonly Dictionary<Type, string> TypeNameCache = new Dictionary<Type, string>();
+        private static readonly ConcurrentDictionary<Type, string> TypeNameCache = new ConcurrentDictionary<Type, string>();
 
         private readonly Dictionary<string, Link> links = new Dictionary<string, Link>(5);
 
