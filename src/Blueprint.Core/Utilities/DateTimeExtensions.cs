@@ -65,7 +65,7 @@ namespace Blueprint.Core.Utilities
         /// </summary>
         /// <param name="date">The date to find the previous date from.</param>
         /// <param name="validDays">A list of valid days to select from.</param>
-        /// <returns></returns>
+        /// <returns>The previous <see cref="DateTime" /> that is one of the specified days _and_ before <paramref name="date"/>.</returns>
         public static DateTime GetPreviousDate(this DateTime date, IEnumerable<DayOfWeek> validDays)
         {
             var dayOfWeeks = validDays as IList<DayOfWeek> ?? validDays.ToList();
@@ -96,6 +96,16 @@ namespace Blueprint.Core.Utilities
         }
 
         /// <summary>
+        /// Converts from UNIX timestamp (milliseconds) to a DateTime.
+        /// </summary>
+        /// <param name="unixTime">The UNIX timestamp to convert.</param>
+        /// <returns>The equivalent DateTime.</returns>
+        public static DateTime FromUnixTimeMilliseconds(this long unixTime)
+        {
+            return UnixEpoch.AddMilliseconds(unixTime);
+        }
+
+        /// <summary>
         /// Converts from a DateTime to UNIX timestamp (seconds).
         /// </summary>
         /// <param name="date">The DateTime to convert.</param>
@@ -103,6 +113,16 @@ namespace Blueprint.Core.Utilities
         public static long ToUnixTimeSeconds(this DateTime date)
         {
             return Convert.ToInt64((date - UnixEpoch).TotalSeconds);
+        }
+
+        /// <summary>
+        /// Converts from a DateTime to UNIX timestamp (milliseconds).
+        /// </summary>
+        /// <param name="date">The DateTime to convert.</param>
+        /// <returns>The equivalent UNIX timestamp.</returns>
+        public static long ToUnixTimeMilliseconds(this DateTime date)
+        {
+            return Convert.ToInt64((date - UnixEpoch).TotalMilliseconds);
         }
     }
 }
