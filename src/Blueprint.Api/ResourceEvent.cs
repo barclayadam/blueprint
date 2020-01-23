@@ -35,6 +35,7 @@ namespace Blueprint.Api
         /// <summary>
         /// Gets the object of this 'resource', which is "event".
         /// </summary>
+        [JsonProperty(PropertyName = "$object")]
         public string Object => "event";
 
         /// <summary>
