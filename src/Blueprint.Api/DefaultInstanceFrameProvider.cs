@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
@@ -48,14 +49,20 @@ namespace Blueprint.Api
 
                     foreach (var alreadyInjected in generatedType.AllInjectedFields)
                     {
+                        // Bail early, we have found an injected field already that can be reused
+                        if (injected.ArgumentName == alreadyInjected.ArgumentName && injected.VariableType == alreadyInjected.VariableType)
+                        {
+                            return new InjectedFrame<T>(alreadyInjected);
+                        }
+
                         // We already have injected an instance of this interface as a concrete class, leading to a duplicate
-                        if (injected.ArgumentName == alreadyInjected.ArgumentName)
+                        if (injected.ArgumentName == alreadyInjected.ArgumentName && injected.VariableType != alreadyInjected.VariableType)
                         {
                             throw new InvalidOperationException(
-                                "An attempt has been made to request a service form the DI container that will lead " +
-                                "to a duplicate constructor argument. This happens when a service is requested by an interface AND " +
-                                $"it's concrete type when they differ only be the I prefix (i.e. {toLoad.FullName} vs {alreadyInjected.VariableType.FullName}).\n\n" +
-                                $"To fix this ensure that this service is only referenced by it's interface type of {toLoad.FullName}");
+                                $"An attempt has been made to request a service ({toLoad.FullName}) from the DI container that will lead " +
+                                $"to a duplicate constructor argument (existing type is {alreadyInjected.VariableType.FullName}) . This can happen when a " +
+                                "service is requested by an interface AND it's concrete type when they differ only be the I prefix. " +
+                                "To fix this ensure that this service is only referenced by it's interface type");
                         }
                     }
 

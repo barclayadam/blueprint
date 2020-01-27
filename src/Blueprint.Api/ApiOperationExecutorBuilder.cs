@@ -72,63 +72,16 @@ namespace Blueprint.Api
                         $"{GetLastNamespaceSegment(operation)}{operation.OperationType.Name}Executor",
                         typeof(IOperationExecutorPipeline));
 
-                    var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
-
-                    var operationContextVariable = executeMethod.Arguments[0];
-
-                    var castFrame = new ConcreteOperationCastFrame(operationContextVariable, operation.OperationType);
-
-                    var instanceFrameProvider = serviceProvider.GetRequiredService<IInstanceFrameProvider>();
-
-                    var dependencyInjectionVariableSource = new DependencyInjectionVariableSource(executeMethod, instanceFrameProvider);
-
-                    var apiOperationContextSource =
-                        new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
-
-                    var context = new MiddlewareBuilderContext(
-                        executeMethod,
-                        apiOperationContextSource,
-                        operation,
-                        model,
-                        serviceScope.ServiceProvider,
-                        instanceFrameProvider);
-
-                    // For the base Exception type we will add, as the first step, logging to the exception sinks. This frame DOES NOT
-                    // include a return frame, as we add that after all the other middleware builders have had chance to potentially add
-                    // more frames to perform other operations on unknown Exception
-                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
-                    {
-                        new PushToErrorLoggerExceptionCatchFrame(context, e),
-                    });
-
-                    executeMethod.Sources.Add(apiOperationContextSource);
-                    executeMethod.Sources.Add(dependencyInjectionVariableSource);
-
+                    // We need to set up a LoggerVariable once, to be shared between methods
                     var executorLoggerName = $"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor";
                     var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(executorLoggerName);
                     pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(executorLoggerName, executorLogger));
 
-                    executeMethod.Frames.Add(castFrame);
-                    executeMethod.Frames.Add(new ErrorHandlerFrame(context));
-                    executeMethod.Frames.Add(new BlankLineFrame());
+                    var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
+                    var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
 
-                    foreach (var behaviour in builders)
-                    {
-                        if (behaviour.Matches(operation))
-                        {
-                            executeMethod.Frames.Add(new CommentFrame(behaviour.GetType().Name));
-
-                            behaviour.Build(context);
-
-                            executeMethod.Frames.Add(new BlankLineFrame());
-                        }
-                    }
-
-                    // For the base Exception type we will add, as a last frame, a return of an OperationResult.
-                    context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
-                    {
-                        new ReturnFrame(new Variable(typeof(UnhandledExceptionOperationResult), $"new {typeof(UnhandledExceptionOperationResult).FullNameInCode()}({e})")),
-                    });
+                    Generate(serviceProvider, executeMethod, operation, model, serviceScope, false);
+                    Generate(serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
 
                     dictionary.Add(
                         operation.OperationType,
@@ -141,6 +94,73 @@ namespace Blueprint.Api
 
                 return new CodeGennedExecutor(serviceProvider, model, assembly, dictionary.ToDictionary(d => d.Key, d => d.Value()));
             }
+        }
+
+        private void Generate(
+            IServiceProvider serviceProvider,
+            GeneratedMethod executeMethod,
+            ApiOperationDescriptor operation,
+            ApiDataModel model,
+            IServiceScope serviceScope,
+            bool isNested)
+        {
+            var operationContextVariable = executeMethod.Arguments[0];
+
+            var instanceFrameProvider = serviceProvider.GetRequiredService<IInstanceFrameProvider>();
+            var dependencyInjectionVariableSource = new DependencyInjectionVariableSource(executeMethod, instanceFrameProvider);
+
+            var castFrame = new ConcreteOperationCastFrame(operationContextVariable, operation.OperationType);
+
+            var apiOperationContextSource =
+                new ApiOperationContextVariableSource(operationContextVariable, castFrame.CastOperationVariable);
+
+            var context = new MiddlewareBuilderContext(
+                executeMethod,
+                apiOperationContextSource,
+                operation,
+                model,
+                serviceScope.ServiceProvider,
+                instanceFrameProvider,
+                isNested);
+
+            // For the base Exception type we will add, as the first step, logging to the exception sinks. This frame DOES NOT
+            // include a return frame, as we add that after all the other middleware builders have had chance to potentially add
+            // more frames to perform other operations on unknown Exception
+            context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
+            {
+                new PushToErrorLoggerExceptionCatchFrame(context, e),
+            });
+
+            executeMethod.Sources.Add(apiOperationContextSource);
+            executeMethod.Sources.Add(dependencyInjectionVariableSource);
+
+
+            executeMethod.Frames.Add(castFrame);
+            executeMethod.Frames.Add(new ErrorHandlerFrame(context));
+            executeMethod.Frames.Add(new BlankLineFrame());
+
+            foreach (var behaviour in builders)
+            {
+                if (isNested && !behaviour.SupportsNestedExecution)
+                {
+                    continue;
+                }
+
+                if (behaviour.Matches(operation))
+                {
+                    executeMethod.Frames.Add(new CommentFrame(behaviour.GetType().Name));
+
+                    behaviour.Build(context);
+
+                    executeMethod.Frames.Add(new BlankLineFrame());
+                }
+            }
+
+            // For the base Exception type we will add, as a last frame, a return of an OperationResult.
+            context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
+            {
+                new ReturnFrame(new Variable(typeof(UnhandledExceptionOperationResult), $"new {typeof(UnhandledExceptionOperationResult).FullNameInCode()}({e})")),
+            });
         }
 
         private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)

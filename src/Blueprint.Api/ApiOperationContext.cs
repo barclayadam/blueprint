@@ -75,10 +75,10 @@ namespace Blueprint.Api
         public ApiOperationContext Parent { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether this is a child context, meaning it has been created as a child of an
+        /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
         /// existing context, used to execute another operation in the context of an existing one.
         /// </summary>
-        public bool IsChild => Parent != null;
+        public bool IsNested => Parent != null;
 
         /// <summary>
         /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
@@ -111,7 +111,7 @@ namespace Blueprint.Api
 
         public IDictionary<string, object> RouteData { get; set; }
 
-        public ApiOperationContext CreateChild(Type type)
+        public ApiOperationContext CreateNested(Type type)
         {
             Guard.NotNull(nameof(type), type);
 
@@ -122,7 +122,7 @@ namespace Blueprint.Api
             return context;
         }
 
-        public ApiOperationContext CreateChild(IApiOperation operation)
+        public ApiOperationContext CreateNested(IApiOperation operation)
         {
             Guard.NotNull(nameof(operation), operation);
 

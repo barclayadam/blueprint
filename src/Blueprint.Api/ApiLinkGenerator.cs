@@ -78,7 +78,7 @@ namespace Blueprint.Api
 
             return new Link
             {
-                Href = baseUri + routeUrl.ToString(),
+                Href = baseUri + routeUrl,
                 Type = ApiResource.GetTypeName(typeof(T)),
             };
         }
@@ -167,7 +167,7 @@ namespace Blueprint.Api
             return t.IsValueType ? Activator.CreateInstance(t) : null;
         }
 
-        private StringBuilder CreateRelativeUrlFromLink(ApiOperationLink link, object result)
+        private static StringBuilder CreateRelativeUrlFromLink(ApiOperationLink link, object result)
         {
             if (result == null)
             {

@@ -103,6 +103,8 @@ namespace Blueprint.Tests.Api.Builder
                 this.create = create;
             }
 
+            public bool SupportsNestedExecution => true;
+
             public bool Matches(ApiOperationDescriptor operation)
             {
                 return true;

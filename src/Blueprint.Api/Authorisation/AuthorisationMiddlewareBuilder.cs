@@ -13,6 +13,11 @@ namespace Blueprint.Api.Authorisation
     {
         private const string AccessDeniedExceptionMessage = "Access denied. Anonymous access is not allowed.";
 
+        /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => true;
+
         // ReSharper disable once MemberCanBePrivate.Global
         public static async Task EnforceAsync(IApiAuthoriser authoriser, ApiOperationContext context)
         {

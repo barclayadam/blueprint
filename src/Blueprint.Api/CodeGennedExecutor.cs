@@ -76,7 +76,9 @@ namespace Blueprint.Api
         /// <inheritdoc />
         public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
-            return operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteAsync(context);
+            return context.IsNested ?
+                operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteNestedAsync(context) :
+                operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteAsync(context);
         }
 
         /// <inheritdoc />

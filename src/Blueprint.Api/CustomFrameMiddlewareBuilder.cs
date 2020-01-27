@@ -16,10 +16,18 @@ namespace Blueprint.Api
         {
         }
 
-        public MiddlewareBuilderContext BuilderContext { get; private set; }
+        /// <inheritdoc />
+        public abstract bool SupportsNestedExecution { get; }
 
+        /// <inheritdoc />
         public abstract bool Matches(ApiOperationDescriptor operation);
 
+        /// <summary>
+        /// Gets or sets the <see cref="MiddlewareBuilderContext" /> this builder is being built for.
+        /// </summary>
+        protected MiddlewareBuilderContext BuilderContext { get; private set; }
+
+        /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
             BuilderContext = context;

@@ -3,6 +3,15 @@ namespace Blueprint.Api
     public interface IMiddlewareBuilder
     {
         /// <summary>
+        /// Gets a value indicating whether or not this middleware builder is supported as part of nested executions.
+        /// </summary>
+        /// <remarks>
+        /// It is possible that some middleware components should <b>never</b> be executed within a child context (i.e. transaction
+        /// management or overall application performance management), in which case <c>false</c> should be returned and no code will be generated.
+        /// </remarks>
+        bool SupportsNestedExecution { get; }
+
+        /// <summary>
         /// Indicates whether this <see cref="IMiddlewareBuilder" /> should be applied to the given description.
         /// </summary>
         /// <remarks>
@@ -20,6 +29,10 @@ namespace Blueprint.Api
         /// <para>
         /// This method will <strong>only</strong> be called in the case that <see cref="Matches"/> returns <c>true</c>, although there is no requirement
         /// this method would actually modify the method.
+        /// </para>
+        /// <para>
+        /// Care must be taken with regards to the <see cref="MiddlewareBuilderContext.IsNested" /> property that indicates whether this method
+        /// is being called to generate a child executor or not (i.e. it will be called twice if <see cref="SupportsNestedExecution" /> returns <c>true</c>).
         /// </para>
         /// </remarks>
         /// <param name="context">The context that represents the current operation that is being processed.</param>

@@ -12,6 +12,11 @@ namespace Blueprint.Api.Middleware
     /// </summary>
     public class LoggingMiddlewareBuilder : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => true;
+
         /// <inheritdoc />
         /// <returns><see cref="ApiOperationDescriptor.ShouldAudit"/>.</returns>
         public bool Matches(ApiOperationDescriptor operation)

@@ -106,16 +106,16 @@ namespace Blueprint.Api.Middleware
         private static async Task<object> GetByIdAsync(ApiOperationContext context, IApiOperation operation)
         {
             var operationType = operation.GetType();
-            var childContext = context.CreateChild(operation);
+            var nestedContext = context.CreateNested(operation);
 
             // We are making an assumption here that is must be OK to execute the GetById of the resource that
             // has just been created (otherwise, how was it created?!). This allows the GetById to work on things
             // such as signup commands without manually setting new auth context
-            childContext.SkipAuthorisation = true;
+            nestedContext.SkipAuthorisation = true;
 
             var executor = context.ServiceProvider.GetRequiredService<IApiOperationExecutor>();
 
-            var result = await executor.ExecuteAsync(childContext);
+            var result = await executor.ExecuteAsync(nestedContext);
 
             if (result is ValidationFailedResult validationFailedResult)
             {

@@ -28,6 +28,11 @@ namespace Blueprint.Api.Middleware
     {
         private static readonly JsonSerializer BodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
 
+        /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
         public static async Task PopulateFromMessageBody(ApiOperationContext context)
         {

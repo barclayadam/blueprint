@@ -7,6 +7,11 @@ namespace Blueprint.Api.Authorisation
 {
     public class UserContextLoaderMiddlewareBuilder : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;

@@ -5,6 +5,11 @@ namespace Blueprint.Api.Middleware
 {
     public class ResourceEventHandlerMiddlewareBuilder : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => true;
+
         public bool Matches(ApiOperationDescriptor operation)
         {
             return operation.HttpMethod != HttpMethod.Get;

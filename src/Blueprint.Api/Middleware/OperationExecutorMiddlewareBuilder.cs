@@ -15,6 +15,11 @@ namespace Blueprint.Api.Middleware
     /// </summary>
     public class OperationExecutorMiddlewareBuilder : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => true;
+
         /// <inheritdoc />
         /// <returns>true.</returns>
         public bool Matches(ApiOperationDescriptor operation)

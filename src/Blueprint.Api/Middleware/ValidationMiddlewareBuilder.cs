@@ -15,6 +15,11 @@ namespace Blueprint.Api.Middleware
     public class ValidationMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => true;
+
+        /// <summary>
         /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
         /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
         /// </summary>

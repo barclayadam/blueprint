@@ -19,6 +19,11 @@ namespace Blueprint.ApplicationInsights
     /// </remarks>
     public class ApplicationInsightsMiddleware : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
         /// <inheritdoc />
         /// <returns><c>true</c>.</returns>
         public bool Matches(ApiOperationDescriptor operation)

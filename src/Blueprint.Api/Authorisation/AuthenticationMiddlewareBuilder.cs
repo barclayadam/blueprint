@@ -5,6 +5,11 @@ namespace Blueprint.Api.Authorisation
 {
     public class AuthenticationMiddlewareBuilder : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
         public bool Matches(ApiOperationDescriptor operation)
         {
             // TODO: Should we be loading user auth context even if anon access allowed as some may still use if available?

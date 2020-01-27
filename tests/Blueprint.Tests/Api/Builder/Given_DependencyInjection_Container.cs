@@ -143,7 +143,8 @@ namespace Blueprint.Tests.Api.Builder
             // Assert
             buildExecutor.Should().Throw<InvalidOperationException>()
                 .And.Message.Should()
-                .Contain("An attempt has been made to request a service form the DI container that will lead to a duplicate constructor argument.");
+                .Contain("An attempt has been made to request a service (Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container+Injectable) " +
+                         "from the DI container that will lead to a duplicate constructor argument");
         }
 
         public class MiddlewareWithDependencyInjectionVariable<T> : CustomFrameMiddlewareBuilder
@@ -151,6 +152,8 @@ namespace Blueprint.Tests.Api.Builder
             public MiddlewareWithDependencyInjectionVariable() : base(false)
             {
             }
+
+            public override bool SupportsNestedExecution => true;
 
             public override bool Matches(ApiOperationDescriptor operation)
             {
@@ -172,6 +175,8 @@ namespace Blueprint.Tests.Api.Builder
             public MiddlewareWithMultipleDependencyInjectionVariable() : base(false)
             {
             }
+
+            public override bool SupportsNestedExecution => true;
 
             public override bool Matches(ApiOperationDescriptor operation)
             {
