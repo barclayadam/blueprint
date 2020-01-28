@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -77,10 +79,14 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 var executor = TestApiOperationExecutor.Create(o => o
                     .WithOperation<CreationOperation>()
                     .WithOperation<SelfQuery>()
-                    .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
+                    .Pipeline(p => p
+                        .AddAuth<TestUserAuthorisationContextFactory>()
+                        .AddResourceEvents<NullResourceEventRepository>()));
 
                 // Act
-                var result = await executor.ExecuteWithNewScopeAsync(new CreationOperation { IdToCreate = "1234" });
+                var result = await executor.ExecuteWithAuth(
+                    new CreationOperation { IdToCreate = "1234" },
+                    new Claim(JwtRegisteredClaimNames.Sub, "User8547"));
 
                 // Assert
                 var @event = result.ShouldBeContent<CreatedResourceEvent>();
@@ -91,6 +97,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 @event.Type.Should().Be("awesome.created");
                 @event.ChangeType.Should().Be(ResourceEventChangeType.Created);
                 @event.ResourceObject.Should().Be("awesome");
+                @event.UserId.Should().Be("User8547");
             }
         }
     }

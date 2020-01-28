@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blueprint.Core;
+using Blueprint.Core.Authorisation;
 using MediatR;
 using Newtonsoft.Json;
 
@@ -57,6 +58,12 @@ namespace Blueprint.Api
         /// Gets the created date of this event.
         /// </summary>
         public DateTimeOffset Created => created;
+
+        /// <summary>
+        /// Gets or sets the user that created this resource event (as taken from
+        /// <see cref="ApiOperationContext.UserAuthorisationContext" />.<see cref="IUserAuthorisationContext.Id" />).
+        /// </summary>
+        public string UserId { get; set; }
 
         /// <summary>
         /// Gets the query that represents the query that will load the resource this
