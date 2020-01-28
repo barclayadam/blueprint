@@ -1,46 +1,54 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Api;
-using Blueprint.Api.CodeGen;
-using Blueprint.Compiler;
-using Blueprint.Compiler.Model;
+using JetBrains.Annotations;
 using StructureMap;
 using StructureMap.Pipeline;
+using StructureMap.TypeRules;
 
 namespace Blueprint.StructureMap
 {
-    public class StructureMapInstanceFrameProvider : IInstanceFrameProvider
+    /// <summary>
+    /// Implements an <see cref="InstanceFrameProvider" /> for StructureMap (<see cref="IContainer" />).
+    /// </summary>
+    [UsedImplicitly]
+    public class StructureMapInstanceFrameProvider : InstanceFrameProvider
     {
         private readonly IContainer container;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StructureMapInstanceFrameProvider" /> class.
+        /// </summary>
+        /// <param name="container">The container from which instances would be grabbed at runtime.</param>
         public StructureMapInstanceFrameProvider(IContainer container)
         {
             this.container = container;
         }
 
-        public GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
+        /// <inheritdoc />
+        protected override string GetNoRegistrationExistsExceptionMessage(Type toLoad)
         {
-            var config = container.Model.For(toLoad);
+            return $"No registrations exist for the service type {toLoad.FullName} in the registered IoC container (StructureMap).";
+        }
 
-            if (config.HasImplementations() && config.Instances.Count() == 1)
+        /// <inheritdoc />
+        protected override IEnumerable<IoCRegistration> GetRegistrations(Type type)
+        {
+            var instanceRefs = container.Model.AllInstances.Where(i => i.ReturnedType == type || i.PluginType == type);
+
+            return instanceRefs.Select(i => new IoCRegistration
             {
-                // When there is only one possible type that could be created from the IoC container
-                // we can do a little more optimisation.
-                var instanceRef = config.Instances.Single();
+                ServiceType = i.PluginType,
 
-                if (instanceRef.Lifecycle is SingletonLifecycle)
-                {
-                    // We have a singleton object, which means we can have this injected at build time of the
-                    // pipeline executor which will only be constructed once.
-                    var injected = new InjectedField(toLoad);
-
-                    generatedType.AllInjectedFields.Add(injected);
-
-                    return new InjectedFrame<T>(injected);
-                }
-            }
-
-            return new TransientInstanceFrame<T>(toLoad);
+                // We do not want to mark this as singleton, and therefore have it injected unless it's been explicitly registered
+                // because otherwise when we try to build the executors ActivatorUtilities is used and the StructureMap container will NOT
+                // return an "optional" registration from TryGetInstance (see https://structuremap.github.io/resolving/try-getting-an-optional-service-by-plugin-type/)
+                //
+                // Therefore we only mark as singleton if the PluginType is exactly the type requested, as we know in that case that
+                // it _will_ resolve directly from the container
+                IsSingleton = i.PluginType == type && i.Lifecycle is SingletonLifecycle,
+            });
         }
     }
 }

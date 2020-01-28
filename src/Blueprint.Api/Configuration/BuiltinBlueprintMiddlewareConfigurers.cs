@@ -136,6 +136,9 @@ namespace Blueprint.Api.Configuration
             middlewareConfigurer.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
             middlewareConfigurer.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();
 
+            // It is expected that this is overriden, for example by AddHttp
+            middlewareConfigurer.Services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
+
             // We add the authoriser to the enumerable of `IApiAuthoriser`, as well as registering itself as a concrete type so that it can
             // be grabbed from default DI container by it's type (as is required by the code gen)
             void AddAuthoriser<T>() where T : class, IApiAuthoriser

@@ -1,23 +1,29 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Blueprint.Api.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api
 {
-    public class DefaultInstanceFrameProvider : IInstanceFrameProvider
+    public abstract class InstanceFrameProvider
     {
-        private readonly IServiceProvider provider;
-
-        public DefaultInstanceFrameProvider(IServiceProvider provider)
+        /// <inheritdoc />
+        public GetInstanceFrame<T> GetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
-            this.provider = provider;
+            var variable = TryGetVariableFromContainer<T>(generatedType, toLoad);
+
+            if (variable == null)
+            {
+                throw new InvalidOperationException(GetNoRegistrationExistsExceptionMessage(toLoad));
+            }
+
+            return variable;
         }
 
+        /// <inheritdoc />
         public GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
             // If the requested type is enumerable we will always return a transient frame as, even with nothing registered, we
@@ -27,8 +33,8 @@ namespace Blueprint.Api
                 return new TransientInstanceFrame<T>(toLoad);
             }
 
-            var registrations = (IServiceCollection)provider.GetService(typeof(IServiceCollection));
-            var registrationsForType = registrations.Where(r => r.ServiceType == toLoad).ToList();
+            // NB: We rely on the service collection being registered when configuring Blueprint
+            var registrationsForType = GetRegistrations(toLoad).ToList();
 
             if (registrationsForType.Any() == false)
             {
@@ -41,7 +47,7 @@ namespace Blueprint.Api
                 // we can do a little more optimisation.
                 var instanceRef = registrationsForType.Single();
 
-                if (instanceRef.Lifetime == ServiceLifetime.Singleton)
+                if (instanceRef.IsSingleton)
                 {
                     // We have a singleton object, which means we can have this injected at build time of the
                     // pipeline executor which will only be constructed once.
@@ -73,6 +79,37 @@ namespace Blueprint.Api
             }
 
             return new TransientInstanceFrame<T>(toLoad);
+        }
+
+        /// <summary>
+        /// Gets the exception message that is thrown when no registration exists for the specified type, which may be
+        /// different for each provider to give more concrete help to fix the issue.
+        /// </summary>
+        /// <param name="toLoad">The type that was to be loaded.</param>
+        /// <returns>The exception message to use.</returns>
+        protected abstract string GetNoRegistrationExistsExceptionMessage(Type toLoad);
+
+        /// <summary>
+        /// Gets all registrations in this provider for the specified type.
+        /// </summary>
+        /// <param name="type">The type to be loaded.</param>
+        /// <returns>All registrations for the given type.</returns>
+        protected abstract IEnumerable<IoCRegistration> GetRegistrations(Type type);
+
+        /// <summary>
+        /// A single registration in an IoC container for a type.
+        /// </summary>
+        protected class IoCRegistration
+        {
+            /// <summary>
+            /// Gets or sets the service type of this registration (typically an interface).
+            /// </summary>
+            public Type ServiceType { get; set; }
+
+            /// <summary>
+            /// Whether the service is registered as a singleton (affects code generation).
+            /// </summary>
+            public bool IsSingleton { get; set; }
         }
     }
 }

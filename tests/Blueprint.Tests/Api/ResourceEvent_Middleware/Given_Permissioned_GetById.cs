@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
@@ -71,14 +70,6 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 
             // Assert
             result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
-        }
-
-        private class NullClaimsIdentityProvider : IClaimsIdentityProvider
-        {
-            public ClaimsIdentity Get(ApiOperationContext context)
-            {
-                return null;
-            }
         }
     }
 }

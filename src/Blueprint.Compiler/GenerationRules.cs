@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace Blueprint.Compiler
 {
@@ -8,7 +7,7 @@ namespace Blueprint.Compiler
         public GenerationRules(string applicationNamespace)
         {
             ApplicationNamespace = applicationNamespace;
-            AssemblyName = Assembly.GetExecutingAssembly().GetName().Name + "Generated";
+            AssemblyName = applicationNamespace;
         }
 
         public OptimizationLevel OptimizationLevel { get; set; } = OptimizationLevel.Release;

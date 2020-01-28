@@ -6,16 +6,19 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api
 {
+    /// <summary>
+    /// The context used when building a single pipeline method for a given operation, providing access to the data model
+    /// of the operation and all associated data required to build up the frames for the pipeline.
+    /// </summary>
     public class MiddlewareBuilderContext
     {
         private readonly Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> exceptionHandlers = new Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>>();
         private readonly FramesCollection finallyFrames = new FramesCollection();
 
-        private readonly IInstanceFrameProvider instanceFrameProvider;
+        private readonly InstanceFrameProvider instanceFrameProvider;
 
         internal MiddlewareBuilderContext(
             GeneratedMethod executeMethod,
@@ -23,7 +26,7 @@ namespace Blueprint.Api
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
             IServiceProvider serviceProvider,
-            IInstanceFrameProvider instanceFrameProvider,
+            InstanceFrameProvider instanceFrameProvider,
             bool isNested)
         {
             ApiContextVariableSource = apiContextVariableSource;
@@ -206,23 +209,7 @@ namespace Blueprint.Api
         {
             AddAssemblyReference(type.Assembly);
 
-            var variable = instanceFrameProvider.TryGetVariableFromContainer<T>(GeneratedType, type);
-
-            if (variable == null)
-            {
-                // If we are trying to grab a list of services then having none registered is OK, as we assume
-                // the user of this service expects 0 or more
-                if (!type.IsEnumerable())
-                {
-                    throw new InvalidOperationException(
-                        $"No registrations exist for the service type {type.FullName}. If you are using the default IoC container that is " +
-                        "built-in (Microsoft.Extensions.DependencyInjection) then you MUST register all services up-front, including concrete classes. If you " +
-                        "are using an IoC container that does allow creating unregistered types (i.e. StructureMap) make sure you have registered that within " +
-                        "your Blueprint setup.");
-                }
-            }
-
-            return variable;
+            return instanceFrameProvider.GetVariableFromContainer<T>(GeneratedType, type);
         }
     }
 }

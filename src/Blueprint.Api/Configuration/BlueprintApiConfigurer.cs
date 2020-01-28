@@ -147,7 +147,7 @@ namespace Blueprint.Api.Configuration
             Services.TryAddSingleton(MemoryCache.Default);
 
             // IoC
-            Services.TryAddTransient<IInstanceFrameProvider, DefaultInstanceFrameProvider>();
+            Services.TryAddTransient<InstanceFrameProvider, MicrosoftDependencyInjectionInstanceFrameProvider>();
 
             // Random infrastructure
             Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();

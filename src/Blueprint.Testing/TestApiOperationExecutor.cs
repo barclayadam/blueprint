@@ -93,7 +93,7 @@ namespace Blueprint.Testing
 
         /// <summary>
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
-        /// type.
+        /// type, adding HTTP-specific properties to the context.
         /// </summary>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
@@ -103,6 +103,29 @@ namespace Blueprint.Testing
             context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
 
             return context;
+        }
+
+        /// <summary>
+        /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
+        /// type.
+        /// </summary>
+        /// <typeparam name="T">The type of operation to create a context for.</typeparam>
+        /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
+        public ApiOperationContext ContextFor<T>() where T : IApiOperation
+        {
+            return DataModel.CreateOperationContext(serviceProvider, typeof(T));
+        }
+
+
+        /// <summary>
+        /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
+        /// type.
+        /// </summary>
+        /// <param name="apiOperation">The API operation to create a context for.</param>
+        /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
+        public ApiOperationContext ContextFor(IApiOperation apiOperation)
+        {
+            return DataModel.CreateOperationContext(serviceProvider, apiOperation);
         }
 
         /// <inheritdoc />
