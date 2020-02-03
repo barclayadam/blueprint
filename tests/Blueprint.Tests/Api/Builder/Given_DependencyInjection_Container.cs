@@ -7,7 +7,9 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
 using Blueprint.Testing;
 using FluentAssertions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.Builder
@@ -28,6 +30,28 @@ namespace Blueprint.Tests.Api.Builder
                 })
                 .WithHandler(handler)
                 .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
+
+            // Act
+            await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
+
+            // Assert
+            handler.OperationPassed.InjectableProperty.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task When_Middleware_Requests_Variable_Fulfilled_By_Open_Generic_DI_Registration()
+        {
+            // Arrange
+            var toReturn = 12345;
+
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddOptions<MyOptions>();
+                })
+                .WithHandler(handler)
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IOptions<MyOptions>>>(MiddlewareStage.Execution)));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -147,7 +171,7 @@ namespace Blueprint.Tests.Api.Builder
                          "from the DI container that will lead to a duplicate constructor argument");
         }
 
-        public class MiddlewareWithDependencyInjectionVariable<T> : CustomFrameMiddlewareBuilder
+        private class MiddlewareWithDependencyInjectionVariable<T> : CustomFrameMiddlewareBuilder
         {
             public MiddlewareWithDependencyInjectionVariable() : base(false)
             {
@@ -170,7 +194,7 @@ namespace Blueprint.Tests.Api.Builder
             }
         }
 
-        public class MiddlewareWithMultipleDependencyInjectionVariable : CustomFrameMiddlewareBuilder
+        private class MiddlewareWithMultipleDependencyInjectionVariable : CustomFrameMiddlewareBuilder
         {
             public MiddlewareWithMultipleDependencyInjectionVariable() : base(false)
             {
@@ -196,16 +220,24 @@ namespace Blueprint.Tests.Api.Builder
             }
         }
 
+        [PublicAPI]
         public class OperationWithInjectable : ICommand
         {
             public object InjectableProperty { get; set; }
         }
 
+        [PublicAPI]
         public interface IInjectable
         {
         }
 
+        [PublicAPI]
         public class Injectable : IInjectable
+        {
+        }
+
+        [PublicAPI]
+        public class MyOptions
         {
         }
     }

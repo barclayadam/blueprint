@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,13 +36,37 @@ namespace Blueprint.Api
         {
             // NB: We rely on the service collection being registered when configuring Blueprint
             var registrations = provider.GetRequiredService<IServiceCollection>();
-            var registrationsForType = registrations.Where(r => r.ServiceType == type).ToList();
+            var registrationsForType = new List<IoCRegistration>();
 
-            return registrationsForType.Select(r => new IoCRegistration
+            foreach (var r in registrations)
             {
-                ServiceType = r.ServiceType,
-                IsSingleton = r.Lifetime == ServiceLifetime.Singleton,
-            });
+                // First, obvious check for exact type matching
+                var isMatch = r.ServiceType == type;
+
+                // Handle small subset of open-generic registrations. This can be made more robust, but
+                // is, for now, very basic to handle in particular the common IOptions registration pattern
+                //
+                // - if service type == interface [TypeX]<> and type is interface of [TypeX]<T> then match
+                //   (i.e. IOptions<any> registration would match IOptions<MyOptions> type
+                if (r.ServiceType.IsGenericTypeDefinition && r.ServiceType.IsInterface)
+                {
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == r.ServiceType)
+                    {
+                        isMatch = true;
+                    }
+                }
+
+                if (isMatch)
+                {
+                    registrationsForType.Add(new IoCRegistration
+                    {
+                        ServiceType = r.ServiceType,
+                        IsSingleton = r.Lifetime == ServiceLifetime.Singleton,
+                    });
+                }
+            }
+
+            return registrationsForType;
         }
     }
 }
