@@ -41,6 +41,7 @@ namespace Blueprint.Compiler
                 check(result);
 
                 assemblyStream.Seek(0, SeekOrigin.Begin);
+                symbolsStream.Seek(0, SeekOrigin.Begin);
 
 #if !NET472
                 return AssemblyLoadContext.Default.LoadFromStream(assemblyStream, symbolsStream);

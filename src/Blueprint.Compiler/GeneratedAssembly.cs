@@ -23,9 +23,14 @@ namespace Blueprint.Compiler
             assemblies.Add(assembly);
         }
 
-        public GeneratedType AddType(string typeName, Type baseType)
+        public GeneratedType AddType(string fullTypeName, Type baseType)
         {
-            var generatedType = new GeneratedType(this, typeName);
+            var lastDotIndex = fullTypeName.LastIndexOf('.');
+
+            var @namespace = lastDotIndex == -1 ? null : fullTypeName.Substring(0, lastDotIndex);
+            var typeName = lastDotIndex == -1 ? fullTypeName : fullTypeName.Substring(lastDotIndex + 1);
+
+            var generatedType = new GeneratedType(this, typeName, @namespace ?? generationRules.AssemblyName);
 
             if (baseType.IsInterface)
             {
@@ -81,7 +86,7 @@ namespace Blueprint.Compiler
 
                 writer.BlankLine();
 
-                writer.Namespace(generationRules.ApplicationNamespace);
+                writer.Namespace(generatedType.Namespace);
 
                 writer.Write(typeWriter.Code());
 

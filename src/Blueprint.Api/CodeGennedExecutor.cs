@@ -12,13 +12,13 @@ namespace Blueprint.Api
     {
         private readonly IServiceProvider serviceProvider;
         private readonly GeneratedAssembly assembly;
-        private readonly Dictionary<Type, IOperationExecutorPipeline> operationTypeToPipelineType;
+        private readonly Dictionary<Type, Func<Type>> operationTypeToPipelineType;
 
         internal CodeGennedExecutor(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             GeneratedAssembly assembly,
-            Dictionary<Type, IOperationExecutorPipeline> operationTypeToPipelineType)
+            Dictionary<Type, Func<Type>> operationTypeToPipelineType)
         {
             DataModel = dataModel;
 
@@ -56,8 +56,7 @@ namespace Blueprint.Api
         /// <returns>The executor's source code.</returns>
         public string WhatCodeDidIGenerateFor(Type operationType)
         {
-            var generatedExecutor = operationTypeToPipelineType[operationType];
-            var generatedExecutorType = generatedExecutor.GetType();
+            var generatedExecutorType = operationTypeToPipelineType[operationType]();
             var assemblyGeneratedType = assembly.GeneratedTypes.Single(t => t.CompiledType == generatedExecutorType);
 
             return assemblyGeneratedType.SourceCode;
@@ -76,9 +75,12 @@ namespace Blueprint.Api
         /// <inheritdoc />
         public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
+            var pipelineType = operationTypeToPipelineType[context.Descriptor.OperationType]();
+            var pipeline = (IOperationExecutorPipeline) ActivatorUtilities.CreateInstance(context.ServiceProvider, pipelineType);
+
             return context.IsNested ?
-                operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteNestedAsync(context) :
-                operationTypeToPipelineType[context.Descriptor.OperationType].ExecuteAsync(context);
+                pipeline.ExecuteNestedAsync(context) :
+                pipeline.ExecuteAsync(context);
         }
 
         /// <inheritdoc />

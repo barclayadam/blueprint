@@ -4,7 +4,7 @@
     {
         public static GeneratedType NewType(string @namespace = "Blueprint.Compiler.Tests", string typeName = "Foo")
         {
-            return new GeneratedType(Assembly(@namespace), typeName);
+            return new GeneratedType(Assembly(@namespace), typeName, @namespace);
         }
 
         public static GeneratedAssembly Assembly(string @namespace = "Blueprint.Compiler.Tests")

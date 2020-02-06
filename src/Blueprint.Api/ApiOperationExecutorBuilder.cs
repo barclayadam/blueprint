@@ -37,6 +37,62 @@ namespace Blueprint.Api
         /// <returns></returns>
         public CodeGennedExecutor Build(BlueprintApiOptions options, IServiceProvider serviceProvider)
         {
+            var model = options.Model;
+
+            // We have multiple ways in which we work with generated assemblies, depending on context:
+            //
+            //  - We are writing unit tests which create many pipelines (within Blueprint itself). Here we
+            //    would want to use in-memory compilation and assembly loading only
+            //
+            //  - We have deployed an app using generated code. We want to use pre-compiled DLLs loaded as
+            //    part of the usual loading process. This is done by creating an assembly and PDB that is
+            //    deployed with the application and loaded below (see step 1)
+            //
+            //  - We are in development. Here we wish to generate and load a new DLL on application startup and
+            //    store in the temp folder of the machine. This means the DLL is _not_ loaded as normal part
+            //    of .NET process and therefore we can (re)create at will on startup without worrying about
+            //    the existence of an existing DLL
+
+            // 1. Try and find an already loaded assembly
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.GetName().Name == options.Rules.AssemblyName)
+                {
+                    // The assembly exists in the current domain, therefore it has either already been generated in this
+                    // process OR it has previously been compiled and loaded as part of normal assembly loading (pre-compiled
+                    // as part of dotnet publish)
+
+                    logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.Rules.AssemblyName);
+
+                    var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
+                    var exportedTypes = assembly.GetExportedTypes();
+
+                    foreach (var operation in options.Model.Operations)
+                    {
+                        var typeName = GetTypeName(operation);
+                        var operationType = exportedTypes.SingleOrDefault(t => t.FullName == typeName);
+
+                        if (operationType == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"The assembly {options.Rules.AssemblyName} loaded in the current domain is NOT valid as it is missing executor pipeline " +
+                                $"{typeName} for operation {operation.Name}");
+                        }
+
+                        typeToCreationMappings.Add(operation.OperationType, () => operationType);
+                    }
+
+                    return new CodeGennedExecutor(
+                        serviceProvider,
+                        model,
+                        null,
+                        typeToCreationMappings);
+                }
+            }
+
+            // 2. We DO NOT have any existing DLLs. In that case we are going to generate the source code using our configured
+            // middlewares and then hand off to AssemblyGenerator to compile and load the assembly (which may be in-memory, stored
+            // to a temp folder or stored to the project output folder)
             logger.LogInformation("Building CodeGennedExecutor for {0} operations", options.Model.Operations.Count());
 
             using (var serviceScope = serviceProvider.CreateScope())
@@ -46,8 +102,7 @@ namespace Blueprint.Api
                     Use(middleware);
                 }
 
-                var model = options.Model;
-                var dictionary = new Dictionary<Type, Func<IOperationExecutorPipeline>>();
+                var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
 
                 // Start the definition for a new generated assembly
                 var assembly = new GeneratedAssembly(options.Rules);
@@ -68,14 +123,15 @@ namespace Blueprint.Api
                 {
                     logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
 
+                    var typeName = GetTypeName(operation);
+
                     var pipelineExecutorType = assembly.AddType(
-                        $"{GetLastNamespaceSegment(operation)}{operation.OperationType.Name}Executor",
+                        typeName,
                         typeof(IOperationExecutorPipeline));
 
                     // We need to set up a LoggerVariable once, to be shared between methods
-                    var executorLoggerName = $"{options.ApplicationName}.{GetLastNamespaceSegment(operation)}.{operation.OperationType.Name}Executor";
-                    var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(executorLoggerName);
-                    pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(executorLoggerName, executorLogger));
+                    var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(typeName);
+                    pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(typeName, executorLogger));
 
                     var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
                     var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
@@ -83,17 +139,27 @@ namespace Blueprint.Api
                     Generate(serviceProvider, executeMethod, operation, model, serviceScope, false);
                     Generate(serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
 
-                    dictionary.Add(
+                    typeToCreationMappings.Add(
                         operation.OperationType,
-                        () => (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(serviceProvider, pipelineExecutorType.CompiledType));
+                        () => pipelineExecutorType.CompiledType);
                 }
 
-                logger.LogInformation("Compiling {0} pipeline executors", dictionary.Count);
+                logger.LogInformation("Compiling {0} pipeline executors", typeToCreationMappings.Count);
                 assembly.CompileAll(serviceProvider.GetRequiredService<IAssemblyGenerator>());
-                logger.LogInformation("Done compiling {0} pipeline executors", dictionary.Count);
+                logger.LogInformation("Done compiling {0} pipeline executors", typeToCreationMappings.Count);
 
-                return new CodeGennedExecutor(serviceProvider, model, assembly, dictionary.ToDictionary(d => d.Key, d => d.Value()));
+                return new CodeGennedExecutor(
+                    serviceProvider,
+                    model,
+                    assembly,
+                    typeToCreationMappings);
             }
+        }
+
+        private static string GetTypeName(ApiOperationDescriptor operation)
+        {
+            // Replace + with _ to enable nested operation classes to compile successfully
+            return operation.OperationType.FullName.Replace("+", "_") + "ExecutorPipeline";
         }
 
         private void Generate(
@@ -134,7 +200,6 @@ namespace Blueprint.Api
             executeMethod.Sources.Add(apiOperationContextSource);
             executeMethod.Sources.Add(dependencyInjectionVariableSource);
 
-
             executeMethod.Frames.Add(castFrame);
             executeMethod.Frames.Add(new ErrorHandlerFrame(context));
             executeMethod.Frames.Add(new BlankLineFrame());
@@ -161,11 +226,6 @@ namespace Blueprint.Api
             {
                 new ReturnFrame(new Variable(typeof(UnhandledExceptionOperationResult), $"new {typeof(UnhandledExceptionOperationResult).FullNameInCode()}({e})")),
             });
-        }
-
-        private static string GetLastNamespaceSegment(ApiOperationDescriptor operation)
-        {
-            return operation.OperationType.Namespace == null ? string.Empty : operation.OperationType.Namespace.Split('.').Last();
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
@@ -22,12 +23,17 @@ namespace Blueprint.Api.Configuration
     public class BlueprintApiConfigurer
     {
         private readonly BlueprintApiOptions options;
+        private readonly BlueprintMiddlewareConfigurer middlewareConfigurer;
 
         public BlueprintApiConfigurer(IServiceCollection services, BlueprintApiOptions options = null)
         {
             Services = services;
 
             this.options = options ?? new BlueprintApiOptions();
+            this.middlewareConfigurer = new BlueprintMiddlewareConfigurer(this);
+
+            // The default strategy is to build to a DLL to the temp folder
+            Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
         }
 
         public IServiceCollection Services { get; }
@@ -95,20 +101,16 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            var blueprintMiddlewareConfigurer = new BlueprintMiddlewareConfigurer(this);
-
-            configurer(blueprintMiddlewareConfigurer);
-
-            blueprintMiddlewareConfigurer.Register();
+            configurer(middlewareConfigurer);
 
             return this;
         }
 
-        public BlueprintApiConfigurer Compilation(Action<BlueprintCompilationConfigurer> configurer)
+        public BlueprintApiConfigurer Compilation(Action<BlueprintCompilationBuilder> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
 
-            configurer(new BlueprintCompilationConfigurer(this));
+            configurer(new BlueprintCompilationBuilder(this));
 
             return this;
         }
@@ -120,6 +122,8 @@ namespace Blueprint.Api.Configuration
                 throw new InvalidOperationException("An app name MUST be set");
             }
 
+            middlewareConfigurer.Register();
+
             options.Rules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
 
             Services.AddLogging();
@@ -130,7 +134,6 @@ namespace Blueprint.Api.Configuration
 
             // Compilation
             Services.TryAddSingleton<IAssemblyGenerator, AssemblyGenerator>();
-            Services.TryAddSingleton<ICompileStrategy, ToFileCompileStrategy>();
             Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
 
             // Model / Links / Options

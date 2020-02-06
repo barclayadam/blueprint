@@ -308,9 +308,7 @@ namespace Blueprint.Compiler.Tests.Codegen
                     ctor.Mode = ConstructorCallMode.UsingNestedVariable;
                     ctor.ActivatorFrames.Call<NoArgGuyCatcher>(x => x.Catch(null));
                 });
-
             });
-
 
             var catcher = new NoArgGuyCatcher();
             result.Object.DoStuff(catcher);

@@ -13,9 +13,11 @@ namespace Blueprint.Compiler
         private readonly IList<Type> interfaces = new List<Type>();
         private readonly IList<GeneratedMethod> methods = new List<GeneratedMethod>();
 
-        internal GeneratedType(GeneratedAssembly generatedAssembly, string typeName)
+        internal GeneratedType(GeneratedAssembly generatedAssembly, string typeName, string @namespace)
         {
             GeneratedAssembly = generatedAssembly;
+
+            Namespace = @namespace;
             TypeName = typeName;
         }
 
@@ -25,6 +27,8 @@ namespace Blueprint.Compiler
         public GeneratedAssembly GeneratedAssembly { get; }
 
         public IList<Setter> Setters { get; } = new List<Setter>();
+
+        public string Namespace { get; set; }
 
         public string TypeName { get; }
 
