@@ -73,7 +73,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         [Test]
         public async Task When_ResourceCreated_Then_Attributes_Populated()
         {
-            using (var t = SystemTime.PlayTimelord())
+            using (var t = SystemTime.PauseForThread())
             {
                 // Arrange
                 var executor = TestApiOperationExecutor.Create(o => o

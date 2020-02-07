@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Blueprint.Core
 {
@@ -13,23 +14,22 @@ namespace Blueprint.Core
     /// </remarks>
     public static class SystemTime
     {
-        private static Func<DateTime> getUtcNow = () => DateTime.UtcNow;
-        private static Func<DateTime> getNow = () => DateTime.Now;
+        private static readonly AsyncLocal<SystemTimeModifier> Modifier = new AsyncLocal<SystemTimeModifier>();
 
         /// <summary>
-        /// Gets the current date and time, as defined by the current <see cref="getUtcNow"/> method, which in
-        /// a production environment would simply delegate to <see cref="DateTime.UtcNow"/>.
+        /// Gets the current UTC date and time, which in a production environment would simply delegate to <see cref="DateTime.UtcNow"/> but
+        /// can be controlled in tests using <see cref="PauseForThread" />.
         /// </summary>
-        public static DateTime UtcNow => getUtcNow();
+        public static DateTime UtcNow => Modifier.Value?.UtcNow ?? DateTime.UtcNow;
 
         /// <summary>
-        /// Gets the current date and time, as defined by the current <see cref="getNow"/> method, which in
-        /// a production environment would simply delegate to <see cref="DateTime.Now"/>.
+        /// Gets the current local date and time, which in a production environment would simply delegate to <see cref="DateTime.Now"/> but
+        /// can be controlled in tests using <see cref="PauseForThread" />.
         /// </summary>
-        public static DateTime Now => getNow();
+        public static DateTime Now => Modifier.Value?.Now ?? DateTime.Now;
 
         /// <summary>
-        /// Starts 'timelord mode' where it is possible to control time for any client that
+        /// Pauses time for the current thread / async context to make it possible to control time for any client that
         /// uses the <see cref="SystemTime" /> properties to get the current time.
         /// </summary>
         /// <remarks>
@@ -37,68 +37,102 @@ namespace Blueprint.Core
         /// at the time of execution.
         /// </remarks>
         /// <returns>A <see cref="SystemTimeModifier" /> which allows for modification of time.</returns>
-        public static SystemTimeModifier PlayTimelord()
+        public static SystemTimeModifier PauseForThread()
         {
-            var staticTime = DateTime.UtcNow;
+            Modifier.Value = new SystemTimeModifier();
 
-            getUtcNow = () => staticTime;
-            getNow = () => staticTime;
-
-            return new SystemTimeModifier();
+            return Modifier.Value;
         }
 
         /// <summary>
         /// Restores <see cref="UtcNow"/> to its default of returning <see cref="DateTime.UtcNow"/>.
         /// Restores <see cref="Now"/> to its default of returning <see cref="DateTime.Now"/>.
         /// </summary>
-        public static void RestoreDefault()
+        public static void ResumeForThread()
         {
-            getUtcNow = () => DateTime.UtcNow;
-            getNow = () => DateTime.Now;
+            Modifier.Value = null;
         }
 
         public class SystemTimeModifier : IDisposable
         {
+            internal SystemTimeModifier()
+            {
+                UtcNow = SystemTime.UtcNow;
+                Now = SystemTime.Now;
+            }
+
             /// <summary>
             /// Gets the current date and time, as defined by the current <see cref="getUtcNow"/> method, which in
             /// a production environment would simply delegate to <see cref="DateTime.UtcNow"/>.
             /// </summary>
-            public DateTime UtcNow => SystemTime.UtcNow;
+            public DateTime UtcNow { get; private set; }
 
             /// <summary>
             /// Gets the current date and time, as defined by the current <see cref="getNow"/> method, which in
             /// a production environment would simply delegate to <see cref="DateTime.Now"/>.
             /// </summary>
-            public DateTime Now => SystemTime.Now;
+            public DateTime Now { get; private set; }
 
-            public DateTime SetUtcNow(DateTime date)
+            /// <summary>
+            /// Sets both <see cref="UtcNow" /> and <see cref="Now" /> to the given <see cref="DateTime"/>.
+            /// </summary>
+            /// <param name="dateTime">The date to set</param>
+            public void Set(DateTime dateTime)
             {
-                getUtcNow = () => date;
-
-                return date;
+                UtcNow = dateTime;
+                Now = dateTime;
             }
 
-            public DateTime FastForwardUtc(TimeSpan timeSpan)
+            /// <summary>
+            /// Adds the given <see cref="TimeSpan" /> to both <see cref="UtcNow" /> and <see cref="Now" />.
+            /// </summary>
+            /// <param name="timeSpan">The amount to progress by.</param>
+            public void FastForward(TimeSpan timeSpan)
             {
-                var newDate = UtcNow.Add(timeSpan);
-
-                getUtcNow = () => newDate;
-
-                return newDate;
+                UtcNow = UtcNow.Add(timeSpan);
+                Now = Now.Add(timeSpan);
             }
 
-            public DateTime RewindUtc(TimeSpan timeSpan)
+            /// <summary>
+            /// Subtracts the given <see cref="TimeSpan" /> from both <see cref="UtcNow" /> and <see cref="Now" />.
+            /// </summary>
+            /// <param name="timeSpan">The amount to rewind by.</param>
+            public void Rewind(TimeSpan timeSpan)
             {
-                var newDate = UtcNow.Add(-timeSpan);
+                UtcNow = UtcNow.Subtract(timeSpan);
+                Now = Now.Subtract(timeSpan);
+            }
 
-                getUtcNow = () => newDate;
+            /// <summary>
+            /// Sets <see cref="UtcNow" /> to the given <see cref="DateTime"/>.
+            /// </summary>
+            /// <param name="dateTime">The date to set</param>
+            public void SetUtcNow(DateTime dateTime)
+            {
+                UtcNow = dateTime;
+            }
 
-                return newDate;
+            /// <summary>
+            /// Adds the given <see cref="TimeSpan" /> to <see cref="UtcNow" />.
+            /// </summary>
+            /// <param name="timeSpan">The amount to progress by.</param>
+            public void FastForwardUtc(TimeSpan timeSpan)
+            {
+                UtcNow = UtcNow.Add(timeSpan);
+            }
+
+            /// <summary>
+            /// Subtracts the given <see cref="TimeSpan" /> from <see cref="UtcNow" />.
+            /// </summary>
+            /// <param name="timeSpan">The amount to rewind by.</param>
+            public void RewindUtc(TimeSpan timeSpan)
+            {
+                UtcNow = UtcNow.Subtract(timeSpan);
             }
 
             public void Dispose()
             {
-                RestoreDefault();
+                ResumeForThread();
             }
         }
     }
