@@ -6,9 +6,7 @@
     <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="Moq" Version="4.7.99" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
