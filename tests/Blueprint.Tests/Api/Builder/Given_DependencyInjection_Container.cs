@@ -61,6 +61,30 @@ namespace Blueprint.Tests.Api.Builder
         }
 
         [Test]
+        public async Task When_Middleware_Requests_Multiple_Generic_Classes_With_Different_Type_Parameters_Then_Success()
+        {
+            // Arrange
+            var toReturn = 12345;
+
+            var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithServices(s =>
+                {
+                    s.AddOptions<MyOptions>();
+                    s.AddOptions<MyOtherOptions>();
+                })
+                .WithHandler(handler)
+                .Pipeline(p => p
+                    .AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IOptions<MyOptions>, IOptions<MyOtherOptions>>>(MiddlewareStage.Execution)));
+
+            // Act
+            await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
+
+            // Assert
+            handler.OperationPassed.InjectableProperty.Should().NotBeNull();
+        }
+
+        [Test]
         public async Task When_Middleware_Requests_Enumerable_Variable_With_Single_Registered_Service_Fulfilled_By_DI()
         {
             // Arrange
@@ -162,7 +186,8 @@ namespace Blueprint.Tests.Api.Builder
                     s.AddSingleton(typeof(Injectable), typeof(Injectable));
                 })
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable>(MiddlewareStage.Execution)));
+                .Pipeline(p => p
+                    .AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IInjectable, Injectable>>(MiddlewareStage.Execution)));
 
             // Assert
             buildExecutor.Should().Throw<InvalidOperationException>()
@@ -194,7 +219,7 @@ namespace Blueprint.Tests.Api.Builder
             }
         }
 
-        private class MiddlewareWithMultipleDependencyInjectionVariable : CustomFrameMiddlewareBuilder
+        private class MiddlewareWithMultipleDependencyInjectionVariable<T1, T2> : CustomFrameMiddlewareBuilder
         {
             public MiddlewareWithMultipleDependencyInjectionVariable() : base(false)
             {
@@ -210,8 +235,8 @@ namespace Blueprint.Tests.Api.Builder
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var operationVariable = variables.FindVariable(typeof(OperationWithInjectable));
-                var diInterfaceVariable = variables.FindVariable(typeof(IInjectable));
-                var diConcreteVariable = variables.FindVariable(typeof(Injectable));
+                var diInterfaceVariable = variables.FindVariable(typeof(T1));
+                var diConcreteVariable = variables.FindVariable(typeof(T2));
 
                 writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diInterfaceVariable};");
                 writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diConcreteVariable};");
@@ -238,6 +263,11 @@ namespace Blueprint.Tests.Api.Builder
 
         [PublicAPI]
         public class MyOptions
+        {
+        }
+
+        [PublicAPI]
+        public class MyOtherOptions
         {
         }
     }

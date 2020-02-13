@@ -61,14 +61,14 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void default_arg_name_of_generic_class_with_single_parameter()
         {
             Variable.DefaultArgName<FooHandler<HyperdriveMotivator>>()
-                .Should().Be("fooHandler");
+                .Should().Be("hyperdriveMotivatorFooHandler");
         }
 
         [Test]
         public void default_arg_name_of_generic_interface_with_single_parameter()
         {
             Variable.DefaultArgName<IFooHandler<HyperdriveMotivator>>()
-                .Should().Be("fooHandler");
+                .Should().Be("hyperdriveMotivatorIFooHandler");
         }
 
         [Test]

@@ -18,8 +18,8 @@ namespace Blueprint.Compiler.Tests.Codegen
         [TestCase(typeof(IDoNotHaveIAtStart), "doNotHaveIAtStart")]
         [TestCase(typeof(IIHaveIAtStart), "iHaveIAtStart")]
         [TestCase(typeof(IAmNotAnInterface), "iAmNotAnInterface")]
-        [TestCase(typeof(AGenericClass<Ball>), "aGenericClass")]
-        [TestCase(typeof(AGenericClass<AGenericClass<IBall>>), "aGenericClass")]
+        [TestCase(typeof(AGenericClass<Ball>), "ballAGenericClass")]
+        [TestCase(typeof(AGenericClass<AGenericClass<IBall>>), "ballAGenericClassAGenericClass")]
         public void determine_return_value_of_simple_type(Type argType, string expected)
         {
             Variable.DefaultArgName(argType).Should().Be(expected);

@@ -68,22 +68,24 @@ namespace Blueprint.Compiler.Model
                 return DefaultArgName(argType.GetElementType()) + "Array";
             }
 
-            if (argType.IsEnumerable())
-            {
-                var argPrefix = DefaultArgName(argType.DetermineElementType());
-                var suffix = argType.GetGenericTypeDefinition().Name.Split('`').First();
-
-                return argPrefix + suffix;
-            }
-
             var underlyingNullableType = Nullable.GetUnderlyingType(argType);
             if (underlyingNullableType != null)
             {
                 // The suffix is the underlying type (with first character uppercased). i.e. int32 -> nullableInt32
                 var suffix = DefaultArgName(underlyingNullableType);
-                suffix = char.ToUpperInvariant(suffix[0]).ToString() + suffix.Substring(1);
+                suffix = char.ToUpperInvariant(suffix[0]) + suffix.Substring(1);
 
                 return "nullable" + suffix;
+            }
+
+            // This is a closed generic type (the second check ensures that), so include type
+            // parameters in variable name to help avoid clashes
+            if (argType.IsGenericType && argType.GetGenericTypeDefinition() != argType)
+            {
+                var argPrefix = DefaultArgName(argType.DetermineElementType());
+                var suffix = argType.GetGenericTypeDefinition().Name.Split('`').First();
+
+                return argPrefix + suffix;
             }
 
             var charsToSkip = 0;
