@@ -16,7 +16,7 @@ namespace Blueprint.Api.Formatters
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
 
-            options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            options.Converters.Add(new JsonStringEnumConverter());
 
             return options;
         }
