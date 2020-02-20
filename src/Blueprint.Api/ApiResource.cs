@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Blueprint.Core.ThirdParty;
 using Newtonsoft.Json;
 
@@ -31,6 +32,7 @@ namespace Blueprint.Api
         /// are dealing with.
         /// </summary>
         [JsonProperty(PropertyName = "$object")]
+        [JsonPropertyName("$object")]
         public string Object { get; protected set; }
 
         /// <summary>
@@ -38,9 +40,11 @@ namespace Blueprint.Api
         /// </summary>
         [DoNotCompare]
         [JsonProperty(PropertyName = "$links")]
+        [JsonPropertyName("$links")]
         public IDictionary<string, Link> Links => links;
 
-        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public virtual string ResourceKey => null;
 
         /// <summary>
@@ -48,6 +52,7 @@ namespace Blueprint.Api
         /// populated for performance reasons and a client should reload from the 'self' link to retrieve all values.
         /// </summary>
         [JsonProperty(PropertyName = "$partial")]
+        [JsonPropertyName("$partial")]
         public bool IsPartial { get; set; }
 
         /// <summary>

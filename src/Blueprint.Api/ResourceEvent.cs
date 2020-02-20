@@ -70,12 +70,14 @@ namespace Blueprint.Api
         /// event represents.
         /// </summary>
         [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public IApiOperation SelfQuery => selfQuery;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
         [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Type ResourceType => resourceType;
 
         /// <summary>
@@ -126,6 +128,7 @@ namespace Blueprint.Api
         /// Gets or sets the operation that triggered the generation of this resource event.
         /// </summary>
         [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public IApiOperation Operation { get; set; }
 
         /// <summary>
