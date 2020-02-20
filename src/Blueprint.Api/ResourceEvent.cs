@@ -188,6 +188,8 @@ namespace Blueprint.Api
         {
         }
 
+        // System.Text.Json needs explicit ignore of this overriden property. It _will_ still serialise the base
+        [System.Text.Json.Serialization.JsonIgnore]
         public new T Data
         {
             get => (T)base.Data;
@@ -210,6 +212,8 @@ namespace Blueprint.Api
         {
         }
 
+        // System.Text.Json needs explicit ignore of this overriden property. It _will_ still serialise the base
+        [System.Text.Json.Serialization.JsonIgnore]
         public new T Data
         {
             get => (T)base.Data;
@@ -242,6 +246,8 @@ namespace Blueprint.Api
         {
         }
 
+        // System.Text.Json needs explicit ignore of this overriden property. It _will_ still serialise the base
+        [System.Text.Json.Serialization.JsonIgnore]
         public new T Data
         {
             get => (T)base.Data;
