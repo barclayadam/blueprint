@@ -1,21 +1,17 @@
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Blueprint.Api.Infrastructure;
-using Newtonsoft.Json;
 
 namespace Blueprint.Api.Formatters
 {
     public class JsonTypeFormatter : ITypeFormatter
     {
-        private static readonly JsonSerializer Serializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
-        private static readonly string JsonContentType = "application/json";
-
-        private readonly IHttpResponseStreamWriterFactory writerFactory;
-
-        public JsonTypeFormatter(IHttpResponseStreamWriterFactory writerFactory)
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
-            this.writerFactory = writerFactory;
-        }
+            WriteIndented = false,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
+        private static readonly string JsonContentType = "application/json";
 
         public bool IsSupported(ApiOperationContext context, string format)
         {
@@ -26,18 +22,8 @@ namespace Blueprint.Api.Formatters
         {
             context.Response.ContentType = JsonContentType;
 
-            using (var httpResponseStreamWriter = writerFactory.CreateWriter(context.Response.Body, Encoding.UTF8))
-            using (var jsonWriter = new JsonTextWriter(httpResponseStreamWriter))
-            {
-                jsonWriter.CloseOutput = false;
-                jsonWriter.AutoCompleteOnClose = false;
-
-                Serializer.Serialize(jsonWriter, result);
-
-                // Perf: call FlushAsync to call WriteAsync on the stream with any content left in the TextWriter's
-                // buffers. This is better than just letting dispose handle it (which would result in a synchronous write).
-                await httpResponseStreamWriter.FlushAsync();
-            }
+            await JsonSerializer.SerializeAsync(context.Response.Body, result, result.GetType(), JsonSerializerOptions);
+            await context.Response.Body.FlushAsync();
         }
     }
 }
