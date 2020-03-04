@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Middleware;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;

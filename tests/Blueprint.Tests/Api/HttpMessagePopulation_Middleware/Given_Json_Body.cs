@@ -20,11 +20,8 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         }
 
         [HttpPost]
-        [RootLink("/route/{RouteProperty}")]
         public class JsonOperation : IApiOperation
         {
-            public string RouteProperty { get; set; }
-
             public int IntegerProperty { get; set; }
 
             public int? NullableIntegerProperty { get; set; }
@@ -44,6 +41,20 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             public Dictionary<string, int> StringIntegerDictionary { get; set; }
         }
 
+        [HttpPost]
+        [RootLink("/route/{RouteProperty}")]
+        public class JsonWithRouteOperation : JsonOperation
+        {
+            public string RouteProperty { get; set; }
+        }
+
+        [HttpPost]
+        [RootLink("/route/{RouteProperty}")]
+        [RootLink("/route/without-property")]
+        public class JsonWithOptionalRouteOperation : JsonOperation
+        {
+            public string RouteProperty { get; set; }
+        }
 
         [HttpPost]
         [RootLink("/route/{RouteProperty}")]
@@ -79,7 +90,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             var context = GetContext(executor, expected);
 
             // Act
-            await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync(context);
 
             // Assert
             handler.OperationPassed.Should().BeEquivalentTo(expected);
@@ -89,7 +100,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         public async Task When_Route_Property_In_Json_Body_Then_Route_Value_Wins()
         {
             // Arrange
-            var expected = new JsonOperation
+            var expected = new JsonWithRouteOperation
             {
                 RouteProperty = "unexpectedRouteValue",
                 IntegerProperty = 761,
@@ -109,10 +120,10 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
 
             var expectedRouteValue = "theRouteValue";
 
-            var handler = new TestApiOperationHandler<JsonOperation>(null);
+            var handler = new TestApiOperationHandler<JsonWithRouteOperation>(null);
             var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
             var context = GetContext(executor, expected);
-            context.RouteData[nameof(JsonOperation.RouteProperty)] = expectedRouteValue;
+            context.RouteData[nameof(JsonWithRouteOperation.RouteProperty)] = expectedRouteValue;
 
             // Act
             await executor.ExecuteAsync(context);
@@ -123,43 +134,6 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
                 o => o.Excluding(x => x.RouteProperty));
 
             handler.OperationPassed.RouteProperty.Should().Be(expectedRouteValue);
-        }
-
-        [Test]
-        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_Then_Does_Not_Set()
-        {
-            // Arrange
-            var expected = new JsonOperation
-            {
-                RouteProperty = "unexpectedRouteValue",
-                IntegerProperty = 761,
-                EnumProperty = OperationEnum.EnumOne,
-                GuidProperty = Guid.NewGuid(),
-                StringArray = new [] { "arr1", "arr2" },
-                StringEnumerable = new [] {"arr3", "arr4" },
-                StringList = new List<string> { "arr5", "arr6" },
-                StringProperty = "a string",
-                NullableIntegerProperty = null,
-                StringIntegerDictionary = new Dictionary<string, int>
-                {
-                    { "one", 1 },
-                    { "twice", 12 }
-                }
-            };
-
-            var handler = new TestApiOperationHandler<JsonOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
-            var context = GetContext(executor, expected);
-
-            // Act
-            await executor.ExecuteAsync(context);
-
-            // Assert
-            handler.OperationPassed.Should().BeEquivalentTo(
-                expected,
-                o => o.Excluding(x => x.RouteProperty));
-
-            handler.OperationPassed.RouteProperty.Should().BeNull();
         }
 
         [Test]
@@ -176,6 +150,8 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             var context = GetContext(executor, expected);
 
             // Act
+            var source = executor.WhatCodeDidIGenerate();
+
             await executor.ExecuteAsync(context);
 
             // Assert

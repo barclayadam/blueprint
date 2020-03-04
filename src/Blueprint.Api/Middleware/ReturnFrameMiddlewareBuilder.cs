@@ -2,7 +2,11 @@
 
 namespace Blueprint.Api.Middleware
 {
-    public class FormatterMiddlewareBuilder : IMiddlewareBuilder
+    /// <summary>
+    /// The last <see cref="IMiddlewareBuilder" /> that is solely responsible for returning
+    /// the result of the pipeline (i.e. the <see cref="OperationResult" /> that has been created).
+    /// </summary>
+    public class ReturnFrameMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
         /// Returns <c>true</c>.

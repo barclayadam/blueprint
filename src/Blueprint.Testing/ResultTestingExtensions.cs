@@ -31,7 +31,7 @@ namespace Blueprint.Testing
 
             if (result is UnhandledExceptionOperationResult exceptionOperationResult)
             {
-                ExceptionDispatchInfo.Capture(exceptionOperationResult.Exception).Throw();
+                exceptionOperationResult.Rethrow();
 
                 return default;
             }

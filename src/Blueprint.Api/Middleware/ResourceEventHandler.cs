@@ -125,7 +125,7 @@ namespace Blueprint.Api.Middleware
 
             if (result is UnhandledExceptionOperationResult exceptionOperationResult)
             {
-                ExceptionDispatchInfo.Capture(exceptionOperationResult.Exception).Throw();
+                exceptionOperationResult.Rethrow();
 
                 return default;
             }

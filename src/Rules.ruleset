@@ -39,6 +39,7 @@
     <Rule Id="SA1402" Action="None" /> <!-- File may only contain a single type -->
     <Rule Id="SA1512" Action="None" /> <!-- Single-line comments should not be followed by blank line -->
     <Rule Id="SA1600" Action="None" /> <!-- Must be documented... Already handled by CS1591 -->
+    <Rule Id="SA1623" Action="None" /> <!-- "Standard text" for getters and setters -->
     <Rule Id="SA1633" Action="None" /> <!-- File headers -->
     <Rule Id="SA1642" Action="None" /> <!-- Constructor summary documentation should begin with standard text -->
   </Rules>
