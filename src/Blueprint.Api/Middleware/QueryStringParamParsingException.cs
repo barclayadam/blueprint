@@ -10,8 +10,13 @@ namespace Blueprint.Api.Middleware
     [Serializable]
     public class QueryStringParamParsingException : ApiException
     {
-        public QueryStringParamParsingException(string message)
-                : base(message, "invalid_parameter", HttpStatusCode.BadRequest)
+        /// <summary>
+        /// Initialises a new instance of the <see cref="QueryStringParamParsingException" /> class.
+        /// </summary>
+        /// <param name="exception">The exception that caused the exception.</param>
+        /// <param name="message">The message to be shown to the user through problem report.</param>
+        public QueryStringParamParsingException(Exception exception, string message)
+            : base(message, "invalid_parameter", exception, HttpStatusCode.BadRequest)
         {
         }
     }

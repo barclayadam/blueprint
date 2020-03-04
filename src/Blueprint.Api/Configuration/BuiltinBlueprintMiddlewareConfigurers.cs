@@ -77,7 +77,9 @@ namespace Blueprint.Api.Configuration
 
             middlewareConfigurer.Services.TryAddSingleton<IClaimsIdentityProvider, HttpRequestClaimsIdentityProvider>();
 
-            middlewareConfigurer.AddMiddleware<HttpMessagePopulationMiddlewareBuilder>(MiddlewareStage.Population);
+            middlewareConfigurer.Services.AddScoped<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
+            middlewareConfigurer.Services.AddScoped<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
+            middlewareConfigurer.Services.AddScoped<IMessagePopulationSource, HttpQueryStringMessagePopulationSource>();
 
             return middlewareConfigurer;
         }

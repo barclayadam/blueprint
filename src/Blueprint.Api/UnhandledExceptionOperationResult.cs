@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Api.Errors;
@@ -30,6 +31,15 @@ namespace Blueprint.Api
             }
 
             return base.ExecuteAsync(context);
+        }
+
+        /// <summary>
+        /// Rethrows the <see cref="Exception" /> that this <see cref="UnhandledExceptionOperationResult" />
+        /// represents.
+        /// </summary>
+        public void Rethrow()
+        {
+            ExceptionDispatchInfo.Capture(Exception).Throw();
         }
 
         private static HttpStatusCode ToStatusCode(Exception exception)
