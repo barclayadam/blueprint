@@ -1,5 +1,6 @@
 using System;
 using Blueprint.Compiler;
+using Blueprint.Compiler.Model;
 using Blueprint.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,11 +10,11 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintCompilationBuilder
     {
-        private readonly BlueprintApiConfigurer blueprintApiConfigurer;
+        private readonly BlueprintApiBuilder blueprintApiBuilder;
 
-        internal BlueprintCompilationBuilder(BlueprintApiConfigurer blueprintApiConfigurer)
+        internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
-            this.blueprintApiConfigurer = blueprintApiConfigurer;
+            this.blueprintApiBuilder = blueprintApiBuilder;
         }
 
         /// <summary>
@@ -23,7 +24,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseInMemoryCompileStrategy()
         {
-            blueprintApiConfigurer.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
+            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
 
             return this;
         }
@@ -37,7 +38,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseFileCompileStrategy(string path)
         {
-            blueprintApiConfigurer.Services.AddSingleton<ICompileStrategy>(
+            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy>(
                 c => new ToFileCompileStrategy(c.GetRequiredService<ILogger<ToFileCompileStrategy>>(), path));
 
             return this;
@@ -50,7 +51,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseOptimizationLevel(OptimizationLevel optimizationLevel)
         {
-            blueprintApiConfigurer.Options.Rules.OptimizationLevel = optimizationLevel;
+            blueprintApiBuilder.Options.Rules.OptimizationLevel = optimizationLevel;
 
             return this;
         }
@@ -64,7 +65,7 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNullOrEmpty(nameof(assemblyName), assemblyName);
 
-            blueprintApiConfigurer.Options.Rules.AssemblyName = assemblyName;
+            blueprintApiBuilder.Options.Rules.AssemblyName = assemblyName;
 
             return this;
         }
@@ -77,14 +78,28 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder</returns>
         public BlueprintCompilationBuilder ConfigureRules(Action<GenerationRules> editor)
         {
-            editor(blueprintApiConfigurer.Options.Rules);
+            editor(blueprintApiBuilder.Options.Rules);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="IVariableSource" /> for use in compilation of the pipelines.
+        /// </summary>
+        /// <param name="variableSource">The variable source to add.</param>
+        /// <returns>This compilation builder.</returns>
+        public BlueprintCompilationBuilder AddVariableSource(IVariableSource variableSource)
+        {
+            Guard.NotNull(nameof(variableSource), variableSource);
+
+            blueprintApiBuilder.Options.Rules.VariableSources.Add(variableSource);
 
             return this;
         }
 
         private BlueprintCompilationBuilder UseCompileStrategy<T>() where T : class, ICompileStrategy
         {
-            blueprintApiConfigurer.Services.AddSingleton<ICompileStrategy, T>();
+            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, T>();
 
             return this;
         }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Http;
 using Blueprint.Api.Middleware;
 using Blueprint.Testing;
 using FluentAssertions;
@@ -87,8 +86,8 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
 
             // Assert
-            var validationResult = result.Should().BeOfType<ValidationFailedResult>().Subject;
-            validationResult.Content.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
+            var validationResult = result.Should().BeOfType<ValidationFailedOperationResult>().Subject;
+            validationResult.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
         }
     }
 }

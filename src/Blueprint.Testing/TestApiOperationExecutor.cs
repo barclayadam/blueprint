@@ -47,16 +47,21 @@ namespace Blueprint.Testing
                 .AddConsole()
                 .SetMinimumLevel(LogLevel.Debug));
 
-            collection.AddBlueprintApi(o => o
-                .SetApplicationName("Blueprint.Tests")
-                .Compilation(r => r
-                    // We want a unique DLL name every time, avoids clashes and ensures we always do
-                    // an actual build and compilation so we can get the generated code
-                    .AssemblyName("Blueprint.Tests." + Guid.NewGuid().ToString("N"))
-                    .UseOptimizationLevel(OptimizationLevel.Debug)
-                    .UseInMemoryCompileStrategy())
-                .Pipeline(builder.PipelineConfigurer)
-                .AddOperations(builder.OperationTypes));
+            collection.AddBlueprintApi(o =>
+            {
+                o
+                    .SetApplicationName("Blueprint.Tests")
+                    .Compilation(r => r
+                        // We want a unique DLL name every time, avoids clashes and ensures we always do
+                        // an actual build and compilation so we can get the generated code
+                        .AssemblyName("Blueprint.Tests." + Guid.NewGuid().ToString("N"))
+                        .UseOptimizationLevel(OptimizationLevel.Debug)
+                        .UseInMemoryCompileStrategy())
+                    .Pipeline(builder.PipelineBuilder)
+                    .AddOperations(builder.OperationTypes);
+
+                builder.ApiBuilder(o);
+            });
 
             var serviceProvider = collection.BuildServiceProvider();
             var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();
@@ -145,7 +150,8 @@ namespace Blueprint.Testing
         public class TestApiOperationExecutorBuilder
         {
             private readonly ServiceCollection collection;
-            private Action<BlueprintMiddlewareConfigurer> pipelineConfigurer = c => {};
+            private Action<BlueprintPipelineBuilder> pipelineBuilder = c => {};
+            private Action<BlueprintApiBuilder> apiBuilder = c => {};
 
             internal TestApiOperationExecutorBuilder(ServiceCollection collection)
             {
@@ -154,7 +160,9 @@ namespace Blueprint.Testing
 
             internal List<Type> OperationTypes { get; } = new List<Type>();
 
-            internal Action<BlueprintMiddlewareConfigurer> PipelineConfigurer => pipelineConfigurer;
+            internal Action<BlueprintPipelineBuilder> PipelineBuilder => pipelineBuilder;
+
+            internal Action<BlueprintApiBuilder> ApiBuilder => apiBuilder;
 
             /// <summary>
             /// Called back with the <see cref="ServiceCollection" /> that is to be used by the operator that is being
@@ -198,9 +206,16 @@ namespace Blueprint.Testing
                 return this;
             }
 
-            public TestApiOperationExecutorBuilder Pipeline(Action<BlueprintMiddlewareConfigurer> configurer)
+            public TestApiOperationExecutorBuilder Configure(Action<BlueprintApiBuilder> builderAction)
             {
-                pipelineConfigurer = configurer;
+                apiBuilder = builderAction;
+
+                return this;
+            }
+
+            public TestApiOperationExecutorBuilder Pipeline(Action<BlueprintPipelineBuilder> builderAction)
+            {
+                pipelineBuilder = builderAction;
 
                 return this;
             }

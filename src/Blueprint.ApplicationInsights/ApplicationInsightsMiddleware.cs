@@ -5,7 +5,6 @@ using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.ApplicationInsights
 {
@@ -34,18 +33,21 @@ namespace Blueprint.ApplicationInsights
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            context.ExecuteMethod.Sources.Add(new RequestTelemetrySource());
+            context.ExecuteMethod.Frames.Add(new StartFrame(context));
 
-            context.ExecuteMethod.Frames.Add(new LoggingStartFrame(context));
+            context.RegisterFinallyFrames(new EndFrame());
 
-            context.RegisterFinallyFrames(new LoggingEndFrame());
+            context.RegisterUnhandledExceptionHandler(typeof(Exception), (e) =>
+            {
+                return new Frame[] { new SetSuccessFrame(false) };
+            });
         }
 
-        private class LoggingStartFrame : SyncFrame
+        private class StartFrame : SyncFrame
         {
             private readonly MiddlewareBuilderContext builderContext;
 
-            public LoggingStartFrame(MiddlewareBuilderContext builderContext)
+            public StartFrame(MiddlewareBuilderContext builderContext)
             {
                 this.builderContext = builderContext;
             }
@@ -64,7 +66,7 @@ namespace Blueprint.ApplicationInsights
             }
         }
 
-        private class LoggingEndFrame : SyncFrame
+        private class EndFrame : SyncFrame
         {
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
@@ -74,50 +76,37 @@ namespace Blueprint.ApplicationInsights
                 // ALWAYS, in a finally statement, try to set the user details if we have them available
                 // This is so the UserAuthorisationContext variable isn't reordered above the try of this middleware.
                 writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
-                writer.WriteIf($"{requestTelemetryVariable} != null && userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
+
+                writer.WriteIf($"{requestTelemetryVariable} != null");
+
+                writer.WriteIf($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
                 writer.Write($"{requestTelemetryVariable}.Context.User.AuthenticatedUserId = userContext.{nameof(IUserAuthorisationContext.Id)};");
                 writer.Write($"{requestTelemetryVariable}.Context.User.AccountId = userContext.{nameof(IUserAuthorisationContext.AccountId)};");
+
+                writer.FinishBlock();
+
+                // Set explicitly to true unless it has been previously set to false
+                writer.Write($"{requestTelemetryVariable}.Success = {requestTelemetryVariable}.Success ?? true;");
+
                 writer.FinishBlock();
             }
         }
 
-        private class RequestTelemetrySource : IVariableSource
+        private class SetSuccessFrame : SyncFrame
         {
-            public Variable TryFindVariable(IMethodVariables variables, Type type)
+            private readonly bool value;
+
+            public SetSuccessFrame(bool value)
             {
-                if (type == typeof(RequestTelemetry))
-                {
-                    var httpContextVariable = variables.FindVariable(typeof(HttpContext));
-
-                    return new VariableSourceFrame(
-                        type,
-                        $"{httpContextVariable}.{nameof(HttpContext.Features)}.{nameof(HttpContext.Features.Get)}<{typeof(RequestTelemetry).FullNameInCode()}>()")
-                        .SourceVariable;
-                }
-
-                return null;
+                this.value = value;
             }
-        }
-
-        private class VariableSourceFrame : SyncFrame
-        {
-            private readonly Variable sourceVariable;
-            private readonly string use;
-
-            public VariableSourceFrame(Type type, string use)
-            {
-                sourceVariable = new Variable(type, this);
-
-                this.use = use;
-            }
-
-            public Variable SourceVariable => sourceVariable;
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write($"var {sourceVariable} = {use};");
+                var requestTelemetryVariable = variables.FindVariable(typeof(RequestTelemetry));
 
-                next();
+                // Set explicitly to true unless it has been previously set to false
+                writer.Write($"{requestTelemetryVariable}.Success = {value.ToString().ToLowerInvariant()};");
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Core.Utilities;
 using Blueprint.Testing;
 using FluentAssertions;
@@ -86,7 +87,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             };
 
             var handler = new TestApiOperationHandler<JsonOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
             var context = GetContext(executor, expected);
 
             // Act
@@ -121,9 +122,9 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             var expectedRouteValue = "theRouteValue";
 
             var handler = new TestApiOperationHandler<JsonWithRouteOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
             var context = GetContext(executor, expected);
-            context.RouteData[nameof(JsonWithRouteOperation.RouteProperty)] = expectedRouteValue;
+            context.GetRouteData().Values[nameof(JsonWithRouteOperation.RouteProperty)] = expectedRouteValue;
 
             // Act
             await executor.ExecuteAsync(context);
@@ -146,7 +147,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             };
 
             var handler = new TestApiOperationHandler<MultipleRouteOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
             var context = GetContext(executor, expected);
 
             // Act
@@ -164,8 +165,8 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
             var jsonBody = JsonConvert.SerializeObject(body);
 
             var context = executor.HttpContextFor<T>();
-            context.Request.Body = jsonBody.AsUtf8Stream();
-            context.Request.Headers["Content-Type"] = "application/json";
+            context.GetHttpContext().Request.Body = jsonBody.AsUtf8Stream();
+            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
 
             return context;
         }

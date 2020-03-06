@@ -136,8 +136,8 @@ namespace Blueprint.Api
                     var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
                     var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
 
-                    Generate(serviceProvider, executeMethod, operation, model, serviceScope, false);
-                    Generate(serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
+                    Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
+                    Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
 
                     typeToCreationMappings.Add(
                         operation.OperationType,
@@ -163,6 +163,7 @@ namespace Blueprint.Api
         }
 
         private void Generate(
+            BlueprintApiOptions options,
             IServiceProvider serviceProvider,
             GeneratedMethod executeMethod,
             ApiOperationDescriptor operation,
@@ -199,6 +200,11 @@ namespace Blueprint.Api
 
             executeMethod.Sources.Add(apiOperationContextSource);
             executeMethod.Sources.Add(dependencyInjectionVariableSource);
+
+            foreach (var source in options.Rules.VariableSources)
+            {
+                executeMethod.Sources.Add(source);
+            }
 
             executeMethod.Frames.Add(castFrame);
             executeMethod.Frames.Add(new ErrorHandlerFrame(context));

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
-using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Api
 {
@@ -14,6 +13,14 @@ namespace Blueprint.Api
     /// </summary>
     public class ApiOperationContext
     {
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ApiOperationContext" /> class, using
+        /// <see cref="ApiOperationDescriptor.CreateInstance" /> to construct the operation
+        /// instance.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
+        /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
+        /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
@@ -22,6 +29,14 @@ namespace Blueprint.Api
         {
         }
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ApiOperationContext" /> class using the already
+        /// created operation instance.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
+        /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
+        /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
+        /// <param name="instance">The operation instance.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
@@ -94,22 +109,11 @@ namespace Blueprint.Api
 
         public ClaimsIdentity ClaimsIdentity { get; set; }
 
+        /// <summary>
+        /// Provides a generic means of middleware components or hosts to store data related to an API operation
+        /// to be used throughout the processing pipeline.
+        /// </summary>
         public Dictionary<string, object> Data { get; private set; }
-
-        public HttpContext HttpContext { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="HttpRequest" /> that initiated this API call.
-        /// </summary>
-        public HttpRequest Request => HttpContext?.Request;
-
-        /// <summary>
-        /// Gets the <see cref="HttpResponse" /> that will eventually be written back to the client, the result
-        /// of this API request.
-        /// </summary>
-        public HttpResponse Response => HttpContext?.Response;
-
-        public IDictionary<string, object> RouteData { get; set; }
 
         public ApiOperationContext CreateNested(Type type)
         {
@@ -137,10 +141,8 @@ namespace Blueprint.Api
         {
             childContext.Parent = this;
             childContext.Data = Data;
-            childContext.HttpContext = HttpContext;
             childContext.ClaimsIdentity = ClaimsIdentity;
             childContext.UserAuthorisationContext = UserAuthorisationContext;
-            childContext.RouteData = RouteData;
         }
     }
 }

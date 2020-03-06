@@ -15,11 +15,16 @@ namespace Blueprint.Api.CodeGen
     {
         private readonly MiddlewareBuilderContext context;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ErrorHandlerFrame" /> class.
+        /// </summary>
+        /// <param name="context">The builder context for this frame.</param>
         public ErrorHandlerFrame(MiddlewareBuilderContext context)
         {
             this.context = context;
         }
 
+        /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             writer.Block("try");

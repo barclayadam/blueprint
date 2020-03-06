@@ -56,9 +56,8 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
-                .Pipeline(p => p
-                    .AddResourceEvents<NullResourceEventRepository>()
-                    .AddHttp()));
+                .Configure(a => a.AddHttp())
+                .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
             var context = executor.HttpContextFor<CreationOperation>();

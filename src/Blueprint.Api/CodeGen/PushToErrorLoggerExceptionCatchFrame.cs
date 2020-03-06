@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -61,7 +60,7 @@ namespace Blueprint.Api.CodeGen
 
             // 3. Use IErrorLogger to push all details to exception sinks
             writer.BlankLine();
-            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.Log({exceptionVariable}, {contextVariable}.HttpContext, identifier);");
+            writer.Write($"{getErrorLoggerFrame.InstanceVariable}.{nameof(IErrorLogger.Log)}({exceptionVariable}, identifier);");
             writer.BlankLine();
         }
     }

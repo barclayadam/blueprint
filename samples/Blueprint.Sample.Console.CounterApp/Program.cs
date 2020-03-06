@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Blueprint.Api.Configuration;
-using Lamar;
-using Lamar.Microsoft.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,7 +24,6 @@ namespace Blueprint.Sample.Console.CounterApp
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             new HostBuilder()
-                .UseLamar()
                 .UseConsoleLifetime()
                 .UseDotNetCore2Environment()
                 .ConfigureHostConfiguration(config =>
@@ -53,7 +50,6 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddBlueprintApi(b => b
                         .SetApplicationName(AppName)
                         .ScanForOperations(typeof(Program).Assembly)
-                        .AddBackgroundTasks(a => a.UseHangfire())
                         .Pipeline(m => m
                             .AddLogging()
                             .AddValidation(v => v
@@ -63,7 +59,6 @@ namespace Blueprint.Sample.Console.CounterApp
                             .AddAuditing(a => a
                                 .StoreInSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint-examples;Integrated Security=True", "AuditTrail")
                             )
-                            .AddTaskRunner()
                         ));
 
                     // Configure Hosted Services
@@ -72,15 +67,6 @@ namespace Blueprint.Sample.Console.CounterApp
                 .ConfigureLogging((context, logging) =>
                 {
                     logging.AddConsole();
-                })
-                .ConfigureContainer((HostBuilderContext context, ServiceRegistry services) =>
-                {
-                    // Configure Lamar
-                    services.Scan(x =>
-                    {
-                        x.AssembliesFromApplicationBaseDirectory();
-                        x.LookForRegistries();
-                    });
                 });
     }
 }

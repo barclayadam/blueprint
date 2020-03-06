@@ -14,15 +14,15 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TasksConfigurationExtensions
     {
-        public static BlueprintApiConfigurer AddBackgroundTasks(
-            this BlueprintApiConfigurer configurer,
+        public static BlueprintApiBuilder AddBackgroundTasks(
+            this BlueprintApiBuilder builder,
             Action<BlueprintTasksConfigurer> configureTasks)
         {
-            EnsureNotAlreadySetup(configurer.Services, typeof(IBackgroundTaskScheduler));
+            EnsureNotAlreadySetup(builder.Services, typeof(IBackgroundTaskScheduler));
 
-            configureTasks(new BlueprintTasksConfigurer(configurer.Services));
+            configureTasks(new BlueprintTasksConfigurer(builder.Services));
 
-            return configurer;
+            return builder;
         }
 
         /// <summary>
@@ -30,13 +30,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// background tasks from the operation to the registered provider.
         /// </summary>
         /// <seealso cref="AddBackgroundTasks" />
-        /// <param name="middlewareConfigurer">The configurer to push middleware to.</param>
-        /// <returns><paramref name="middlewareConfigurer"/>.</returns>
-        public static BlueprintMiddlewareConfigurer AddTaskRunner(this BlueprintMiddlewareConfigurer middlewareConfigurer)
+        /// <param name="pipelineBuilder">The configurer to push middleware to.</param>
+        /// <returns><paramref name="pipelineBuilder"/>.</returns>
+        public static BlueprintPipelineBuilder AddTaskRunner(this BlueprintPipelineBuilder pipelineBuilder)
         {
-            middlewareConfigurer.AddMiddleware<BackgroundTaskRunnerMiddleware>(MiddlewareStage.PostExecution);
+            pipelineBuilder.AddMiddleware<BackgroundTaskRunnerMiddleware>(MiddlewareStage.PostExecution);
 
-            return middlewareConfigurer;
+            return pipelineBuilder;
         }
 
         private static void EnsureNotAlreadySetup(IServiceCollection services, Type type)

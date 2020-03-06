@@ -5,9 +5,9 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintAuditConfigurer
     {
-        private readonly BlueprintMiddlewareConfigurer blueprintApiConfigurer;
+        private readonly BlueprintPipelineBuilder blueprintApiConfigurer;
 
-        public BlueprintAuditConfigurer(BlueprintMiddlewareConfigurer blueprintApiConfigurer)
+        public BlueprintAuditConfigurer(BlueprintPipelineBuilder blueprintApiConfigurer)
         {
             this.blueprintApiConfigurer = blueprintApiConfigurer;
         }

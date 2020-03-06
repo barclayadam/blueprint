@@ -5,6 +5,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -114,7 +115,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
 
             var context = GetContext<TOperation>(executor, queryString);
 
@@ -133,7 +134,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string queryString) where T : IApiOperation
         {
             var context = executor.HttpContextFor<T>();
-            context.Request.QueryString = new QueryString(queryString);
+            context.GetHttpContext().Request.QueryString = new QueryString(queryString);
 
             return context;
         }

@@ -64,6 +64,8 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api.Http", "src\Blueprint.Api.Http\Blueprint.Api.Http.csproj", "{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,10 @@ Global
 		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +156,7 @@ Global
 		{2A11A316-1F23-4FED-B480-2DC55B9C4A31} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{1ADB1F40-BD86-43D4-84A3-23C524060314} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
+		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}

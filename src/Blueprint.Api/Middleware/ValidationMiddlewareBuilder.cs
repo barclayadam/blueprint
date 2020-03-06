@@ -4,8 +4,6 @@ using Blueprint.Api.Validation;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Microsoft.Extensions.DependencyInjection;
-using ValidationErrorResponse = Blueprint.Api.Validation.ValidationErrorResponse;
-using ValidationException = Blueprint.Api.Validation.ValidationException;
 
 namespace Blueprint.Api.Middleware
 {
@@ -21,26 +19,23 @@ namespace Blueprint.Api.Middleware
 
         /// <summary>
         /// Given a <see cref="System.ComponentModel.DataAnnotations.ValidationException"/> will convert it to an
-        /// equivalent <see cref="ValidationErrorResponse" /> to be output to the user.
+        /// equivalent <see cref="ValidationFailedOperationResult" /> to be output to the user.
         /// </summary>
         /// <param name="validationException">The exception to be converted.</param>
         /// <returns>The response to send back to the client.</returns>
         // ReSharper disable once MemberCanBePrivate.Global This is used in generated code
-        public static ValidationErrorResponse ToErrorResponse(System.ComponentModel.DataAnnotations.ValidationException validationException)
+        public static ValidationFailedOperationResult ToValidationFailedOperationResult(System.ComponentModel.DataAnnotations.ValidationException validationException)
         {
             var validationResult = validationException.ValidationResult;
 
             if (!validationResult.MemberNames.Any())
             {
-                return new ValidationErrorResponse(new Dictionary<string, IEnumerable<string>>
-                {
-                    [ValidationFailures.FormLevelPropertyName] = new[] { validationResult.ErrorMessage },
-                });
+                return new ValidationFailedOperationResult(validationResult.ErrorMessage);
             }
 
             var errorMessages = (IEnumerable<string>)new[] { validationResult.ErrorMessage };
 
-            return new ValidationErrorResponse(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
+            return new ValidationFailedOperationResult(validationResult.MemberNames.ToDictionary(m => m, m => errorMessages));
         }
 
         /// <summary>
@@ -111,19 +106,16 @@ namespace Blueprint.Api.Middleware
                  *
                  * if (validationFailures.Count > 0)
                  * {
-                 *     var validationErrorResponse = new ValidationErrorResponse(validationFailures);
-                 *     var validationResult = new ValidationResult(validationErrorResponse);
+                 *     var validationResult = new ValidationResult(validationFailures);
                  *
                  *     return validationResult;
                  * }
                  */
-                var createResponse = new ConstructorFrame<ValidationErrorResponse>(() => new ValidationErrorResponse((ValidationFailures)null));
-                var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null));
+                var createResult = new ConstructorFrame<ValidationFailedOperationResult>(() => new ValidationFailedOperationResult((ValidationFailures)null));
 
                 context.AppendFrames(
                     new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0")
                     {
-                        createResponse,
                         createResult,
                         new ReturnFrame(createResult.Variable),
                     });
@@ -138,23 +130,16 @@ namespace Blueprint.Api.Middleware
         private static IEnumerable<Frame> RegisterBlueprintExceptionHandler(Variable exception)
         {
             /*
-             * var validationErrorResponse = new Blueprint.Core.Errors.ValidationErrorResponse(e.ValidationResults);
-             * var validationResult = new Blueprint.Core.Api.Middleware.ValidationResult(validationErrorResponse);
+             * var validationResult = new Blueprint.Core.Api.Middleware.ValidationResult(e.ValidationResults);
              * return validationResult;
              */
             var validationFailures = new Variable(typeof(ValidationFailures), $"{exception}.{nameof(ValidationException.ValidationResults)}");
 
-            var createResponse = new ConstructorFrame<ValidationErrorResponse>(() => new ValidationErrorResponse((ValidationFailures)null))
+            var createResult = new ConstructorFrame<ValidationFailedOperationResult>(() => new ValidationFailedOperationResult((ValidationFailures)null))
             {
                 Parameters = { [0] = validationFailures },
             };
 
-            var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null))
-            {
-                Parameters = { [0] = createResponse.Variable },
-            };
-
-            yield return createResponse;
             yield return createResult;
             yield return new ReturnFrame(createResult.Variable);
         }
@@ -162,23 +147,16 @@ namespace Blueprint.Api.Middleware
         private static IEnumerable<Frame> RegisterDataAnnotationsExceptionHandler(Variable exception)
         {
             /*
-             * var validationErrorResponse = Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder.ToErrorResponse(e);
-             * var validationResult = new Blueprint.Core.Api.Middleware.ValidationResult(validationErrorResponse);
+             * var validationResult = Blueprint.Core.Api.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
              * return validationResult;
              */
-            var createResponse = new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToErrorResponse))
+            var createResponse = new MethodCall(typeof(ValidationMiddlewareBuilder), nameof(ToValidationFailedOperationResult))
             {
                 Arguments = { [0] = exception },
             };
 
-            var createResult = new ConstructorFrame<ValidationFailedResult>(() => new ValidationFailedResult((ValidationErrorResponse)null))
-            {
-                Parameters = { [0] = createResponse.ReturnVariable },
-            };
-
             yield return createResponse;
-            yield return createResult;
-            yield return new ReturnFrame(createResult.Variable);
+            yield return new ReturnFrame(createResponse.ReturnVariable);
         }
     }
 }

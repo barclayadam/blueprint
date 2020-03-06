@@ -6,9 +6,11 @@
     <PackageTags>$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Api.Http\Blueprint.Api.Http.csproj" />
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\Blueprint.Postgres\Blueprint.Postgres.csproj" />
     <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
