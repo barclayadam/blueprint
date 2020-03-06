@@ -55,7 +55,7 @@ namespace Blueprint.ApplicationInsights
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var requestTelemetryVariable = variables.FindVariable(typeof(RequestTelemetry));
-                var operationName = builderContext.Descriptor.HttpMethod + " " + builderContext.Descriptor.OperationType.Name;
+                var operationName = builderContext.Descriptor.Name;
 
                 // Must check if requestTelemetry actually exists. Set the operation name to that of the HTTP method + operation class name
                 writer.WriteIf($"{requestTelemetryVariable} != null");

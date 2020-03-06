@@ -19,7 +19,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Trimmed_UrlFormat_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), HttpMethod.Get);
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -32,7 +32,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Operation_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof (LinkGeneratorTestsOperation), HttpMethod.Get);
+            var descriptor = new ApiOperationDescriptor(typeof (LinkGeneratorTestsOperation));
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -45,7 +45,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Rel_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), HttpMethod.Get);
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -58,7 +58,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Has_Separate_Source_Then_GetSafeRoutingUrl_Strips()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), HttpMethod.Get);
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}", "a.rel");
@@ -71,7 +71,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Format_Has_QueryString_UrlFormat_Strips()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), HttpMethod.Get);
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}?format=pdf", "a.rel");

@@ -68,14 +68,16 @@ namespace Microsoft.AspNetCore.Builder
             // first (e.g. /users/{id} and /users/me will put /users/me first)
             foreach (var link in apiDataModel.Links.OrderBy(l => l.UrlFormat.IndexOf('{')))
             {
+                var httpFeatureData = link.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>();
+
                 routeBuilder.Routes.Add(new Route(
                     target: routeHandler,
-                    routeName: link.UrlFormat + "-" + link.OperationDescriptor.HttpMethod,
+                    routeName: httpFeatureData.HttpMethod + "-" + link.UrlFormat,
                     routeTemplate: apiPrefix + link.RoutingUrl,
                     defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor}),
                     constraints: new Dictionary<string, object>
                     {
-                        ["httpMethod"] = new HttpMethodRouteConstraint(link.OperationDescriptor.HttpMethod.ToString()),
+                        ["httpMethod"] = new HttpMethodRouteConstraint(httpFeatureData.HttpMethod.ToString()),
                     },
                     dataTokens: null,
                     inlineConstraintResolver: inlineConstraintResolver));
@@ -144,14 +146,15 @@ namespace Microsoft.AspNetCore.Builder
                 context.Handler = async c =>
                 {
                     var operation = (ApiOperationDescriptor)context.RouteData.Values["operation"];
+                    var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
 
-                    if (operation.HttpMethod.ToString() != context.HttpContext.Request.Method)
+                    if (httpFeatureData.HttpMethod.ToString() != context.HttpContext.Request.Method)
                     {
                         logger.LogInformation(
                             "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
                             context.HttpContext.Request.GetDisplayUrl(),
                             context.HttpContext.Request.Method,
-                            operation.HttpMethod);
+                            httpFeatureData.HttpMethod);
 
                         context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 

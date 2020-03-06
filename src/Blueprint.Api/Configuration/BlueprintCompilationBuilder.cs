@@ -51,7 +51,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseOptimizationLevel(OptimizationLevel optimizationLevel)
         {
-            blueprintApiBuilder.Options.Rules.OptimizationLevel = optimizationLevel;
+            blueprintApiBuilder.Options.GenerationRules.OptimizationLevel = optimizationLevel;
 
             return this;
         }
@@ -65,7 +65,7 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNullOrEmpty(nameof(assemblyName), assemblyName);
 
-            blueprintApiBuilder.Options.Rules.AssemblyName = assemblyName;
+            blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
 
             return this;
         }
@@ -78,7 +78,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This builder</returns>
         public BlueprintCompilationBuilder ConfigureRules(Action<GenerationRules> editor)
         {
-            editor(blueprintApiBuilder.Options.Rules);
+            editor(blueprintApiBuilder.Options.GenerationRules);
 
             return this;
         }
@@ -92,7 +92,7 @@ namespace Blueprint.Api.Configuration
         {
             Guard.NotNull(nameof(variableSource), variableSource);
 
-            blueprintApiBuilder.Options.Rules.VariableSources.Add(variableSource);
+            blueprintApiBuilder.Options.GenerationRules.VariableSources.Add(variableSource);
 
             return this;
         }

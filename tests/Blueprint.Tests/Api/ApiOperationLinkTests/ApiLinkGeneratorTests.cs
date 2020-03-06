@@ -32,7 +32,10 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void CreateGenerator()
         {
             options = new BlueprintApiOptions();
-            options.AddOperation<LinkGeneratorTestsOperation>();
+
+            new BlueprintApiOperationScanner()
+                .AddOperation<LinkGeneratorTestsOperation>()
+                .Register(options.Model);
 
             linkGenerator = new ApiLinkGenerator(options);
             descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(LinkGeneratorTestsOperation));

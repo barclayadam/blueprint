@@ -47,9 +47,9 @@ namespace Blueprint.Testing
                 .AddConsole()
                 .SetMinimumLevel(LogLevel.Debug));
 
-            collection.AddBlueprintApi(o =>
+            collection.AddBlueprintApi(b =>
             {
-                o
+                b
                     .SetApplicationName("Blueprint.Tests")
                     .Compilation(r => r
                         // We want a unique DLL name every time, avoids clashes and ensures we always do
@@ -58,9 +58,9 @@ namespace Blueprint.Testing
                         .UseOptimizationLevel(OptimizationLevel.Debug)
                         .UseInMemoryCompileStrategy())
                     .Pipeline(builder.PipelineBuilder)
-                    .AddOperations(builder.OperationTypes);
+                    .Operations(o => o.AddOperations(builder.OperationTypes));
 
-                builder.ApiBuilder(o);
+                builder.ApiBuilder(b);
             });
 
             var serviceProvider = collection.BuildServiceProvider();

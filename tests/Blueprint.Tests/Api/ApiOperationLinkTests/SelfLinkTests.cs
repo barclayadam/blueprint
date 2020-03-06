@@ -29,7 +29,10 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void CreateGenerator()
         {
             options = new BlueprintApiOptions();
-            options.AddOperation<SelfLinkGeneratorTestsOperation>();
+
+            new BlueprintApiOperationScanner()
+                .AddOperation<SelfLinkGeneratorTestsOperation>()
+                .Register(options.Model);
 
             linkGenerator = new ApiLinkGenerator(options);
             descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(SelfLinkGeneratorTestsOperation));

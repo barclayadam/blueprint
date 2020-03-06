@@ -80,7 +80,7 @@ namespace Blueprint.Api.Configuration
 
             foreach (var registration in middlewareStages)
             {
-                blueprintApiBuilder.Options.UseMiddlewareBuilder(registration.MiddlewareBuilder);
+                blueprintApiBuilder.Options.MiddlewareBuilders.Add(registration.MiddlewareBuilder);
             }
         }
 

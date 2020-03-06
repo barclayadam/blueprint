@@ -29,7 +29,7 @@ namespace Blueprint.Testing
 
             var context = new ApiOperationContext(serviceProvider, dataModel, descriptor);
 
-            context.ConfigureHttp("https://api.blueprint.com/" + descriptor.Name);
+            context.ConfigureHttp("https://api.blueprint.com/" + descriptor.OperationType.Name);
 
             return context;
         }
@@ -38,9 +38,9 @@ namespace Blueprint.Testing
         /// Configures the <see cref="ApiOperationContext" /> with a HTTP context configured for the given URL.
         /// </summary>
         /// <remarks>
-        /// In addition to setting <see cref="ApiOperationContext.HttpContext" /> (and therefore also <see cref="ApiOperationContext.Request"/> and
-        /// <see cref="ApiOperationContext.Response"/>) this method will set the newly created <see cref="HttpContext" /> on the
-        /// <see cref="HttpContextAccessor" /> that has been registered with the context's <see cref="IServiceProvider"/>.
+        /// In addition to adding the <see cref="RouteContext"/> on the descriptor this method will set the newly
+        /// created <see cref="HttpContext" /> on the <see cref="HttpContextAccessor" /> that has been registered
+        /// with the context's <see cref="IServiceProvider"/>.
         /// </remarks>
         /// <param name="context">The context to configure.</param>
         /// <param name="url">The URL to set for this context's request.</param>
@@ -55,7 +55,7 @@ namespace Blueprint.Testing
             httpContext.Request.Host = new HostString(uri.Host);
             httpContext.Request.Path = new PathString(uri.LocalPath);
             httpContext.Request.QueryString = new QueryString(uri.Query);
-            httpContext.Request.Method = context.Descriptor.HttpMethod.ToString();
+            httpContext.Request.Method = context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod.ToString();
             httpContext.Request.Headers["Content-Type"] = "application/test-data";
 
             context.SetRouteContext(new RouteContext(httpContext));

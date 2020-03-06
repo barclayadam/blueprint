@@ -19,9 +19,9 @@ namespace Blueprint.Sample.WebApi
 
             services.AddApplicationInsightsTelemetry();
 
-            services.AddBlueprintApi(o => o
+            services.AddBlueprintApi(b => b
                 .SetApplicationName("SampleWebApi")
-                .ScanForOperations(typeof(Startup).Assembly)
+                .Operations(o => o.ScanForOperations(typeof(Startup).Assembly))
                 .AddHttp()
                 .AddApplicationInsights()
                 .Pipeline(m => m

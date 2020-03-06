@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Caching;
 using Blueprint.Api.Errors;
 using Blueprint.Compiler;
@@ -18,31 +16,51 @@ using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Api.Configuration
 {
+    /// <summary>
+    /// A builder that allows fluent configuration, driven by Intellisense, of a <see cref="BlueprintApiOptions" />
+    /// instance.
+    /// </summary>
     public class BlueprintApiBuilder
     {
         private readonly BlueprintApiOptions options;
         private readonly BlueprintPipelineBuilder pipelineBuilder;
+        private readonly BlueprintApiOperationScanner operationScanner;
 
-        public BlueprintApiBuilder(IServiceCollection services, BlueprintApiOptions options = null)
+        /// <summary>
+        /// Initialises a new instance of the <see cref="BlueprintApiBuilder" /> class with the given
+        /// <see cref="IServiceCollection" /> in to which all DI registrations will be made.
+        /// </summary>
+        /// <param name="services">The service collection to configure.</param>
+        public BlueprintApiBuilder(IServiceCollection services)
         {
             Services = services;
 
-            this.options = options ?? new BlueprintApiOptions();
-            this.pipelineBuilder = new BlueprintPipelineBuilder(this);
+            options = new BlueprintApiOptions();
+            pipelineBuilder = new BlueprintPipelineBuilder(this);
+            operationScanner = new BlueprintApiOperationScanner();
 
             // The default strategy is to build to a DLL to the temp folder
             Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
         }
 
+        /// <summary>
+        /// Gets the <see cref="IServiceCollection" /> that dependencies should be registered with.
+        /// </summary>
         public IServiceCollection Services { get; }
 
         internal BlueprintApiOptions Options => options;
 
+        /// <summary>
+        /// Sets the name of this application, which can be used for naming of the output DLL to avoid
+        /// any clashes if multiple APIs exist within a single domain.
+        /// </summary>
+        /// <param name="applicationName">The name of the application.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
         public BlueprintApiBuilder SetApplicationName(string applicationName)
         {
             Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
-            options.WithApplicationName(applicationName);
+            options.ApplicationName = applicationName;
 
             return this;
         }
@@ -52,7 +70,7 @@ namespace Blueprint.Api.Configuration
         /// with absolute paths.
         /// </summary>
         /// <param name="baseUrl">The fully-qualified URL to set.</param>
-        /// <returns>This configurer.</returns>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
         public BlueprintApiBuilder SetHttpBaseUrl(string baseUrl)
         {
             Guard.NotNullOrEmpty(nameof(baseUrl), baseUrl);
@@ -62,39 +80,26 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
-        public BlueprintApiBuilder ScanForOperations(params Assembly[] assemblies)
+        /// <summary>
+        /// Configures the <see cref="IApiOperation"/>s of the <see cref="ApiDataModel" /> that will be constructed, allowing
+        /// for manual registration as well as scanning operations.
+        /// </summary>
+        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        public BlueprintApiBuilder Operations(Action<BlueprintApiOperationScanner> configurer)
         {
-            Guard.NotNull(nameof(assemblies), assemblies);
+            Guard.NotNull(nameof(configurer), configurer);
 
-            options.ScanForOperations(assemblies);
+            configurer(operationScanner);
 
             return this;
         }
 
-        public BlueprintApiBuilder AddOperation<T>() where T : IApiOperation
-        {
-            options.AddOperation<T>();
-
-            return this;
-        }
-
-        public BlueprintApiBuilder AddOperation(Type operationType)
-        {
-            options.AddOperation(operationType);
-
-            return this;
-        }
-
-        public BlueprintApiBuilder AddOperations(IEnumerable<Type> operationTypes)
-        {
-            foreach (var operationType in operationTypes)
-            {
-                options.AddOperation(operationType);
-            }
-
-            return this;
-        }
-
+        /// <summary>
+        /// Configures the pipeline of this API instance.
+        /// </summary>
+        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
         public BlueprintApiBuilder Pipeline(Action<BlueprintPipelineBuilder> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
@@ -104,6 +109,11 @@ namespace Blueprint.Api.Configuration
             return this;
         }
 
+        /// <summary>
+        /// Configures the compilation (using Roslyn) of this API instance.
+        /// </summary>
+        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
         public BlueprintApiBuilder Compilation(Action<BlueprintCompilationBuilder> configurer)
         {
             Guard.NotNull(nameof(configurer), configurer);
@@ -121,8 +131,9 @@ namespace Blueprint.Api.Configuration
             }
 
             pipelineBuilder.Register();
+            operationScanner.Register(options.Model);
 
-            options.Rules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
+            options.GenerationRules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
 
             Services.AddLogging();
 
