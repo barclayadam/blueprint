@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using Blueprint.Compiler.Frames;
 using Blueprint.Core.Auditing;
@@ -45,15 +44,14 @@ namespace Blueprint.Api.Middleware
         }
 
         /// <summary>
-        /// Determines whether to apply this middleware to the pipeline for the operation, which is
-        /// <c>true</c> if <see cref="ApiOperationDescriptor.ShouldAudit" /> is <c>true</c> AND the
-        /// <see cref="ApiOperationDescriptor.HttpMethod" /> is NOT <see cref="HttpMethod.Get" />.
+        /// Returns <c>true</c> if <see cref="ApiOperationDescriptor.ShouldAudit" /> is <c>true</c> AND the
+        /// <see cref="ApiOperationDescriptor.IsCommand" /> is <c>true</c>.
         /// </summary>
         /// <param name="operation">The operation descriptor check.</param>
         /// <returns>Whether the execution of the given operation should be audited.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
-            return operation.ShouldAudit && operation.HttpMethod != HttpMethod.Get;
+            return operation.ShouldAudit && operation.IsCommand;
         }
 
         public void Build(MiddlewareBuilderContext context)

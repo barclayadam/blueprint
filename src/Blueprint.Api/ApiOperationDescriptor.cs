@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using Blueprint.Api.Authorisation;
 using Blueprint.Core;
@@ -13,16 +13,20 @@ namespace Blueprint.Api
     /// A descriptor of an <see cref="IApiOperation" />, containing details such as the URL from
     /// which the operation can be executed, and the type that represents the actual operation.
     /// </summary>
-    [DebuggerVisualizer(nameof(HttpMethod) + ": " + nameof(Name))]
+    [DebuggerVisualizer(nameof(Name))]
     public class ApiOperationDescriptor
     {
-        public ApiOperationDescriptor(Type apiOperationType, HttpMethod httpMethod)
+        private readonly Dictionary<string, object> featureData = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ApiOperationDescriptor" /> class.
+        /// </summary>
+        /// <param name="apiOperationType">The operation type (must implement <see cref="IApiOperation"/>).</param>
+        public ApiOperationDescriptor(Type apiOperationType)
         {
             Guard.NotNull(nameof(apiOperationType), apiOperationType);
-            Guard.NotNull(nameof(httpMethod), httpMethod);
 
             OperationType = apiOperationType;
-            HttpMethod = httpMethod;
 
             TypeAttributes = apiOperationType.GetCustomAttributes(true);
             Properties = apiOperationType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -37,9 +41,9 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Gets the name of the operation, which is the class name of the operation with Query and Command removed.
+        /// Gets or sets the name of the operation, which is the class name of the operation with Query and Command removed.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets the type that represents this operation, a type that defines the parameters required (or
@@ -66,12 +70,6 @@ namespace Blueprint.Api
         /// found at PropertyAttributes[i].
         /// </summary>
         public object[][] PropertyAttributes { get; }
-
-        /// <summary>
-        /// Gets the HTTP method that this operation is required to be executed using, i.e. one of GET, POST,
-        /// PUT, DELETE.
-        /// </summary>
-        public HttpMethod HttpMethod { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether anonymous access is allowed to this API operation, typically determined
@@ -105,12 +103,50 @@ namespace Blueprint.Api
         public bool RecordPerformanceMetrics { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether this operation describes an <see cref="ICommand" />.
+        /// </summary>
+        public bool IsCommand => typeof(ICommand).IsAssignableFrom(OperationType);
+
+        /// <summary>
+        /// Gets the feature data of the specified type, which provides a pluggable mechanism to add additional
+        /// structured data to <see cref="ApiOperationDescriptor" />s, such as HTTP-related data.
+        /// </summary>
+        /// <typeparam name="T">The feature data type to load.</typeparam>
+        /// <returns>The feature data of the specified type.</returns>
+        /// <exception cref="InvalidOperationException">If no such feature data exists.</exception>
+        public T GetFeatureData<T>()
+        {
+            var key = typeof(T).FullName;
+
+            if (featureData.TryGetValue(key, out var data))
+            {
+                return (T)data;
+            }
+
+            throw new InvalidOperationException(
+                $"Could not find feature data {key}");
+        }
+
+        /// <summary>
+        /// Adds the given feature data to this descriptor.
+        /// </summary>
+        /// <param name="newFeatureData">The feature data to store.</param>
+        public void SetFeatureData(object newFeatureData)
+        {
+            Guard.NotNull(nameof(featureData), featureData);
+
+            var key = newFeatureData.GetType().FullName;
+
+            featureData[key] = newFeatureData;
+        }
+
+        /// <summary>
         /// Creates a new instance of the API operation this descriptor describes, with the default implementation
         /// to simply be to use <see cref="Activator"/>, which means operations must have a public, parameterless
         /// constructor.
         /// </summary>
         /// <returns>A new instance of operation this descriptor describes.</returns>
-        public virtual IApiOperation CreateInstance()
+        public IApiOperation CreateInstance()
         {
             return (IApiOperation)Activator.CreateInstance(OperationType);
         }

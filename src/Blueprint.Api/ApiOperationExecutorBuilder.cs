@@ -56,13 +56,13 @@ namespace Blueprint.Api
             // 1. Try and find an already loaded assembly
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.GetName().Name == options.Rules.AssemblyName)
+                if (assembly.GetName().Name == options.GenerationRules.AssemblyName)
                 {
                     // The assembly exists in the current domain, therefore it has either already been generated in this
                     // process OR it has previously been compiled and loaded as part of normal assembly loading (pre-compiled
                     // as part of dotnet publish)
 
-                    logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.Rules.AssemblyName);
+                    logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.GenerationRules.AssemblyName);
 
                     var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
                     var exportedTypes = assembly.GetExportedTypes();
@@ -75,7 +75,7 @@ namespace Blueprint.Api
                         if (operationType == null)
                         {
                             throw new InvalidOperationException(
-                                $"The assembly {options.Rules.AssemblyName} loaded in the current domain is NOT valid as it is missing executor pipeline " +
+                                $"The assembly {options.GenerationRules.AssemblyName} loaded in the current domain is NOT valid as it is missing executor pipeline " +
                                 $"{typeName} for operation {operation.Name}");
                         }
 
@@ -97,7 +97,7 @@ namespace Blueprint.Api
 
             using (var serviceScope = serviceProvider.CreateScope())
             {
-                foreach (var middleware in options.Middlewares)
+                foreach (var middleware in options.MiddlewareBuilders)
                 {
                     Use(middleware);
                 }
@@ -105,7 +105,7 @@ namespace Blueprint.Api
                 var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
 
                 // Start the definition for a new generated assembly
-                var assembly = new GeneratedAssembly(options.Rules);
+                var assembly = new GeneratedAssembly(options.GenerationRules);
 
                 foreach (var operation in model.Operations)
                 {
@@ -201,7 +201,7 @@ namespace Blueprint.Api
             executeMethod.Sources.Add(apiOperationContextSource);
             executeMethod.Sources.Add(dependencyInjectionVariableSource);
 
-            foreach (var source in options.Rules.VariableSources)
+            foreach (var source in options.GenerationRules.VariableSources)
             {
                 executeMethod.Sources.Add(source);
             }

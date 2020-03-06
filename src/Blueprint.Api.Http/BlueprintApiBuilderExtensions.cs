@@ -43,6 +43,7 @@ namespace Blueprint.Api.Configuration
 
             apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
 
+            apiBuilder.Operations(o => o.AddContributor(new HttpOperationScannerFeatureContributor()));
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
 
             return apiBuilder;

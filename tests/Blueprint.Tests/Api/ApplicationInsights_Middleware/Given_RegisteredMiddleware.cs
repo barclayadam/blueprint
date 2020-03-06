@@ -74,7 +74,7 @@ namespace Blueprint.Tests.Api.ApplicationInsights_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            requestTelemetry.Name.Should().Be("GET " + nameof(EmptyOperation));
+            requestTelemetry.Name.Should().Be(nameof(EmptyOperation));
         }
 
         [Test]

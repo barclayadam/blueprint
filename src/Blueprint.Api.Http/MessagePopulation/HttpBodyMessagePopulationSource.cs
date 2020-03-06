@@ -70,7 +70,7 @@ namespace Blueprint.Api.Http.MessagePopulation
 
             // If the request method is a GET then there will be no body, and therefore we do not need to attempt to
             // read the message body at all.
-            if (context.Descriptor.HttpMethod != HttpMethod.Get)
+            if (context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod != "GET")
             {
                 context.ExecuteMethod.Frames.Add(
                     new MethodCall(typeof(HttpBodyMessagePopulationSource), nameof(PopulateFromMessageBody)));

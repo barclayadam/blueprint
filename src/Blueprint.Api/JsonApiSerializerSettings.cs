@@ -22,7 +22,6 @@ namespace Blueprint.Api
             };
 
             settings.Converters.Add(new IsoDateTimeConverter());
-            settings.Converters.Add(new HttpMethodConverter());
             settings.Converters.Add(new StringEnumConverter());
             settings.Converters.Add(new Base64FileConverter());
 

@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Blueprint.Compiler.Frames;
+﻿using Blueprint.Compiler.Frames;
 
 namespace Blueprint.Api.Middleware
 {
@@ -12,7 +11,7 @@ namespace Blueprint.Api.Middleware
 
         public bool Matches(ApiOperationDescriptor operation)
         {
-            return operation.HttpMethod != HttpMethod.Get;
+            return operation.IsCommand;
         }
 
         public void Build(MiddlewareBuilderContext context)

@@ -33,7 +33,7 @@ namespace Blueprint.Api.Http
         {
             var httpContext = context.GetHttpContext();
 
-            return WriteContentAsync(httpContext, HttpStatusCode.OK, result);
+            return WriteContentAsync(httpContext, HttpStatusCode.OK, result.Content);
         }
 
         /// <summary>

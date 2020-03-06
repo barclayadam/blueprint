@@ -90,8 +90,9 @@ namespace Blueprint.Api
         /// <exception cref="InvalidOperationException">If the link is not unique.</exception>
         public void RegisterLink(ApiOperationLink link)
         {
-            if (allLinks.Any(l => l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
-                                  l.OperationDescriptor.HttpMethod == link.OperationDescriptor.HttpMethod))
+            if (allLinks.Any(l =>
+                l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
+                l.OperationDescriptor.Name == link.OperationDescriptor.Name))
             {
                 throw new InvalidOperationException(
                     "An API operation link '{0}' with type '{1}' failed to register as a URL with format '{2}' already registered."
