@@ -39,14 +39,14 @@ steps:
       packageType: 'sdk'
       version: '3.0.x'
 
-  - task: SonarSource.sonarqube.15B84CA1-B62F-4A2A-A403-89B77A063157.SonarQubePrepare@4
+  - task: SonarCloudPrepare@1
     displayName: 'SonarQube Preparation'
     inputs:
-      SonarQube: 'SonarCloud'
+      SonarCloud: 'SonarCloud'
+      organization: 'barclayadam'
+      scannerMode: 'MSBuild'
       projectKey: barclayadam_blueprint
       projectName: Blueprint
-      extraProperties: |
-        sonar.organization=barclayadam
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
@@ -80,5 +80,10 @@ steps:
       allowPackageConflicts: true
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
-  - task: SonarSource.sonarqube.6D01813A-9589-4B15-8491-8164AEB38055.SonarQubeAnalyze@4
-    displayName: 'SonarQube analysis'
+  - task: SonarCloudAnalyze@1
+    displayName: 'SonarCloud analysis'
+
+  - task: SonarCloudPublish@1
+    displayName: 'Publish SonarCloud results'
+    inputs:
+      pollingTimeoutSec: '300'
