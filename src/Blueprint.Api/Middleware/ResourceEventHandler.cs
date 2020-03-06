@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
-using Blueprint.Api.Http;
 using Blueprint.Api.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,13 +30,20 @@ namespace Blueprint.Api.Middleware
 
                     logger.LogDebug("ResourceEvent found. Loading resource. resource_type={0}", resourceEvent.ResourceType);
 
-                    context.UserAuthorisationContext?.PopulateMetadata((k, v) => resourceEvent.Metadata[k] = v);
+                    void AddMetadata(string k, object v) => resourceEvent.Metadata[k] = v;
+
+                    context.UserAuthorisationContext?.PopulateMetadata(AddMetadata);
 
                     resourceEvent.UserId = context.UserAuthorisationContext?.Id;
                     resourceEvent.CorrelationId = Activity.Current?.Id;
                     resourceEvent.Operation = context.Operation;
 
-                    PopulateClientData(context, resourceEvent);
+                    var metadataProviders = context.ServiceProvider.GetServices<IContextMetadataProvider>();
+
+                    foreach (var p in metadataProviders)
+                    {
+                        await p.PopulateMetadataAsync(context, AddMetadata);
+                    }
 
                     var selfLink = context.DataModel.GetLinkFor(resourceEvent.ResourceType, "self");
 
@@ -57,23 +62,6 @@ namespace Blueprint.Api.Middleware
 
                     await resourceEventRepository.AddAsync(resourceEvent);
                 }
-            }
-        }
-
-        private static void PopulateClientData(ApiOperationContext context, ResourceEvent resourceEvent)
-        {
-            if (context.Request == null)
-            {
-                return;
-            }
-
-            resourceEvent.Metadata.Add("IpAddress", context.Request.GetClientIpAddress());
-
-            if (context.Request.Headers.ContainsKey("User-Agent"))
-            {
-                resourceEvent.Metadata.Add(
-                    "UserAgent",
-                    string.Join(" ", context.Request.Headers["User-Agent"].ToString()));
             }
         }
 
@@ -118,9 +106,9 @@ namespace Blueprint.Api.Middleware
 
             var result = await executor.ExecuteAsync(nestedContext);
 
-            if (result is ValidationFailedResult validationFailedResult)
+            if (result is ValidationFailedOperationResult validationFailedResult)
             {
-                throw new ValidationException($"GetById for operation {operationType.Name} validation failed", validationFailedResult.Content.Errors);
+                throw new ValidationException($"GetById for operation {operationType.Name} validation failed", validationFailedResult.Errors);
             }
 
             if (result is UnhandledExceptionOperationResult exceptionOperationResult)

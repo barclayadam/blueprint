@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -138,7 +139,7 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Pipeline(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
 
             // These tests are checking whether a conversion happens, so we will always put the route data as the ToString() value of the object
             var context = GetContext<TOperation>(executor, routeDataKeyOverride ?? nameof(expected.RouteProperty), expected.RouteProperty.ToString());
@@ -153,8 +154,8 @@ namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string routeKey, string routeValue) where T : IApiOperation
         {
             var context = executor.HttpContextFor<T>();
-            context.Request.Headers["Content-Type"] = "application/json";
-            context.RouteData[routeKey] = routeValue;
+            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
+            context.GetRouteData().Values[routeKey] = routeValue;
 
             return context;
         }

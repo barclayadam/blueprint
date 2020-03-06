@@ -9,24 +9,24 @@ namespace Blueprint.Notifications
 {
     public static class BlueprintConfigurerExtensions
     {
-        public static BlueprintApiConfigurer AddNotifications(this BlueprintApiConfigurer blueprintApiConfigurer, params Assembly[] embeddedResourceAssemblies)
+        public static BlueprintApiBuilder AddNotifications(this BlueprintApiBuilder blueprintApiBuilder, params Assembly[] embeddedResourceAssemblies)
         {
             if (embeddedResourceAssemblies.Length == 0)
             {
                 embeddedResourceAssemblies = new[] {Assembly.GetEntryAssembly()};
             }
 
-            blueprintApiConfigurer.Services.AddOptions<TemplatedEmailHandlerOptions>();
+            blueprintApiBuilder.Services.AddOptions<TemplatedEmailHandlerOptions>();
 
-            blueprintApiConfigurer.Services.AddTransient<INotificationRepository>(p =>
+            blueprintApiBuilder.Services.AddTransient<INotificationRepository>(p =>
                 new EmbeddedResourceNotificationRepository(embeddedResourceAssemblies, p.GetRequiredService<ILogger<EmbeddedResourceNotificationRepository>>()));
 
-            blueprintApiConfigurer.Services.AddTransient<INotificationService, NotificationService>();
-            blueprintApiConfigurer.Services.AddTransient<INotificationHandler, TemplatedEmailHandler>();
-            blueprintApiConfigurer.Services.AddTransient<ITemplateFactory, NVelocityTemplateFactory>();
-            blueprintApiConfigurer.Services.AddTransient<IEmailSender, SmtpClientEmailSender>();
+            blueprintApiBuilder.Services.AddTransient<INotificationService, NotificationService>();
+            blueprintApiBuilder.Services.AddTransient<INotificationHandler, TemplatedEmailHandler>();
+            blueprintApiBuilder.Services.AddTransient<ITemplateFactory, NVelocityTemplateFactory>();
+            blueprintApiBuilder.Services.AddTransient<IEmailSender, SmtpClientEmailSender>();
 
-            return blueprintApiConfigurer;
+            return blueprintApiBuilder;
         }
     }
 }

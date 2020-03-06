@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using Blueprint.Api;
+using Blueprint.Api.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Testing
@@ -57,8 +58,7 @@ namespace Blueprint.Testing
             httpContext.Request.Method = context.Descriptor.HttpMethod.ToString();
             httpContext.Request.Headers["Content-Type"] = "application/test-data";
 
-            context.HttpContext = httpContext;
-            context.RouteData = new Dictionary<string, object>();
+            context.SetRouteContext(new RouteContext(httpContext));
 
             context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
         }

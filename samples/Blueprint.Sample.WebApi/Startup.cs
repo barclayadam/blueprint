@@ -22,10 +22,10 @@ namespace Blueprint.Sample.WebApi
             services.AddBlueprintApi(o => o
                 .SetApplicationName("SampleWebApi")
                 .ScanForOperations(typeof(Startup).Assembly)
+                .AddHttp()
+                .AddApplicationInsights()
                 .Pipeline(m => m
                     .AddLogging()
-                    .AddApplicationInsights()
-                    .AddHttp()
                     .AddValidation()
                     .AddHateoasLinks()
                     .AddResourceEvents<NullResourceEventRepository>()

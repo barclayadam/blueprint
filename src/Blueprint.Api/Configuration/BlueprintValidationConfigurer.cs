@@ -6,13 +6,13 @@ namespace Blueprint.Api.Configuration
 {
     public class BlueprintValidationConfigurer
     {
-        private readonly BlueprintMiddlewareConfigurer middlewareConfigurer;
+        private readonly BlueprintPipelineBuilder pipelineBuilder;
 
-        internal BlueprintValidationConfigurer(BlueprintMiddlewareConfigurer middlewareConfigurer)
+        internal BlueprintValidationConfigurer(BlueprintPipelineBuilder pipelineBuilder)
         {
-            this.middlewareConfigurer = middlewareConfigurer;
+            this.pipelineBuilder = pipelineBuilder;
 
-            middlewareConfigurer.Services.TryAddSingleton<IValidator, BlueprintValidator>();
+            pipelineBuilder.Services.TryAddSingleton<IValidator, BlueprintValidator>();
         }
 
         /// <summary>
@@ -26,8 +26,8 @@ namespace Blueprint.Api.Configuration
         /// <returns>This configurer.</returns>
         public BlueprintValidationConfigurer UseBlueprintSource()
         {
-            middlewareConfigurer.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
-            middlewareConfigurer.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            pipelineBuilder.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
+            pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
 
             return this;
         }
@@ -39,8 +39,8 @@ namespace Blueprint.Api.Configuration
         /// <returns>This configurer.</returns>
         public BlueprintValidationConfigurer UseDataAnnotationSource()
         {
-            middlewareConfigurer.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
-            middlewareConfigurer.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            pipelineBuilder.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
 
             return this;
         }

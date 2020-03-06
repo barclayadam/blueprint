@@ -1,7 +1,5 @@
 using System;
-using System.Runtime.ExceptionServices;
 using Blueprint.Api;
-using Blueprint.Api.Http;
 using Blueprint.Api.Middleware;
 using Blueprint.Api.Validation;
 
@@ -20,13 +18,13 @@ namespace Blueprint.Testing
         /// <param name="result">The result to check.</param>
         /// <typeparam name="T">The expected content type.</typeparam>
         /// <returns>The value of <see cref="OkResult.Content"/> as the expected type.</returns>
-        /// <exception cref="ValidationException">If this result is actually <see cref="ValidationFailedResult"/>.</exception>
+        /// <exception cref="ValidationException">If this result is actually <see cref="ValidationFailedOperationResult"/>.</exception>
         /// <exception cref="InvalidOperationException">If this result is actually <see cref="UnhandledExceptionOperationResult"/>.</exception>
         public static T ShouldBeContent<T>(this OperationResult result)
         {
-            if (result is ValidationFailedResult validationFailedResult)
+            if (result is ValidationFailedOperationResult validationFailedResult)
             {
-                throw new ValidationException("Validation failed", validationFailedResult.Content.Errors);
+                throw new ValidationException("Validation failed", validationFailedResult.Errors);
             }
 
             if (result is UnhandledExceptionOperationResult exceptionOperationResult)

@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Http;
+using Blueprint.Api.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -28,16 +29,16 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<ClaimRequiredOperation>()
-                .Pipeline(p => p
-                    .AddAuth<TestUserAuthorisationContextFactory>()));
+                .Pipeline(p => p.AddAuth<TestUserAuthorisationContextFactory>()));
 
             // Act
             var result = await executor.ExecuteWithAuth(new ClaimRequiredOperation());
 
             // Assert
             var okResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
-            okResult.Content.Error.Code.Should().Be("unauthorized");
-            okResult.Content.Error.Message.Should().Be("You do not have enough permissions to perform this action");
+
+            okResult.Exception.Should().BeOfType<ForbiddenException>();
+            okResult.Exception.Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
         }
 
         [Test]

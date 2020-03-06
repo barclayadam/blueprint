@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
@@ -80,13 +79,13 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                     .WithOperation<CreationOperation>()
                     .WithOperation<SelfQuery>()
                     .Pipeline(p => p
-                        .AddAuth<TestUserAuthorisationContextFactory>()
-                        .AddResourceEvents<NullResourceEventRepository>()));
+                        .AddResourceEvents<NullResourceEventRepository>()
+                        .AddAuth<TestUserAuthorisationContextFactory>()));
 
                 // Act
                 var result = await executor.ExecuteWithAuth(
                     new CreationOperation { IdToCreate = "1234" },
-                    new Claim(JwtRegisteredClaimNames.Sub, "User8547"));
+                    new Claim("sub", "User8547"));
 
                 // Assert
                 var @event = result.ShouldBeContent<CreatedResourceEvent>();

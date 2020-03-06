@@ -186,7 +186,7 @@ namespace Blueprint.Compiler
                 .SelectMany(GetAllFrames)
                 .ToList();
 
-            foreach (var variable in variables.Values)
+            foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies).Reverse())
             {
                 if (variable.Creator != null && !everyFrame.Contains(variable.Creator))
                 {
@@ -371,9 +371,12 @@ namespace Blueprint.Compiler
 
                 if (variable == null)
                 {
+                    var searchedSources = string.Join(", ",  method.Sources.Select(s => s.GetType().Name));
+
                     throw new ArgumentOutOfRangeException(
                         nameof(variableType),
-                        $"Do not know how to build a variable of type '{variableType.FullName}'");
+                        $"Do not know how to build a variable of type '{variableType.FullName}'. " +
+                        $"Searched in argument list, constructor parameters and sources {searchedSources}");
                 }
 
                 return variable;

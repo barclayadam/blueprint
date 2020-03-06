@@ -76,7 +76,7 @@ namespace Blueprint.Api
         public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
             var pipelineType = operationTypeToPipelineType[context.Descriptor.OperationType]();
-            var pipeline = (IOperationExecutorPipeline) ActivatorUtilities.CreateInstance(context.ServiceProvider, pipelineType);
+            var pipeline = (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(context.ServiceProvider, pipelineType);
 
             return context.IsNested ?
                 pipeline.ExecuteNestedAsync(context) :

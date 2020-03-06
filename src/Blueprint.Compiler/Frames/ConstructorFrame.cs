@@ -99,7 +99,8 @@ namespace Blueprint.Compiler.Frames
                     writer.UsingBlock(Declaration(), w =>
                     {
                         ActivatorFrames.Write(variables, method, writer);
-                        NextFrame?.GenerateCode(variables, method, writer);
+
+                        next();
                     });
                     break;
             }

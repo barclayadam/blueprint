@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Core.Errors
 {
+    /// <summary>
+    /// The default implementation of <see cref="IErrorLogger" /> that pushes exceptions to a number of
+    /// <see cref="IExceptionSink" />s.
+    /// </summary>
     public class ErrorLogger : IErrorLogger
     {
         private static readonly List<Exception> TestLoggedExceptions = new List<Exception>();
@@ -18,6 +21,13 @@ namespace Blueprint.Core.Errors
         private readonly IEnumerable<IExceptionFilter> exceptionFilters;
         private readonly ILogger<ErrorLogger> logger;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ErrorLogger" /> class.
+        /// </summary>
+        /// <param name="errorDataProviders">The data providers that can add ambient data to logged exceptions.</param>
+        /// <param name="exceptionSinks">The sinks that exceptions should be pushed to.</param>
+        /// <param name="exceptionFilters">Filters that are used to exclude exceptions from logging.</param>
+        /// <param name="logger">A logger that will, as a last resort, be sent exceptions if it is not possible to log using configured sinks.</param>
         public ErrorLogger(
             IEnumerable<IErrorDataProvider> errorDataProviders,
             IEnumerable<IExceptionSink> exceptionSinks,
@@ -43,6 +53,7 @@ namespace Blueprint.Core.Errors
             TestLoggedExceptions.Clear();
         }
 
+        /// <inheritdoc />
         public bool ShouldIgnore(Exception exception)
         {
             var exceptionType = exception.GetType();
@@ -58,7 +69,8 @@ namespace Blueprint.Core.Errors
             return false;
         }
 
-        public ErrorLogStatus Log(string exceptionMessage, object errorData = default, HttpContext httpContext = default, UserExceptionIdentifier identifier = default)
+        /// <inheritdoc />
+        public ErrorLogStatus Log(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
             var exception = new Exception(exceptionMessage);
 
@@ -72,10 +84,11 @@ namespace Blueprint.Core.Errors
                 }
             }
 
-            return Log(exception, httpContext, identifier);
+            return Log(exception, identifier);
         }
 
-        public ErrorLogStatus Log(Exception exception, HttpContext httpContext = null, UserExceptionIdentifier userExceptionIdentifier = null)
+        /// <inheritdoc />
+        public ErrorLogStatus Log(Exception exception, UserExceptionIdentifier userExceptionIdentifier = null)
         {
             if (ShouldIgnore(exception))
             {
@@ -100,7 +113,7 @@ namespace Blueprint.Core.Errors
 
                 foreach (var sink in exceptionSinks)
                 {
-                    sink.Record(exception, httpContext, userExceptionIdentifier);
+                    sink.Record(exception, userExceptionIdentifier);
                 }
             }
             catch (Exception ex)

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Reflection;
 using System.Security.Claims;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
-using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Api.CodeGen
 {
@@ -20,8 +18,6 @@ namespace Blueprint.Api.CodeGen
     ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />.
     ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />.
     ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />.
-    ///  * <see cref="HttpRequest" /> from <see cref="ApiOperationContext.Request" />.
-    ///  * <see cref="HttpResponse" /> from <see cref="ApiOperationContext.Response" />.
     ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />.
     /// </remarks>
     public class ApiOperationContextVariableSource : IVariableSource
@@ -97,21 +93,6 @@ namespace Blueprint.Api.CodeGen
             if (type == typeof(IUserAuthorisationContext))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.UserAuthorisationContext));
-            }
-
-            if (type == typeof(HttpContext))
-            {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.HttpContext));
-            }
-
-            if (type == typeof(HttpRequest))
-            {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.Request));
-            }
-
-            if (type == typeof(HttpResponse))
-            {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.Response));
             }
 
             if (type == typeof(ClaimsIdentity))

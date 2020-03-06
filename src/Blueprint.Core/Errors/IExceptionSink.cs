@@ -1,6 +1,5 @@
 ﻿using System;
 using Blueprint.Core.Authorisation;
-using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Core.Errors
 {
@@ -12,6 +11,6 @@ namespace Blueprint.Core.Errors
     /// <seealso cref="IErrorLogger" />
     public interface IExceptionSink
     {
-        void Record(Exception e, HttpContext httpContext, UserExceptionIdentifier identifier);
+        void Record(Exception e, UserExceptionIdentifier identifier);
     }
 }

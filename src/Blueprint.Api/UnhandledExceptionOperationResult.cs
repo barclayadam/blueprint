@@ -1,36 +1,40 @@
 using System;
-using System.Net;
 using System.Runtime.ExceptionServices;
-using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Api.Errors;
-using Blueprint.Api.Http;
-using Blueprint.Core.Errors;
-using Microsoft.Extensions.Configuration;
+using Blueprint.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api
 {
-    public class UnhandledExceptionOperationResult : OkResult<ErrorResponse>
+    /// <summary>
+    /// An <see cref="OperationResult" /> that represents an unhandled exception that is caught by the pipeline
+    /// executor, delegating it's execution to a registered <see cref="IOperationResultExecutor{TResult}" />.
+    /// </summary>
+    public class UnhandledExceptionOperationResult : OperationResult
     {
-        public UnhandledExceptionOperationResult(Exception exception) : base(ToStatusCode(exception), ToErrorResponse(exception))
+        /// <summary>
+        /// Initialises a new instance of the <see cref="UnhandledExceptionOperationResult" /> class with the
+        /// given <see cref="Exception" />.
+        /// </summary>
+        /// <param name="exception">The unhandled exception.</param>
+        public UnhandledExceptionOperationResult(Exception exception)
         {
+            Guard.NotNull(nameof(exception), exception);
+
             Exception = exception;
         }
 
+        /// <summary>
+        /// Gets the <see cref="Exception" /> this result represents.
+        /// </summary>
         public Exception Exception { get; }
 
+        /// <inheritdoc />
         public override Task ExecuteAsync(ApiOperationContext context)
         {
-            var configuration = context.ServiceProvider.GetService<IConfiguration>();
-            var shouldExpose = Convert.ToBoolean(configuration["Api.ExposeErrorMessage"] ?? "true");
+            var executor = context.ServiceProvider.GetService<IOperationResultExecutor<UnhandledExceptionOperationResult>>();
 
-            if (!shouldExpose)
-            {
-                Content.Error.Message = "Something has gone wrong, please try again";
-            }
-
-            return base.ExecuteAsync(context);
+            return executor.ExecuteAsync(context, this);
         }
 
         /// <summary>
@@ -40,65 +44,6 @@ namespace Blueprint.Api
         public void Rethrow()
         {
             ExceptionDispatchInfo.Capture(Exception).Throw();
-        }
-
-        private static HttpStatusCode ToStatusCode(Exception exception)
-        {
-            switch (exception)
-            {
-                case ApiException apiException:
-                    return apiException.HttpStatus;
-
-                case SecurityException _:
-                    return HttpStatusCode.Unauthorized;
-
-                case InvalidOperationException _:
-                    return HttpStatusCode.BadRequest;
-            }
-
-            return HttpStatusCode.InternalServerError;
-        }
-
-        private static ErrorResponse ToErrorResponse(Exception exception)
-        {
-            return new ErrorResponse
-            {
-                Error = GetErrorResponse(exception),
-            };
-        }
-
-        private static ErrorResponseDetail GetErrorResponse(Exception e)
-        {
-            switch (e)
-            {
-                case IApiErrorDescriptor errorCodeProvider:
-                    return new ErrorResponseDetail
-                    {
-                        Code = errorCodeProvider.ErrorCode,
-                        Message = errorCodeProvider.ErrorMessage,
-                    };
-
-                case InvalidOperationException _:
-                    return new ErrorResponseDetail
-                    {
-                        Code = "bad_request",
-                        Message = e.Message,
-                    };
-
-                case SecurityException _:
-                    return new ErrorResponseDetail
-                    {
-                        Code = "unauthenticated",
-                        Message = e.Message,
-                    };
-            }
-
-            return new ErrorResponseDetail
-            {
-                Code = "unknown_error",
-
-                Message = e.ToString(),
-            };
         }
     }
 }

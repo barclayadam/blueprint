@@ -160,7 +160,13 @@ namespace Blueprint.Compiler.Model
                 throw new ArgumentException($"Property {propertyName} does not exist on type {VariableType.FullName}");
             }
 
-            return new Variable(prop.PropertyType, $"{Usage}.{propertyName}");
+            return new Variable(prop.PropertyType, $"{Usage}.{propertyName}")
+            {
+                Dependencies =
+                {
+                    this,
+                },
+            };
         }
 
         public override string ToString()
@@ -170,7 +176,7 @@ namespace Blueprint.Compiler.Model
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }

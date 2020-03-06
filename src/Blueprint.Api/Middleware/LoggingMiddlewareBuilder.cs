@@ -27,7 +27,9 @@ namespace Blueprint.Api.Middleware
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            context.ExecuteMethod.Frames.Add(new LoggingStartFrame());
+            // Force the creation of the stopwatch variable to be at the very start of the method, ensures itr
+            // starts before _anything_ happens and makes it available to the finally block too
+            context.ExecuteMethod.Frames.Insert(0, new LoggingStartFrame());
             context.RegisterFinallyFrames(new LoggingEndFrame(context.Descriptor.OperationType));
         }
 
