@@ -8,7 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Blueprint.Tasks
 {
     /// <summary>
-    /// Resolves an appropriate task handler and allows it to perform the required action for the task.
+    /// The main entry point in to background task processing, taking a <see cref="BackgroundTaskEnvelope" /> that
+    /// has been scheduled via <see cref="IBackgroundTaskScheduler" /> or a recurring one through <see cref="RecurringTaskManager" />
+    /// and pushing it through an <see cref="IApiOperationExecutor" />.
     /// </summary>
     public class TaskExecutor
     {
@@ -29,8 +31,8 @@ namespace Blueprint.Tasks
         }
 
         /// <summary>
-        /// Resolves a task handler for the given command context and, if found, hands off
-        /// execution to the command handler.
+        /// Pushes the given <see cref="IBackgroundTask" /> that has been wrapped in an <see cref="BackgroundTaskEnvelope" />
+        /// to a <see cref="IApiOperationExecutor" />.
         /// </summary>
         /// <param name="taskEnvelope">The task to be executed.</param>
         /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
@@ -56,16 +58,15 @@ namespace Blueprint.Tasks
             {
                 activity.Start();
 
-                using (var nestedContainer = rootServiceProvider.CreateScope())
+                using var nestedContainer = rootServiceProvider.CreateScope();
+
+                var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, taskEnvelope.BackgroundTask);
+
+                var result = await apiOperationExecutor.ExecuteAsync(apiContext);
+
+                if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
                 {
-                    var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, taskEnvelope.BackgroundTask);
-
-                    var result = await apiOperationExecutor.ExecuteAsync(apiContext);
-
-                    if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
-                    {
-                        unhandledExceptionOperationResult.Rethrow();
-                    }
+                    unhandledExceptionOperationResult.Rethrow();
                 }
             }
             finally

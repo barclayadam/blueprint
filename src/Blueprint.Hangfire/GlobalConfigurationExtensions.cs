@@ -1,6 +1,5 @@
 ﻿using System;
 using Blueprint.Core;
-using Blueprint.NHibernate;
 using Hangfire;
 
 namespace Blueprint.Hangfire
