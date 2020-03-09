@@ -15,5 +15,7 @@ namespace Blueprint.Tasks.Provider
         /// <param name="current">The current set of schedules.</param>
         /// <returns>A <see cref="Task"/> represent this operation.</returns>
         Task UpdateAsync(IEnumerable<RecurringTaskScheduleDto> current);
+
+        Task SetupRecurringManagerAsync();
     }
 }
