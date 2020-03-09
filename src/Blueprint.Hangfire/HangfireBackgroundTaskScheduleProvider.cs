@@ -4,43 +4,43 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Blueprint.Core;
-using Blueprint.Core.Tasks;
 using Blueprint.Core.Utilities;
-
+using Blueprint.Tasks;
+using Blueprint.Tasks.Provider;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
-using JobContinuationOptions = Blueprint.Core.Tasks.JobContinuationOptions;
+using JobContinuationOptions = Blueprint.Tasks.JobContinuationOptions;
 
 namespace Blueprint.Hangfire
 {
     public class HangfireBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
-        private readonly Lazy<IBackgroundJobClient> jobClientFactory;
+        private readonly IBackgroundJobClient jobClient;
         private readonly ILogger<HangfireBackgroundTaskScheduleProvider> logger;
         private readonly Dictionary<Type, string> taskToQueue = new Dictionary<Type, string>();
 
-        public HangfireBackgroundTaskScheduleProvider(Lazy<IBackgroundJobClient> jobClientFactory, ILogger<HangfireBackgroundTaskScheduleProvider> logger)
+        public HangfireBackgroundTaskScheduleProvider(IBackgroundJobClient jobClient, ILogger<HangfireBackgroundTaskScheduleProvider> logger)
         {
-            Guard.NotNull(nameof(jobClientFactory), jobClientFactory);
+            Guard.NotNull(nameof(jobClient), jobClient);
             Guard.NotNull(nameof(logger), logger);
 
-            this.jobClientFactory = jobClientFactory;
+            this.jobClient = jobClient;
             this.logger = logger;
         }
 
-        public Task<string> EnqueueAsync(BackgroundTask task)
+        public Task<string> EnqueueAsync(BackgroundTaskEnvelope task)
         {
             return Task.FromResult(CreateCore(task, queue => new EnqueuedState(queue)));
         }
 
-        public Task<string> ScheduleAsync(BackgroundTask task, TimeSpan delay)
+        public Task<string> ScheduleAsync(BackgroundTaskEnvelope task, TimeSpan delay)
         {
             return Task.FromResult(CreateCore(task, queue => new ScheduledState(delay)));
         }
 
-        public Task<string> EnqueueChildAsync(BackgroundTask task, string parentId, JobContinuationOptions options)
+        public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, JobContinuationOptions options)
         {
             var hangfireOptions = options == JobContinuationOptions.OnlyOnSucceededState
                 ? global::Hangfire.JobContinuationOptions.OnlyOnSucceededState
@@ -51,7 +51,7 @@ namespace Blueprint.Hangfire
                 queue => new AwaitingState(parentId, new EnqueuedState(queue), hangfireOptions)));
         }
 
-        private string CreateCore(BackgroundTask task, Func<string, IState> createState)
+        private string CreateCore(BackgroundTaskEnvelope task, Func<string, IState> createState)
         {
             var queue = GetQueueForTask(task);
 
@@ -60,16 +60,16 @@ namespace Blueprint.Hangfire
                 logger.LogDebug("Enqueuing task. task_type={0} queue={1}", task.GetType().Name, queue);
             }
 
-            var id = jobClientFactory.Value.Create(
-                Job.FromExpression<TaskExecutor>(e => e.Execute(task, null)),
+            var id = jobClient.Create(
+                Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(task), null)),
                 createState(queue));
 
             return id;
         }
 
-        private string GetQueueForTask(BackgroundTask task)
+        private string GetQueueForTask(BackgroundTaskEnvelope envelope)
         {
-            var taskType = task.GetType();
+            var taskType = envelope.BackgroundTask.GetType();
 
             if (!taskToQueue.TryGetValue(taskType, out var queue))
             {

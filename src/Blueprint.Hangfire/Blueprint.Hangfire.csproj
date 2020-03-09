@@ -6,6 +6,7 @@
     <PackageTags>Hangfire;Tasks;Background;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.6" />
     <PackageReference Include="Hangfire.Azure.ServiceBusQueue" Version="4.1.0" />
     <PackageReference Include="Hangfire.Core" Version="1.7.6" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
@@ -16,5 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\Blueprint.Tasks\Blueprint.Tasks.csproj" />
   </ItemGroup>
 </Project>

@@ -57,14 +57,7 @@ namespace Blueprint.Api
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
         public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, IApiOperation operation)
         {
-            var operationType = operation.GetType();
-
-            if (allOperations.TryGetValue(operationType, out var operationDescriptor))
-            {
-                return new ApiOperationContext(serviceProvider, this, operationDescriptor, operation);
-            }
-
-            throw new InvalidOperationException($"Cannot find a registered operation of the type '{operationType.Name}'.");
+            return new ApiOperationContext(serviceProvider, this, operation);
         }
 
         /// <summary>

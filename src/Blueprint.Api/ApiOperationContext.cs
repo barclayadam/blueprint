@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
@@ -25,8 +26,17 @@ namespace Blueprint.Api
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
             ApiOperationDescriptor operationDescriptor)
-            : this(serviceProvider, dataModel, operationDescriptor, operationDescriptor.CreateInstance())
         {
+            Guard.NotNull(nameof(serviceProvider), serviceProvider);
+            Guard.NotNull(nameof(dataModel), dataModel);
+            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
+
+            Descriptor = operationDescriptor;
+            DataModel = dataModel;
+            ServiceProvider = serviceProvider;
+            Operation = operationDescriptor.CreateInstance();
+
+            Data = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -35,29 +45,29 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
         /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
-        /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
         /// <param name="instance">The operation instance.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
-            ApiOperationDescriptor operationDescriptor,
             IApiOperation instance)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(dataModel), dataModel);
-            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
             Guard.NotNull(nameof(instance), instance);
 
-            if (!operationDescriptor.OperationType.IsInstanceOfType(instance))
+            var operationType = instance.GetType();
+
+            Descriptor = dataModel.Operations.SingleOrDefault(d => d.OperationType == operationType);
+
+            if (Descriptor == null)
             {
-                throw new InvalidOperationException($"Instance of type {instance.GetType().Name} is not compatible with descriptor {operationDescriptor}");
+                throw new ArgumentException(
+                    $"Could not find descriptor for operation of type {operationType}",
+                    nameof(instance));
             }
 
             DataModel = dataModel;
-            Descriptor = operationDescriptor;
-
             ServiceProvider = serviceProvider;
-
             Operation = instance;
 
             Data = new Dictionary<string, object>();

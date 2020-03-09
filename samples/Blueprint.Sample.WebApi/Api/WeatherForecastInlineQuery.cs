@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Api;
-using Blueprint.Api.Http;
 using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api

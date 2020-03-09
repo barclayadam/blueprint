@@ -52,5 +52,10 @@ namespace Blueprint.Api.Configuration
         /// root of the API can be accessed from (i.e. https://api.somewhere.com/api/).
         /// </summary>
         public string BaseApiUrl { get; set; }
+
+        /// <summary>
+        /// The "host" of the API, i.e. a HTTP host or a background task processor.
+        /// </summary>
+        public IBlueprintApiHost Host { get; set; }
     }
 }

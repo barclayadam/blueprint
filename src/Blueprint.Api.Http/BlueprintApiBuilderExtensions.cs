@@ -37,14 +37,19 @@ namespace Blueprint.Api.Configuration
             apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
             apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpQueryStringMessagePopulationSource>();
 
+            apiBuilder.Services.AddSingleton<IOperationResultExecutor<ValidationFailedOperationResult>, ValidationFailedOperationResultExecutor>();
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<UnhandledExceptionOperationResult>, UnhandledExceptionOperationResultExecutor>();
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<OkResult>, OkResultOperationExecutor>();
             apiBuilder.Services.AddSingleton<OkResultOperationExecutor>();
 
             apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
 
-            apiBuilder.Operations(o => o.AddContributor(new HttpOperationScannerFeatureContributor()));
+            apiBuilder.Operations(o => o
+                .AddOperation<RootMetadataOperation>()
+                .AddConvention(new HttpOperationScannerConvention()));
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
+
+            apiBuilder.UseHost(new HttpBlueprintApiHost());
 
             return apiBuilder;
         }

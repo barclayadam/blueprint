@@ -61,6 +61,7 @@ namespace Blueprint.Api.Configuration
             Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
             options.ApplicationName = applicationName;
+            options.GenerationRules.AssemblyName = applicationName.Replace(" ", string.Empty) + ".Pipelines";
 
             return this;
         }
@@ -76,6 +77,25 @@ namespace Blueprint.Api.Configuration
             Guard.NotNullOrEmpty(nameof(baseUrl), baseUrl);
 
             options.BaseApiUrl = baseUrl;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Registers an <see cref="IBlueprintApiHost" />, such as a background task processor or HTTP.
+        /// </summary>
+        /// <param name="host">The host to set.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        /// <exception cref="InvalidOperationException">If this method has already been called.</exception>
+        public BlueprintApiBuilder UseHost(IBlueprintApiHost host)
+        {
+            if (options.Host != null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot set host {host.GetType().Name} as host {options.Host.GetType().Name} has already been registered");
+            }
+
+            options.Host = host;
 
             return this;
         }
@@ -130,6 +150,11 @@ namespace Blueprint.Api.Configuration
                 throw new InvalidOperationException("An app name MUST be set");
             }
 
+            if (options.Host == null)
+            {
+                throw new InvalidOperationException("A host MUST be set");
+            }
+
             pipelineBuilder.Register();
             operationScanner.Register(options.Model);
 
@@ -151,7 +176,7 @@ namespace Blueprint.Api.Configuration
             Services.TryAddSingleton<IApiLinkGenerator, ApiLinkGenerator>();
 
             // Logging
-            Services.TryAddScoped<IErrorLogger, ErrorLogger>();
+            Services.TryAddSingleton<IErrorLogger, ErrorLogger>();
             Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             // Cache

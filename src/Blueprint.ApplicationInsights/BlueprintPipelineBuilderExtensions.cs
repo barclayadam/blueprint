@@ -21,23 +21,30 @@ namespace Blueprint.Api.Configuration
 
             pipelineBuilder.Pipeline(p => p.AddMiddleware<ApplicationInsightsMiddleware>(MiddlewareStage.Setup));
 
-            pipelineBuilder.Compilation(c => c.AddVariableSource(new RequestTelemetrySource()));
+            pipelineBuilder.Compilation(c => c.AddVariableSource(new HttpRequestTelemetrySource()));
 
             return pipelineBuilder;
         }
 
-        private class RequestTelemetrySource : IVariableSource
+        private class HttpRequestTelemetrySource : IVariableSource
         {
             public Variable TryFindVariable(IMethodVariables variables, Type type)
             {
                 if (type == typeof(RequestTelemetry))
                 {
-                    var httpContextVariable = variables.FindVariable(typeof(HttpContext));
-                    var features = httpContextVariable.GetProperty(nameof(HttpContext.Features));
-                    var methodCall = MethodCall.For<IFeatureCollection>(c => c.Get<RequestTelemetry>());
-                    methodCall.Target = features;
+                    // We special-case if we find a HttpContext variable to grab the RequestTelemetry from
+                    // the Features collection. Otherwise we do nothing here and rely on dependency injection
+                    // to find the variable
+                    var httpContextVariable = variables.TryFindVariable(typeof(HttpContext));
 
-                    return methodCall.ReturnVariable;
+                    if (httpContextVariable != null)
+                    {
+                        var features = httpContextVariable.GetProperty(nameof(HttpContext.Features));
+                        var methodCall = MethodCall.For<IFeatureCollection>(c => c.Get<RequestTelemetry>());
+                        methodCall.Target = features;
+
+                        return methodCall.ReturnVariable;
+                    }
                 }
 
                 return null;

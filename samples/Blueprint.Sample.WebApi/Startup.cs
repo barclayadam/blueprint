@@ -1,6 +1,9 @@
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Sample.WebApi.Data;
+using Blueprint.Tasks;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +26,11 @@ namespace Blueprint.Sample.WebApi
                 .SetApplicationName("SampleWebApi")
                 .Operations(o => o.ScanForOperations(typeof(Startup).Assembly))
                 .AddHttp()
+                .AddTasksClient(t => t.UseHangfire(h =>
+                {
+                    h
+                        .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
+                }))
                 .AddApplicationInsights()
                 .Pipeline(m => m
                     .AddLogging()

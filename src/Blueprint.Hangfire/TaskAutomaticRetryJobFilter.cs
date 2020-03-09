@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using Blueprint.Core.Tasks;
+using Blueprint.Tasks;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
@@ -20,6 +20,11 @@ namespace Blueprint.Hangfire
     {
         private readonly AutomaticRetryAttribute defaultAutomaticRetryAttribute;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="TaskAutomaticRetryJobFilter" /> class.
+        /// </summary>
+        /// <param name="defaultAutomaticRetryAttribute">The default registered <see cref="AutomaticRetryAttribute" /> that
+        /// will be applied.</param>
         public TaskAutomaticRetryJobFilter(AutomaticRetryAttribute defaultAutomaticRetryAttribute)
         {
             this.defaultAutomaticRetryAttribute = defaultAutomaticRetryAttribute;
