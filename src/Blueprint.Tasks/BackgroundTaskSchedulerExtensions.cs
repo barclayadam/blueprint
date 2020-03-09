@@ -18,7 +18,7 @@ namespace Blueprint.Tasks
         public static async Task<IScheduledBackgroundTask> EnqueueSequentiallyAsync(
             this IBackgroundTaskScheduler backgroundTaskScheduler,
             IEnumerable<IBackgroundTask> tasks,
-            JobContinuationOptions options = JobContinuationOptions.OnlyOnSucceededState)
+            BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
         {
             IScheduledBackgroundTask scheduledTask = null;
 

@@ -63,7 +63,7 @@ namespace Blueprint.Tasks
 
             foreach (var taskScheduler in schedulers)
             {
-                Reschedule(taskScheduler, current);
+                await RescheduleAsync(taskScheduler, current);
             }
 
             await provider.UpdateAsync(current);
@@ -74,13 +74,13 @@ namespace Blueprint.Tasks
             return scheduler.GetType().Name;
         }
 
-        private IEnumerable<RecurringTaskSchedule> GetSchedules(IRecurringTaskScheduler recurringTaskScheduler, string schedulerName)
+        private async Task<IEnumerable<RecurringTaskSchedule>> GetSchedulesAsync(IRecurringTaskScheduler recurringTaskScheduler, string schedulerName)
         {
             try
             {
                 logger.LogInformation("Getting scheduled tasks. scheduler={0}", schedulerName);
 
-                return recurringTaskScheduler.GetTaskSchedules();
+                return await recurringTaskScheduler.GetTaskSchedulesAsync();
             }
             catch (Exception e)
             {
@@ -114,13 +114,13 @@ namespace Blueprint.Tasks
             return taskSchedulers.Where(s => !loadedOptions.DisabledSchedulers.Contains(s.GetType().Name));
         }
 
-        private void Reschedule(IRecurringTaskScheduler recurringTaskScheduler, List<RecurringTaskScheduleDto> current)
+        private async Task RescheduleAsync(IRecurringTaskScheduler recurringTaskScheduler, List<RecurringTaskScheduleDto> current)
         {
             var schedulerName = recurringTaskScheduler.GetType().Name;
 
             using (logger.LogTimeWrapper("Getting schedules for scheduler {SchedulerName}", schedulerName))
             {
-                var taskSchedules = GetSchedules(recurringTaskScheduler, schedulerName).ToList();
+                var taskSchedules = (await GetSchedulesAsync(recurringTaskScheduler, schedulerName)).ToList();
 
                 var group = GetGroupNameFromScheduler(recurringTaskScheduler);
 

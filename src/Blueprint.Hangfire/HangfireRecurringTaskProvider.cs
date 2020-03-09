@@ -87,7 +87,8 @@ namespace Blueprint.Hangfire
         {
             recurringJobManager.AddOrUpdate(
                 "System:Scheduler",
-                Job.FromExpression<RecurringTaskManager>(s => s.RescheduleAllAsync()), "*/30 * * * *");
+                Job.FromExpression<RecurringTaskManager>(s => s.RescheduleAllAsync()),
+                "*/30 * * * *");
 
             return Task.CompletedTask;
         }

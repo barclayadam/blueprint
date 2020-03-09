@@ -12,6 +12,6 @@
         /// <param name="backgroundTask">The task to execute.</param>
         /// <param name="options">Options used to determine in what state the task should be considered for execution.</param>
         /// <returns>A new scheduled background task.</returns>
-        IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, JobContinuationOptions options = JobContinuationOptions.OnlyOnSucceededState);
+        IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState);
     }
 }

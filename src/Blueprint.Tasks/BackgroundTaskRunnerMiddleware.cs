@@ -1,7 +1,7 @@
-﻿using Blueprint.Compiler.Frames;
-using Blueprint.Tasks;
+﻿using Blueprint.Api;
+using Blueprint.Compiler.Frames;
 
-namespace Blueprint.Api.Middleware
+namespace Blueprint.Tasks
 {
     /// <summary>
     /// Middleware builder to inject a call to <see cref="IBackgroundTaskScheduler.RunNowAsync" /> for the
@@ -14,11 +14,17 @@ namespace Blueprint.Api.Middleware
         /// </summary>
         public bool SupportsNestedExecution => false;
 
+        /// <summary>
+        /// Returns <c>true</c>.
+        /// </summary>
+        /// <param name="operation">The operation to check.</param>
+        /// <returns><c>true</c>.</returns>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;
         }
 
+        /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
             var runNowCall = MethodCall.For<IBackgroundTaskScheduler>(s => s.RunNowAsync());

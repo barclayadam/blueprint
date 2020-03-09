@@ -10,12 +10,18 @@ namespace Blueprint.Tasks.Provider
     public interface IRecurringTaskProvider
     {
         /// <summary>
-        /// Given the set of current <see cref="RecurringTaskScheduleDto" />
+        /// Given the set of current <see cref="RecurringTaskScheduleDto" /> updates the state of this
+        /// provider to match, deleting old ones, updating existing and creating new ones.
         /// </summary>
         /// <param name="current">The current set of schedules.</param>
-        /// <returns>A <see cref="Task"/> represent this operation.</returns>
+        /// <returns>A <see cref="Task"/> representing this operation.</returns>
         Task UpdateAsync(IEnumerable<RecurringTaskScheduleDto> current);
 
+        /// <summary>
+        /// Starts a task that will execute <see cref="RecurringTaskManager.RescheduleAsync" /> at a regular
+        /// cadence.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing this operation.</returns>
         Task SetupRecurringManagerAsync();
     }
 }

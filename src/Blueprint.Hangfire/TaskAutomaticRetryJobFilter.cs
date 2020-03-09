@@ -30,16 +30,19 @@ namespace Blueprint.Hangfire
             this.defaultAutomaticRetryAttribute = defaultAutomaticRetryAttribute;
         }
 
+        /// <inheritdoc />
         public void OnStateElection(ElectStateContext context)
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateElection(context));
         }
 
+        /// <inheritdoc />
         public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateApplied(context, transaction));
         }
 
+        /// <inheritdoc />
         public void OnStateUnapplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
             WithRetryAttribute(context.BackgroundJob, a => a.OnStateUnapplied(context, transaction));

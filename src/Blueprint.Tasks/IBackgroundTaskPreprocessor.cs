@@ -1,7 +1,15 @@
 ﻿namespace Blueprint.Tasks
 {
-    public interface IBackgroundTaskPreprocessor<in T> where T : IBackgroundTask
+    /// <summary>
+    /// A preprocessor that, for a given <see cref="IBackgroundTask" />, can add additional
+    /// transient information before it is enqueued.
+    /// </summary>
+    public interface IBackgroundTaskPreprocessor
     {
-        void Preprocess(T task);
+        /// <summary>
+        /// Processes the given background task.
+        /// </summary>
+        /// <param name="task">The task to process.</param>
+        void Preprocess(BackgroundTaskEnvelope task);
     }
 }

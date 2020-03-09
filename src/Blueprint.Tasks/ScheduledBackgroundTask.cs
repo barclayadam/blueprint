@@ -29,7 +29,7 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, JobContinuationOptions options = JobContinuationOptions.OnlyOnSucceededState)
+        public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
         {
             if (children == null)
             {
@@ -48,13 +48,6 @@ namespace Blueprint.Tasks
             children.Add(scheduledBackgroundTask);
 
             return scheduledBackgroundTask;
-        }
-
-        public bool IsUniqueKeyMatch(Type taskTypeToCheck, string taskToCheckUniqueKey)
-        {
-            return taskTypeToCheck == taskEnvelope.BackgroundTask.GetType() &&
-                   taskEnvelope.BackgroundTask is IHaveUniqueKey haveUniqueKey &&
-                   haveUniqueKey.UniqueKey == taskToCheckUniqueKey;
         }
 
         public override string ToString()
