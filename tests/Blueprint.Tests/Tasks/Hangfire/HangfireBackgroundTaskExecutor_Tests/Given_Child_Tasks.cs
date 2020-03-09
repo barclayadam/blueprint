@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Tracing;
@@ -31,7 +32,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             var parentId = Guid.NewGuid().ToString();
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
             var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(backgroundJobClient.Object, new NullLogger<HangfireBackgroundTaskScheduleProvider>());
-            var backgroundTaskScheduler = new BackgroundTaskScheduler(new ServiceCollection().BuildServiceProvider(),  backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
+            var backgroundTaskScheduler = new BackgroundTaskScheduler(Enumerable.Empty<IBackgroundTaskPreprocessor>(), backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)))
                 .Returns(parentId).Verifiable();
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)))
@@ -41,8 +42,8 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             var parentTask = await backgroundTaskScheduler.EnqueueAsync(new ParentTask());
             var childTask = parentTask.ContinueWith(new ChildTask(),
                 hangfireOptions == JobContinuationOptions.OnlyOnSucceededState
-                    ? global::Blueprint.Tasks.JobContinuationOptions.OnlyOnSucceededState
-                    : global::Blueprint.Tasks.JobContinuationOptions.OnAnyFinishedState);
+                    ? BackgroundTaskContinuationOptions.OnlyOnSucceededState
+                    : BackgroundTaskContinuationOptions.OnAnyFinishedState);
             await backgroundTaskScheduler.RunNowAsync();
 
             // Assert

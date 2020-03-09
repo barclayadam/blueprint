@@ -4,7 +4,7 @@
     /// An enumeration that indicates how "child" tasks should proceed given the state
     /// of it's parent (see <see cref="IScheduledBackgroundTask.ContinueWith" />).
     /// </summary>
-    public enum JobContinuationOptions
+    public enum BackgroundTaskContinuationOptions
     {
         /// <summary>
         /// The child task will execute regardless of the state of the parent (i.e. success or

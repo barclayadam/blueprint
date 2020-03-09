@@ -10,8 +10,19 @@ using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 namespace Blueprint.Tasks
 {
+    /// <summary>
+    /// Extensions to <see cref="BlueprintTasksClientBuilder" /> and <see cref="BlueprintTasksServerBuilder" /> for
+    /// installing Hangfire.
+    /// </summary>
     public static class BlueprintBackgroundTasksConfigurerExtensions
     {
+        /// <summary>
+        /// Configures the client to use Hangfire, which should be configured using the given configuration
+        /// builder (<paramref name="configuration"/>) for properties such as storage and queue mechanism.
+        /// </summary>
+        /// <param name="builder">The builder to configure.</param>
+        /// <param name="configuration">The Hangfire-specific configuration.</param>
+        /// <returns>This <see cref="BlueprintTasksClientBuilder" /> for further configuration.</returns>
         public static BlueprintTasksClientBuilder UseHangfire(
             this BlueprintTasksClientBuilder builder,
             Action<IGlobalConfiguration> configuration)
@@ -32,6 +43,13 @@ namespace Blueprint.Tasks
             return builder;
         }
 
+        /// <summary>
+        /// Configures the server to use Hangfire, which should be configured using the given configuration
+        /// builder (<paramref name="configuration"/>) for properties such as storage and queue mechanism.
+        /// </summary>
+        /// <param name="builder">The builder to configure.</param>
+        /// <param name="configuration">The Hangfire-specific configuration.</param>
+        /// <returns>This <see cref="BlueprintTasksServerBuilder" /> for further configuration.</returns>
         public static BlueprintTasksServerBuilder UseHangfire(
             this BlueprintTasksServerBuilder builder,
             Action<IGlobalConfiguration> configuration)

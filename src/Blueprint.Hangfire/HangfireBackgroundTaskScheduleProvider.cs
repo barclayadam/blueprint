@@ -11,16 +11,24 @@ using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
-using JobContinuationOptions = Blueprint.Tasks.JobContinuationOptions;
 
 namespace Blueprint.Hangfire
 {
+    /// <summary>
+    /// An implementation of <see cref="IBackgroundTaskScheduleProvider" /> that uses Hangfire to
+    /// create <see cref="Job" />s that will be executed by <see cref="HangfireTaskExecutor.Execute" />.
+    /// </summary>
     public class HangfireBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
         private readonly IBackgroundJobClient jobClient;
         private readonly ILogger<HangfireBackgroundTaskScheduleProvider> logger;
         private readonly Dictionary<Type, string> taskToQueue = new Dictionary<Type, string>();
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="HangfireBackgroundTaskScheduleProvider" /> class.
+        /// </summary>
+        /// <param name="jobClient">The registered Hangfire <see cref="IBackgroundJobClient" />.</param>
+        /// <param name="logger">The logger.</param>
         public HangfireBackgroundTaskScheduleProvider(IBackgroundJobClient jobClient, ILogger<HangfireBackgroundTaskScheduleProvider> logger)
         {
             Guard.NotNull(nameof(jobClient), jobClient);
@@ -30,21 +38,24 @@ namespace Blueprint.Hangfire
             this.logger = logger;
         }
 
+        /// <inheritdoc />
         public Task<string> EnqueueAsync(BackgroundTaskEnvelope task)
         {
             return Task.FromResult(CreateCore(task, queue => new EnqueuedState(queue)));
         }
 
+        /// <inheritdoc />
         public Task<string> ScheduleAsync(BackgroundTaskEnvelope task, TimeSpan delay)
         {
             return Task.FromResult(CreateCore(task, queue => new ScheduledState(delay)));
         }
 
-        public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, JobContinuationOptions options)
+        /// <inheritdoc />
+        public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, BackgroundTaskContinuationOptions continuationOptions)
         {
-            var hangfireOptions = options == JobContinuationOptions.OnlyOnSucceededState
-                ? global::Hangfire.JobContinuationOptions.OnlyOnSucceededState
-                : global::Hangfire.JobContinuationOptions.OnAnyFinishedState;
+            var hangfireOptions = continuationOptions == BackgroundTaskContinuationOptions.OnlyOnSucceededState
+                ? JobContinuationOptions.OnlyOnSucceededState
+                : JobContinuationOptions.OnAnyFinishedState;
 
             return Task.FromResult(CreateCore(
                 task,

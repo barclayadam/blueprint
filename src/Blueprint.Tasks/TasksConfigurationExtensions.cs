@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Middleware;
 using Blueprint.Tasks;
 using Blueprint.Tasks.Provider;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,6 +11,9 @@ using Microsoft.Extensions.Hosting;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Adds background task processing entry points to <see cref="BlueprintApiBuilder" />.
+    /// </summary>
     public static class TasksConfigurationExtensions
     {
         /// <summary>

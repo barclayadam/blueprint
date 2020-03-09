@@ -14,6 +14,7 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public void Apply(ApiOperationDescriptor descriptor)
         {
+            // We have no additional features to add / changes to make
         }
 
         /// <inheritdoc />

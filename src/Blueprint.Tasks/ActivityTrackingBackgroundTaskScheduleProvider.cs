@@ -14,11 +14,18 @@ namespace Blueprint.Tasks
     {
         private readonly IBackgroundTaskScheduleProvider innerProvider;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ActivityTrackingBackgroundTaskScheduleProvider" /> class.
+        /// </summary>
+        /// <param name="innerProvider">The <see cref="IBackgroundTaskScheduleProvider" /> to wrap.</param>
         public ActivityTrackingBackgroundTaskScheduleProvider(IBackgroundTaskScheduleProvider innerProvider)
         {
             this.innerProvider = innerProvider;
         }
 
+        /// <summary>
+        /// The wrapped <see cref="IBackgroundTaskScheduleProvider" />.
+        /// </summary>
         public IBackgroundTaskScheduleProvider InnerProvider => innerProvider;
 
         /// <inheritdoc />
@@ -46,9 +53,9 @@ namespace Blueprint.Tasks
         /// This method will set the request ID and baggage from the current ambient <see cref="Activity" /> on to the
         /// background task.
         /// </remarks>
-        public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, JobContinuationOptions options)
+        public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, BackgroundTaskContinuationOptions continuationOptions)
         {
-            return WithActivityAsync(task, () => innerProvider.EnqueueChildAsync(task, parentId, options));
+            return WithActivityAsync(task, () => innerProvider.EnqueueChildAsync(task, parentId, continuationOptions));
         }
 
         private static async Task<string> WithActivityAsync(BackgroundTaskEnvelope task, Func<Task<string>> fn)

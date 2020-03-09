@@ -18,20 +18,20 @@ namespace Blueprint.Tasks
     internal class ChildScheduledBackgroundTask : IScheduledBackgroundTask
     {
         private readonly BackgroundTaskEnvelope taskEnvelope;
-        private readonly JobContinuationOptions option;
+        private readonly BackgroundTaskContinuationOptions option;
         private readonly BackgroundTaskScheduler scheduler;
 
         // NB: children is not initialized as in many cases no children will be added so we want to avoid the allocation
         private List<ChildScheduledBackgroundTask> children;
 
-        public ChildScheduledBackgroundTask(BackgroundTaskEnvelope taskEnvelope, JobContinuationOptions option, BackgroundTaskScheduler scheduler)
+        public ChildScheduledBackgroundTask(BackgroundTaskEnvelope taskEnvelope, BackgroundTaskContinuationOptions option, BackgroundTaskScheduler scheduler)
         {
             this.taskEnvelope = taskEnvelope;
             this.option = option;
             this.scheduler = scheduler;
         }
 
-        public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, JobContinuationOptions options = JobContinuationOptions.OnlyOnSucceededState)
+        public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
         {
             if (children == null)
             {

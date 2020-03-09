@@ -6,36 +6,49 @@ using Blueprint.Core;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Tracing;
 using Blueprint.Tasks.Provider;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Tasks
 {
+    /// <summary>
+    /// The default implementation of <see cref="IBackgroundTaskScheduler" /> that uses a teh
+    /// registered <see cref="IBackgroundTaskScheduleProvider" /> to perform the enqueing and
+    /// scheduling of <see cref="IBackgroundTask" />s, implementing a unit of work pattern
+    /// in which tasks are only "released" once <see cref="IBackgroundTaskScheduler.RunNowAsync" />
+    /// is executed.
+    /// </summary>
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
         private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
-        private readonly IServiceProvider serviceProvider;
+        private readonly IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors;
         private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
         private readonly ILogger<BackgroundTaskScheduler> logger;
 
         private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="BackgroundTaskScheduler" /> class.
+        /// </summary>
+        /// <param name="backgroundTaskPreprocessors">The registered background task preprocessors.</param>
+        /// <param name="backgroundTaskScheduleProvider">The provider-specific implementation to delegate to.</param>
+        /// <param name="versionInfoProvider">A registered version provider used to decorate tasks with extra metadata.</param>
+        /// <param name="apmTool">The registered APM tool used to register a dependency with.</param>
+        /// <param name="logger">The logger for this class.</param>
         public BackgroundTaskScheduler(
-            IServiceProvider serviceProvider,
+            IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
             IVersionInfoProvider versionInfoProvider,
             IApmTool apmTool,
             ILogger<BackgroundTaskScheduler> logger)
         {
-            Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
             Guard.NotNull(nameof(versionInfoProvider), versionInfoProvider);
             Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
 
             this.backgroundTaskScheduleProvider = new ActivityTrackingBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider);
-            this.serviceProvider = serviceProvider;
+            this.backgroundTaskPreprocessors = backgroundTaskPreprocessors;
             this.versionInfoProvider = versionInfoProvider;
             this.apmTool = apmTool;
             this.logger = logger;
@@ -44,12 +57,6 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public Task<IScheduledBackgroundTask> EnqueueAsync<T>(T task) where T : IBackgroundTask
         {
-            var (canQueue, existingTask) = CheckCanEnqueueTask(task);
-            if (!canQueue)
-            {
-                return Task.FromResult((IScheduledBackgroundTask)existingTask);
-            }
-
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, null, this);
 
@@ -61,14 +68,6 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public Task<IScheduledBackgroundTask> ScheduleAsync<T>(T task, TimeSpan delay) where T : IBackgroundTask
         {
-
-            var (canQueue, existingTask) = CheckCanEnqueueTask(task);
-
-            if (!canQueue)
-            {
-                return Task.FromResult((IScheduledBackgroundTask)existingTask);
-            }
-
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, delay, this);
 
@@ -122,32 +121,12 @@ namespace Blueprint.Tasks
                 },
             };
 
-            foreach (var p in serviceProvider.GetServices<IBackgroundTaskPreprocessor<T>>())
+            foreach (var p in backgroundTaskPreprocessors)
             {
-                p.Preprocess(task);
+                p.Preprocess(envelope);
             }
 
             return envelope;
-        }
-
-        private (bool canQueue, ScheduledBackgroundTask existingTask) CheckCanEnqueueTask<T>(T task) where T : IBackgroundTask
-        {
-            if (!(task is IHaveUniqueKey uniqueKeyedTask))
-            {
-                return (true, null);
-            }
-
-            var taskType = task.GetType();
-
-            foreach (var backgroundTask in tasks)
-            {
-                if (backgroundTask.IsUniqueKeyMatch(taskType, uniqueKeyedTask.UniqueKey))
-                {
-                    return (false, backgroundTask);
-                }
-            }
-
-            return (true, null);
         }
     }
 }

@@ -23,15 +23,6 @@ namespace Blueprint.Api.Configuration
         private readonly List<IOperationScannerConvention> conventions = new List<IOperationScannerConvention>();
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="BlueprintApiOperationScanner" /> class with a single
-        /// <see cref="RootMetadataOperation" /> automatically added.
-        /// </summary>
-        public BlueprintApiOperationScanner()
-        {
-
-        }
-
-        /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
         /// <see cref="IApiOperation" /> that has been registered with this scanner to enable it to contribute and / or
         /// change details of the <see cref="ApiOperationDescriptor" />s, in addition to providing global filtering
@@ -86,18 +77,6 @@ namespace Blueprint.Api.Configuration
         }
 
         /// <summary>
-        /// Adds the operation identified by <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of <see cref="IApiOperation"/> to register.</typeparam>
-        /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner AddOperation<T>() where T : IApiOperation
-        {
-            AddOperation(typeof(T));
-
-            return this;
-        }
-
-        /// <summary>
         /// Bulk registers all operations in the given enumeration.
         /// </summary>
         /// <param name="types">The types to register.</param>
@@ -109,6 +88,18 @@ namespace Blueprint.Api.Configuration
             {
                 AddOperation(type);
             }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the operation identified by <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of <see cref="IApiOperation"/> to register.</typeparam>
+        /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
+        public BlueprintApiOperationScanner AddOperation<T>() where T : IApiOperation
+        {
+            AddOperation(typeof(T));
 
             return this;
         }
