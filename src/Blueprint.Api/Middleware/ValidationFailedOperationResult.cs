@@ -53,7 +53,7 @@ namespace Blueprint.Api.Middleware
         /// <inheritdoc />
         public override Task ExecuteAsync(ApiOperationContext context)
         {
-            var executor = context.ServiceProvider.GetService<IOperationResultExecutor<ValidationFailedOperationResult>>();
+            var executor = context.ServiceProvider.GetRequiredService<IOperationResultExecutor<ValidationFailedOperationResult>>();
 
             return executor.ExecuteAsync(context, this);
         }

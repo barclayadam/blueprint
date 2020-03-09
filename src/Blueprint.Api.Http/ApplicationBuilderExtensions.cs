@@ -148,7 +148,7 @@ namespace Microsoft.AspNetCore.Builder
                     var operation = (ApiOperationDescriptor)context.RouteData.Values["operation"];
                     var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
 
-                    if (httpFeatureData.HttpMethod.ToString() != context.HttpContext.Request.Method)
+                    if (httpFeatureData.HttpMethod != context.HttpContext.Request.Method)
                     {
                         logger.LogInformation(
                             "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",

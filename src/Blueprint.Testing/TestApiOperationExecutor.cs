@@ -61,6 +61,13 @@ namespace Blueprint.Testing
                     .Operations(o => o.AddOperations(builder.OperationTypes));
 
                 builder.ApiBuilder(b);
+
+                // If test configuration has not set an explicit host default to TestBlueprintApiHost, otherwise
+                // _every_ test requires it.
+                if (b.Options.Host == null)
+                {
+                    b.UseHost(new TestBlueprintApiHost());
+                }
             });
 
             var serviceProvider = collection.BuildServiceProvider();
@@ -202,6 +209,17 @@ namespace Blueprint.Testing
             public TestApiOperationExecutorBuilder WithOperation<T>() where T : IApiOperation
             {
                 OperationTypes.Add(typeof(T));
+
+                return this;
+            }
+
+            /// <summary>
+            /// Configures this API instance to use the <see cref="TestBlueprintApiHost" />.
+            /// </summary>
+            /// <returns>This instance.</returns>
+            public TestApiOperationExecutorBuilder UseTestHost()
+            {
+                Configure(c => c.UseHost(new TestBlueprintApiHost()));
 
                 return this;
             }

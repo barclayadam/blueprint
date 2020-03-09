@@ -32,7 +32,7 @@ namespace Blueprint.Api
         /// <inheritdoc />
         public override Task ExecuteAsync(ApiOperationContext context)
         {
-            var executor = context.ServiceProvider.GetService<IOperationResultExecutor<UnhandledExceptionOperationResult>>();
+            var executor = context.ServiceProvider.GetRequiredService<IOperationResultExecutor<UnhandledExceptionOperationResult>>();
 
             return executor.ExecuteAsync(context, this);
         }

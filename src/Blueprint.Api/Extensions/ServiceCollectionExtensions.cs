@@ -5,7 +5,6 @@ using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Api.Middleware;
 using Blueprint.Core;
-using Blueprint.Core.Tasks;
 
 // This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
 // ReSharper disable once CheckNamespace
