@@ -1,6 +1,6 @@
-﻿using System;
-using Blueprint.Tasks;
+﻿using System.Threading.Tasks;
 using Blueprint.Hangfire;
+using Blueprint.Tasks;
 using FluentAssertions;
 using Hangfire;
 using Hangfire.Common;
@@ -9,10 +9,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
+namespace Blueprint.Tests.Tasks.Hangfire.HangfireBackgroundTaskExecutor_Tests
 {
-    using System.Threading.Tasks;
-
     public class Given_Task
     {
         private const string QueueName = "somequeue";
@@ -31,23 +29,23 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
         public void When_No_Properties_Enqueued_Then_Sets_DisplayName()
         {
             // Act
-            var displayName = new NoPropertiesTask().ToString();
+            var displayName = new HangfireBackgroundTaskWrapper(new BackgroundTaskEnvelope(new NoPropertiesTask())).ToString();
 
             // Assert
-            displayName.Should().Be("NoPropertiesTask(\"Metadata\":{})");
+            displayName.Should().Be("NoPropertiesTask()");
         }
 
         [Test]
         public void When_Properties_Enqueued_Then_Sets_DisplayName()
         {
             // Act
-            var displayName = new PropertiesTask
+            var displayName = new HangfireBackgroundTaskWrapper(new BackgroundTaskEnvelope(new PropertiesTask
             {
                 Prop1 = "A prop"
-            }.ToString();
+            })).ToString();
 
             // Assert
-            displayName.Should().Be("PropertiesTask(\"Prop1\":\"A prop\",\"Metadata\":{})");
+            displayName.Should().Be("PropertiesTask(\"Prop1\":\"A prop\")");
         }
 
         [Test]

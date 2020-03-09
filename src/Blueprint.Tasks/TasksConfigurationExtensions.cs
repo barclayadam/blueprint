@@ -14,6 +14,14 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TasksConfigurationExtensions
     {
+        /// <summary>
+        /// Adds a Tasks 'client', enabling injection of a <see cref="IBackgroundTaskScheduler" /> in to API
+        /// endpoints that allows them to enqueue (or schedule for later execution) new <see cref="IBackgroundTask" />s.
+        /// </summary>
+        /// <param name="builder">The builder to add the task client to.</param>
+        /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
+        /// <seealso cref="AddTasksServer" />
         public static BlueprintApiBuilder AddTasksClient(
             this BlueprintApiBuilder builder,
             Action<BlueprintTasksClientBuilder> configureTasks)
@@ -25,6 +33,15 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
+        /// <summary>
+        /// Adds a Tasks 'server', <see cref="TaskExecutor" /> and <see cref="RecurringTaskManager" /> implementations in
+        /// addition to provider-specific functionality that enables the execution of <see cref="IBackgroundTask" />s in
+        /// this application.
+        /// </summary>
+        /// <param name="builder">The builder to add the task server to.</param>
+        /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
+        /// <seealso cref="AddTasksClient" />
         public static BlueprintApiBuilder AddTasksServer(
             this BlueprintApiBuilder builder,
             Action<BlueprintTasksServerBuilder> configureTasks)
@@ -35,6 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Operations(o => o.AddConvention(new TasksOperationScannerConvention()));
 
             builder.Services.AddSingleton<TaskExecutor>();
+            builder.Services.AddSingleton<RecurringTaskManager>();
 
             builder.Services.AddHostedService<RecurringJobManagerStartup>();
 
