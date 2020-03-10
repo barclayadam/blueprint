@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
 {
-    public static class BlueprintBackgroundTasksConfigurerExtensions
+    public static class BlueprintTasksBuilderExtensions
     {
-        public static BlueprintTasksClientBuilder UseInMemory(
-            this BlueprintTasksClientBuilder builder,
+        public static BlueprintTasksBuilder UseInMemory(
+            this BlueprintTasksBuilder builder,
             InMemoryBackgroundTaskScheduleProvider provider)
         {
             builder.Services.AddScoped<IBackgroundTaskScheduleProvider>(serviceProvider => provider);

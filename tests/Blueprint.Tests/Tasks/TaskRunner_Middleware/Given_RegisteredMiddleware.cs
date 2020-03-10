@@ -3,7 +3,6 @@ using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Tasks;
 using Blueprint.Testing;
-using Blueprint.Tests.Api;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;

@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Threading.Tasks;
 using Blueprint.Api.CodeGen;
+using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 
@@ -37,6 +39,16 @@ namespace Blueprint.Api.Middleware
             context.AppendFrames(
                 LogFrame.Debug($"Executing API operation. handler_type={method.DeclaringType.Name}"),
                 handlerInvokeCall);
+
+            // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'
+            if (handlerInvokeCall.ReturnVariable == null || handlerInvokeCall.ReturnVariable.VariableType == typeof(Task))
+            {
+                var emptyResultCreation = new VariableCreationFrame(typeof(NoResultOperationResult),  $"new {typeof(NoResultOperationResult).FullNameInCode()}();");
+
+                context.AppendFrames(emptyResultCreation);
+
+                return emptyResultCreation.CreatedVariable;
+            }
 
             return handlerInvokeCall.ReturnVariable;
         }

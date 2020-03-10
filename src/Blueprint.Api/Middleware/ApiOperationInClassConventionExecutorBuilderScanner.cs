@@ -21,7 +21,7 @@ namespace Blueprint.Api.Middleware
             {
                 foreach (var method in operation.OperationType.GetMethods())
                 {
-                    if (AllowedMethodNames.Contains(method.Name) && method.ReturnType != typeof(void))
+                    if (AllowedMethodNames.Contains(method.Name))
                     {
                         yield return new ApiOperationInClassConventionExecutorBuilder(operation, method);
                     }
