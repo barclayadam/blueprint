@@ -70,6 +70,8 @@ namespace Blueprint.Tasks
                 configuration(c);
             });
 
+            builder.Services.AddHangfireServer();
+
             return builder;
         }
 
