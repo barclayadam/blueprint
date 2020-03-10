@@ -19,7 +19,7 @@ namespace Blueprint.Tasks
     {
         private const char IdSplitter = ':';
 
-        private readonly IRecurringTaskScheduler[] taskSchedulers;
+        private readonly IEnumerable<IRecurringTaskScheduler> taskSchedulers;
         private readonly IRecurringTaskProvider provider;
         private readonly ILogger<TaskScheduler> logger;
         private readonly IOptions<RecurringTaskManagerOptions> options;
@@ -33,7 +33,7 @@ namespace Blueprint.Tasks
         /// <param name="logger">The logger.</param>
         /// <param name="options">The task options.</param>
         public RecurringTaskManager(
-            IRecurringTaskScheduler[] taskSchedulers,
+            IEnumerable<IRecurringTaskScheduler> taskSchedulers,
             IRecurringTaskProvider provider,
             ILogger<TaskScheduler> logger,
             IOptions<RecurringTaskManagerOptions> options)
