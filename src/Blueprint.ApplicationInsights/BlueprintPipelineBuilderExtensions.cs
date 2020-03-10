@@ -1,6 +1,5 @@
 using System;
 using Blueprint.ApplicationInsights;
-using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Apm;
@@ -13,8 +12,18 @@ using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 namespace Blueprint.Api.Configuration
 {
+    /// <summary>
+    /// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
+    /// </summary>
     public static class BlueprintPipelineBuilderExtensions
     {
+        /// <summary>
+        /// Adds Application Insights integration to this API, registering an <see cref="IApmTool" /> to allow
+        /// tracking dependencies and operations, and middleware that will set properties of the current
+        /// <see cref="RequestTelemetry" /> of the current HTTP context (if it exists).
+        /// </summary>
+        /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         public static BlueprintApiBuilder AddApplicationInsights(this BlueprintApiBuilder pipelineBuilder)
         {
             pipelineBuilder.Services.AddScoped<IApmTool, ApplicationInsightsApmTool>();

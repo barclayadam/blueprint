@@ -57,6 +57,27 @@ namespace Blueprint.Tests.Api.ApplicationInsights_Middleware
         }
 
         [Test]
+        public async Task When_ApplicationInsights_Added_With_Http_No_Telemetry_Feature_Then_Handler_Exception_Bubbled()
+        {
+            // Arrange
+            var toThrow = new Exception("Oops");
+
+            var handler = new TestApiOperationHandler<EmptyOperation>(toThrow);
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Configure(p => p.AddHttp().AddApplicationInsights()));
+
+            // Act
+            var context = executor.HttpContextFor<EmptyOperation>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var okResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
+            okResult.Exception.Should().Be(toThrow);
+            handler.WasCalled.Should().BeTrue();
+        }
+
+        [Test]
         public async Task When_ApplicationInsights_Added_Then_Sets_RequestTelemetry_Name()
         {
             // Arrange

@@ -105,8 +105,13 @@ namespace Blueprint.ApplicationInsights
             {
                 var requestTelemetryVariable = variables.FindVariable(typeof(RequestTelemetry));
 
+                writer.WriteIf($"{requestTelemetryVariable} != null");
+
                 // Set explicitly to true unless it has been previously set to false
                 writer.Write($"{requestTelemetryVariable}.Success = {value.ToString().ToLowerInvariant()};");
+
+                writer.FinishBlock();
+
             }
         }
     }
