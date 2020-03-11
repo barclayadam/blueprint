@@ -14,38 +14,28 @@ namespace Blueprint.Tasks
     /// Extensions to <see cref="BlueprintTasksClientBuilder" /> and <see cref="BlueprintTasksServerBuilder" /> for
     /// installing Hangfire.
     /// </summary>
-    public static class BlueprintBackgroundTasksConfigurerExtensions
+    public static class BlueprintTasksBuilderExtensions
     {
         /// <summary>
-        /// Configures the client to use Hangfire, which should be configured using the given configuration
-        /// builder (<paramref name="configuration"/>) for properties such as storage and queue mechanism.
+        /// Configures the client to use Hangfire. Hangfire itself needs to be configured external to
+        /// this (i.e. <c>services.AddHangfire(c => ...)</c>).
         /// </summary>
         /// <param name="builder">The builder to configure.</param>
         /// <param name="configuration">The Hangfire-specific configuration.</param>
         /// <returns>This <see cref="BlueprintTasksClientBuilder" /> for further configuration.</returns>
-        public static BlueprintTasksClientBuilder UseHangfire(
-            this BlueprintTasksClientBuilder builder,
-            Action<IGlobalConfiguration> configuration)
+        public static BlueprintTasksClientBuilder UseHangfire(this BlueprintTasksClientBuilder builder)
         {
             builder.Services.AddScoped<IBackgroundTaskScheduleProvider, HangfireBackgroundTaskScheduleProvider>();
 
-            builder.Services.AddHangfire((s, c) =>
-            {
-                RemoveInstance(j => j.Instance is AutomaticRetryAttribute);
-                GlobalJobFilters.Filters.Add(new TaskAutomaticRetryJobFilter(new AutomaticRetryAttribute { Attempts = 5 }), -20);
-
-                c.UseServiceProviderActivator(s)
-                    .UseRecommendedSerializerSettings();
-
-                configuration(c);
-            });
+            RemoveInstance(j => j.Instance is AutomaticRetryAttribute);
+            GlobalJobFilters.Filters.Add(new TaskAutomaticRetryJobFilter(new AutomaticRetryAttribute { Attempts = 5 }), -20);
 
             return builder;
         }
 
         /// <summary>
-        /// Configures the server to use Hangfire, which should be configured using the given configuration
-        /// builder (<paramref name="configuration"/>) for properties such as storage and queue mechanism.
+        /// Configures the server to use Hangfire. Hangfire itself needs to be configured external to
+        /// this (i.e. <c>services.AddHangfire(c => ...)</c> and <c>services.AddHangfireServer()</c>).
         /// </summary>
         /// <param name="builder">The builder to configure.</param>
         /// <param name="configuration">The Hangfire-specific configuration.</param>
@@ -59,18 +49,8 @@ namespace Blueprint.Tasks
 
             builder.Services.AddSingleton<HangfireTaskExecutor>();
 
-            builder.Services.AddHangfire((s, c) =>
-            {
-                RemoveInstance(j => j.Instance is AutomaticRetryAttribute);
-                GlobalJobFilters.Filters.Add(new TaskAutomaticRetryJobFilter(new AutomaticRetryAttribute { Attempts = 5 }), -20);
-
-                c.UseServiceProviderActivator(s)
-                 .UseRecommendedSerializerSettings();
-
-                configuration(c);
-            });
-
-            builder.Services.AddHangfireServer();
+            RemoveInstance(j => j.Instance is AutomaticRetryAttribute);
+            GlobalJobFilters.Filters.Add(new TaskAutomaticRetryJobFilter(new AutomaticRetryAttribute { Attempts = 5 }), -20);
 
             return builder;
         }
