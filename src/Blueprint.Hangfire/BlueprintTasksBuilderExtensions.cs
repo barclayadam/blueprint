@@ -21,7 +21,6 @@ namespace Blueprint.Tasks
         /// this (i.e. <c>services.AddHangfire(c => ...)</c>).
         /// </summary>
         /// <param name="builder">The builder to configure.</param>
-        /// <param name="configuration">The Hangfire-specific configuration.</param>
         /// <returns>This <see cref="BlueprintTasksClientBuilder" /> for further configuration.</returns>
         public static BlueprintTasksClientBuilder UseHangfire(this BlueprintTasksClientBuilder builder)
         {
@@ -38,11 +37,8 @@ namespace Blueprint.Tasks
         /// this (i.e. <c>services.AddHangfire(c => ...)</c> and <c>services.AddHangfireServer()</c>).
         /// </summary>
         /// <param name="builder">The builder to configure.</param>
-        /// <param name="configuration">The Hangfire-specific configuration.</param>
         /// <returns>This <see cref="BlueprintTasksServerBuilder" /> for further configuration.</returns>
-        public static BlueprintTasksServerBuilder UseHangfire(
-            this BlueprintTasksServerBuilder builder,
-            Action<IGlobalConfiguration> configuration)
+        public static BlueprintTasksServerBuilder UseHangfire(this BlueprintTasksServerBuilder builder)
         {
             builder.Services.AddScoped<IBackgroundTaskScheduleProvider, HangfireBackgroundTaskScheduleProvider>();
             builder.Services.AddSingleton<IRecurringTaskProvider, HangfireRecurringTaskProvider>();

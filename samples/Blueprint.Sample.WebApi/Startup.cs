@@ -22,15 +22,17 @@ namespace Blueprint.Sample.WebApi
 
             services.AddApplicationInsightsTelemetry();
 
+            services.AddHangfire(h =>
+            {
+                h
+                    .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
+            });
+
             services.AddBlueprintApi(b => b
                 .SetApplicationName("SampleWebApi")
                 .Operations(o => o.ScanForOperations(typeof(Startup).Assembly))
                 .AddHttp()
-                .AddTasksClient(t => t.UseHangfire(h =>
-                {
-                    h
-                        .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
-                }))
+                .AddTasksClient(t => t.UseHangfire())
                 .AddApplicationInsights()
                 .Pipeline(m => m
                     .AddLogging()

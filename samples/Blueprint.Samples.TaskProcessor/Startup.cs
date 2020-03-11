@@ -16,22 +16,26 @@ namespace Blueprint.Samples.TaskProcessor
         {
             services.AddApplicationInsightsTelemetry();
 
+            services.AddHangfire(h =>
+            {
+                h
+                    .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"))
+                    .UseDashboardMetric(SqlServerStorage.ActiveConnections)
+                    .UseDashboardMetric(SqlServerStorage.TotalConnections)
+                    .UseDashboardMetric(DashboardMetrics.FailedCount)
+                    .UseDashboardMetric(DashboardMetrics.ProcessingCount)
+                    .UseDashboardMetric(DashboardMetrics.ScheduledCount)
+                    .UseDashboardMetric(DashboardMetrics.EnqueuedCountOrNull);
+            });
+
+            services.AddHangfireServer();
+
             services.AddBlueprintApi(a => a
                 .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
                     .ScanForOperations(typeof(Startup).Assembly)
                     .ScanForOperations(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
-                .AddTasksServer(b => b.UseHangfire(h =>
-                {
-                    h
-                        .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"))
-                        .UseDashboardMetric(SqlServerStorage.ActiveConnections)
-                        .UseDashboardMetric(SqlServerStorage.TotalConnections)
-                        .UseDashboardMetric(DashboardMetrics.FailedCount)
-                        .UseDashboardMetric(DashboardMetrics.ProcessingCount)
-                        .UseDashboardMetric(DashboardMetrics.ScheduledCount)
-                        .UseDashboardMetric(DashboardMetrics.EnqueuedCountOrNull);
-                }))
+                .AddTasksServer(b => b.UseHangfire())
                 // .AddApplicationInsights()
                 .Pipeline(m => m
                     .AddLogging()
