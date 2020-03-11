@@ -6,24 +6,24 @@ namespace Blueprint.Api.Configuration
     /// Provides extensions to <see cref="BlueprintPipelineBuilder" /> that can be useful in
     /// building up the pipeline used for an API.
     /// </summary>
-    public static class PipelineConfigurerExtensions
+    public static class BlueprintPipelineBuilderExtensions
     {
         /// <summary>
-        /// Conditionally executes the given child configurer, which means that for example you could include
+        /// Conditionally executes the given action, which means that for example you could include
         /// certain middleware builders based on a configuration switch, or your environment.
         /// </summary>
-        /// <param name="pipelineBuilder">The middleware configurer.</param>
+        /// <param name="pipelineBuilder">The middleware builder.</param>
         /// <param name="include">Whether to include/execute the child action.</param>
-        /// <param name="childConfigurer">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <returns>This middleware configurer.</returns>
+        /// <param name="childBuilderAction">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
+        /// <returns>This middleware builder.</returns>
         public static BlueprintPipelineBuilder Conditionally(
             this BlueprintPipelineBuilder pipelineBuilder,
             bool include,
-            Action<BlueprintPipelineBuilder> childConfigurer)
+            Action<BlueprintPipelineBuilder> childBuilderAction)
         {
             if (include)
             {
-                childConfigurer(pipelineBuilder);
+                childBuilderAction(pipelineBuilder);
             }
 
             return pipelineBuilder;

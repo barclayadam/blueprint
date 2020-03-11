@@ -20,11 +20,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
 
-            var apiConfigurer = new BlueprintApiBuilder(services);
+            var apiBuilder = new BlueprintApiBuilder(services);
 
-            configureApi(apiConfigurer);
+            configureApi(apiBuilder);
 
-            apiConfigurer.Build();
+            apiBuilder.Build();
 
             return services;
         }

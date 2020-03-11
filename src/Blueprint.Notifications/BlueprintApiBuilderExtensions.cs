@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications
 {
-    public static class BlueprintConfigurerExtensions
+    public static class BlueprintApiBuilderExtensions
     {
         public static BlueprintApiBuilder AddNotifications(this BlueprintApiBuilder blueprintApiBuilder, params Assembly[] embeddedResourceAssemblies)
         {

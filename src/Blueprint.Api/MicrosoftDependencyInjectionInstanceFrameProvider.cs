@@ -28,7 +28,7 @@ namespace Blueprint.Api
             return $"No registrations exist for the service type {toLoad.FullName} in the registered " +
                    "IoC container (Microsoft.Extensions.DependencyInjection). You MUST register all services up-front in the ServiceCollection " +
                    "used to build the IServiceProvider for Blueprint. If you are using a third-party container then it needs to be " +
-                   "registered with Blueprint (i.e. BlueprintApiConfigurer.AddStructureMap)";
+                   "registered with Blueprint (i.e. BlueprintApiBuilder.AddStructureMap)";
         }
 
         /// <inheritdoc />

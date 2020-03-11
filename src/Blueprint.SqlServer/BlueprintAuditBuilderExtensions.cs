@@ -8,28 +8,28 @@ using Microsoft.Extensions.Logging;
 // ReSharper disable once CheckNamespace
 namespace Blueprint.Api.Configuration
 {
-    public static class BlueprintAuditConfigurerExtensions
+    public static class BlueprintAuditBuilderExtensions
     {
         /// <summary>
         /// Configures Blueprint to use SQL Server to store audit information, using the tables specified to store data.
         /// </summary>
         public static void StoreInSqlServer(
-            this BlueprintAuditConfigurer configurer,
+            this BlueprintAuditBuilder builder,
             string connectionString,
             string tableName)
         {
             Guard.NotNullOrEmpty(nameof(connectionString), connectionString);
             Guard.NotNullOrEmpty(nameof(tableName), tableName);
 
-            configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
+            builder.Services.Configure<SqlServerAuditorConfiguration>(c =>
             {
                 c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
             });
 
-            configurer.Services.AddScoped<IDatabaseConnectionFactory>(
+            builder.Services.AddScoped<IDatabaseConnectionFactory>(
                 s => new SqlServerDatabaseConnectionFactory(connectionString, s.GetRequiredService<ILogger<SqlServerDatabaseConnectionFactory>>()));
 
-            configurer.UseAuditor<SqlServerAuditor>();
+            builder.UseAuditor<SqlServerAuditor>();
         }
 
         /// <summary>
@@ -38,17 +38,17 @@ namespace Blueprint.Api.Configuration
         /// elsewhere.
         /// </summary>
         public static void StoreInSqlServer(
-            this BlueprintAuditConfigurer configurer,
+            this BlueprintAuditBuilder builder,
             string tableName)
         {
             Guard.NotNullOrEmpty(nameof(tableName), tableName);
 
-            configurer.Services.Configure<SqlServerAuditorConfiguration>(c =>
+            builder.Services.Configure<SqlServerAuditorConfiguration>(c =>
             {
                 c.QualifiedTableName = TableName.Parse(tableName).QualifiedTableName;
             });
 
-            configurer.UseAuditor<SqlServerAuditor>();
+            builder.UseAuditor<SqlServerAuditor>();
         }
     }
 }

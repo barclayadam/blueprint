@@ -10,13 +10,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blueprint.Api.Configuration
 {
-    public static class BuiltinBlueprintMiddlewareConfigurers
+    public static class BuiltinBlueprintMiddlewares
     {
-        public static BlueprintPipelineBuilder AddAuditing(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintAuditConfigurer> configure)
+        public static BlueprintPipelineBuilder AddAuditing(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintAuditBuilder> configure)
         {
             pipelineBuilder.AddMiddleware<AuditMiddleware>(MiddlewareStage.Setup);
 
-            configure(new BlueprintAuditConfigurer(pipelineBuilder));
+            configure(new BlueprintAuditBuilder(pipelineBuilder));
 
             if (pipelineBuilder.Services.All(s => s.ServiceType != typeof(IAuditor)))
             {
@@ -29,10 +29,10 @@ namespace Blueprint.Api.Configuration
         /// <summary>
         /// Adds validation middleware, by default adding both Blueprint and DataAnnotations sources.
         /// </summary>
-        /// <seealso cref="BlueprintValidationConfigurer.UseBlueprintSource"/>
-        /// <seealso cref="BlueprintValidationConfigurer.UseDataAnnotationSource"/>
-        /// <param name="pipelineBuilder">The configurer to add validation to.</param>
-        /// <returns>The configurer.</returns>
+        /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource"/>
+        /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource"/>
+        /// <param name="pipelineBuilder">The builder to add validation to.</param>
+        /// <returns>The builder.</returns>
         public static BlueprintPipelineBuilder AddValidation(this BlueprintPipelineBuilder pipelineBuilder)
         {
             return AddValidation(pipelineBuilder, o => o.UseBlueprintSource().UseDataAnnotationSource());
@@ -42,17 +42,17 @@ namespace Blueprint.Api.Configuration
         /// Adds validation middleware, which will use "validation sources" to handle different types of validation that can be
         /// registered against <see cref="IApiOperation" /> classes.
         /// </summary>
-        /// <seealso cref="BlueprintValidationConfigurer.UseBlueprintSource"/>
-        /// <seealso cref="BlueprintValidationConfigurer.UseDataAnnotationSource"/>
-        /// <param name="pipelineBuilder">The configurer to add validation to.</param>
-        /// <param name="configure">An action that will be given an instance of <see cref="BlueprintValidationConfigurer"/> to configure the validation
+        /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource"/>
+        /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource"/>
+        /// <param name="pipelineBuilder">The builder to add validation to.</param>
+        /// <param name="configure">An action that will be given an instance of <see cref="BlueprintValidationBuilder"/> to configure the validation
         /// middleware.</param>
-        /// <returns>The configurer.</returns>
-        public static BlueprintPipelineBuilder AddValidation(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintValidationConfigurer> configure)
+        /// <returns>The builder.</returns>
+        public static BlueprintPipelineBuilder AddValidation(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintValidationBuilder> configure)
         {
             pipelineBuilder.AddMiddleware<ValidationMiddlewareBuilder>(MiddlewareStage.Validation);
 
-            configure(new BlueprintValidationConfigurer(pipelineBuilder));
+            configure(new BlueprintValidationBuilder(pipelineBuilder));
 
             if (pipelineBuilder.Services.All(s => s.ServiceType != typeof(IValidationSource)))
             {
@@ -81,9 +81,9 @@ namespace Blueprint.Api.Configuration
         /// <item><description><see cref="AuthorisationMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authorisation"/>.</description></item>
         /// </list>
         /// </remarks>
-        /// <param name="pipelineBuilder">The configurer to add auth to.</param>
+        /// <param name="pipelineBuilder">The builder to add auth to.</param>
         /// <typeparam name="T">The type used as a user auth context factory.</typeparam>
-        /// <returns>The configurer.</returns>
+        /// <returns>The builder.</returns>
         public static BlueprintPipelineBuilder AddAuth<T>(this BlueprintPipelineBuilder pipelineBuilder) where T : class, IUserAuthorisationContextFactory
         {
             pipelineBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();

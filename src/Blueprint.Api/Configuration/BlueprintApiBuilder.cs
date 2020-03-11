@@ -104,13 +104,13 @@ namespace Blueprint.Api.Configuration
         /// Configures the <see cref="IApiOperation"/>s of the <see cref="ApiDataModel" /> that will be constructed, allowing
         /// for manual registration as well as scanning operations.
         /// </summary>
-        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <param name="scannerAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Operations(Action<BlueprintApiOperationScanner> configurer)
+        public BlueprintApiBuilder Operations(Action<BlueprintApiOperationScanner> scannerAction)
         {
-            Guard.NotNull(nameof(configurer), configurer);
+            Guard.NotNull(nameof(scannerAction), scannerAction);
 
-            configurer(operationScanner);
+            scannerAction(operationScanner);
 
             return this;
         }
@@ -118,13 +118,13 @@ namespace Blueprint.Api.Configuration
         /// <summary>
         /// Configures the pipeline of this API instance.
         /// </summary>
-        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <param name="pipelineAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Pipeline(Action<BlueprintPipelineBuilder> configurer)
+        public BlueprintApiBuilder Pipeline(Action<BlueprintPipelineBuilder> pipelineAction)
         {
-            Guard.NotNull(nameof(configurer), configurer);
+            Guard.NotNull(nameof(pipelineAction), pipelineAction);
 
-            configurer(pipelineBuilder);
+            pipelineAction(pipelineBuilder);
 
             return this;
         }
@@ -132,13 +132,13 @@ namespace Blueprint.Api.Configuration
         /// <summary>
         /// Configures the compilation (using Roslyn) of this API instance.
         /// </summary>
-        /// <param name="configurer">The action that performs the necessary configuration calls.</param>
+        /// <param name="compilationAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Compilation(Action<BlueprintCompilationBuilder> configurer)
+        public BlueprintApiBuilder Compilation(Action<BlueprintCompilationBuilder> compilationAction)
         {
-            Guard.NotNull(nameof(configurer), configurer);
+            Guard.NotNull(nameof(compilationAction), compilationAction);
 
-            configurer(new BlueprintCompilationBuilder(this));
+            compilationAction(new BlueprintCompilationBuilder(this));
 
             return this;
         }

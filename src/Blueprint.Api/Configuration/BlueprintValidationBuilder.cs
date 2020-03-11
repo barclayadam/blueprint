@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blueprint.Api.Configuration
 {
-    public class BlueprintValidationConfigurer
+    public class BlueprintValidationBuilder
     {
         private readonly BlueprintPipelineBuilder pipelineBuilder;
 
-        internal BlueprintValidationConfigurer(BlueprintPipelineBuilder pipelineBuilder)
+        internal BlueprintValidationBuilder(BlueprintPipelineBuilder pipelineBuilder)
         {
             this.pipelineBuilder = pipelineBuilder;
 
@@ -23,8 +23,8 @@ namespace Blueprint.Api.Configuration
         /// Blueprint validation attributes are similar to DataAnnotations but have access to <see cref="ApiOperationContext" /> in addition to being
         /// async when validating.
         /// </remarks>
-        /// <returns>This configurer.</returns>
-        public BlueprintValidationConfigurer UseBlueprintSource()
+        /// <returns>This builder.</returns>
+        public BlueprintValidationBuilder UseBlueprintSource()
         {
             pipelineBuilder.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
             pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
@@ -36,8 +36,8 @@ namespace Blueprint.Api.Configuration
         /// Adds a DataAnnotation validation builder which will use the standard DataAnnotations attributes, applied
         /// to the properties of an <see cref="IApiOperation"/>.
         /// </summary>
-        /// <returns>This configurer.</returns>
-        public BlueprintValidationConfigurer UseDataAnnotationSource()
+        /// <returns>This builder.</returns>
+        public BlueprintValidationBuilder UseDataAnnotationSource()
         {
             pipelineBuilder.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
             pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
