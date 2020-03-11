@@ -53,8 +53,8 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.UseHost(new TaskExecutorBlueprintApiHost());
             builder.Operations(o => o.AddConvention(new TasksOperationScannerConvention()));
 
-            builder.Services.AddSingleton<TaskExecutor>();
-            builder.Services.AddSingleton<RecurringTaskManager>();
+            builder.Services.AddScoped<TaskExecutor>();
+            builder.Services.AddScoped<RecurringTaskManager>();
 
             builder.Services.AddHostedService<RecurringJobManagerStartup>();
 
