@@ -17,18 +17,20 @@ namespace Blueprint.Hangfire
     /// </summary>
     public class HangfireRecurringTaskProvider : IRecurringTaskProvider
     {
-        private readonly RecurringJobManager recurringJobManager;
+        private readonly IRecurringJobManager recurringJobManager;
         private readonly ILogger<TaskScheduler> logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="HangfireRecurringTaskProvider" /> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public HangfireRecurringTaskProvider(ILogger<TaskScheduler> logger)
+        /// <param name="recurringJobManager">The Hangfire <see cref="IRecurringJobManager"/>.</param>
+        public HangfireRecurringTaskProvider(ILogger<TaskScheduler> logger, IRecurringJobManager recurringJobManager)
         {
             Guard.NotNull(nameof(logger), logger);
+            Guard.NotNull(nameof(recurringJobManager), recurringJobManager);
 
-            recurringJobManager = new RecurringJobManager();
+            this.recurringJobManager = recurringJobManager;
 
             this.logger = logger;
         }

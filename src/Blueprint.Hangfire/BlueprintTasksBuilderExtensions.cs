@@ -41,9 +41,9 @@ namespace Blueprint.Tasks
         public static BlueprintTasksServerBuilder UseHangfire(this BlueprintTasksServerBuilder builder)
         {
             builder.Services.AddScoped<IBackgroundTaskScheduleProvider, HangfireBackgroundTaskScheduleProvider>();
-            builder.Services.AddSingleton<IRecurringTaskProvider, HangfireRecurringTaskProvider>();
+            builder.Services.AddScoped<IRecurringTaskProvider, HangfireRecurringTaskProvider>();
 
-            builder.Services.AddSingleton<HangfireTaskExecutor>();
+            builder.Services.AddScoped<HangfireTaskExecutor>();
 
             RemoveInstance(j => j.Instance is AutomaticRetryAttribute);
             GlobalJobFilters.Filters.Add(new TaskAutomaticRetryJobFilter(new AutomaticRetryAttribute { Attempts = 5 }), -20);
