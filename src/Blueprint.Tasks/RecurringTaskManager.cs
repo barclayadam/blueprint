@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core;
-using Blueprint.Core.Utilities;
 using Blueprint.Tasks.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -118,19 +117,18 @@ namespace Blueprint.Tasks
         {
             var schedulerName = recurringTaskScheduler.GetType().Name;
 
-            using (logger.LogTimeWrapper("Getting schedules for scheduler {SchedulerName}", schedulerName))
+            logger.LogInformation("Getting schedules for scheduler {SchedulerName}", schedulerName);
+
+            var taskSchedules = (await GetSchedulesAsync(recurringTaskScheduler, schedulerName)).ToList();
+
+            var group = GetGroupNameFromScheduler(recurringTaskScheduler);
+
+            // Create and update jobs
+            foreach (var taskSchedule in taskSchedules)
             {
-                var taskSchedules = (await GetSchedulesAsync(recurringTaskScheduler, schedulerName)).ToList();
+                var id = group + IdSplitter + taskSchedule.Name;
 
-                var group = GetGroupNameFromScheduler(recurringTaskScheduler);
-
-                // Create and update jobs
-                foreach (var taskSchedule in taskSchedules)
-                {
-                    var id = group + IdSplitter + taskSchedule.Name;
-
-                    current.Add(new RecurringTaskScheduleDto(id, taskSchedule));
-                }
+                current.Add(new RecurringTaskScheduleDto(id, taskSchedule));
             }
         }
     }

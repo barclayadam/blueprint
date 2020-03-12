@@ -45,40 +45,38 @@ namespace Blueprint.Hangfire
                 .Where(jk => toDictionary.ContainsKey(jk.Id))
                 .ToList();
 
-            using (logger.LogTimeWrapper("Deleting old jobs that no longer exist"))
+            logger.LogInformation("Deleting old jobs that no longer exist");
+
+            foreach (var j in jobsToDelete)
             {
-                foreach (var j in jobsToDelete)
-                {
-                    recurringJobManager.RemoveIfExists(j.Id);
-                }
+                recurringJobManager.RemoveIfExists(j.Id);
             }
 
-            using (logger.LogTimeWrapper("Scheduling (add or update) current jobs"))
+            logger.LogInformation("Scheduling (add or update) current jobs");
+
+            foreach (var r in current)
             {
-                foreach (var r in current)
+                var envelope = new BackgroundTaskEnvelope(r.Schedule.BackgroundTask)
                 {
-                    var envelope = new BackgroundTaskEnvelope(r.Schedule.BackgroundTask)
+                    Metadata =
                     {
-                        Metadata =
-                        {
-                            System = nameof(HangfireRecurringTaskProvider),
-                        },
-                    };
+                        System = nameof(HangfireRecurringTaskProvider),
+                    },
+                };
 
-                    var job = Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(envelope), null));
+                var job = Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(envelope), null));
 
-                    recurringJobManager.AddOrUpdate(
-                        r.Id,
-                        job,
-                        r.Schedule.CronExpression,
-                        r.Schedule.TimeZone);
+                recurringJobManager.AddOrUpdate(
+                    r.Id,
+                    job,
+                    r.Schedule.CronExpression,
+                    r.Schedule.TimeZone);
 
-                    logger.LogDebug(
-                        "Scheduled job {JobName} ({JobId}) with cron {CronExpression}",
-                        r.Schedule.Name,
-                        r.Id,
-                        r.Schedule.CronExpression);
-                }
+                logger.LogDebug(
+                    "Scheduled job {JobName} ({JobId}) with cron {CronExpression}",
+                    r.Schedule.Name,
+                    r.Id,
+                    r.Schedule.CronExpression);
             }
 
             return Task.CompletedTask;
