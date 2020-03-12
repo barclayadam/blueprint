@@ -46,7 +46,8 @@ namespace Blueprint.Api
                 return new ApiOperationContext(serviceProvider, this, operation);
             }
 
-            throw new InvalidOperationException("Cannot find a registered operation of the type '{0}'.".Fmt(type.Name));
+            object[] args = new[] {type.Name};
+            throw new InvalidOperationException(string.Format("Cannot find a registered operation of the type '{0}'.", args));
         }
 
         /// <summary>
@@ -87,9 +88,9 @@ namespace Blueprint.Api
                 l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
                 l.OperationDescriptor.Name == link.OperationDescriptor.Name))
             {
+                object[] args = new[] {link.Rel, link.OperationDescriptor.OperationType.Name, link.UrlFormat};
                 throw new InvalidOperationException(
-                    "An API operation link '{0}' with type '{1}' failed to register as a URL with format '{2}' already registered."
-                        .Fmt(link.Rel, link.OperationDescriptor.OperationType.Name, link.UrlFormat));
+                    string.Format("An API operation link '{0}' with type '{1}' failed to register as a URL with format '{2}' already registered.", args));
             }
 
             allLinks.Add(link);
@@ -130,8 +131,9 @@ namespace Blueprint.Api
         {
             if (!allOperations.TryGetValue(operationType, out var operationDescriptor))
             {
+                object[] args = new[] {operationType.Name};
                 throw new InvalidOperationException(
-                    "Cannot get links for operation '{0}' as it has not been registered.".Fmt(operationType.Name));
+                    string.Format("Cannot get links for operation '{0}' as it has not been registered.", args));
             }
 
             if (!operationTypeToLinks.ContainsKey(operationDescriptor.OperationType))

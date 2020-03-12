@@ -37,7 +37,7 @@ namespace Blueprint.Core.Utilities
 
             if (pageNumber > Page<T>.CalculatePageCount(pageSize, totalCount) && totalCount > 0)
             {
-                throw new InvalidOperationException(Resources.EnumerableExtensions_ToPage_PageNumberGreaterThanTotal.Fmt(pageNumber));
+                throw new InvalidOperationException($"The page number '{pageNumber}' specified is greater than the total number of pages.");
             }
 
             var items = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();

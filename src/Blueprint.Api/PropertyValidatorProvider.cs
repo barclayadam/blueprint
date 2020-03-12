@@ -65,10 +65,11 @@ namespace Blueprint.Api
         [UsedImplicitly]
         private static PropertyValidator Handle(RegexAttribute attribute, string propertyName)
         {
+            object[] args = new[] {attribute.Regex.ToString(), attribute.Regex.Options.HasFlag(RegexOptions.IgnoreCase) ? "i" : string.Empty};
             return new PropertyValidator
             {
                 Name = "regex",
-                Parameter = "/{0}/{1}".Fmt(attribute.Regex.ToString(), attribute.Regex.Options.HasFlag(RegexOptions.IgnoreCase) ? "i" : string.Empty),
+                Parameter = string.Format("/{0}/{1}", args),
                 Message = attribute.FormatErrorMessage(propertyName),
             };
         }
@@ -76,10 +77,11 @@ namespace Blueprint.Api
         [UsedImplicitly]
         private static PropertyValidator Handle(RegularExpressionAttribute attribute, string propertyName)
         {
+            object[] args = new[] {attribute.Pattern};
             return new PropertyValidator
             {
                 Name = "regex",
-                Parameter = "/{0}/".Fmt(attribute.Pattern),
+                Parameter = string.Format("/{0}/", args),
                 Message = attribute.FormatErrorMessage(propertyName),
             };
         }
@@ -87,10 +89,11 @@ namespace Blueprint.Api
         [UsedImplicitly]
         private static PropertyValidator Handle(RangeAttribute attribute, string propertyName)
         {
+            object[] args = new[] {attribute.Minimum, attribute.Maximum};
             return new PropertyValidator
             {
                 Name = "range",
-                Parameter = "[{0},{1}]".Fmt(attribute.Minimum, attribute.Maximum),
+                Parameter = string.Format("[{0},{1}]", args),
                 Message = attribute.FormatErrorMessage(propertyName),
             };
         }
@@ -112,7 +115,7 @@ namespace Blueprint.Api
             return new PropertyValidator
             {
                 Name = "rangeLength",
-                Parameter = "[{0},{1}]".Fmt(attribute.MinimumLength, attribute.MaximumLength),
+                Parameter = $"[{attribute.MinimumLength},{attribute.MaximumLength}]",
                 Message = attribute.FormatErrorMessage(propertyName),
             };
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Blueprint.Core.Utilities;
 using Newtonsoft.Json;
 
 namespace Blueprint.Api
@@ -33,11 +32,11 @@ namespace Blueprint.Api
             }
             catch (Exception ex)
             {
-                throw new JsonSerializationException("Error converting value {0} to type '{1}'.".Fmt(reader.Value, objectType), ex);
+                throw new JsonSerializationException($"Error converting value {reader.Value} to type '{objectType}'.", ex);
             }
 
             // we don't actually expect to get here.
-            throw new JsonSerializationException("Unexpected token {0} when parsing PostedFileData.".Fmt(reader.TokenType));
+            throw new JsonSerializationException($"Unexpected token {reader.TokenType} when parsing PostedFileData.");
         }
 
         public override bool CanConvert(Type objectType)

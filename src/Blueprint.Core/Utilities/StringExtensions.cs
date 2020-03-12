@@ -11,23 +11,6 @@ namespace Blueprint.Core.Utilities
     /// </summary>
     public static class StringExtensions
     {
-        /// <summary>
-        /// A small shim over <see cref="string.Format(string,object[])"/> that uses
-        /// <see cref="CultureInfo.CurrentCulture"/> and provides a slightly nicer
-        /// syntax by taking advantage of the extension method syntax.
-        /// </summary>
-        /// <param name="format">The format string.</param>
-        /// <param name="args">The arguments to inject into the format string.</param>
-        /// <returns>A formatted string.</returns>
-        [StringFormatMethod("format")]
-        public static string Fmt(this string format, params object[] args)
-        {
-            Guard.NotNull(nameof(format), format);
-            Guard.NotNull(nameof(args), args);
-
-            return string.Format(CultureInfo.CurrentCulture, format, args);
-        }
-
         public static string Truncate(this string value, int maxLength)
         {
             if (string.IsNullOrEmpty(value))

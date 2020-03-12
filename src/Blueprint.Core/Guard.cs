@@ -50,7 +50,9 @@ namespace Blueprint.Core
         {
             if (!Enum.IsDefined(typeof(T), value))
             {
-                throw new ArgumentException("Parameter must be enum of type {0}. Was {1}.".Fmt(typeof(T).Name, value), argumentName);
+                throw new ArgumentException(
+                    $"Parameter must be enum of type {typeof(T).Name}. Was {value}.",
+                    argumentName);
             }
         }
 
@@ -58,7 +60,7 @@ namespace Blueprint.Core
         {
             if (value.CompareTo(referencePoint) < 0)
             {
-                throw new ArgumentException("Parameter must be greater than or equal {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+                throw new ArgumentException($"Parameter must be greater than or equal {referencePoint}. Was {value}.", argumentName);
             }
         }
 
@@ -66,7 +68,7 @@ namespace Blueprint.Core
         {
             if (value.CompareTo(referencePoint) <= 0)
             {
-                throw new ArgumentException("Parameter must be greater than {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+                throw new ArgumentException($"Parameter must be greater than {referencePoint}. Was {value}.", argumentName);
             }
         }
 
@@ -74,7 +76,7 @@ namespace Blueprint.Core
         {
             if (value.CompareTo(referencePoint) > 0)
             {
-                throw new ArgumentException("Parameter must be less than or equal {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+                throw new ArgumentException($"Parameter must be less than or equal {referencePoint}. Was {value}.", argumentName);
             }
         }
 
@@ -82,7 +84,7 @@ namespace Blueprint.Core
         {
             if (value.CompareTo(referencePoint) >= 0)
             {
-                throw new ArgumentException("Parameter must be less than {0}. Was {1}.".Fmt(referencePoint, value), argumentName);
+                throw new ArgumentException($"Parameter must be less than {referencePoint}. Was {value}.", argumentName);
             }
         }
 
@@ -129,7 +131,7 @@ namespace Blueprint.Core
                 return;
             }
 
-            throw new ArgumentException("{0} must have a length less than or equal to {1}".Fmt(propertyName, maxLength), propertyName);
+            throw new ArgumentException($"{propertyName} must have a length less than or equal to {maxLength}", propertyName);
         }
     }
 }

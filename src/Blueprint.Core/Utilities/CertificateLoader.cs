@@ -20,8 +20,9 @@ namespace Blueprint.Core.Utilities
 
                 if (signingCert.Count == 0)
                 {
+                    object[] args = new[] {thumbprint};
                     throw new InvalidOperationException(
-                        "Could not find token signing certificate. cert_thumbprint={0}".Fmt(thumbprint));
+                        string.Format("Could not find token signing certificate. cert_thumbprint={0}", args));
                 }
 
                 return signingCert[0];

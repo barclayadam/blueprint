@@ -48,13 +48,15 @@ namespace Blueprint.Notifications
             {
                 logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
-                throw new EmailSendingException("An error has occurred attempting to send email ({0}).".Fmt(e.Message), e);
+                object[] args = new[] {e.Message};
+                throw new EmailSendingException(string.Format("An error has occurred attempting to send email ({0}).", args), e);
             }
             catch (SmtpException e)
             {
                 logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
-                throw new EmailSendingException("An error has occurred attempting to send email ({0}).".Fmt(e.Message), e);
+                object[] args = new[] {e.Message};
+                throw new EmailSendingException(string.Format("An error has occurred attempting to send email ({0}).", args), e);
             }
         }
 

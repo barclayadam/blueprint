@@ -5,27 +5,7 @@ using NUnit.Framework;
 namespace Blueprint.Tests.Core.Utilities.StringExtensions_Tests
 {
     public class Given_StringUtilities_FormatWith
-    { 
-        [Test]
-        public void When_Format_String_Contains_No_Indexes_Then_Returns_As_Is()
-        {
-            // Arrange
-            var result = "My format string".Fmt(1, "a string");
-
-            // Expect
-            result.Should().Be("My format string");
-        }
-
-        [Test]
-        public void When_Format_String_Contains_Index_Then_Returns_With_Value_Injected()
-        {
-            // Arrange
-            var result = "My {0} string".Fmt("first");
-
-            // Expect
-            result.Should().Be("My first string");
-        }
-        
+    {
         [Test]
         [TestCase("imAString", "ImAString")]
         [TestCase("imAlsoString", "ImAlsoString")]
@@ -41,10 +21,10 @@ namespace Blueprint.Tests.Core.Utilities.StringExtensions_Tests
         [TestCase("IM ALSO ALL CAPS", "ImAlsoAllCaps")]
         [TestCase("i-have-dashes", "IHaveDashes")]
         [TestCase("a8word_another_word", "A8WordAnotherWord")]
-        public void WhenGivenString_ShouldPascalCaseIt(string input, string expectedResult) 
+        public void WhenGivenString_ShouldPascalCaseIt(string input, string expectedResult)
         {
             var result = input.ToPascalCase();
-            
+
             result.Should().Be(expectedResult);
         }
     }

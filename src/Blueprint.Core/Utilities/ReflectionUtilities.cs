@@ -142,8 +142,9 @@ namespace Blueprint.Core.Utilities
 
             if (!methodCallExpression.Method.IsGenericMethod)
             {
+                object[] args = new[] {methodCallExpression.Method.Name};
                 throw new InvalidOperationException(
-                        "The method the expression represents, '{0}', is not a generic method.".Fmt(methodCallExpression.Method.Name));
+                        string.Format("The method the expression represents, '{0}', is not a generic method.", args));
             }
 
             var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
@@ -151,10 +152,7 @@ namespace Blueprint.Core.Utilities
             if (genericMethod.GetGenericArguments().Length != genericTypeParameters.Length)
             {
                 throw new InvalidOperationException(
-                    "The method '{0}' requires {1} generic type parameter(s), but {2} were passed in.".Fmt(
-                        methodCallExpression.Method.Name,
-                        genericMethod.GetGenericArguments().Length,
-                        genericTypeParameters.Length));
+                    $"The method '{methodCallExpression.Method.Name}' requires {genericMethod.GetGenericArguments().Length} generic type parameter(s), but {genericTypeParameters.Length} were passed in.");
             }
 
             return genericMethod.MakeGenericMethod(genericTypeParameters);

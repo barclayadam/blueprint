@@ -97,10 +97,10 @@ namespace Blueprint.Core.Caching
         {
             if (SlidingExpiration != ObjectCache.NoSlidingExpiration)
             {
-                return "[Sliding] Expiration = {0}; Priority = {1}".Fmt(SlidingExpiration, Priority);
+                return $"[Sliding] Expiration = {SlidingExpiration}; Priority = {Priority}";
             }
 
-            return "[Absolute] Expiration = {0}; Priority = {1}".Fmt(AbsoluteExpiration, Priority);
+            return $"[Absolute] Expiration = {AbsoluteExpiration}; Priority = {Priority}";
         }
     }
 }

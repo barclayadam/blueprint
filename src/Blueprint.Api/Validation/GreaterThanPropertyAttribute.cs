@@ -47,14 +47,16 @@ namespace Blueprint.Api.Validation
 
             if (value.GetType() != item.GetType())
             {
-                throw new InvalidOperationException("The dependent property you supply must also be of type '{0}'.".Fmt(value.GetType()));
+                object[] args = new[] {value.GetType()};
+                throw new InvalidOperationException(string.Format("The dependent property you supply must also be of type '{0}'.", args));
             }
 
             var comparableValue = value as IComparable;
 
             if (comparableValue == null)
             {
-                throw new InvalidOperationException("The property type of '{0}' is not comparable.".Fmt(validationContext.DisplayName));
+                object[] args = new[] {validationContext.DisplayName};
+                throw new InvalidOperationException(string.Format("The property type of '{0}' is not comparable.", args));
             }
 
             return comparableValue.CompareTo(item) > 0 ? ValidationResult.Success : new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });

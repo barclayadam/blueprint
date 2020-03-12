@@ -80,7 +80,8 @@ namespace Blueprint.Api.Validation
                 return ValidationResult.Success;
             }
 
-            return new ValidationResult("Please fill in '{0}'".Fmt(validationContext.DisplayName), new[] { validationContext.DisplayName });
+            object[] args = new[] {validationContext.DisplayName};
+            return new ValidationResult(string.Format("Please fill in '{0}'", args), new[] { validationContext.DisplayName });
         }
     }
 }

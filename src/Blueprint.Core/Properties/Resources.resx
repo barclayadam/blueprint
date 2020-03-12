@@ -150,7 +150,4 @@
   <data name="SmtpClientEmailSender_EnvironmentHeader" xml:space="preserve">
     <value>Appending hashed environment header of '{0}' to email message.</value>
   </data>
-  <data name="EnumerableExtensions_ToPage_PageNumberGreaterThanTotal" xml:space="preserve">
-    <value>The page number '{0}' specified is greater than the total number of pages.</value>
-  </data>
 </root>

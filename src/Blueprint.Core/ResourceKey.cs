@@ -48,8 +48,9 @@ namespace Blueprint.Core
                 return parsedResourceKey;
             }
 
+            object[] args = new[] {resourceKey, typeof(T).Name};
             throw new FormatException(
-                "Resource key '{0}' is in an invalid format. A resource key must be in the format '[Type]/[Id]' where Id is a {1}.".Fmt(resourceKey, typeof(T).Name));
+                string.Format("Resource key '{0}' is in an invalid format. A resource key must be in the format '[Type]/[Id]' where Id is a {1}.", args));
         }
 
         /// <summary>

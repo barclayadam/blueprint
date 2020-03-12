@@ -56,7 +56,7 @@ namespace Blueprint.Core.Utilities
         /// for validating the email address is actually correct,only sending an email can do that.
         /// </remarks>
         public static readonly Regex Email = new Regex(
-                @"\b{0}\b".Fmt(EmailPattern), RegexOptions.Compiled);
+                $@"\b{EmailPattern}\b", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches an email and nothing else,
@@ -67,56 +67,56 @@ namespace Blueprint.Core.Utilities
         /// for validating the email address is actually correct,only sending an email can do that.
         /// </remarks>
         public static readonly Regex EmailOnly = new Regex(
-                @"^\s*{0}\s*$".Fmt(EmailPattern), RegexOptions.Compiled);
+                $@"^\s*{EmailPattern}\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression that can be used to find phone numbers within a string, using word
         /// boundaries to separate a phone number from the surrounding text.
         /// </summary>
         public static readonly Regex PhoneNumber = new Regex(
-                @"\b{0}\b".Fmt(PhoneNumberPattern), RegexOptions.Compiled);
+                $@"\b{PhoneNumberPattern}\b", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches a phone number and nothing else,
         /// cannot be used to find phone numbers within other text.
         /// </summary>
         public static readonly Regex PhoneNumberOnly = new Regex(
-                @"^\s*{0}\s*$".Fmt(PhoneNumberPattern), RegexOptions.Compiled);
+                $@"^\s*{PhoneNumberPattern}\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression that can be used to find UK postcodes within a string, using word
         /// boundaries to separate an email address from the surrounding text.
         /// </summary>
         public static readonly Regex UKPostcode = new Regex(
-                @"\b{0}\b".Fmt(UKPostcodePattern), RegexOptions.Compiled);
+                $@"\b{UKPostcodePattern}\b", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches a UK postcode and nothing else,
         /// cannot be used to find emails within other text.
         /// </summary>
         public static readonly Regex UKPostcodeOnly = new Regex(
-                @"^\s*{0}\s*$".Fmt(UKPostcodePattern), RegexOptions.Compiled);
+                $@"^\s*{UKPostcodePattern}\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression that can be used to find URLs within a string, using word
         /// boundaries to separate an email address from the surrounding text.
         /// </summary>
         public static readonly Regex Url = new Regex(
-                @"\b{0}\b".Fmt(UrlPattern), RegexOptions.Compiled);
+                $@"\b{UrlPattern}\b", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches a URL and nothing else,
         /// cannot be used to find emails within other text.
         /// </summary>
         public static readonly Regex UrlOnly = new Regex(
-                @"^\s*{0}\s*$".Fmt(UrlPattern), RegexOptions.Compiled);
+                $@"^\s*{UrlPattern}\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches a URL and nothing else,
         /// cannot be used to find emails within other text.
         /// </summary>
         public static readonly Regex UrlWithProtocol = new Regex(
-            @"^\s*{0}\s*$".Fmt(UrlWithProtocolPattern), RegexOptions.Compiled);
+            $@"^\s*{UrlWithProtocolPattern}\s*$", RegexOptions.Compiled);
 
         private const string UrlProtocolPattern = @"((([Hh][Tt]|[Ff])[Tt][Pp]([Ss]?))\://)";
         private const string UrlWithProtocolPattern = UrlProtocolPattern + UrlDomainPattern;

@@ -24,7 +24,7 @@ namespace Blueprint.Tests.Core.Utilities.FileSize_Tests
             var fileSize = FileSize.FromBytes(bytes);
 
             // Act
-            var formatted = "{0:FS}".Fmt(fileSize);
+            var formatted = $"{fileSize:FS}";
 
             // Assert
             formatted.Should().Be(expectedFormat);
@@ -47,7 +47,7 @@ namespace Blueprint.Tests.Core.Utilities.FileSize_Tests
             var fileSize = FileSize.FromBytes(bytes);
 
             // Act
-            var formatted = "{0:N0:FS}".Fmt(fileSize);
+            var formatted = string.Format("{0:N0:FS}");
 
             // Assert
             formatted.Should().Be(expectedFormat);

@@ -55,7 +55,8 @@ namespace Blueprint.Notifications
 
             if (templates == null)
             {
-                throw new NotificationNotFoundException("Notification '{0}' could not be not found.".Fmt(templatePath));
+                object[] args = new[] {templatePath};
+                throw new NotificationNotFoundException(string.Format("Notification '{0}' could not be not found.", args));
             }
 
             logger.LogInformation("Processing notification template_path={0}", templatePath);

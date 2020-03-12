@@ -36,7 +36,8 @@ namespace Blueprint.SqlServer
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException("Failed to execute command text '{0}'.".Fmt(commandText), ex);
+                    object[] args = new[] {commandText};
+                    throw new InvalidOperationException(string.Format("Failed to execute command text '{0}'.", args), ex);
                 }
             }
         }

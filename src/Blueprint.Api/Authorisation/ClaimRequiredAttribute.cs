@@ -93,8 +93,7 @@ namespace Blueprint.Api.Authorisation
                     if (property == null)
                     {
                         throw new InvalidOperationException(
-                                    "'{0}' is malformed. Cannot find the property '{1}' on type '{2}' to create claim, make sure it is a property not a field."
-                                            .Fmt(ValueTemplate, propertyName, resource.GetType()));
+                            $"'{ValueTemplate}' is malformed. Cannot find the property '{propertyName}' on type '{resource.GetType()}' to create claim, make sure it is a property not a field.");
                     }
 
                     var propertyValue = property.GetValue(resource, null);
