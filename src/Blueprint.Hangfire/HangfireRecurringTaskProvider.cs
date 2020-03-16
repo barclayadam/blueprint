@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core;
-using Blueprint.Core.Utilities;
 using Blueprint.Tasks;
 using Blueprint.Tasks.Provider;
 using Hangfire;
@@ -17,6 +16,8 @@ namespace Blueprint.Hangfire
     /// </summary>
     public class HangfireRecurringTaskProvider : IRecurringTaskProvider
     {
+        private const string SchedulerJobId = "System:Scheduler";
+
         private readonly IRecurringJobManager recurringJobManager;
         private readonly ILogger<TaskScheduler> logger;
 
@@ -39,10 +40,12 @@ namespace Blueprint.Hangfire
         public Task UpdateAsync(IEnumerable<RecurringTaskScheduleDto> current)
         {
             var existingJobs = JobStorage.Current.GetConnection().GetRecurringJobs();
-            var toDictionary = existingJobs.ToDictionary(k => k.Id, v => 1);
+            var currentAsDictionary = current.ToDictionary(k => k.Id, v => v);
 
+            // Finds jobs that exist in Hangfire but _do not_ exist in current list (with special case of
+            // the system scheduler)
             var jobsToDelete = existingJobs
-                .Where(jk => toDictionary.ContainsKey(jk.Id))
+                .Where(jk => !currentAsDictionary.ContainsKey(jk.Id) && jk.Id != SchedulerJobId)
                 .ToList();
 
             logger.LogInformation("Deleting old jobs that no longer exist");
@@ -54,9 +57,11 @@ namespace Blueprint.Hangfire
 
             logger.LogInformation("Scheduling (add or update) current jobs");
 
-            foreach (var r in current)
+            foreach (var kvp in currentAsDictionary)
             {
-                var envelope = new BackgroundTaskEnvelope(r.Schedule.BackgroundTask)
+                var schedule = kvp.Value;
+
+                var envelope = new BackgroundTaskEnvelope(schedule.Schedule.BackgroundTask)
                 {
                     Metadata =
                     {
@@ -67,16 +72,16 @@ namespace Blueprint.Hangfire
                 var job = Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(envelope), null));
 
                 recurringJobManager.AddOrUpdate(
-                    r.Id,
+                    schedule.Id,
                     job,
-                    r.Schedule.CronExpression,
-                    r.Schedule.TimeZone);
+                    schedule.Schedule.CronExpression,
+                    schedule.Schedule.TimeZone);
 
                 logger.LogDebug(
                     "Scheduled job {JobName} ({JobId}) with cron {CronExpression}",
-                    r.Schedule.Name,
-                    r.Id,
-                    r.Schedule.CronExpression);
+                    schedule.Schedule.Name,
+                    schedule.Id,
+                    schedule.Schedule.CronExpression);
             }
 
             return Task.CompletedTask;
@@ -86,7 +91,7 @@ namespace Blueprint.Hangfire
         public Task SetupRecurringManagerAsync()
         {
             recurringJobManager.AddOrUpdate(
-                "System:Scheduler",
+                SchedulerJobId,
                 Job.FromExpression<RecurringTaskManager>(s => s.RescheduleAllAsync()),
                 "*/30 * * * *");
 
