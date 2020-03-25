@@ -70,6 +70,11 @@ namespace Blueprint.Api
             Guard.NotNull(nameof(descriptor), descriptor);
 
             allOperations[descriptor.OperationType] = descriptor;
+
+            foreach (var link in descriptor.Links)
+            {
+                RegisterLink(link);
+            }
         }
 
         /// <summary>
@@ -82,15 +87,14 @@ namespace Blueprint.Api
         /// </remarks>
         /// <param name="link">The link to register.</param>
         /// <exception cref="InvalidOperationException">If the link is not unique.</exception>
-        public void RegisterLink(ApiOperationLink link)
+        private void RegisterLink(ApiOperationLink link)
         {
             if (allLinks.Any(l =>
                 l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
                 l.OperationDescriptor.Name == link.OperationDescriptor.Name))
             {
-                object[] args = new[] {link.Rel, link.OperationDescriptor.OperationType.Name, link.UrlFormat};
                 throw new InvalidOperationException(
-                    string.Format("An API operation link '{0}' with type '{1}' failed to register as a URL with format '{2}' already registered.", args));
+                    $"An API operation link '{link.Rel}' with type '{link.OperationDescriptor.OperationType.Name}' failed to register as a URL with format '{link.UrlFormat}' already registered.");
             }
 
             allLinks.Add(link);

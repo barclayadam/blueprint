@@ -161,15 +161,6 @@ namespace Blueprint.Api.Configuration
             var apiOperationDescriptor = CreateApiOperationDescriptor(type);
 
             dataModel.RegisterOperation(apiOperationDescriptor);
-
-            foreach (var linkAttribute in apiOperationDescriptor.OperationType.GetCustomAttributes<LinkAttribute>())
-            {
-                dataModel.RegisterLink(
-                    new ApiOperationLink(apiOperationDescriptor, linkAttribute.Url, linkAttribute.Rel ?? apiOperationDescriptor.Name)
-                    {
-                        ResourceType = linkAttribute.ResourceType,
-                    });
-            }
         }
 
         private ApiOperationDescriptor CreateApiOperationDescriptor(Type type)
@@ -185,6 +176,24 @@ namespace Blueprint.Api.Configuration
             foreach (var c in conventions)
             {
                 c.Apply(descriptor);
+            }
+
+            foreach (var linkAttribute in type.GetCustomAttributes<LinkAttribute>())
+            {
+                descriptor.AddLink(
+                    new ApiOperationLink(descriptor, linkAttribute.Url, linkAttribute.Rel ?? descriptor.Name)
+                    {
+                        ResourceType = linkAttribute.ResourceType,
+                    });
+            }
+
+            var typedOperation = type
+                .GetInterfaces()
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IApiOperation<>));
+
+            if (typedOperation != null)
+            {
+                descriptor.AddResponse(new ResponseDescriptor(typedOperation.GetGenericArguments()[0]));
             }
 
             return descriptor;

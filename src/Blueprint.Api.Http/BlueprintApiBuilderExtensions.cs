@@ -47,6 +47,7 @@ namespace Blueprint.Api.Configuration
             apiBuilder.Operations(o => o
                 .AddOperation<RootMetadataOperation>()
                 .AddConvention(new HttpOperationScannerConvention()));
+
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
 
             apiBuilder.UseHost(new HttpBlueprintApiHost());

@@ -15,6 +15,7 @@ namespace Blueprint.Api
 
             Total = Values.Count();
             CurrentPage = 1;
+            PageSize = Total;
         }
 
         public PagedApiResource(IEnumerable<T> values, long total, int pageSize, int currentPage)
@@ -32,11 +33,11 @@ namespace Blueprint.Api
 
         public IEnumerable<T> Values { get; }
 
-        public long? Total { get; }
+        public long Total { get; }
 
-        public int? PageSize { get; }
+        public long PageSize { get; }
 
-        public int? CurrentPage { get; }
+        public int CurrentPage { get; }
 
         public IEnumerable<object> GetEnumerable()
         {

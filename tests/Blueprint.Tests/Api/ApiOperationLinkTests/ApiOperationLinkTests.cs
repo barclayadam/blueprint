@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Blueprint.Api;
+﻿using Blueprint.Api;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -7,7 +6,6 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
 {
     public class ApiOperationLinkTests
     {
-        [RootLink("/aUrl/{clientId}/{category}/some-more", Rel = "a.rel")]
         private class LinkGeneratorTestsOperation : IApiOperation
         {
             public int ClientId { get; set; }
@@ -55,20 +53,65 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         }
 
         [Test]
-        public void When_Placeholder_Has_Separate_Source_Then_GetSafeRoutingUrl_Strips()
+        public void When_Placeholder_Has_Alternate_Name_Then_RoutingUrl_Strips()
         {
             // Arrange
             var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
 
             // Act
-            var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}", "a.rel");
+            var link = new ApiOperationLink(descriptor, "/aUrl/{ClientId:Id}", "a.rel");
 
             // Assert
-            link.RoutingUrl.Should().Be("aUrl/{clientid}");
+            link.RoutingUrl.Should().Be("aUrl/{ClientId}");
         }
 
         [Test]
-        public void When_Format_Has_QueryString_UrlFormat_Strips()
+        public void When_Placeholder_Has_Alternate_Name_Then_Placeholder_Created_With_AlternatePropertyName()
+        {
+            // Arrange
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+
+            // Act
+            var link = new ApiOperationLink(descriptor, "/aUrl/{ClientId:Id}", "a.rel");
+
+            // Assert
+            link.Placeholders[0].AlternatePropertyName.Should().Be("Id");
+            link.Placeholders[0].OriginalText.Should().Be("{ClientId:Id}");
+            link.Placeholders[0].Property.Name.Should().Be("ClientId");
+            link.Placeholders[0].Format.Should().BeNull();
+        }
+
+        [Test]
+        public void When_Placeholder_Has_Different_Case_Then_Placeholder_Created_Correctly()
+        {
+            // Arrange
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+
+            // Act
+            var link = new ApiOperationLink(descriptor, "/aUrl/{clientid}", "a.rel");
+
+            // Assert
+            link.Placeholders[0].OriginalText.Should().Be("{clientid}");
+            link.Placeholders[0].Property.Name.Should().Be("ClientId");
+            link.Placeholders[0].Format.Should().BeNull();
+            link.Placeholders[0].AlternatePropertyName.Should().BeNull();
+        }
+
+        [Test]
+        public void When_Placeholder_Has_Different_Case_RoutingUrl_Should_Normalise()
+        {
+            // Arrange
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+
+            // Act
+            var link = new ApiOperationLink(descriptor, "/aUrl/{clientId:Id}", "a.rel");
+
+            // Assert
+            link.RoutingUrl.Should().Be("aUrl/{ClientId}");
+        }
+
+        [Test]
+        public void When_Format_Has_QueryString_RoutingUrl_Strips()
         {
             // Arrange
             var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
@@ -77,7 +120,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}?format=pdf", "a.rel");
 
             // Assert
-            link.RoutingUrl.Should().Be("aUrl/{clientid}");
+            link.RoutingUrl.Should().Be("aUrl/{ClientId}");
         }
     }
 }

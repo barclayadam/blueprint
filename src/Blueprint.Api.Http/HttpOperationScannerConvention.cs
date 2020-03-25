@@ -29,7 +29,7 @@ namespace Blueprint.Api.Http
                 supportedMethod = typeof(ICommand).IsAssignableFrom(descriptor.OperationType) ? "POST" : "GET";
             }
 
-            descriptor.Name = supportedMethod + " " + descriptor.Name;
+            descriptor.Name = descriptor.Name;
             descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
         }
 

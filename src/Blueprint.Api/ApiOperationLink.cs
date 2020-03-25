@@ -49,12 +49,11 @@ namespace Blueprint.Api
                         placeholders.Add(new ApiOperationLinkPlaceholder(
                             match.Value,
                             match.Index,
-                            match.Length,
                             property,
                             match.Groups["alternatePropName"].Success ? match.Groups["alternatePropName"].Value : null,
                             match.Groups["format"].Success ? match.Groups["format"].Value : null));
 
-                        return "{" + propertyName + "}";
+                        return "{" + property.Name + "}";
                     }),
                 string.Empty);
 
