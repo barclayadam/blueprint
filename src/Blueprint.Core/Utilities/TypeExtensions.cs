@@ -59,5 +59,75 @@ namespace Blueprint.Core.Utilities
         {
             return !type.IsValueType || (Nullable.GetUnderlyingType(type) != null);
         }
+
+        /// <summary>
+        /// Checks whether this <see cref="Type" /> is a type of the given generic type.
+        /// </summary>
+        /// <param name="typeToCheck">The type to check (i.e. <c>List&lt;string&gt;</c>).</param>
+        /// <param name="genericType">The generic type to check against (i.e. <c>List&lt;&gt;</c>).</param>
+        /// <returns>Whether <paramref name="typeToCheck" /> is a type of <paramref name="genericType"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="genericType" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">If <paramref name="genericType" /> is not a generic type definition.</exception>
+        public static bool IsOfGenericType(this Type typeToCheck, Type genericType)
+        {
+            return typeToCheck.IsOfGenericType(genericType, out _);
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="Type" /> is a type of the given generic type.
+        /// </summary>
+        /// <param name="typeToCheck">The type to check (i.e. <c>List&lt;string&gt;</c>).</param>
+        /// <param name="genericType">The generic type to check against (i.e. <c>List&lt;&gt;</c>).</param>
+        /// <param name="concreteGenericType">Set to the actual concrete type found.</param>
+        /// <returns>Whether <paramref name="typeToCheck" /> is a type of <paramref name="genericType"/>.</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="genericType" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">If <paramref name="genericType" /> is not a generic type definition.</exception>
+        public static bool IsOfGenericType(this Type typeToCheck, Type genericType, out Type concreteGenericType)
+        {
+            if (genericType == null)
+            {
+                throw new ArgumentNullException(nameof(genericType));
+            }
+
+            if (!genericType.IsGenericTypeDefinition)
+            {
+                throw new ArgumentException("The definition needs to be a GenericTypeDefinition (i.e typeof(List<>))", nameof(genericType));
+            }
+
+            while (true)
+            {
+                concreteGenericType = null;
+
+                if (typeToCheck == null || typeToCheck == typeof(object))
+                {
+                    return false;
+                }
+
+                if (typeToCheck == genericType)
+                {
+                    concreteGenericType = typeToCheck;
+                    return true;
+                }
+
+                if ((typeToCheck.IsGenericType ? typeToCheck.GetGenericTypeDefinition() : typeToCheck) == genericType)
+                {
+                    concreteGenericType = typeToCheck;
+                    return true;
+                }
+
+                if (genericType.IsInterface)
+                {
+                    foreach (var i in typeToCheck.GetInterfaces())
+                    {
+                        if (i.IsOfGenericType(genericType, out concreteGenericType))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                typeToCheck = typeToCheck.BaseType;
+            }
+        }
     }
 }
