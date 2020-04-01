@@ -27,7 +27,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         // Pick any authorisation that we would not have
         [MustBeAuthenticated]
         [SelfLink(typeof(AwesomeApiResource), "/resources/{Id}")]
-        public class SelfQuery : IQuery
+        public class SelfQuery : IQuery<AwesomeApiResource>
         {
             [Required]
             public string Id { get; set; }
@@ -43,7 +43,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 
         public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
         {
-            public CreatedResourceEvent(IApiOperation selfQuery) : base(selfQuery)
+            public CreatedResourceEvent(IApiOperation<AwesomeApiResource> selfQuery) : base(selfQuery)
             {
             }
         }

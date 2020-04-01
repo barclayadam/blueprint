@@ -70,6 +70,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks", "src\Blue
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Samples.TaskProcessor", "samples\Blueprint.Samples.TaskProcessor\Blueprint.Samples.TaskProcessor.csproj", "{B19A1330-860B-4F86-B639-EDD05885C270}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.OpenApi", "src\Blueprint.OpenApi\Blueprint.OpenApi.csproj", "{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,10 @@ Global
 		{B19A1330-860B-4F86-B639-EDD05885C270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B19A1330-860B-4F86-B639-EDD05885C270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B19A1330-860B-4F86-B639-EDD05885C270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +177,7 @@ Global
 		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{92A00B44-2D35-4291-852D-14B9A1386908} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{B19A1330-860B-4F86-B639-EDD05885C270} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
+		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}

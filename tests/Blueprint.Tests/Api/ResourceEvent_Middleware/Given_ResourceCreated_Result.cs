@@ -24,7 +24,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         }
 
         [SelfLink(typeof(AwesomeApiResource), "/resources/{Id}")]
-        public class SelfQuery : IQuery
+        public class SelfQuery : IQuery<AwesomeApiResource>
         {
             [Required]
             public string Id { get; set; }
@@ -40,7 +40,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 
         public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
         {
-            public CreatedResourceEvent(IApiOperation selfQuery) : base(selfQuery)
+            public CreatedResourceEvent(IApiOperation<AwesomeApiResource> selfQuery) : base(selfQuery)
             {
             }
         }
@@ -91,12 +91,10 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 var @event = result.ShouldBeContent<CreatedResourceEvent>();
 
                 @event.Created.UtcDateTime.Should().BeCloseTo(t.UtcNow);
-                @event.Href.Should().Be("/resources/1234");
                 @event.Object.Should().Be("event");
-                @event.Type.Should().Be("awesome.created");
+                @event.EventId.Should().Be("awesome.created");
                 @event.ChangeType.Should().Be(ResourceEventChangeType.Created);
                 @event.ResourceObject.Should().Be("awesome");
-                @event.UserId.Should().Be("User8547");
             }
         }
     }

@@ -34,7 +34,6 @@ namespace Blueprint.Api.Middleware
 
                     context.UserAuthorisationContext?.PopulateMetadata(AddMetadata);
 
-                    resourceEvent.UserId = context.UserAuthorisationContext?.Id;
                     resourceEvent.CorrelationId = Activity.Current?.Id;
                     resourceEvent.Operation = context.Operation;
 
