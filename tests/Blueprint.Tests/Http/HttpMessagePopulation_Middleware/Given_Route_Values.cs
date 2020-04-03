@@ -4,10 +4,11 @@ using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Api.Http;
 using Blueprint.Testing;
+using Blueprint.Tests.Api;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
+namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 {
     public class Given_Route_Values
     {

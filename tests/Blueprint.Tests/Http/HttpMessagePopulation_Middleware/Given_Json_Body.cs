@@ -6,11 +6,12 @@ using Blueprint.Api.Configuration;
 using Blueprint.Api.Http;
 using Blueprint.Core.Utilities;
 using Blueprint.Testing;
+using Blueprint.Tests.Api;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
+namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 {
     public class Given_Json_Body
     {

@@ -1,4 +1,3 @@
-using System.Net;
 using System.Threading.Tasks;
 using Blueprint.Api.Middleware;
 
@@ -25,10 +24,12 @@ namespace Blueprint.Api.Http
         /// <inheritdoc />
         public Task ExecuteAsync(ApiOperationContext context, ValidationFailedOperationResult result)
         {
+            var validationProblemDetails = new ValidationProblemDetails(result.Errors);
+
             return okResultOperationExecutor.WriteContentAsync(
                 context.GetHttpContext(),
-                (HttpStatusCode)422,
-                new ValidationErrorResponse(result.Errors));
+                validationProblemDetails.Status.Value,
+                validationProblemDetails);
         }
     }
 }

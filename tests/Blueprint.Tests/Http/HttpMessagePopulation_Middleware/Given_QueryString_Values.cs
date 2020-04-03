@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Api.Http;
 using Blueprint.Testing;
+using Blueprint.Tests.Api;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Api.HttpMessagePopulation_Middleware
+namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 {
     public class Given_QueryString_Values
     {

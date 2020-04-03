@@ -1,9 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Api.Errors;
-using Blueprint.Core.Errors;
 using Microsoft.Extensions.Configuration;
 
 namespace Blueprint.Api.Http
@@ -32,69 +31,57 @@ namespace Blueprint.Api.Http
         /// <inheritdoc />
         public Task ExecuteAsync(ApiOperationContext context, UnhandledExceptionOperationResult result)
         {
+            var httpContext = context.GetHttpContext();
+            var problemDetails = ToProblemDetails(result.Exception);
+
+            var traceId = Activity.Current?.Id ?? httpContext?.TraceIdentifier;
+
+            if (traceId != null)
+            {
+                problemDetails.Extensions["traceId"] = traceId;
+            }
+
             return okResultOperationExecutor.WriteContentAsync(
-                context.GetHttpContext(),
-                ToStatusCode(result.Exception),
-                ToErrorResponse(result.Exception));
+                httpContext,
+                problemDetails.Status.Value,
+                problemDetails);
         }
 
-        private static HttpStatusCode ToStatusCode(Exception exception)
+        private ProblemDetails ToProblemDetails(Exception exception)
         {
             switch (exception)
             {
                 case ApiException apiException:
-                    return apiException.HttpStatus;
-
-                case SecurityException _:
-                    return HttpStatusCode.Unauthorized;
-
-                case InvalidOperationException _:
-                    return HttpStatusCode.BadRequest;
-            }
-
-            return HttpStatusCode.InternalServerError;
-        }
-
-        private ErrorResponse ToErrorResponse(Exception exception)
-        {
-            return new ErrorResponse
-            {
-                Error = ToErrorResponseDetail(exception),
-            };
-        }
-
-        private ErrorResponseDetail ToErrorResponseDetail(Exception e)
-        {
-            switch (e)
-            {
-                case IApiErrorDescriptor errorCodeProvider:
-                    return new ErrorResponseDetail
+                    return new ProblemDetails
                     {
-                        Code = errorCodeProvider.ErrorCode,
-                        Message = errorCodeProvider.ErrorMessage,
-                    };
-
-                case InvalidOperationException _:
-                    return new ErrorResponseDetail
-                    {
-                        Code = "bad_request",
-                        Message = e.Message,
+                        Status = (int)apiException.HttpStatus,
+                        Title = apiException.ErrorMessage,
+                        Type = apiException.ErrorCode,
                     };
 
                 case SecurityException _:
-                    return new ErrorResponseDetail
+                    return new ProblemDetails
                     {
-                        Code = "unauthenticated",
-                        Message = e.Message,
+                        Status = (int)HttpStatusCode.Unauthorized,
+                        Title = exception.Message,
+                    };
+
+                case InvalidOperationException _:
+                    return new ProblemDetails
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Title = shouldExposeErrorMessage ? exception.Message : "There was a problem with the request",
+                        Detail = shouldExposeErrorMessage ? exception.ToString() : null,
+                    };
+
+                default:
+                    return new ProblemDetails
+                    {
+                        Status = (int)HttpStatusCode.InternalServerError,
+                        Title = shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
+                        Detail = shouldExposeErrorMessage ? exception.ToString() : null,
                     };
             }
-
-            return new ErrorResponseDetail
-            {
-                Code = "unknown_error",
-
-                Message = shouldExposeErrorMessage ? e.ToString() : "Something has gone wrong, please try again",
-            };
         }
     }
 }

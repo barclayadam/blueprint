@@ -33,7 +33,7 @@ namespace Blueprint.Api.Http
         {
             var httpContext = context.GetHttpContext();
 
-            return WriteContentAsync(httpContext, HttpStatusCode.OK, result.Content);
+            return WriteContentAsync(httpContext, (int)HttpStatusCode.OK, result.Content);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Blueprint.Api.Http
         /// <param name="statusCode">The status code to set.</param>
         /// <param name="result">The result to render.</param>
         /// <returns>A <see cref="Task"/> representing this async operation.</returns>
-        public async Task WriteContentAsync(HttpContext httpContext, HttpStatusCode statusCode, object result)
+        public async Task WriteContentAsync(HttpContext httpContext, int statusCode, object result)
         {
             var httpRequest = httpContext.Request;
 
@@ -54,7 +54,7 @@ namespace Blueprint.Api.Http
 
             var httpResponse = httpContext.Response;
 
-            httpResponse.StatusCode = (int)statusCode;
+            httpResponse.StatusCode = statusCode;
             await formatter.WriteAsync(httpResponse, requestedFormat, result);
         }
 

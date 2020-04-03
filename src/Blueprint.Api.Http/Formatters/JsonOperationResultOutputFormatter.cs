@@ -7,14 +7,19 @@ namespace Blueprint.Api.Http.Formatters
 {
     public class JsonOperationResultOutputFormatter : IOperationResultOutputFormatter
     {
-        private static readonly JsonSerializerOptions JsonSerializerOptions = CreateOptions();
+        internal static readonly JsonSerializerOptions JsonSerializerOptions = CreateOptions();
 
         private static JsonSerializerOptions CreateOptions()
         {
             var options = new JsonSerializerOptions
             {
                 WriteIndented = false,
+
+                // Use camel casing for properties and dictionaries (dictionaries because
+                // we treat them similar to properties from perspective of client consumption)
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             };
 
             options.Converters.Add(new JsonStringEnumConverter());
