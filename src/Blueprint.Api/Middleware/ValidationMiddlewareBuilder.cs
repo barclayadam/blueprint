@@ -63,7 +63,8 @@ namespace Blueprint.Api.Middleware
             {
                 if (!hasValidationFrames)
                 {
-                    // Only add this frame if there are any actual validation calls
+                    // Only add the "results creator" frame if there are any actual validation calls. This is the line
+                    // that creates an empty ValidationFailures
                     context.ExecuteMethod.Frames.Add(resultsCreator);
 
                     hasValidationFrames = true;

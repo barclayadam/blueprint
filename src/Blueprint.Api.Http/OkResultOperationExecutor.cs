@@ -87,9 +87,10 @@ namespace Blueprint.Api.Http
             }
 
             throw new ApiException(
-                $"{requestedFormat} is not supported",
+                "The requested format is not supported",
                 "unsupported_format",
-                HttpStatusCode.UnsupportedMediaType);
+                $"{requestedFormat} is not supported",
+                (int)HttpStatusCode.UnsupportedMediaType);
         }
     }
 }

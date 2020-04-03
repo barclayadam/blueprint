@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 
 namespace Blueprint.Api.Middleware
 {
@@ -13,10 +12,10 @@ namespace Blueprint.Api.Middleware
         /// <summary>
         /// Initialises a new instance of the <see cref="QueryStringParamParsingException" /> class.
         /// </summary>
-        /// <param name="exception">The exception that caused the exception.</param>
+        /// <param name="inner">The exception that caused the exception.</param>
         /// <param name="message">The message to be shown to the user through problem report.</param>
-        public QueryStringParamParsingException(Exception exception, string message)
-            : base(message, "invalid_parameter", exception, HttpStatusCode.BadRequest)
+        public QueryStringParamParsingException(Exception inner, string message)
+            : base("A query string parameter could not be parsed", "invalid_parameter", message, 400, inner)
         {
         }
     }

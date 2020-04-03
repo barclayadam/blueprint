@@ -54,9 +54,10 @@ namespace Blueprint.Api.Http
                 case ApiException apiException:
                     return new ProblemDetails
                     {
-                        Status = (int)apiException.HttpStatus,
-                        Title = apiException.ErrorMessage,
-                        Type = apiException.ErrorCode,
+                        Status = apiException.HttpStatus,
+                        Title = apiException.Title,
+                        Type = apiException.Type,
+                        Detail = apiException.Detail,
                     };
 
                 case SecurityException _:

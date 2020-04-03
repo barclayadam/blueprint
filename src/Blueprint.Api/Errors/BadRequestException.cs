@@ -1,11 +1,9 @@
-﻿using System.Net;
-
-namespace Blueprint.Api.Errors
+﻿namespace Blueprint.Api.Errors
 {
     public class BadRequestException : ApiException
     {
-        public BadRequestException(string message)
-            : base(message, "bad_request", HttpStatusCode.BadRequest)
+        public BadRequestException(string title, string type, string detail)
+            : base(title, type, detail, 400)
         {
         }
     }

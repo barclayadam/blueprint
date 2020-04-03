@@ -1,11 +1,9 @@
-﻿using System.Net;
-
-namespace Blueprint.Api.Errors
+﻿namespace Blueprint.Api.Errors
 {
     public class NotFoundException : ApiException
     {
         public NotFoundException(string message)
-            : base(message, "not_found", HttpStatusCode.NotFound)
+            : base("The requested resource could not be found", "not_found", message, 404)
         {
         }
     }
