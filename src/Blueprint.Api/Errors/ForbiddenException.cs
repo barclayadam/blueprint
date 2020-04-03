@@ -6,7 +6,7 @@ namespace Blueprint.Api.Errors
     public class ForbiddenException : ApiException
     {
         public ForbiddenException(ExecutionAllowed failure)
-            : base(failure.Reason, "unauthorized", failure.Message, (int)HttpStatusCode.Forbidden)
+            : base(failure.Message, "unauthorized", failure.Reason, (int)HttpStatusCode.Forbidden)
         {
             FailureReason = failure;
         }

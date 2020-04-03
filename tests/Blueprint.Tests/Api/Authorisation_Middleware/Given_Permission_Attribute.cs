@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
@@ -38,7 +37,9 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
             var okResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
 
             okResult.Exception.Should().BeOfType<ForbiddenException>();
-            okResult.Exception.Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            ((ForbiddenException)okResult.Exception).Detail.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            ((ForbiddenException)okResult.Exception).Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            ((ForbiddenException)okResult.Exception).Title.Should().Be("You do not have enough permissions to perform this action");
         }
 
         [Test]
