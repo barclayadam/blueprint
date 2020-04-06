@@ -72,6 +72,10 @@ namespace Blueprint.Api.Http.MessagePopulation
 
             var operationVariable = context.VariableFromContext(context.Descriptor.OperationType);
 
+            // Add a single setter frame so we only grab using GetRouteData() once
+            var routeDataFrame = new MethodCall(typeof(ApiOperationContextHttpExtensions), nameof(ApiOperationContextHttpExtensions.GetRouteData));
+            context.ExecuteMethod.Frames.Add(routeDataFrame);
+
             foreach (var routePropertyPlaceholder in placeholderProperties)
             {
                 var routeProperty = routePropertyPlaceholder.Property;
@@ -84,11 +88,8 @@ namespace Blueprint.Api.Http.MessagePopulation
                 }
 
                 var operationProperty = operationVariable.GetProperty(routeProperty.Name);
-                var routeDataFrame = new MethodCall(typeof(ApiOperationContextHttpExtensions), nameof(ApiOperationContextHttpExtensions.GetRouteData));
                 var routeValuesVariable = routeDataFrame.ReturnVariable.GetProperty(nameof(RouteData.Values));
 
-                // Add a single setter frame so we only grab using GetRouteData() once
-                context.ExecuteMethod.Frames.Add(routeDataFrame);
 
                 // If the property exists in ALL routes for the operation then we know it _must_ exist in RouteData otherwise we would
                 // not have got this far as the URL would not have matched. Therefore we do not need the TryGetValue method call and instead can
