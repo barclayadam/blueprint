@@ -49,9 +49,10 @@ namespace Blueprint.Api.Http.MessagePopulation
         /// <summary>
         /// Returns an empty enumeration, this is a "catch-all" type of source.
         /// </summary>
-        /// <param name="context">The builder context.</param>
+        /// <param name="apiDataModel">The API data model.</param>
+        /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>An empty enumeration.</returns>
-        public IEnumerable<PropertyInfo> GetOwnedProperties(MiddlewareBuilderContext context)
+        public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
             return Enumerable.Empty<PropertyInfo>();
         }

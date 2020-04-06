@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Api.Middleware
 {
     /// <summary>
-    /// A middleware that will populate the API operation that is being passed through with information
-    /// from the <see cref="HttpRequestMessage" />.
+    /// A middleware that will populate the API operation using all registered
+    /// <see cref="IMessagePopulationSource" />s.
     /// </summary>
     public class MessagePopulationMiddlewareBuilder : IMiddlewareBuilder
     {
@@ -37,7 +36,7 @@ namespace Blueprint.Api.Middleware
 
             foreach (var s in sources)
             {
-                var ownedBySource = s.GetOwnedProperties(context);
+                var ownedBySource = s.GetOwnedProperties(context.Model, context.Descriptor);
 
                 foreach (var p in ownedBySource)
                 {

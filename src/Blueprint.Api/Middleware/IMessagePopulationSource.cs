@@ -29,9 +29,10 @@ namespace Blueprint.Api.Middleware
         /// completely omitted as they should only be populating non-owned properties (i.e, a JSON body source
         /// could be omitted if ALL properties are considered owned by other sources).
         /// </remarks>
-        /// <param name="context">The builder context.</param>
+        /// <param name="apiDataModel">The API data model.</param>
+        /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>A list of owned properties.</returns>
-        IEnumerable<PropertyInfo> GetOwnedProperties(MiddlewareBuilderContext context);
+        IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor);
 
         /// <summary>
         /// Builds this source's body, adding the required <see cref="Frame" />s to the pipeline's body.

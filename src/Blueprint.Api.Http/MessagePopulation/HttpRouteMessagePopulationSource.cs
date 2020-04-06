@@ -42,11 +42,12 @@ namespace Blueprint.Api.Http.MessagePopulation
         /// Returns the properties that are owned by this source, which are all the properties that
         /// come from routes (<see cref="LinkAttribute" />).
         /// </summary>
-        /// <param name="context">The builder context.</param>
+        /// <param name="apiDataModel">The API data model.</param>
+        /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>The properties owned by this source, which are from links on the operation.</returns>
-        public IEnumerable<PropertyInfo> GetOwnedProperties(MiddlewareBuilderContext context)
+        public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            var allLinks = context.Model.GetLinksForOperation(context.Descriptor.OperationType).ToList();
+            var allLinks = apiDataModel.GetLinksForOperation(operationDescriptor.OperationType).ToList();
 
             // Grab all placeholder properties that are in ALL of the links for this operation. If it is in ALL links
             // we know we always "own" the property, otherwise we do not and therefore allow it to be filled by other
@@ -70,7 +71,6 @@ namespace Blueprint.Api.Http.MessagePopulation
                 .ToList();
 
             var operationVariable = context.VariableFromContext(context.Descriptor.OperationType);
-            var operationContextVariable = context.VariableFromContext(typeof(ApiOperationContext));
 
             foreach (var routePropertyPlaceholder in placeholderProperties)
             {
