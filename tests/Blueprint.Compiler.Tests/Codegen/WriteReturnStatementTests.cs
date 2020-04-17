@@ -100,6 +100,4 @@ namespace Blueprint.Compiler.Tests.Codegen
                 .Should().Be(expected);
         }
     }
-
-
 }

@@ -16,8 +16,6 @@ namespace Blueprint.Compiler
         // of a given type it should resolve to that same variable instance when it can)
         private readonly Dictionary<Type, Variable> variables = new Dictionary<Type, Variable>();
 
-        private AsyncMode asyncMode = AsyncMode.None;
-
         internal GeneratedMethod(GeneratedType generatedType, MethodInfo method)
         {
             GeneratedType = generatedType;
@@ -58,13 +56,9 @@ namespace Blueprint.Compiler
         public bool Overrides { get; set; }
 
         /// <summary>
-        /// Gets or sets the "async mode" of this method (i.e. is the method synchronous, returning a Task, or an async method).
+        /// Gets the "async mode" of this method (i.e. is the method synchronous, returning a Task, or an async method).
         /// </summary>
-        public AsyncMode AsyncMode
-        {
-            get => asyncMode;
-            set => asyncMode = value;
-        }
+        public AsyncMode AsyncMode { get; internal set; } = AsyncMode.None;
 
         /// <summary>
         /// Gets the <see cref="Argument"/>s of this method, which may be empty.
@@ -156,17 +150,17 @@ namespace Blueprint.Compiler
             // 3. Determine the async mode of this method, which determines the result type and how
             // the actual return value is generated. Only do this is asyncMode is not set to
             // something else to allow overriding externally
-            if (asyncMode == AsyncMode.None)
+            if (AsyncMode == AsyncMode.None)
             {
-                asyncMode = AsyncMode.AsyncTask;
+                AsyncMode = AsyncMode.AsyncTask;
 
                 if (Frames.All(x => !x.IsAsync))
                 {
-                    asyncMode = AsyncMode.None;
+                    AsyncMode = AsyncMode.None;
                 }
                 else if (Frames.Count(x => x.IsAsync) == 1 && Frames.Last().IsAsync && Frames.Last().CanReturnTask())
                 {
-                    asyncMode = Frames.Any(x => x.Wraps) ? AsyncMode.AsyncTask : AsyncMode.ReturnFromLastNode;
+                    AsyncMode = AsyncMode.ReturnFromLastNode;
                 }
             }
 
@@ -177,14 +171,25 @@ namespace Blueprint.Compiler
             // CompositeFrames (recursively). We do this so that we do not duplicate the creation of a
             // variable Frame below (i.e. a variable has a creation frame within an if statement, if that
             // was not found we would add a duplicate creation frame to the start of this method)
-            IEnumerable<Frame> GetAllFrames(Frame frame)
+            static void GetAllFrames(Frame frame, List<Frame> found)
             {
-                return frame is CompositeFrame c ? new[] {frame}.Concat(c.Inner.SelectMany(GetAllFrames)) : new[] {frame};
+                found.Add(frame);
+
+                if (frame is CompositeFrame c)
+                {
+                    foreach (var f in c.Inner)
+                    {
+                        GetAllFrames(f, found);
+                    }
+                }
             }
 
-            var everyFrame = Frames
-                .SelectMany(GetAllFrames)
-                .ToList();
+            var everyFrame = new List<Frame>();
+
+            foreach (var f in Frames)
+            {
+                GetAllFrames(f, everyFrame);
+            }
 
             foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies))
             {
@@ -247,21 +252,6 @@ namespace Blueprint.Compiler
             return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
         }
 
-        private void WriteReturnStatement(ISourceWriter writer)
-        {
-            if ((AsyncMode == AsyncMode.ReturnCompletedTask || AsyncMode == AsyncMode.None) && ReturnType == typeof(Task))
-            {
-                writer.Write("return Task.CompletedTask;");
-            }
-        }
-
-        private string DetermineReturnExpression()
-        {
-            return AsyncMode == AsyncMode.AsyncTask
-                ? "async " + ReturnType.FullNameInCode()
-                : ReturnType.FullNameInCode();
-        }
-
         private static Frame ChainFrames(IReadOnlyList<Frame> frames)
         {
             var visited = new List<Frame>();
@@ -283,6 +273,21 @@ namespace Blueprint.Compiler
             }
 
             return frames[0];
+        }
+
+        private void WriteReturnStatement(ISourceWriter writer)
+        {
+            if ((AsyncMode == AsyncMode.ReturnCompletedTask || AsyncMode == AsyncMode.None) && ReturnType == typeof(Task))
+            {
+                writer.Write("return Task.CompletedTask;");
+            }
+        }
+
+        private string DetermineReturnExpression()
+        {
+            return AsyncMode == AsyncMode.AsyncTask
+                ? "async " + ReturnType.FullNameInCode()
+                : ReturnType.FullNameInCode();
         }
 
         private class MethodSourceWriter : IMethodSourceWriter
@@ -377,7 +382,7 @@ namespace Blueprint.Compiler
             /// <inherit-doc />
             Variable IMethodVariables.FindVariableByName(Type dependency, string name)
             {
-                if (((IMethodVariables)this).TryFindVariableByName(dependency, name, out var variable))
+                if (((IMethodVariables) this).TryFindVariableByName(dependency, name, out var variable))
                 {
                     return variable;
                 }
@@ -388,11 +393,11 @@ namespace Blueprint.Compiler
             /// <inherit-doc />
             Variable IMethodVariables.FindVariable(Type variableType)
             {
-                var variable = ((IMethodVariables)this).TryFindVariable(variableType);
+                var variable = ((IMethodVariables) this).TryFindVariable(variableType);
 
                 if (variable == null)
                 {
-                    var searchedSources = string.Join(", ",  method.Sources.Select(s => s.GetType().Name));
+                    var searchedSources = string.Join(", ", method.Sources.Select(s => s.GetType().Name));
 
                     throw new ArgumentOutOfRangeException(
                         nameof(variableType),

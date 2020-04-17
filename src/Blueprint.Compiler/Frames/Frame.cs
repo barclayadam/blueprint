@@ -10,17 +10,27 @@ namespace Blueprint.Compiler.Frames
         private readonly List<Variable> creates = new List<Variable>();
         private readonly HashSet<Variable> uses = new HashSet<Variable>();
 
+        private IMethodSourceWriter writer;
+        private GeneratedMethod method;
+        private IMethodVariables variables;
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="Frame" /> class.
+        /// </summary>
+        /// <param name="isAsync">Whether this <see cref="Frame"/> is async.</param>
         protected Frame(bool isAsync)
         {
             IsAsync = isAsync;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Frame" /> is async.
+        /// </summary>
         public virtual bool IsAsync { get; }
 
-        public bool Wraps { get; protected set; } = false;
-
-        public Frame NextFrame { get; set; }
-
+        /// <summary>
+        /// Gets the <see cref="Variable" />s used by this <see cref="Frame" />.
+        /// </summary>
         public IEnumerable<Variable> Uses => uses;
 
         /// <summary>
@@ -29,51 +39,13 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         public IEnumerable<Variable> Creates => creates;
 
-        protected IMethodSourceWriter Writer { get; set; }
-
-        protected GeneratedMethod Method { get; set; }
-
-        protected IMethodVariables Variables { get; set; }
-
         /// <summary>
-        /// Gets or sets the block level, indicating how many scopes/blocks 'deep' this
-        /// Frame is (i.e. starts at 0, a try block is started, all inner frames are then 1).
+        /// Gets the block level of the frame, indicating how many scopes/blocks 'deep' this
+        /// <see cref="Frame" /> is (i.e. starts at 0, a try block is started, all inner frames are then 1).
         /// </summary>
-        public int BlockLevel { get; set; }
+        public int BlockLevel { get; private set; }
 
-        /// <summary>
-        /// Creates a new variable that is marked as being
-        /// "created" by this Frame.
-        /// </summary>
-        /// <param name="variableType"></param>
-        /// <returns></returns>
-        public Variable Create(Type variableType)
-        {
-            return new Variable(variableType, this);
-        }
-
-        /// <summary>
-        /// Creates a new variable that is marked as being
-        /// "created" by this Frame.
-        /// </summary>
-        /// <typeparam name="T">The type of variable to create.</typeparam>
-        /// <returns>A new <see cref="Variable"/> of the specified type.</returns>
-        public Variable Create<T>()
-        {
-            return new Variable(typeof(T), this);
-        }
-
-        /// <summary>
-        /// Creates a new variable that is marked as being
-        /// "created" by this Frame.
-        /// </summary>
-        /// <typeparam name="T">The type of variable to create.</typeparam>
-        /// <param name="name">The name of the variable.</param>
-        /// <returns>A new <see cref="Variable"/> of the specified type.</returns>
-        public Variable Create<T>(string name)
-        {
-            return new Variable(typeof(T), name, this);
-        }
+        internal Frame NextFrame { get; set; }
 
         /// <summary>
         /// Generates the code required by this <see cref="Frame"/>, delegating the responsibility to the
@@ -90,9 +62,9 @@ namespace Blueprint.Compiler.Frames
         public void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer)
         {
             BlockLevel = writer.IndentationLevel;
-            Variables = variables;
-            Method = method;
-            Writer = writer;
+            this.variables = variables;
+            this.method = method;
+            this.writer = writer;
 
             Generate(new MethodVariableUsageRecorder(variables, uses), method, writer, Next);
         }
@@ -108,11 +80,11 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The <see cref="GeneratedMethod" /> given is the same as <see cref="Method" />, but is provided as
+        /// The <see cref="GeneratedMethod" /> given is the same as <see cref="method" />, but is provided as
         /// a convenience parameter to make it more obvious it's available.
         /// </para>
         /// <para>
-        /// The <see cref="ISourceWriter" /> given is the same as <see cref="Writer" />, but is provided as
+        /// The <see cref="ISourceWriter" /> given is the same as <see cref="writer" />, but is provided as
         /// a convenience parameter to make it more obvious it's available.
         /// </para>
         /// <para>
@@ -133,7 +105,7 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         private void Next()
         {
-            NextFrame?.GenerateCode(Variables, Method, Writer);
+            NextFrame?.GenerateCode(variables, method, writer);
         }
 
         internal void AddCreates(Variable variable)

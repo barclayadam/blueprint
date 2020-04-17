@@ -24,22 +24,13 @@ namespace Blueprint.Compiler.Frames
             Variable = new Variable(BuiltType, this);
         }
 
-        public ConstructorFrame(Type builtType, ConstructorInfo ctor, Func<ConstructorFrame, Variable> variableSource)
-        {
-            Ctor = ctor ?? throw new ArgumentNullException(nameof(ctor));
-            Parameters = new Variable[ctor.GetParameters().Length];
-
-            BuiltType = builtType;
-            Variable = variableSource(this);
-        }
-
         public Type BuiltType { get;  }
 
         public Type DeclaredType { get; set; }
 
         public ConstructorInfo Ctor { get; }
 
-        public Variable[] Parameters { get; set; }
+        public Variable[] Parameters { get; }
 
         public FramesCollection ActivatorFrames { get; } = new FramesCollection();
 
@@ -52,6 +43,7 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         public Variable Variable { get; protected set; }
 
+        /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var parameters = Ctor.GetParameters();
@@ -130,38 +122,6 @@ namespace Blueprint.Compiler.Frames
             return DeclaredType == null
                 ? $"var {Variable} = new {BuiltType.Name}(...);"
                 : $"{DeclaredType.FullNameInCode()} {Variable} = new {BuiltType.Name}(...);";
-        }
-
-        public class StandinMethodVariables : IMethodVariables
-        {
-            private readonly Variable current;
-            private readonly IMethodVariables inner;
-
-            public StandinMethodVariables(Variable current, IMethodVariables inner)
-            {
-                this.current = current;
-                this.inner = inner;
-            }
-
-            public Variable FindVariable(Type type)
-            {
-                return type == current.VariableType ? current : inner.FindVariable(type);
-            }
-
-            public Variable FindVariableByName(Type dependency, string name)
-            {
-                return inner.FindVariableByName(dependency, name);
-            }
-
-            public bool TryFindVariableByName(Type dependency, string name, out Variable variable)
-            {
-                return inner.TryFindVariableByName(dependency, name, out variable);
-            }
-
-            public Variable TryFindVariable(Type type)
-            {
-                return inner.TryFindVariable(type);
-            }
         }
     }
 

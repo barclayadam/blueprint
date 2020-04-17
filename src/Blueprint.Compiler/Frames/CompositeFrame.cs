@@ -32,6 +32,11 @@ namespace Blueprint.Compiler.Frames
             inner.Add(innerFrame);
         }
 
+        public override bool CanReturnTask()
+        {
+            return inner.Last().CanReturnTask();
+        }
+
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             if (inner.Count > 1)
@@ -45,11 +50,6 @@ namespace Blueprint.Compiler.Frames
             GenerateCode(variables, method, writer, inner[0]);
 
             next();
-        }
-
-        public override bool CanReturnTask()
-        {
-            return inner.Last().CanReturnTask();
         }
 
         IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
