@@ -82,7 +82,6 @@ namespace Blueprint.Compiler.Tests.Codegen
                 .Should().Be("var arg3 = target.Other(arg1, arg2);");
         }
 
-
         [Test]
         public void return_task_as_return_from_last_node()
         {

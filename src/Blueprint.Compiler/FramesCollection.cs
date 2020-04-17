@@ -44,6 +44,22 @@ namespace Blueprint.Compiler
         }
 
         /// <summary>
+        /// Finds the index of the given <see cref="Frame" />.
+        /// </summary>
+        /// <param name="frame">The non-null Frame.</param>
+        /// <returns>Index of the given frame, or -1 if it cannot be found.</returns>
+        /// <exception cref="ArgumentNullException">If the frame is <c>null</c>.</exception>
+        public int IndexOf(Frame frame)
+        {
+            if (frame == null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            return frames.IndexOf(frame);
+        }
+
+        /// <summary>
         /// Adds all of the given frames to this collection.
         /// </summary>
         /// <param name="framesToAdd">The frames to add.</param>

@@ -141,6 +141,11 @@ namespace Blueprint.Compiler.Frames
             creates.Fill(variable);
         }
 
+        internal void AddUses(Variable variable)
+        {
+            uses.Add(variable);
+        }
+
         private class MethodVariableUsageRecorder : IMethodVariables
         {
             private readonly IMethodVariables inner;
@@ -184,6 +189,11 @@ namespace Blueprint.Compiler.Frames
                 if (v != null)
                 {
                     uses.Add(v);
+
+                    foreach (var dependency in v.Dependencies)
+                    {
+                        Record(dependency);
+                    }
                 }
 
                 return v;

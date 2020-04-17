@@ -14,6 +14,8 @@ namespace Blueprint.Compiler.Frames
         private readonly Type handlerType;
         private readonly MethodInfo methodInfo;
 
+        private Variable target;
+
         public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
         {
         }
@@ -55,6 +57,10 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
+        /// <summary>
+        /// The output variable of this method call, which may be <c>null</c> if the method has
+        /// a <c>void</c> return type.
+        /// </summary>
         public Variable ReturnVariable { get; }
 
         /// <summary>
@@ -62,7 +68,26 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         public bool IsLocal { get; set; }
 
-        public Variable Target { get; set; }
+        /// <summary>
+        /// The target variable of this method call, the variable that will have the method call
+        /// executed on.
+        /// </summary>
+        public Variable Target
+        {
+            get => target;
+
+            set
+            {
+                target = value;
+
+                // Record this frame uses the target to propagate this association.
+                AddUses(value);
+
+                // Record the return variable, if one exists, has a dependency on the target
+                // variable. This is obvious, but makes relationships even more explicit
+                ReturnVariable?.Dependencies.Add(target);
+            }
+        }
 
         public Variable[] Arguments { get; }
 

@@ -25,7 +25,9 @@ namespace Blueprint.Api.Http
         {
             if (type == typeof(HttpContext))
             {
-                var httpContextVariable = new MethodCall(typeof(ApiOperationContextHttpExtensions), nameof(ApiOperationContextHttpExtensions.GetHttpContext));
+                var httpContextVariable = new MethodCall(
+                    typeof(ApiOperationContextHttpExtensions),
+                    nameof(ApiOperationContextHttpExtensions.GetHttpContext));
 
                 return httpContextVariable.ReturnVariable;
             }

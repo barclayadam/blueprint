@@ -186,11 +186,19 @@ namespace Blueprint.Compiler
                 .SelectMany(GetAllFrames)
                 .ToList();
 
-            foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies).Reverse())
+            foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies))
             {
                 if (variable.Creator != null && !everyFrame.Contains(variable.Creator))
                 {
-                    Frames.Insert(0, variable.Creator);
+                    // Find the first usage of this variable and place the frame before that.
+                    var firstUsage = everyFrame.FirstOrDefault(f => f.Uses.Contains(variable));
+
+                    if (firstUsage == null)
+                    {
+                        throw new InvalidOperationException($"The variable {variable} has a creator not in the Frames list, but has no listed usage.");
+                    }
+
+                    Frames.Insert(Frames.IndexOf(firstUsage), variable.Creator);
                 }
 
                 switch (variable)
@@ -446,7 +454,7 @@ namespace Blueprint.Compiler
                 // We try to find from all frames, and their children, a variable that is
                 // created but ONLY IF it is created at a lower block/indentation level than
                 // we are currently at (as otherwise it would not be visible due to block scope rules)
-                Variable FindFromCreator(IEnumerable<Frame> frames)
+                Variable SearchExistingFramesForVariable(IEnumerable<Frame> frames)
                 {
                     foreach (var f in frames)
                     {
@@ -462,7 +470,7 @@ namespace Blueprint.Compiler
 
                             if (f is CompositeFrame c)
                             {
-                                var foundInner = FindFromCreator(c);
+                                var foundInner = SearchExistingFramesForVariable(c);
 
                                 if (foundInner != null)
                                 {
@@ -475,7 +483,7 @@ namespace Blueprint.Compiler
                     return null;
                 }
 
-                var fromFrames = FindFromCreator(method.Frames);
+                var fromFrames = SearchExistingFramesForVariable(method.Frames);
 
                 if (fromFrames != null)
                 {
