@@ -109,6 +109,7 @@ namespace Blueprint.Compiler
             var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
 
             var syntaxTrees = new List<SyntaxTree>();
+            var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.None);
 
             foreach (var f in files)
             {
@@ -119,7 +120,7 @@ namespace Blueprint.Compiler
 
                 var syntaxTree = CSharpSyntaxTree.ParseText(
                     sourceText,
-                    new CSharpParseOptions(),
+                    parseOptions,
                     path: sourceCodePath);
 
                 var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
@@ -135,6 +136,8 @@ namespace Blueprint.Compiler
                 syntaxTrees: syntaxTrees,
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithDeterministic(true)
+                    .WithConcurrentBuild(true)
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
