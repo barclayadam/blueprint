@@ -185,6 +185,7 @@ namespace Blueprint.Api
         /// </remarks>
         /// <typeparam name="T">The type of the instance to load.</typeparam>
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
+        /// <exception cref="InvalidOperationException">If no registration exists for the given type.</exception>>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
             return GetVariableFromContainer<T>(typeof(T));
@@ -200,9 +201,46 @@ namespace Blueprint.Api
         /// </remarks>
         /// <param name="type">The type of the instance to load.</param>
         /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call.</returns>
+        /// <exception cref="InvalidOperationException">If no registration exists for the given type.</exception>>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
             return GetVariableFromContainer<object>(type);
+        }
+
+        /// <summary>
+        /// Tries to generate a <see cref="GetInstanceFrame{T}" /> and associated <see cref="Variable" /> for getting
+        /// an instance from the current request container.
+        /// </summary>
+        /// <remarks>
+        /// This method attempts to optimise the output by looking at the registrations in the container, checking
+        /// for singletons etc. and turning them in to injected fields to avoid the lookup per request.
+        /// </remarks>
+        /// <remarks>
+        /// Note that this will automatically add a reference to the assembly of the specified type to the generated
+        /// assembly.
+        /// </remarks>
+        /// <typeparam name="T">The type of the instance to load.</typeparam>
+        /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call, or
+        /// <c>null</c> if no such registration exists.</returns>
+        public GetInstanceFrame<T> TryGetVariableFromContainer<T>()
+        {
+            return TryGetVariableFromContainer<T>(typeof(T));
+        }
+
+        /// <summary>
+        /// Tries to generate a <see cref="GetInstanceFrame{T}" /> and associated <see cref="Variable" /> for getting
+        /// an instance from the current request container.
+        /// </summary>
+        /// <remarks>
+        /// This method attempts to optimise the output by looking at the registrations in the container, checking
+        /// for singletons etc. and turning them in to injected fields to avoid the lookup per request.
+        /// </remarks>
+        /// <param name="type">The type of the instance to load.</param>
+        /// <returns>A frame (that needs to be added to the method) representing the container.GetInstance call, or
+        /// <c>null</c> if no such registration exists.</returns>
+        public GetInstanceFrame<object> TryGetVariableFromContainer(Type type)
+        {
+            return TryGetVariableFromContainer<object>(type);
         }
 
         private GetInstanceFrame<T> GetVariableFromContainer<T>(Type type)
@@ -210,6 +248,13 @@ namespace Blueprint.Api
             AddAssemblyReference(type.Assembly);
 
             return instanceFrameProvider.GetVariableFromContainer<T>(GeneratedType, type);
+        }
+
+        private GetInstanceFrame<T> TryGetVariableFromContainer<T>(Type type)
+        {
+            AddAssemblyReference(type.Assembly);
+
+            return instanceFrameProvider.TryGetVariableFromContainer<T>(GeneratedType, type);
         }
     }
 }

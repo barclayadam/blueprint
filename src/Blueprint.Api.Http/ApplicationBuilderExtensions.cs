@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Http;
@@ -166,6 +167,7 @@ namespace Microsoft.AspNetCore.Builder
                         var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation);
 
                         apiContext.SetRouteContext(context);
+                        apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 

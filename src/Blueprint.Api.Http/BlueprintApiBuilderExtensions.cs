@@ -31,8 +31,6 @@ namespace Blueprint.Api.Configuration
             apiBuilder.Services.TryAddSingleton<JsonOperationResultOutputFormatter>();
             apiBuilder.Services.TryAddSingleton<IOperationResultOutputFormatter, JsonOperationResultOutputFormatter>();
 
-            apiBuilder.Services.TryAddSingleton<IClaimsIdentityProvider, HttpRequestClaimsIdentityProvider>();
-
             apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
             apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
             apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpQueryStringMessagePopulationSource>();
