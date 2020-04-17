@@ -264,9 +264,22 @@ namespace Blueprint.Compiler
 
         private static Frame ChainFrames(IReadOnlyList<Frame> frames)
         {
+            var visited = new List<Frame>();
+
             for (var i = 1; i < frames.Count; i++)
             {
-                frames[i - 1].NextFrame = frames[i];
+                var previousFrame = frames[i - 1];
+                var nextFrame = frames[i];
+
+                if (visited.Contains(previousFrame))
+                {
+                    throw new InvalidOperationException(
+                        $"The frame '{previousFrame}' is duplicated in the method. Make sure each Frame instance is only added to the Frames collection once.");
+                }
+
+                previousFrame.NextFrame = nextFrame;
+
+                visited.Add(previousFrame);
             }
 
             return frames[0];

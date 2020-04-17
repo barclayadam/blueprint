@@ -127,7 +127,9 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"new {BuiltType.Name}(...);";
+            return DeclaredType == null
+                ? $"var {Variable} = new {BuiltType.Name}(...);"
+                : $"{DeclaredType.FullNameInCode()} {Variable} = new {BuiltType.Name}(...);";
         }
 
         public class StandinMethodVariables : IMethodVariables

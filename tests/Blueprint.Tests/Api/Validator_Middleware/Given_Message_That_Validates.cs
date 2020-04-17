@@ -15,6 +15,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             [Required]
             public object TheProperty { get; set; }
+
+            [MinLength(10)]
+            public string TheStringProperty { get; set; }
         }
 
         [Test]
@@ -49,7 +52,11 @@ namespace Blueprint.Tests.Api.Validator_Middleware
                 .Pipeline(p => p.AddValidation()));
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = "something not null"});
+            var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
+            {
+                TheProperty = "something not null",
+                TheStringProperty = "a string that is long enough",
+            });
 
             // Assert
             var okResult = result.Should().BeOfType<OkResult>().Subject;
@@ -67,7 +74,10 @@ namespace Blueprint.Tests.Api.Validator_Middleware
                 .Pipeline(p => p.AddValidation()));
 
             // Act
-            await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
+            await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
+            {
+                TheProperty = null
+            });
 
             // Assert
             handler.WasCalled.Should().BeFalse();
@@ -83,11 +93,17 @@ namespace Blueprint.Tests.Api.Validator_Middleware
                 .Pipeline(p => p.AddValidation()));
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation { TheProperty = null });
+            var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
+            {
+                TheProperty = null,
+                TheStringProperty = "too-short"
+            });
 
             // Assert
             var validationResult = result.Should().BeOfType<ValidationFailedOperationResult>().Subject;
+
             validationResult.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
+            validationResult.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheStringProperty));
         }
     }
 }

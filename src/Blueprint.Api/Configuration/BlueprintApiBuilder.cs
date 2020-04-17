@@ -61,7 +61,6 @@ namespace Blueprint.Api.Configuration
             Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
             options.ApplicationName = applicationName;
-            options.GenerationRules.AssemblyName = applicationName.Replace(" ", string.Empty) + ".Pipelines";
 
             return this;
         }
@@ -158,7 +157,7 @@ namespace Blueprint.Api.Configuration
             pipelineBuilder.Register();
             operationScanner.Register(options.Model);
 
-            options.GenerationRules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty).Replace("-", string.Empty);
+            options.GenerationRules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty) + ".Pipelines";
 
             Services.AddLogging();
 

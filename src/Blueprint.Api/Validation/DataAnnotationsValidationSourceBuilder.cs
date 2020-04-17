@@ -42,7 +42,6 @@ namespace Blueprint.Api.Validation
 
                     if (attributes.Any())
                     {
-                        yield return contextCreator;
                         yield return new DataAnnotationsValidatorFrame(contextCreator.Variable, p);
                     }
                 }
@@ -94,6 +93,11 @@ namespace Blueprint.Api.Validation
                     $"{nameof(ValidationAttribute.GetValidationResult)}({Property.PropertyValueVariable}, {contextVariable})");
 
                 next();
+            }
+
+            public override string ToString()
+            {
+                return $"[Validate property {Property.PropertyInfoVariable.Property.Name}]";
             }
         }
     }

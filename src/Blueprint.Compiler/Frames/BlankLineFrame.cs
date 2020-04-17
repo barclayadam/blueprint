@@ -19,7 +19,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return "[blank]";
+            return string.Empty;
         }
     }
 }

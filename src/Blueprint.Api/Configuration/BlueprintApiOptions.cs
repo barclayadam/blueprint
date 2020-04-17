@@ -16,7 +16,7 @@ namespace Blueprint.Api.Configuration
         /// </summary>
         public BlueprintApiOptions()
         {
-            GenerationRules = new GenerationRules("Blueprint.Pipelines")
+            GenerationRules = new GenerationRules
             {
                 OptimizationLevel = OptimizationLevel.Release,
             };

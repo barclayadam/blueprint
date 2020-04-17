@@ -14,7 +14,10 @@
 
         public static GenerationRules Rules(string @namespace = "Blueprint.Compiler.Tests")
         {
-            return new GenerationRules(@namespace);
+            return new GenerationRules
+            {
+                AssemblyName = @namespace,
+            };
         }
     }
 }

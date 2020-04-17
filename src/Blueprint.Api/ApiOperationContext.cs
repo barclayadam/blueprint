@@ -89,10 +89,10 @@ namespace Blueprint.Api
         public IApiOperation Operation { get; }
 
         /// <summary>
-        /// Gets the <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
+        /// The <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
         /// handlers to get runtime dependencies out of the correctly scoped container.
         /// </summary>
-        public IServiceProvider ServiceProvider { get; }
+        public IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.

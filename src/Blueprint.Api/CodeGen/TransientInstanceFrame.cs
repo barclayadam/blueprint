@@ -26,22 +26,11 @@ namespace Blueprint.Api.CodeGen
             InstanceVariable = new Variable(variableType, this);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TransientInstanceFrame{T}"/> class with the specified
-        /// variable type, and a (usually) more specific type that would be requested from the container.
-        /// </summary>
-        /// <remarks>
-        /// This is a small readability optimisation that can be used when we know that only possible type that
-        /// could satisfy a requested interface type (i.e. requested IFoo that is only implemented by Foo, so
-        /// <paramref name="variableType"/> is <c>IFoo</c> but <paramref name="constructedType" /> would
-        /// be <c>Foo</c> and generated code would be <c>var i = container.GetInstance&lt;Foo&gt;()</c>.
-        /// </remarks>
-        /// <param name="variableType">The type of variable and request container type.</param>
-        /// <param name="constructedType">The type to be requested from the container.</param>
-        public TransientInstanceFrame(Type variableType, Type constructedType)
+        /// <inheritdoc />
+        public override string ToString()
         {
-            this.constructedType = constructedType;
-            InstanceVariable = new Variable(variableType, this);
+            return
+                $"var {InstanceVariable} = services.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
         }
 
         /// <inheritdoc />
@@ -57,13 +46,6 @@ namespace Blueprint.Api.CodeGen
                 $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>();");
 
             next();
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return
-                $"var {InstanceVariable} = services.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
         }
     }
 }

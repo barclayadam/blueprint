@@ -124,7 +124,7 @@ namespace Blueprint.Api.CodeGen
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"Log.{level}({message})";
+            return $"Log.{level}(\"{message}\")";
         }
     }
 }
