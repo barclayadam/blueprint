@@ -29,6 +29,7 @@ namespace Microsoft.AspNetCore.Builder
             // Ensure ends with a slash, but only one
             apiPrefix = apiPrefix.TrimEnd('/') + '/';
 
+            var logger = applicationBuilder.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Core.Compilation");
             var routeBuilder = new RouteBuilder(applicationBuilder);
             var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
             var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
@@ -46,6 +47,8 @@ namespace Microsoft.AspNetCore.Builder
             }
             catch (CompilationException e)
             {
+                logger.LogCritical(e, "Blueprint pipeline compilation failed");
+
                 // When a compilation exception occurs (happens when getting IApiOperationExecutor for the first time as it is
                 // registered as a singleton factory) we create a route handler that will throw a WrapperException.
                 //
@@ -59,6 +62,8 @@ namespace Microsoft.AspNetCore.Builder
             }
             catch (Exception e) when (e.InnerException is CompilationException ce)
             {
+                logger.LogCritical(e.InnerException, "Blueprint pipeline compilation failed");
+
                 // Some DI projects wrap the CompilationException in their own (i.e. StructureMap, which throws a specific exception
                 // when trying to create an instance). This catch block attempts to handle those custom exceptions on the assumption that
                 // the inner exception would be the original CompilationException
@@ -87,6 +92,11 @@ namespace Microsoft.AspNetCore.Builder
             applicationBuilder.UseRouter(routeBuilder.Build());
         }
 
+        /// <summary>
+        /// A wrapper around the core <see cref="CompilationException" /> that integrates it with the
+        /// ASP.Net <see cref="ICompilationException" /> to provide a nicer view of the compilation issues
+        /// with full source code included.
+        /// </summary>
         private class CompilationWrapperException : Exception, ICompilationException
         {
             private readonly CompilationException compilationException;
