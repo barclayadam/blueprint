@@ -44,10 +44,15 @@ steps:
       projectName: Blueprint
 
   - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
+    inputs:
+      command: 'restore'
+
+  - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
     inputs:
       command: 'build'
-      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease)'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-restore'
 
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
@@ -55,7 +60,6 @@ steps:
       command: 'test'
       arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore --collect "Code coverage"'
 
-  # Pack a NuGet package to a test directory
   - task: DotNetCoreCLI@2
     displayName: 'dotnet pack'
     inputs:

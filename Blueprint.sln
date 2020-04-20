@@ -60,6 +60,7 @@ ProjectSection(SolutionItems) = preProject
 	README.md = README.md
 	CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
 	Directory.Build.props = Directory.Build.props
+	NuGet.Config = NuGet.Config
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
