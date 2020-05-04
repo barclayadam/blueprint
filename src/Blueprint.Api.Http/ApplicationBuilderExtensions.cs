@@ -8,7 +8,6 @@ using Blueprint.Api;
 using Blueprint.Api.Http;
 using Blueprint.Compiler;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -83,7 +82,7 @@ namespace Microsoft.AspNetCore.Builder
                     defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor}),
                     constraints: new Dictionary<string, object>
                     {
-                        ["httpMethod"] = new HttpMethodRouteConstraint(httpFeatureData.HttpMethod.ToString()),
+                        ["httpMethod"] = new HttpMethodRouteConstraint(httpFeatureData.HttpMethod),
                     },
                     dataTokens: null,
                     inlineConstraintResolver: inlineConstraintResolver));
@@ -174,7 +173,11 @@ namespace Microsoft.AspNetCore.Builder
 
                     using (var nestedContainer = rootServiceProvider.CreateScope())
                     {
-                        var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, operation);
+                        var apiContext = new ApiOperationContext(
+                            nestedContainer.ServiceProvider,
+                            apiOperationExecutor.DataModel,
+                            operation,
+                            context.HttpContext.RequestAborted);
 
                         apiContext.SetRouteContext(context);
                         apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;

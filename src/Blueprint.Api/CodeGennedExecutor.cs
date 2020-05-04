@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Compiler;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,11 +85,11 @@ namespace Blueprint.Api
         }
 
         /// <inheritdoc />
-        public async Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation) where T : IApiOperation
+        public async Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation
         {
             using (var serviceScope = serviceProvider.CreateScope())
             {
-                var apiOperationContext = DataModel.CreateOperationContext(serviceScope.ServiceProvider, operation);
+                var apiOperationContext = DataModel.CreateOperationContext(serviceScope.ServiceProvider, operation, token);
 
                 return await ExecuteAsync(apiOperationContext);
             }

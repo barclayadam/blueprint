@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -109,11 +110,12 @@ namespace Blueprint.Testing
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type, adding HTTP-specific properties to the context.
         /// </summary>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext HttpContextFor<T>() where T : IApiOperation
+        public ApiOperationContext HttpContextFor<T>(CancellationToken token = default) where T : IApiOperation
         {
-            var context = DataModel.CreateOperationContext(serviceProvider, typeof(T));
+            var context = DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
             context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
 
             return context;
@@ -123,23 +125,24 @@ namespace Blueprint.Testing
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type.
         /// </summary>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext ContextFor<T>() where T : IApiOperation
+        public ApiOperationContext ContextFor<T>(CancellationToken token = default) where T : IApiOperation
         {
-            return DataModel.CreateOperationContext(serviceProvider, typeof(T));
+            return DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
         }
-
 
         /// <summary>
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type.
         /// </summary>
         /// <param name="apiOperation">The API operation to create a context for.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext ContextFor(IApiOperation apiOperation)
+        public ApiOperationContext ContextFor(IApiOperation apiOperation, CancellationToken token = default)
         {
-            return DataModel.CreateOperationContext(serviceProvider, apiOperation);
+            return DataModel.CreateOperationContext(serviceProvider, apiOperation, token);
         }
 
         /// <inheritdoc />
@@ -149,9 +152,9 @@ namespace Blueprint.Testing
         }
 
         /// <inheritdoc />
-        public Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation) where T : IApiOperation
+        public Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation
         {
-            return executor.ExecuteWithNewScopeAsync(operation);
+            return executor.ExecuteWithNewScopeAsync(operation, token);
         }
 
         public class TestApiOperationExecutorBuilder

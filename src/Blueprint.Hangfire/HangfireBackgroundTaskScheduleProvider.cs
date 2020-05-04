@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Blueprint.Core;
@@ -72,7 +73,10 @@ namespace Blueprint.Hangfire
             }
 
             var id = jobClient.Create(
-                Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(task), null)),
+                Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(
+                    new HangfireBackgroundTaskWrapper(task),
+                    null,
+                    CancellationToken.None)),
                 createState(queue));
 
             return id;

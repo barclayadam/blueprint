@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Blueprint.Core;
-using Blueprint.Core.Utilities;
 
 namespace Blueprint.Api
 {
@@ -38,12 +38,13 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="type">The API operation to construct a context for.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given type.</returns>
-        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, Type type)
+        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, Type type, CancellationToken token)
         {
             if (allOperations.TryGetValue(type, out var operation))
             {
-                return new ApiOperationContext(serviceProvider, this, operation);
+                return new ApiOperationContext(serviceProvider, this, operation, token);
             }
 
             object[] args = new[] {type.Name};
@@ -55,10 +56,11 @@ namespace Blueprint.Api
         /// </summary>
         /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="operation">The configured operation instance.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
-        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, IApiOperation operation)
+        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, IApiOperation operation, CancellationToken token)
         {
-            return new ApiOperationContext(serviceProvider, this, operation);
+            return new ApiOperationContext(serviceProvider, this, operation, token);
         }
 
         /// <summary>

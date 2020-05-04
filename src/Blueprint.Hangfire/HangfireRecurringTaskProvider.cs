@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Core;
 using Blueprint.Tasks;
@@ -69,7 +70,11 @@ namespace Blueprint.Hangfire
                     },
                 };
 
-                var job = Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(new HangfireBackgroundTaskWrapper(envelope), null));
+                var job = Job.FromExpression<HangfireTaskExecutor>(
+                    e => e.Execute(
+                        new HangfireBackgroundTaskWrapper(envelope),
+                        null,
+                        CancellationToken.None));
 
                 recurringJobManager.AddOrUpdate(
                     schedule.Id,

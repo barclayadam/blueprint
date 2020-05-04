@@ -15,26 +15,6 @@ namespace Blueprint.Testing
     public static class ApiOperationContextSetup
     {
         /// <summary>
-        /// Constructs a new <see cref="ApiOperationContext" /> from a configured <see cref="IServiceProvider" /> and
-        /// <see cref="ApiOperationDescriptor" />.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider to create a context with.</param>
-        /// <param name="descriptor">The descriptor of the operation this context will be for.</param>
-        /// <returns>A newly configured <see cref="ApiOperationContext"/>.</returns>
-        public static ApiOperationContext CreateFromDescriptor(IServiceProvider serviceProvider, ApiOperationDescriptor descriptor)
-        {
-            var dataModel = new ApiDataModel();
-
-            dataModel.RegisterOperation(descriptor);
-
-            var context = new ApiOperationContext(serviceProvider, dataModel, descriptor);
-
-            context.ConfigureHttp("https://api.blueprint.com/" + descriptor.OperationType.Name);
-
-            return context;
-        }
-
-        /// <summary>
         /// Configures the <see cref="ApiOperationContext" /> with a HTTP context configured for the given URL.
         /// </summary>
         /// <remarks>

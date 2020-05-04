@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Blueprint.Api
 {
@@ -12,6 +13,6 @@ namespace Blueprint.Api
 
         Task<OperationResult> ExecuteAsync(ApiOperationContext context);
 
-        Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation) where T : IApiOperation;
+        Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation;
     }
 }

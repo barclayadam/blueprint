@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Claims;
+using System.Threading;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
 
@@ -98,6 +99,11 @@ namespace Blueprint.Api.CodeGen
             if (type == typeof(ClaimsIdentity))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.ClaimsIdentity));
+            }
+
+            if (type == typeof(CancellationToken))
+            {
+                return operationContextVariable.GetProperty(nameof(ApiOperationContext.OperationCancelled));
             }
 
             if (type == OperationVariable.VariableType)

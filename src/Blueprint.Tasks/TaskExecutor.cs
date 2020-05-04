@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Core;
@@ -35,8 +36,9 @@ namespace Blueprint.Tasks
         /// to a <see cref="IApiOperationExecutor" />.
         /// </summary>
         /// <param name="taskEnvelope">The task to be executed.</param>
+        /// <param name="token">A cancellation token that indicates this method should be aborted.</param>
         /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
-        public async Task Execute(BackgroundTaskEnvelope taskEnvelope)
+        public async Task Execute(BackgroundTaskEnvelope taskEnvelope, CancellationToken token)
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
@@ -60,7 +62,11 @@ namespace Blueprint.Tasks
 
                 using var nestedContainer = rootServiceProvider.CreateScope();
 
-                var apiContext = new ApiOperationContext(nestedContainer.ServiceProvider, apiOperationExecutor.DataModel, taskEnvelope.BackgroundTask);
+                var apiContext = new ApiOperationContext(
+                    nestedContainer.ServiceProvider,
+                    apiOperationExecutor.DataModel,
+                    taskEnvelope.BackgroundTask,
+                    token);
 
                 var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 

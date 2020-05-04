@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Core;
 using Blueprint.Core.Errors;
@@ -40,15 +41,16 @@ namespace Blueprint.Hangfire
         /// </summary>
         /// <param name="task">The task to be executed.</param>
         /// <param name="context">The Hangfire <see cref="PerformContext" />.</param>
+        /// <param name="token">Token to indicate this task should be terminated.</param>
         /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
         [DisplayName("{0}")]
-        public async Task Execute(HangfireBackgroundTaskWrapper task, PerformContext context)
+        public async Task Execute(HangfireBackgroundTaskWrapper task, PerformContext context, CancellationToken token)
         {
             Guard.NotNull(nameof(task), task);
 
             try
             {
-                await taskExecutor.Execute(task.Envelope);
+                await taskExecutor.Execute(task.Envelope, token);
             }
             catch (Exception e)
             {

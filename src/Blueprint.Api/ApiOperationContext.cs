@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using Blueprint.Core;
 using Blueprint.Core.Authorisation;
 
@@ -22,16 +23,19 @@ namespace Blueprint.Api
         /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
         /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
         /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
-            ApiOperationDescriptor operationDescriptor)
+            ApiOperationDescriptor operationDescriptor,
+            CancellationToken token)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(dataModel), dataModel);
             Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
 
             Descriptor = operationDescriptor;
+            OperationCancelled = token;
             DataModel = dataModel;
             ServiceProvider = serviceProvider;
             Operation = operationDescriptor.CreateInstance();
@@ -46,10 +50,12 @@ namespace Blueprint.Api
         /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
         /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
         /// <param name="instance">The operation instance.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
-            IApiOperation instance)
+            IApiOperation instance,
+            CancellationToken token)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(dataModel), dataModel);
@@ -66,6 +72,7 @@ namespace Blueprint.Api
                     nameof(instance));
             }
 
+            OperationCancelled = token;
             DataModel = dataModel;
             ServiceProvider = serviceProvider;
             Operation = instance;
@@ -82,6 +89,11 @@ namespace Blueprint.Api
         /// Gets the operation descriptor that described the operation that is currently being executed.
         /// </summary>
         public ApiOperationDescriptor Descriptor { get; }
+
+        /// <summary>
+        /// Gets the cancellation token that is used to indicate / request cancellation of an operation.
+        /// </summary>
+        public CancellationToken OperationCancelled { get; }
 
         /// <summary>
         /// Gets the operation that is currently being executed.
@@ -129,9 +141,9 @@ namespace Blueprint.Api
         {
             Guard.NotNull(nameof(type), type);
 
-            var context = DataModel.CreateOperationContext(ServiceProvider, type);
+            var context = DataModel.CreateOperationContext(ServiceProvider, type, OperationCancelled);
 
-            PopulateChild(context);
+            PopulateNested(context);
 
             return context;
         }
@@ -140,14 +152,14 @@ namespace Blueprint.Api
         {
             Guard.NotNull(nameof(operation), operation);
 
-            var context = DataModel.CreateOperationContext(ServiceProvider, operation);
+            var context = DataModel.CreateOperationContext(ServiceProvider, operation, OperationCancelled);
 
-            PopulateChild(context);
+            PopulateNested(context);
 
             return context;
         }
 
-        private void PopulateChild(ApiOperationContext childContext)
+        private void PopulateNested(ApiOperationContext childContext)
         {
             childContext.Parent = this;
             childContext.Data = Data;
