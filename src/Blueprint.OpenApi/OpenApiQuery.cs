@@ -49,7 +49,9 @@ namespace Blueprint.OpenApi
 
             var document = new OpenApiDocument
             {
-                BasePath = "/" + httpFeatureContext.BasePath,
+                // Special case a base path of just "/" to avoid "//". We prepend "/" to
+                // indicate this is relative to the URL the document was accessed at
+                BasePath = httpFeatureContext.BasePath == "/" ? "/" : "/" + httpFeatureContext.BasePath,
             };
 
             var jsonSchemaGeneratorSettings = new JsonSchemaGeneratorSettings
