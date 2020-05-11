@@ -55,25 +55,25 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public Task<IScheduledBackgroundTask> EnqueueAsync<T>(T task) where T : IBackgroundTask
+        public IScheduledBackgroundTask Enqueue<T>(T task) where T : IBackgroundTask
         {
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, null, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
+            return scheduledTask;
         }
 
         /// <inheritdoc />
-        public Task<IScheduledBackgroundTask> ScheduleAsync<T>(T task, TimeSpan delay) where T : IBackgroundTask
+        public IScheduledBackgroundTask Schedule<T>(T task, TimeSpan delay) where T : IBackgroundTask
         {
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, delay, this);
 
             tasks.Add(scheduledTask);
 
-            return Task.FromResult((IScheduledBackgroundTask)scheduledTask);
+            return scheduledTask;
         }
 
         /// <inheritdoc />

@@ -39,7 +39,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
                 .Verifiable();
 
             // Act
-            var parentTask = await backgroundTaskScheduler.EnqueueAsync(new ParentTask());
+            var parentTask = backgroundTaskScheduler.Enqueue(new ParentTask());
             var childTask = parentTask.ContinueWith(new ChildTask(),
                 hangfireOptions == JobContinuationOptions.OnlyOnSucceededState
                     ? BackgroundTaskContinuationOptions.OnlyOnSucceededState

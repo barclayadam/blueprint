@@ -13,9 +13,9 @@ namespace Blueprint.Sample.WebApi.Api
         [Required]
         public string Parameter { get; set; }
 
-        public async Task<OkResult<object>> InvokeAsync(IBackgroundTaskScheduler taskScheduler)
+        public OkResult<object> Invoke(IBackgroundTaskScheduler taskScheduler)
         {
-            await taskScheduler.EnqueueAsync(new ConsoleWritingBackgroundTask {Parameter = Parameter});
+            taskScheduler.Enqueue(new ConsoleWritingBackgroundTask {Parameter = Parameter});
 
             return new OkResult<object>(new
             {

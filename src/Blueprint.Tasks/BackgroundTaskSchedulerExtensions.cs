@@ -15,7 +15,7 @@ namespace Blueprint.Tasks
         /// <param name="tasks">The tasks that should be scheduled.</param>
         /// <param name="options">Options used to determine in what state the task should be considered for execution.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation, returning the <strong>final</strong> scheduled background task.</returns>
-        public static async Task<IScheduledBackgroundTask> EnqueueSequentiallyAsync(
+        public static IScheduledBackgroundTask EnqueueSequentially(
             this IBackgroundTaskScheduler backgroundTaskScheduler,
             IEnumerable<IBackgroundTask> tasks,
             BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
@@ -25,7 +25,7 @@ namespace Blueprint.Tasks
             foreach (var taskToRun in tasks)
             {
                 scheduledTask = scheduledTask == null ?
-                                    await backgroundTaskScheduler.EnqueueAsync(taskToRun) :
+                                    backgroundTaskScheduler.Enqueue(taskToRun) :
                                     scheduledTask.ContinueWith(taskToRun, options);
             }
 

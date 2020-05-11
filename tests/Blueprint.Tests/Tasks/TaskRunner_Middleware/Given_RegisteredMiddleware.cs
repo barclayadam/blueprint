@@ -38,7 +38,7 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
 
             public object Invoke(IBackgroundTaskScheduler taskScheduler)
             {
-                taskScheduler.EnqueueAsync(new TestBackgroundTask());
+                taskScheduler.Enqueue(new TestBackgroundTask());
 
                 return ToReturn;
             }
