@@ -1,0 +1,97 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Auto-generated API specification",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/resources/{AnId}": {
+      "get": {
+        "tags": [
+          "OpenApi_Tests"
+        ],
+        "description": "",
+        "operationId": "OpenApiGet",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Open": {
+        "id": "Open",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$object",
+          "$links",
+          "$partial"
+        ],
+        "properties": {
+          "$object": {
+            "type": "string",
+            "description": "Gets or sets the object type of this resource, used to indicate to clients what they\nare dealing with."
+          },
+          "$links": {
+            "type": "object",
+            "description": "Gets the links that have currently been defined for this resource.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "$partial": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
+          },
+          "aProperty": {
+            "type": "string"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "type"
+        ],
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

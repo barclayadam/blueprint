@@ -91,12 +91,16 @@ namespace Blueprint.Api
         /// <exception cref="InvalidOperationException">If the link is not unique.</exception>
         private void RegisterLink(ApiOperationLink link)
         {
-            if (allLinks.Any(l =>
-                l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
-                l.OperationDescriptor.Name == link.OperationDescriptor.Name))
+            var existing = allLinks.Where(l =>
+                    l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
+                    l.OperationDescriptor.Name == link.OperationDescriptor.Name)
+                .ToList();
+
+            if (existing.Any())
             {
                 throw new InvalidOperationException(
-                    $"An API operation link '{link.Rel}' with type '{link.OperationDescriptor.OperationType.Name}' failed to register as a URL with format '{link.UrlFormat}' already registered.");
+                    $"Could not register {link} from {link.OperationDescriptor.Source} as it conflicts with existing Link registrations:\n\n" +
+                    string.Join("\n", existing.Select(e => $" {e} sourced from {e.OperationDescriptor.Source}")));
             }
 
             allLinks.Add(link);
@@ -137,9 +141,8 @@ namespace Blueprint.Api
         {
             if (!allOperations.TryGetValue(operationType, out var operationDescriptor))
             {
-                object[] args = new[] {operationType.Name};
                 throw new InvalidOperationException(
-                    string.Format("Cannot get links for operation '{0}' as it has not been registered.", args));
+                    $"Cannot get links for operation '{operationType.Name}' as it has not been registered.");
             }
 
             if (!operationTypeToLinks.ContainsKey(operationDescriptor.OperationType))

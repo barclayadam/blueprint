@@ -24,11 +24,14 @@ namespace Blueprint.Api
         /// Initialises a new instance of the <see cref="ApiOperationDescriptor" /> class.
         /// </summary>
         /// <param name="apiOperationType">The operation type (must implement <see cref="IApiOperation"/>).</param>
-        public ApiOperationDescriptor(Type apiOperationType)
+        /// <param name="source">The source of this operation descriptor. Useful for determining _how_ an operation
+        /// has found (i.e. scan vs explicit).</param>
+        public ApiOperationDescriptor(Type apiOperationType, string source)
         {
             Guard.NotNull(nameof(apiOperationType), apiOperationType);
 
             OperationType = apiOperationType;
+            Source = source;
 
             TypeAttributes = apiOperationType.GetCustomAttributes(true);
             Properties = apiOperationType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -54,6 +57,12 @@ namespace Blueprint.Api
         /// attributes).
         /// </summary>
         public Type OperationType { get; }
+
+        /// <summary>
+        /// The source of this operation descriptor. Useful for determining _how_ an operation
+        /// has found (i.e. scan vs explicit).
+        /// </summary>
+        public string Source { get; }
 
         /// <summary>
         /// Gets the custom attributes that have been applied to the type, stored once to avoid having to

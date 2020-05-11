@@ -18,9 +18,11 @@ namespace Blueprint.Api.Configuration
         // time to perform the actual scanning. This is done to allow the global conventions to be applied to
         // the scans, even if they are registered after the scan calls
         // i.e. scanOperations.Add(addType => addType(theTypeToRegisterFromMethodCall).
-        private readonly List<Action<Action<Type>>> scanOperations = new List<Action<Action<Type>>>();
+        private readonly List<Action<RegisterOperation>> scanOperations = new List<Action<RegisterOperation>>();
 
         private readonly List<IOperationScannerConvention> conventions = new List<IOperationScannerConvention>();
+
+        private delegate void RegisterOperation(Type operationType, string source);
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
@@ -80,13 +82,15 @@ namespace Blueprint.Api.Configuration
         /// Bulk registers all operations in the given enumeration.
         /// </summary>
         /// <param name="types">The types to register.</param>
+        /// <param name="source">The source of these operations, useful for tracking <em>where</em> an operation comes from. Used for
+        /// diagnostics.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
         /// <see cref="AddOperation" />
-        public BlueprintApiOperationScanner AddOperations(IEnumerable<Type> types)
+        public BlueprintApiOperationScanner AddOperations(IEnumerable<Type> types, string source = "AddOperations()")
         {
             foreach (var type in types)
             {
-                AddOperation(type);
+                AddOperation(type, source);
             }
 
             return this;
@@ -95,11 +99,13 @@ namespace Blueprint.Api.Configuration
         /// <summary>
         /// Adds the operation identified by <typeparamref name="T"/>.
         /// </summary>
+        /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
+        /// diagnostics.</param>
         /// <typeparam name="T">The type of <see cref="IApiOperation"/> to register.</typeparam>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner AddOperation<T>() where T : IApiOperation
+        public BlueprintApiOperationScanner AddOperation<T>(string source = "AddOperation<T>") where T : IApiOperation
         {
-            AddOperation(typeof(T));
+            AddOperation(typeof(T), source);
 
             return this;
         }
@@ -108,15 +114,17 @@ namespace Blueprint.Api.Configuration
         /// Adds the operation identified by <paramref name="type" />.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> representing the <see cref="IApiOperation"/> to register.</param>
+        /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
+        /// diagnostics.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner AddOperation(Type type)
+        public BlueprintApiOperationScanner AddOperation(Type type, string source = "AddOperation(type)")
         {
             if (!typeof(IApiOperation).IsAssignableFrom(type))
             {
                 throw new ArgumentException($"Type {type.FullName} does not implement {nameof(IApiOperation)}, cannot register.");
             }
 
-            scanOperations.Add(a => a(type));
+            scanOperations.Add(a => a(type, source));
 
             return this;
         }
@@ -130,12 +138,21 @@ namespace Blueprint.Api.Configuration
         {
             foreach (var scanOperation in scanOperations)
             {
-                scanOperation((t) => Register(dataModel, t));
+                scanOperation((t, source) => Register(dataModel, t, source));
             }
         }
 
-        private void DoScan(Assembly assembly, Func<Type, bool> filter, Action<Type> add)
+        private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
         {
+            var allExportedTypes = assembly.GetExportedTypes();
+
+            return allExportedTypes.Where(t => !t.IsAbstract && t.GetInterface(interfaceType.Name) != null);
+        }
+
+        private void DoScan(Assembly assembly, Func<Type, bool> filter, RegisterOperation register)
+        {
+            var source = $"Scan {assembly.FullName}";
+
             foreach (var type in GetExportedTypesOfInterface(assembly, typeof(IApiOperation)))
             {
                 var canInclude = filter is null || filter(type);
@@ -151,21 +168,21 @@ namespace Blueprint.Api.Configuration
 
                 if (canInclude)
                 {
-                    add(type);
+                    register(type, source);
                 }
             }
         }
 
-        private void Register(ApiDataModel dataModel, Type type)
+        private void Register(ApiDataModel dataModel, Type type, string source)
         {
-            var apiOperationDescriptor = CreateApiOperationDescriptor(type);
+            var apiOperationDescriptor = CreateApiOperationDescriptor(type, source);
 
             dataModel.RegisterOperation(apiOperationDescriptor);
         }
 
-        private ApiOperationDescriptor CreateApiOperationDescriptor(Type type)
+        private ApiOperationDescriptor CreateApiOperationDescriptor(Type type, string source)
         {
-            var descriptor = new ApiOperationDescriptor(type)
+            var descriptor = new ApiOperationDescriptor(type, source)
             {
                 AnonymousAccessAllowed = type.HasAttribute<AllowAnonymousAttribute>(true),
                 IsExposed = type.HasAttribute<UnexposedOperationAttribute>(true) == false,
@@ -197,13 +214,6 @@ namespace Blueprint.Api.Configuration
             }
 
             return descriptor;
-        }
-
-        private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
-        {
-            var allExportedTypes = assembly.GetExportedTypes();
-
-            return allExportedTypes.Where(t => !t.IsAbstract && t.GetInterface(interfaceType.Name) != null);
         }
     }
 }

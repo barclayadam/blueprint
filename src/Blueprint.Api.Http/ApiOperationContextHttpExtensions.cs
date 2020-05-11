@@ -16,10 +16,10 @@ namespace Blueprint.Api.Http
         /// <param name="context">The context to load from.</param>
         /// <returns>The <see cref="HttpContext"/> registered.</returns>
         /// <exception cref="InvalidOperationException">If no <see cref="HttpContext"/> has been registered.</exception>
-        /// <seealso cref="SetRouteContext" />
+        /// <seealso cref="SetHttpFeatureContext" />
         public static HttpContext GetHttpContext(this ApiOperationContext context)
         {
-            return GetRouteContext(context).HttpContext;
+            return GetHttpFeatureContext(context).HttpContext;
         }
 
         /// <summary>
@@ -28,12 +28,11 @@ namespace Blueprint.Api.Http
         /// <param name="context">The context to load from.</param>
         /// <returns>The <see cref="HttpContext"/> registered.</returns>
         /// <exception cref="InvalidOperationException">If no <see cref="HttpContext"/> has been registered.</exception>
-        /// <seealso cref="SetRouteContext" />
+        /// <seealso cref="SetHttpFeatureContext" />
         public static RouteData GetRouteData(this ApiOperationContext context)
         {
-            return GetRouteContext(context).RouteData;
+            return GetHttpFeatureContext(context).RouteData;
         }
-
 
         /// <summary>
         /// Gets the <see cref="RouteContext" /> that has been registered with this <see cref="ApiOperationContext" />.
@@ -41,16 +40,16 @@ namespace Blueprint.Api.Http
         /// <param name="context">The context to load from.</param>
         /// <returns>The <see cref="RouteContext"/> registered.</returns>
         /// <exception cref="InvalidOperationException">If no <see cref="RouteContext"/> has been registered.</exception>
-        /// <seealso cref="SetRouteContext" />
-        public static RouteContext GetRouteContext(this ApiOperationContext context)
+        /// <seealso cref="SetHttpFeatureContext" />
+        public static HttpFeatureContext GetHttpFeatureContext(this ApiOperationContext context)
         {
-            if (context.Data.TryGetValue(nameof(RouteContext), out var value))
+            if (context.Data.TryGetValue(nameof(HttpFeatureContext), out var value))
             {
-                return (RouteContext)value;
+                return (HttpFeatureContext)value;
             }
 
             throw new InvalidOperationException(
-                $"A RouteContext instance does not exist on this {nameof(ApiOperationContext)}. To use HTTP-specific features a HttpContext must exist, which " +
+                $"A HttpFeatureContext instance does not exist on this {nameof(ApiOperationContext)}. To use HTTP-specific features a HttpContext must exist, which " +
                 $"can be accomplished by using {nameof(ApplicationBuilderExtensions.UseBlueprintApi)} in your ASP.NET Core web application");
         }
 
@@ -61,9 +60,9 @@ namespace Blueprint.Api.Http
         /// <param name="routeContext">The route context to store.</param>
         /// <seealso cref="GetHttpContext" />
         /// <seealso cref="GetRouteData" />
-        public static void SetRouteContext(this ApiOperationContext context, RouteContext routeContext)
+        public static void SetHttpFeatureContext(this ApiOperationContext context, HttpFeatureContext httpFeature)
         {
-            context.Data[nameof(RouteContext)] = routeContext;
+            context.Data[nameof(HttpFeatureContext)] = httpFeature;
         }
     }
 }

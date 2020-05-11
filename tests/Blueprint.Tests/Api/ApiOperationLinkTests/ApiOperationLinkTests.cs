@@ -17,7 +17,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Trimmed_UrlFormat_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -30,7 +30,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Operation_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof (LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof (LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -43,7 +43,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Created_Then_Exposes_Rel_Property()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
@@ -56,7 +56,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Has_Alternate_Name_Then_RoutingUrl_Strips()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{ClientId:Id}", "a.rel");
@@ -69,7 +69,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Has_Alternate_Name_Then_Placeholder_Created_With_AlternatePropertyName()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{ClientId:Id}", "a.rel");
@@ -85,7 +85,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Has_Different_Case_Then_Placeholder_Created_Correctly()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid}", "a.rel");
@@ -101,7 +101,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Placeholder_Has_Different_Case_RoutingUrl_Should_Normalise()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientId:Id}", "a.rel");
@@ -114,7 +114,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         public void When_Format_Has_QueryString_RoutingUrl_Strips()
         {
             // Arrange
-            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation));
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
 
             // Act
             var link = new ApiOperationLink(descriptor, "/aUrl/{clientid:id}?format=pdf", "a.rel");

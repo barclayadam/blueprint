@@ -23,10 +23,10 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static void UseBlueprintApi(
             this IApplicationBuilder applicationBuilder,
-            string apiPrefix)
+            string basePath)
         {
             // Ensure ends with a slash, but only one
-            apiPrefix = apiPrefix.TrimEnd('/') + '/';
+            basePath = basePath.TrimEnd('/') + '/';
 
             var logger = applicationBuilder.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Core.Compilation");
             var routeBuilder = new RouteBuilder(applicationBuilder);
@@ -42,7 +42,8 @@ namespace Microsoft.AspNetCore.Builder
                 routeHandler = new BlueprintApiRouter(
                     apiOperationExecutor,
                     applicationBuilder.ApplicationServices,
-                    applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>());
+                    applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>(),
+                    basePath);
             }
             catch (CompilationException e)
             {
@@ -78,7 +79,7 @@ namespace Microsoft.AspNetCore.Builder
                 routeBuilder.Routes.Add(new Route(
                     target: routeHandler,
                     routeName: httpFeatureData.HttpMethod + "-" + link.UrlFormat,
-                    routeTemplate: apiPrefix + link.RoutingUrl,
+                    routeTemplate: basePath + link.RoutingUrl,
                     defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor}),
                     constraints: new Dictionary<string, object>
                     {
@@ -140,15 +141,18 @@ namespace Microsoft.AspNetCore.Builder
             private readonly IApiOperationExecutor apiOperationExecutor;
             private readonly IServiceProvider rootServiceProvider;
             private readonly ILogger<BlueprintApiRouter> logger;
+            private readonly string basePath;
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
                 IServiceProvider rootServiceProvider,
-                ILogger<BlueprintApiRouter> logger)
+                ILogger<BlueprintApiRouter> logger,
+                string basePath)
             {
                 this.apiOperationExecutor = apiOperationExecutor;
                 this.rootServiceProvider = rootServiceProvider;
                 this.logger = logger;
+                this.basePath = basePath;
             }
 
             public Task RouteAsync(RouteContext context)
@@ -179,7 +183,13 @@ namespace Microsoft.AspNetCore.Builder
                             operation,
                             context.HttpContext.RequestAborted);
 
-                        apiContext.SetRouteContext(context);
+                        apiContext.SetHttpFeatureContext(new HttpFeatureContext
+                        {
+                            HttpContext = context.HttpContext,
+                            RouteData = context.RouteData,
+                            BasePath = basePath,
+                        });
+
                         apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);

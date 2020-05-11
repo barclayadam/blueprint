@@ -13,6 +13,7 @@ namespace Blueprint.Api.Http
     /// <remarks>
     /// The given properties can be matched:
     ///
+    ///  * <see cref="HttpFeatureContext" />
     ///  * <see cref="HttpContext" />
     ///  * <see cref="HttpRequest" />
     ///  * <see cref="HttpResponse" />
@@ -23,6 +24,15 @@ namespace Blueprint.Api.Http
         /// <inheritdoc />
         public Variable TryFindVariable(IMethodVariables variables, Type type)
         {
+            if (type == typeof(HttpFeatureContext))
+            {
+                var httpFeatureContextVariable = new MethodCall(
+                    typeof(ApiOperationContextHttpExtensions),
+                    nameof(ApiOperationContextHttpExtensions.GetHttpFeatureContext));
+
+                return httpFeatureContextVariable.ReturnVariable;
+            }
+
             if (type == typeof(HttpContext))
             {
                 var httpContextVariable = new MethodCall(

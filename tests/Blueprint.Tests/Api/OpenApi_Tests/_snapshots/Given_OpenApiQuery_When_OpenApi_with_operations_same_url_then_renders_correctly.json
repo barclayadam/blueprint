@@ -1,0 +1,218 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Auto-generated API specification",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/resources/{AnId}": {
+      "get": {
+        "tags": [
+          "OpenApi_Tests"
+        ],
+        "description": "",
+        "operationId": "OpenApiGet",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "OpenApi_Tests"
+        ],
+        "description": "",
+        "operationId": "OpenApiPut",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUpdatedOfOpen"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Open": {
+        "id": "Open",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$object",
+          "$links",
+          "$partial"
+        ],
+        "properties": {
+          "$object": {
+            "type": "string",
+            "description": "Gets or sets the object type of this resource, used to indicate to clients what they\nare dealing with."
+          },
+          "$links": {
+            "type": "object",
+            "description": "Gets the links that have currently been defined for this resource.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "$partial": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
+          },
+          "aProperty": {
+            "type": "string"
+          }
+        },
+        "x-links": [
+          {
+            "rel": "update",
+            "operationId": "OpenApiPut",
+            "method": "PUT",
+            "responseSchema": "ResourceUpdatedOfOpen",
+            "body": null
+          }
+        ]
+      },
+      "Link": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "type"
+        ],
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ResourceUpdatedOfOpen": {
+        "id": "ResourceUpdatedOfOpen",
+        "type": "object",
+        "description": "A specific implementation of ResourceEvent`1 for events of change type Updated.",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "$object",
+          "eventId",
+          "changeType",
+          "created",
+          "resourceObject"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Open"
+          },
+          "$object": {
+            "type": "string",
+            "description": "Gets the object of this 'resource', which is \"event\"."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
+          },
+          "changeType": {
+            "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResourceEventChangeType"
+              }
+            ]
+          },
+          "created": {
+            "type": "string",
+            "description": "Gets the created date of this event.",
+            "format": "date-time"
+          },
+          "resourceObject": {
+            "type": "string",
+            "description": "Gets the type of resource represented."
+          },
+          "href": {
+            "type": "string",
+            "description": "Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware\ncomponent from the resource type and id definition object."
+          },
+          "changedValues": {
+            "type": "object",
+            "description": "Gets or sets a dictionary of previous values, used to identify what has actually changed\nbetween two resources, keyed on the property name with the previous value of the resource\nbeing the value.",
+            "additionalProperties": {}
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Gets the metadata dictionary of this resource event, a simple bag of key value pairs\nof useful information that can be stored free-form against an event.",
+            "additionalProperties": {}
+          },
+          "secureData": {
+            "type": "object",
+            "description": "Gets a dictionary of security-related data that will NOT be persisted anywhere.",
+            "additionalProperties": {}
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Gets or sets the correlation id for this event, which can be used to tie it back to\nthe initial request that resulted in an event."
+          }
+        }
+      },
+      "ResourceEventChangeType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ],
+        "enum": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ]
+      }
+    }
+  }
+}

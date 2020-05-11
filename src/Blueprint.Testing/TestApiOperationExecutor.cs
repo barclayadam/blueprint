@@ -59,7 +59,7 @@ namespace Blueprint.Testing
                         .UseOptimizationLevel(OptimizationLevel.Debug)
                         .UseInMemoryCompileStrategy())
                     .Pipeline(builder.PipelineBuilder)
-                    .Operations(o => o.AddOperations(builder.OperationTypes));
+                    .Operations(o => o.AddOperations(builder.OperationTypes, "TestApiOperationExecutor"));
 
                 builder.ApiBuilder(b);
 

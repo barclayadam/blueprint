@@ -38,7 +38,12 @@ namespace Blueprint.Testing
             httpContext.Request.Method = context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod.ToString();
             httpContext.Request.Headers["Content-Type"] = "application/test-data";
 
-            context.SetRouteContext(new RouteContext(httpContext));
+            context.SetHttpFeatureContext(new HttpFeatureContext
+            {
+                HttpContext = httpContext,
+                RouteData = new RouteData(),
+                BasePath = "/",
+            });
 
             context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
         }

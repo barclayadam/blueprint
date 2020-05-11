@@ -24,6 +24,11 @@ namespace Blueprint.Api.Http
         }
 
         /// <summary>
+        /// The content that is to be written.
+        /// </summary>
+        public string Content => content;
+
+        /// <summary>
         /// Gets or sets the content type header, which defaults to <c>text/plain</c>.
         /// </summary>
         public string ContentType { get; set; } = "text/plain";

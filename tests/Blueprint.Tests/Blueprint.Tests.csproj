@@ -14,11 +14,13 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Snapper" Version="2.2.4" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
@@ -28,5 +30,8 @@
   <ItemGroup>
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Api\OpenApi_Tests\_snapshots" />
   </ItemGroup>
 </Project>

@@ -43,7 +43,7 @@ namespace Blueprint.Api.Configuration
             apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
 
             apiBuilder.Operations(o => o
-                .AddOperation<RootMetadataOperation>()
+                .AddOperation<RootMetadataOperation>("AddHttp")
                 .AddConvention(new HttpOperationScannerConvention()));
 
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
