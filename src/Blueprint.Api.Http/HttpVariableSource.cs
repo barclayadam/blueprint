@@ -52,7 +52,7 @@ namespace Blueprint.Api.Http
 
             if (type == typeof(HttpResponse))
             {
-                return variables.FindVariable(typeof(HttpContext)).GetProperty(nameof(HttpContext.Request));
+                return variables.FindVariable(typeof(HttpContext)).GetProperty(nameof(HttpContext.Response));
             }
 
             if (type == typeof(RouteData))
