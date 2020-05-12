@@ -28,15 +28,16 @@ namespace Blueprint.Api
         }
 
         /// <summary>
-        /// Gets or sets the object type of this resource, used to indicate to clients what they
-        /// are dealing with.
+        /// The object type of this resource, used to indicate to clients what they
+        /// are dealing with (i.e. 'user', 'account', 'group').
         /// </summary>
         [JsonProperty(PropertyName = "$object")]
         [JsonPropertyName("$object")]
         public string Object { get; protected set; }
 
         /// <summary>
-        /// Gets the links that have currently been defined for this resource.
+        /// The links for this resource, other endpoints that apply to this resource
+        /// in it's current state.
         /// </summary>
         [DoNotCompare]
         [JsonProperty(PropertyName = "$links")]

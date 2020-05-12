@@ -9,6 +9,7 @@ using FluentAssertions;
 using NSwag;
 using NUnit.Framework;
 using Snapper;
+using Snapper.Attributes;
 
 namespace Blueprint.Tests.Api.OpenApi_Tests
 {
@@ -85,6 +86,18 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public class OpenApiGetQuery : IQuery<OpenApiResource>
         {
             public string AnId { get; set; }
+
+            /// <summary>
+            /// With some more documentation.
+            /// </summary>
+            [FromCookie]
+            public string ACookieValue { get; set; }
+
+            /// <summary>
+            /// With some documentation.
+            /// </summary>
+            [FromHeader]
+            public string AHeaderValue { get; set; }
 
             public OpenApiResource Invoke()
             {

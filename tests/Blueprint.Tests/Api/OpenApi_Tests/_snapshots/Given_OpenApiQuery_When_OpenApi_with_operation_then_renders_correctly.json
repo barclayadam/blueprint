@@ -15,7 +15,7 @@
         "tags": [
           "OpenApi_Tests"
         ],
-        "description": "",
+        "description": "The OpenApiGetQuery summary",
         "operationId": "OpenApiGet",
         "parameters": [
           {
@@ -23,6 +23,24 @@
             "in": "path",
             "required": true,
             "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ACookieValue",
+            "in": "cookie",
+            "description": "With some more documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AHeaderValue",
+            "in": "header",
+            "description": "With some documentation.",
             "schema": {
               "title": "String",
               "type": "string"
@@ -58,11 +76,11 @@
         "properties": {
           "$object": {
             "type": "string",
-            "description": "Gets or sets the object type of this resource, used to indicate to clients what they\nare dealing with."
+            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
           },
           "$links": {
             "type": "object",
-            "description": "Gets the links that have currently been defined for this resource.",
+            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
             "additionalProperties": {
               "$ref": "#/components/schemas/Link"
             }

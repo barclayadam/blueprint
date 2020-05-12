@@ -175,7 +175,7 @@ namespace Blueprint.OpenApi
 
                             openApiOperation.Parameters.Add(new OpenApiParameter
                             {
-                                Kind = OpenApiParameterKind.Query,
+                                Kind = ToKind(parameter),
 
                                 Name = parameter.Name,
 
@@ -184,6 +184,8 @@ namespace Blueprint.OpenApi
 
                                 // Exclude "owned" properties?
                                 Schema = generator.Generate(parameter.PropertyType),
+
+                                Description = parameter.GetXmlDocsSummary(),
                             });
                         }
                     }
@@ -198,6 +200,26 @@ namespace Blueprint.OpenApi
             {
                 ContentType = "application/json",
             };
+        }
+
+        private static OpenApiParameterKind ToKind(PropertyInfo property)
+        {
+            if (property.HasAttribute(typeof(FromHeaderAttribute), false))
+            {
+                return OpenApiParameterKind.Header;
+            }
+
+            if (property.HasAttribute(typeof(FromCookieAttribute), false))
+            {
+                return OpenApiParameterKind.Cookie;
+            }
+
+            if (property.HasAttribute(typeof(FromQueryAttribute), false))
+            {
+                return OpenApiParameterKind.Query;
+            }
+
+            return OpenApiParameterKind.Query;
         }
 
         internal static JsonSchema? GetCommandBodySchema(
