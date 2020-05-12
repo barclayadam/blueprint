@@ -70,7 +70,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             var result = await executor.ExecuteWithNewScopeAsync(operation);
 
             // Assert
-            var actualOkResult = result.Should().BeOfType<OkResult>().Subject;
+            var actualOkResult = result.ShouldBeOperationResultType<OkResult>();
             actualOkResult.Should().BeSameAs(okResult);
         }
 
@@ -88,7 +88,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             var result = await executor.ExecuteWithNewScopeAsync(new T());
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             assertContent(okResult.Content);
         }
 

@@ -31,9 +31,25 @@ namespace Blueprint.Api.Configuration
             apiBuilder.Services.TryAddSingleton<JsonOperationResultOutputFormatter>();
             apiBuilder.Services.TryAddSingleton<IOperationResultOutputFormatter, JsonOperationResultOutputFormatter>();
 
-            apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
-            apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
-            apiBuilder.Services.AddScoped<IMessagePopulationSource, HttpQueryStringMessagePopulationSource>();
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
+
+            // "Owned" HTTP part sources
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+                HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies))));
+
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+                HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers))));
+
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+                HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query))));
+
+            // Catch-all query string population source
+            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+                HttpPartMessagePopulationSource.CatchAll(
+                    "fromQuery",
+                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
+                    c => c.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod == "GET"));
 
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<ValidationFailedOperationResult>, ValidationFailedOperationResultExecutor>();
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<UnhandledExceptionOperationResult>, UnhandledExceptionOperationResultExecutor>();

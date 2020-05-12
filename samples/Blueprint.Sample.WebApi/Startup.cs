@@ -24,8 +24,7 @@ namespace Blueprint.Sample.WebApi
 
             services.AddHangfire(h =>
             {
-                h
-                    .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
+                h.UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
             });
 
             services.AddBlueprintApi(b => b

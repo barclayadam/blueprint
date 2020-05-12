@@ -31,28 +31,34 @@ namespace Blueprint.Api.Middleware
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            var sources = context.ServiceProvider.GetServices<IMessagePopulationSource>().OrderBy(s => s.Priority);
-            var owned = new List<PropertyInfo>();
+            var sources = context.ServiceProvider
+                .GetServices<IMessagePopulationSource>().OrderBy(s => s.Priority)
+                .ToList();
+
+            var allOwned = new List<PropertyInfo>();
+            var ownedBySources = new Dictionary<IMessagePopulationSource, IEnumerable<PropertyInfo>>();
 
             foreach (var s in sources)
             {
-                var ownedBySource = s.GetOwnedProperties(context.Model, context.Descriptor);
+                var ownedBySource = s.GetOwnedProperties(context.Model, context.Descriptor).ToList();
+
+                ownedBySources[s] = ownedBySource;
 
                 foreach (var p in ownedBySource)
                 {
-                    if (owned.Contains(p))
+                    if (allOwned.Contains(p))
                     {
                         throw new InvalidOperationException(
                             $"Property {p.DeclaringType.Name}.{p.Name} has been marked as owned by multiple sources. A property can only be owned by a single source.");
                     }
 
-                    owned.Add(p);
+                    allOwned.Add(p);
                 }
             }
 
             foreach (var s in sources)
             {
-                s.Build(owned, context);
+                s.Build(allOwned, ownedBySources[s], context);
             }
         }
     }

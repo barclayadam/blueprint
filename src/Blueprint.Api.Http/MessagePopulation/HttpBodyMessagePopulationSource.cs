@@ -60,7 +60,7 @@ namespace Blueprint.Api.Http.MessagePopulation
         }
 
         /// <inheritdoc />
-        public void Build(IReadOnlyCollection<PropertyInfo> ownedProperties, MiddlewareBuilderContext context)
+        public void Build(IReadOnlyCollection<PropertyInfo> ownedProperties, IEnumerable<PropertyInfo> ownedBySource, MiddlewareBuilderContext context)
         {
             // We can bail early on any code generation as we know that all properties are fulfilled by
             // other sources

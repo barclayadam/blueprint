@@ -19,25 +19,8 @@ namespace Blueprint.Compiler.Model
         /// you need to differentiate between variables that are resolved
         /// from an IoC container and all other kinds of variables.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">The type of the variable to find.</param>
+        /// <returns>The <see cref="Variable" /> of the specified type, or <c>null</c>.</returns>
         Variable TryFindVariable(Type type);
-
-        /// <summary>
-        /// Find or create a variable by type and variable name.
-        /// </summary>
-        /// <param name="dependency"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        Variable FindVariableByName(Type dependency, string name);
-
-        /// <summary>
-        /// Try to find a variable by both dependency type and variable name.
-        /// </summary>
-        /// <param name="dependency"></param>
-        /// <param name="name"></param>
-        /// <param name="variable"></param>
-        /// <returns></returns>
-        bool TryFindVariableByName(Type dependency, string name, out Variable variable);
     }
 }

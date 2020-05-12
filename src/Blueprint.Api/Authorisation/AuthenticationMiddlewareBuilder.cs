@@ -41,7 +41,7 @@ namespace Blueprint.Api.Authorisation
              }
             */
 
-            var claimsIdentityVariable = context.VariableFromContext<ClaimsIdentity>();
+            var claimsIdentityVariable = context.FindVariable<ClaimsIdentity>();
             var getClaimsIdentity = MethodCall.For<IClaimsIdentityProvider>(p => p.Get(null));
 
             context.AppendFrames(

@@ -23,7 +23,7 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(adder.CompiledType)
                 .As<INumberGenerator>()
-                .Generate(3, 4).Should().Be(7);
+                .Generate(3).Should().Be(6);
 
             adder.SourceCode.Should().Contain("public class Adder : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
@@ -40,7 +40,7 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(multiplier.CompiledType)
                 .As<INumberGenerator>()
-                .Generate(3, 4).Should().Be(12);
+                .Generate(3).Should().Be(9);
 
             multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
@@ -57,7 +57,7 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             Activator.CreateInstance(multiplier.CompiledType)
                 .As<NumberGenerator>()
-                .Generate(3, 4).Should().Be(12);
+                .Generate(3).Should().Be(9);
 
             multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator");
         }
@@ -80,10 +80,10 @@ namespace Blueprint.Compiler.Tests.Compilation
             compileFailure.Id.Should().Be("CS0103");
             compileFailure.Severity.Should().Be(DiagnosticSeverity.Error);
 
-            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(13,26): error CS0103: The name 'oopstwo' does not exist in the current context
+            compilationException.Message.ShouldContainIgnoringNewlines(@"Multiplier.cs(13,26): error CS0103: The name 'oopsone' does not exist in the current context
         {
 
-            return one + oopstwo;
+            return one + oopsone;
 
                          ^^^^^^^
         }");
@@ -96,9 +96,9 @@ namespace Blueprint.Compiler.Tests
     {
 
 
-        public override int Generate(int one, int two)
+        public override int Generate(int one)
         {
-            return one + oopstwo;
+            return one + oopsone;
         }
 
     }
@@ -111,10 +111,9 @@ namespace Blueprint.Compiler.Tests
     {
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var one = variables.FindVariableByName(typeof(int), "one");
-            var two = variables.FindVariableByName(typeof(int), "two");
+            var one = variables.FindVariable(typeof(int));
 
-            writer.WriteLine($"return {one} + oops{two};");
+            writer.WriteLine($"return {one} + oops{one};");
         }
     }
 
@@ -122,10 +121,9 @@ namespace Blueprint.Compiler.Tests
     {
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var one = variables.FindVariableByName(typeof(int), "one");
-            var two = variables.FindVariableByName(typeof(int), "two");
+            var one = variables.FindVariable(typeof(int));
 
-            writer.WriteLine($"return {one} + {two};");
+            writer.WriteLine($"return {one} + {one};");
         }
     }
 
@@ -133,20 +131,19 @@ namespace Blueprint.Compiler.Tests
     {
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var one = variables.FindVariableByName(typeof(int), "one");
-            var two = variables.FindVariableByName(typeof(int), "two");
+            var one = variables.FindVariable(typeof(int));
 
-            writer.WriteLine($"return {one} * {two};");
+            writer.WriteLine($"return {one} * {one};");
         }
     }
 
     public interface INumberGenerator
     {
-        int Generate(int one, int two);
+        int Generate(int one);
     }
 
     public abstract class NumberGenerator
     {
-        public abstract int Generate(int one, int two);
+        public abstract int Generate(int one);
     }
 }

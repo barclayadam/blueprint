@@ -65,7 +65,7 @@ namespace Blueprint.Api.Authorisation
             //     foreach (authorisers) { await a.EnforceAsync(); }
             // }
 
-            var authorisationContextVariable = context.VariableFromContext<IUserAuthorisationContext>();
+            var authorisationContextVariable = context.FindVariable<IUserAuthorisationContext>();
 
             checkFrames.Add(
                 new IfBlock($"{authorisationContextVariable} == null")
@@ -92,7 +92,7 @@ namespace Blueprint.Api.Authorisation
             // We only run authorisation checks if SkipAuthorisation is false, which it will be by default
             context.AppendFrames(
                 new IfBlock(
-                    $"{context.VariableFromContext<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
+                    $"{context.FindVariable<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
                     checkFrames.ToArray()));
         }
     }

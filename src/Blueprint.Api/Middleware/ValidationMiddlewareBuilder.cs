@@ -53,8 +53,8 @@ namespace Blueprint.Api.Middleware
         public void Build(MiddlewareBuilderContext context)
         {
             var properties = context.Descriptor.Properties;
-            var operationVariable = context.VariableFromContext(context.Descriptor.OperationType);
-            var apiOperationDescriptorVariable = context.VariableFromContext<ApiOperationDescriptor>();
+            var operationVariable = context.FindVariable(context.Descriptor.OperationType);
+            var apiOperationDescriptorVariable = context.FindVariable<ApiOperationDescriptor>();
             var resultsCreator = new ConstructorFrame<ValidationFailures>(() => new ValidationFailures());
             var hasValidationFrames = false;
             var sources = context.ServiceProvider.GetServices<IValidationSourceBuilder>();

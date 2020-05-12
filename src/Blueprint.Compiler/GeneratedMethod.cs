@@ -9,7 +9,7 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
-    public class GeneratedMethod
+    public class GeneratedMethod : IMethodVariables
     {
         // The variables that are used / created within the body of this GeneratedMethod. Keeps track of
         // them to ensure the same variable frame is not injected twice (i.e. if multiple frames asks for a variable
@@ -200,10 +200,16 @@ namespace Blueprint.Compiler
 
                     if (firstUsage == null)
                     {
-                        throw new InvalidOperationException($"The variable {variable} has a creator not in the Frames list, but has no listed usage.");
-                    }
+                        Frames.Insert(0, variable.Creator);
 
-                    Frames.Insert(Frames.IndexOf(firstUsage), variable.Creator);
+                        // throw new InvalidOperationException(
+                        //     $"The variable '{variable}' has a creator Frame that has not been appended to this GeneratedMethod, " +
+                        //     "nor does any Frame exist that Uses it, therefore we cannot determine where to place the creator Frame.");
+                    }
+                    else
+                    {
+                        Frames.Insert(Frames.IndexOf(firstUsage), variable.Creator);
+                    }
                 }
 
                 switch (variable)
@@ -288,6 +294,115 @@ namespace Blueprint.Compiler
             return AsyncMode == AsyncMode.AsyncTask
                 ? "async " + ReturnType.FullNameInCode()
                 : ReturnType.FullNameInCode();
+        }
+
+        /// <inheritdoc />
+        public Variable FindVariable(Type variableType)
+        {
+            var variable = ((IMethodVariables)this).TryFindVariable(variableType);
+
+            if (variable == null)
+            {
+                var searchedSources = string.Join(", ", Sources.Select(s => s.GetType().Name));
+
+                throw new ArgumentOutOfRangeException(
+                    nameof(variableType),
+                    $"Do not know how to build a variable of type '{variableType.FullName}'. " +
+                    $"Searched in argument list, constructor parameters and sources {searchedSources}");
+            }
+
+            return variable;
+        }
+
+        /// <inheritdoc />
+        public Variable TryFindVariable(Type type)
+        {
+            if (variables.ContainsKey(type))
+            {
+                return variables[type];
+            }
+
+            var variable = DoFindVariable(type, 0);
+            if (variable != null)
+            {
+                variables.Add(type, variable);
+            }
+
+            return variable;
+        }
+
+        /// <summary>
+        /// Does the work to actually find a variable of the specified type, looking in <see cref="Arguments"/>,
+        /// <see cref="Frames"/> and <see cref="Sources" />.
+        /// </summary>
+        /// <remarks>
+        /// This method _may_ create variables/frames as required should the variable come from an <see cref="IVariableSource" />,
+        /// so the creation should be cached (<seealso cref="variables"/>).
+        /// </remarks>
+        /// <param name="variableType">The type of the variable to be found / created.</param>
+        /// <param name="indentationLevel">The current indentation level, which will only be a value different to
+        /// 0 when actually building this method's source.</param>
+        /// <returns>A <see cref="Variable"/> of the given type.</returns>
+        private Variable DoFindVariable(Type variableType, int indentationLevel)
+        {
+            foreach (var v in Arguments)
+            {
+                if (v.VariableType == variableType)
+                {
+                    return v;
+                }
+            }
+
+            // We try to find from all frames, and their children, a variable that is
+            // created but ONLY IF it is created at a lower block/indentation level than
+            // we are currently at (as otherwise it would not be visible due to block scope rules)
+            Variable SearchExistingFramesForVariable(IEnumerable<Frame> frames)
+            {
+                foreach (var f in frames)
+                {
+                    if (f.BlockLevel <= indentationLevel)
+                    {
+                        foreach (var v in f.Creates)
+                        {
+                            if (v.VariableType == variableType)
+                            {
+                                return v;
+                            }
+                        }
+
+                        if (f is CompositeFrame c)
+                        {
+                            var foundInner = SearchExistingFramesForVariable(c);
+
+                            if (foundInner != null)
+                            {
+                                return foundInner;
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            var fromFrames = SearchExistingFramesForVariable(Frames);
+
+            if (fromFrames != null)
+            {
+                return fromFrames;
+            }
+
+            foreach (var s in Sources)
+            {
+                var created = s.TryFindVariable(this, variableType);
+
+                if (created != null)
+                {
+                    return created;
+                }
+            }
+
+            return null;
         }
 
         private class MethodSourceWriter : IMethodSourceWriter
@@ -380,20 +495,9 @@ namespace Blueprint.Compiler
             }
 
             /// <inherit-doc />
-            Variable IMethodVariables.FindVariableByName(Type dependency, string name)
-            {
-                if (((IMethodVariables) this).TryFindVariableByName(dependency, name, out var variable))
-                {
-                    return variable;
-                }
-
-                throw new ArgumentOutOfRangeException(nameof(dependency), $"Cannot find a matching variable {dependency.FullName} {name}");
-            }
-
-            /// <inherit-doc />
             Variable IMethodVariables.FindVariable(Type variableType)
             {
-                var variable = ((IMethodVariables) this).TryFindVariable(variableType);
+                var variable = ((IMethodVariables)this).TryFindVariable(variableType);
 
                 if (variable == null)
                 {
@@ -416,109 +520,13 @@ namespace Blueprint.Compiler
                     return method.variables[type];
                 }
 
-                var variable = DoFindVariable(type);
+                var variable = method.DoFindVariable(type, IndentationLevel);
                 if (variable != null)
                 {
                     method.variables.Add(type, variable);
                 }
 
                 return variable;
-            }
-
-            /// <inherit-doc />
-            bool IMethodVariables.TryFindVariableByName(Type dependency, string name, out Variable variable)
-            {
-                variable = null;
-
-                var sourced = method.Sources.Select(x => x.TryFindVariable(this, dependency)).Where(x => x != null);
-                var created = method.Frames.SelectMany(x => x.Creates);
-
-                var candidate = method.variables.Values
-                    .Concat(method.Arguments)
-                    .Concat(created)
-                    .Concat(sourced)
-                    .Where(x => x != null)
-                    .FirstOrDefault(x => x.VariableType == dependency && x.Usage == name);
-
-                if (candidate != null)
-                {
-                    variable = candidate;
-                    return true;
-                }
-
-                return false;
-            }
-
-            /// <summary>
-            /// Does the work to actually find a variable of the specified type, looking in <see cref="Arguments"/>,
-            /// <see cref="Frames"/> and <see cref="Sources" />.
-            /// </summary>
-            /// <remarks>
-            /// This method _may_ create variables/frames as required should the variable come from an <see cref="IVariableSource" />,
-            /// so the creation should be cached (<seealso cref="variables"/>).
-            /// </remarks>
-            /// <param name="variableType">The type of the variable to be found / created.</param>
-            /// <returns>A <see cref="Variable"/> of the given type.</returns>
-            private Variable DoFindVariable(Type variableType)
-            {
-                foreach (var v in method.Arguments)
-                {
-                    if (v.VariableType == variableType)
-                    {
-                        return v;
-                    }
-                }
-
-                // We try to find from all frames, and their children, a variable that is
-                // created but ONLY IF it is created at a lower block/indentation level than
-                // we are currently at (as otherwise it would not be visible due to block scope rules)
-                Variable SearchExistingFramesForVariable(IEnumerable<Frame> frames)
-                {
-                    foreach (var f in frames)
-                    {
-                        if (f.BlockLevel <= IndentationLevel)
-                        {
-                            foreach (var v in f.Creates)
-                            {
-                                if (v.VariableType == variableType)
-                                {
-                                    return v;
-                                }
-                            }
-
-                            if (f is CompositeFrame c)
-                            {
-                                var foundInner = SearchExistingFramesForVariable(c);
-
-                                if (foundInner != null)
-                                {
-                                    return foundInner;
-                                }
-                            }
-                        }
-                    }
-
-                    return null;
-                }
-
-                var fromFrames = SearchExistingFramesForVariable(method.Frames);
-
-                if (fromFrames != null)
-                {
-                    return fromFrames;
-                }
-
-                foreach (var s in method.Sources)
-                {
-                    var created = s.TryFindVariable(this, variableType);
-
-                    if (created != null)
-                    {
-                        return created;
-                    }
-                }
-
-                return null;
             }
         }
     }

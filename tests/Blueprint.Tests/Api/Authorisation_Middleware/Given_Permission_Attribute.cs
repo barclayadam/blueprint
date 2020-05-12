@@ -57,7 +57,7 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
                 new Claim(ClaimTypes.Permission, "*", "ExecuteThisOperation"));
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be("12345");
         }
     }

@@ -25,7 +25,7 @@ namespace Blueprint.Tests.Api.Logging_Middleware
             var result = await executor.ExecuteAsync(context);
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be(toReturn);
             handler.WasCalled.Should().BeTrue();
         }

@@ -19,6 +19,12 @@ namespace Blueprint.Api.CodeGen
         private readonly Variable exceptionVariable;
         private readonly GetInstanceFrame<IErrorLogger> getErrorLoggerFrame;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="PushToErrorLoggerExceptionCatchFrame" /> class.
+        /// </summary>
+        /// <param name="context">The builder context this frame belongs to.</param>
+        /// <param name="exceptionVariable">The variable representing the <see cref="Exception" /> that has
+        /// been raised.</param>
         public PushToErrorLoggerExceptionCatchFrame(MiddlewareBuilderContext context, Variable exceptionVariable)
         {
             this.context = context;
@@ -55,7 +61,7 @@ namespace Blueprint.Api.CodeGen
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
                 writer.Write($"{exceptionVariable}.Data[\"{context.Descriptor.OperationType.Name}.{prop.Name}\"] = " +
-                             $"{context.ApiContextVariableSource.OperationVariable}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
+                             $"{variables.FindVariable(typeof(IApiOperation))}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks

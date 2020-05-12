@@ -22,14 +22,12 @@ namespace Blueprint.Api
 
         internal MiddlewareBuilderContext(
             GeneratedMethod executeMethod,
-            ApiOperationContextVariableSource apiContextVariableSource,
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
             IServiceProvider serviceProvider,
             InstanceFrameProvider instanceFrameProvider,
             bool isNested)
         {
-            ApiContextVariableSource = apiContextVariableSource;
             ExecuteMethod = executeMethod;
             Descriptor = descriptor;
             Model = model;
@@ -38,12 +36,6 @@ namespace Blueprint.Api
 
             this.instanceFrameProvider = instanceFrameProvider;
         }
-
-        /// <summary>
-        /// Gets an <see cref="IVariableSource" /> that should be used to grab any variables that would
-        /// be found on the <see cref="ApiOperationContext" />.
-        /// </summary>
-        public ApiOperationContextVariableSource ApiContextVariableSource { get; }
 
         /// <summary>
         /// Gets the <see cref="GeneratedMethod" /> that is being built to handle the execution of
@@ -154,9 +146,9 @@ namespace Blueprint.Api
         /// <param name="type">The type of the variable to grab.</param>
         /// <returns>The <see cref="Variable"/> representing the given type.</returns>
         /// <seealso cref="ApiOperationContextVariableSource" />
-        public Variable VariableFromContext(Type type)
+        public Variable FindVariable(Type type)
         {
-            return ApiContextVariableSource.Get(type);
+            return ExecuteMethod.FindVariable(type);
         }
 
         /// <summary>
@@ -166,9 +158,9 @@ namespace Blueprint.Api
         /// <typeparam name="T">The type of the variable to grab.</typeparam>
         /// <returns>The <see cref="Variable"/> representing the given type.</returns>
         /// <seealso cref="ApiOperationContextVariableSource" />
-        public Variable VariableFromContext<T>()
+        public Variable FindVariable<T>()
         {
-            return ApiContextVariableSource.Get(typeof(T));
+            return ExecuteMethod.FindVariable(typeof(T));
         }
 
         /// <summary>

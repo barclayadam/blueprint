@@ -31,7 +31,7 @@ namespace Blueprint.Api.Authorisation
 
                 context.AppendFrames(
                     new VariableSetterFrame(
-                        context.VariableFromContext<IUserAuthorisationContext>(),
+                        context.FindVariable<IUserAuthorisationContext>(),
                         Variable.StaticFrom<AnonymousUserAuthorisationContext>(nameof(AnonymousUserAuthorisationContext.Instance))));
             }
             else
@@ -43,7 +43,7 @@ namespace Blueprint.Api.Authorisation
                 //     var userSecurityContext = await this.userSecurityContextFactory.CreateContextAsync(context.ClaimsIdentity);
                 //     context.UserAuthorisationContext = userSecurityContext;
                 // }
-                var claimsIdentityVariable = context.VariableFromContext<ClaimsIdentity>();
+                var claimsIdentityVariable = context.FindVariable<ClaimsIdentity>();
 
                 var userSecurityContextFactoryCreator = context.VariableFromContainer<IUserAuthorisationContextFactory>();
                 var createContextCall = userSecurityContextFactoryCreator.Method(f => f.CreateContextAsync(null));
@@ -54,7 +54,7 @@ namespace Blueprint.Api.Authorisation
                     {
                         userSecurityContextFactoryCreator,
                         createContextCall,
-                        new VariableSetterFrame(context.VariableFromContext<IUserAuthorisationContext>(), createContextCall.ReturnVariable),
+                        new VariableSetterFrame(context.FindVariable<IUserAuthorisationContext>(), createContextCall.ReturnVariable),
                     });
             }
         }

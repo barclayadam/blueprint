@@ -7,12 +7,11 @@ using Blueprint.Api.Http;
 using Blueprint.Testing;
 using Blueprint.Tests.Api;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 {
-    public class Given_QueryString_Values
+    public class Given_Header_Values
     {
         public enum OperationEnum
         {
@@ -20,23 +19,31 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             EnumTwo
         }
 
-        [RootLink("/query-values")]
-        public class QueryTestOperation : IApiOperation
+        [RootLink("/header-values")]
+        public class HeaderTestOperation : IApiOperation
         {
+            [FromHeader]
             public int IntegerProperty { get; set; }
 
+            [FromHeader]
             public int? NullableIntegerProperty { get; set; }
 
+            [FromHeader]
             public string StringProperty { get; set; }
 
+            [FromHeader]
             public OperationEnum EnumProperty { get; set; }
 
+            [FromHeader]
             public Guid GuidProperty { get; set; }
 
+            [FromHeader]
             public IEnumerable<string> StringEnumerable { get; set; }
 
+            [FromHeader]
             public string[] StringArray { get; set; }
 
+            [FromHeader]
             public List<string> StringList { get; set; }
         }
 
@@ -44,7 +51,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         public async Task When_Simple_Properties_Then_Populated()
         {
             // Arrange
-            var expected = new QueryTestOperation
+            var expected = new HeaderTestOperation
             {
                 IntegerProperty = 761,
                 EnumProperty = OperationEnum.EnumOne,
@@ -54,12 +61,15 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             };
 
             // Act / Assert
-            await AssertPopulatedFromQueryString(
+            await AssertHeaders(
                 expected,
-                $"?{nameof(expected.IntegerProperty)}={expected.IntegerProperty}&" +
-                $"{nameof(expected.EnumProperty)}={expected.EnumProperty}&" +
-                $"{nameof(expected.GuidProperty)}={expected.GuidProperty}&" +
-                $"{nameof(expected.StringProperty)}={expected.StringProperty}");
+                new Dictionary<string, string>
+                {
+                    [nameof(expected.IntegerProperty)] = expected.IntegerProperty.ToString(),
+                    [nameof(expected.EnumProperty)] = expected.EnumProperty.ToString(),
+                    [nameof(expected.GuidProperty)] = expected.GuidProperty.ToString(),
+                    [nameof(expected.StringProperty)] = expected.StringProperty.ToString(),
+                });
         }
 
         [Test]
@@ -67,9 +77,9 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         {
             // Arrange
             var source = new List<string> { "arr1", "arr5" };
-            var asQuery = "[\"arr1\", \"arr5\"]";
+            var asHeader = "[\"arr1\", \"arr5\"]";
 
-            var expected = new QueryTestOperation
+            var expected = new HeaderTestOperation
             {
                 StringArray = source.ToArray(),
                 StringEnumerable = source,
@@ -77,46 +87,25 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             };
 
             // Act / Assert
-            await AssertPopulatedFromQueryString(
+            await AssertHeaders(
                 expected,
-                $"?{nameof(expected.StringArray)}={asQuery}&" +
-                $"{nameof(expected.StringEnumerable)}={asQuery}&" +
-                $"{nameof(expected.StringList)}={asQuery}");
+                new Dictionary<string, string>
+                    {
+                        [nameof(expected.StringArray)] = asHeader,
+                        [nameof(expected.StringEnumerable)] = asHeader,
+                        [nameof(expected.StringList)] = asHeader,
+                    });
         }
 
-        [Test]
-        public async Task When_Array_Like_As_Separate_Values_Then_Populates()
-        {
-            // Arrange
-            var source = new List<string> { "arr1", "arr5" };
-
-            string AsQuery(string key)
-            {
-                return $"{key}[]=arr1&{key}[]=arr5";
-            }
-
-            var expected = new QueryTestOperation
-            {
-                StringArray = source.ToArray(),
-                StringEnumerable = source,
-                StringList = source,
-            };
-
-            // Act / Assert
-            await AssertPopulatedFromQueryString(
-                expected,
-                $"?{AsQuery(nameof(expected.StringArray))}&" +
-                $"{AsQuery(nameof(expected.StringEnumerable))}&" +
-                $"{AsQuery(nameof(expected.StringList))}");
-        }
-
-        private static async Task AssertPopulatedFromQueryString<TOperation>(TOperation expected, string queryString = null) where TOperation : IApiOperation
+        private static async Task AssertHeaders<TOperation>(
+            TOperation expected,
+            Dictionary<string, string> headers = null) where TOperation : IApiOperation
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
             var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
 
-            var context = GetContext<TOperation>(executor, queryString);
+            var context = GetContext<TOperation>(executor, headers);
 
             // Act
             var result = await executor.ExecuteAsync(context);
@@ -130,10 +119,16 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             handler.OperationPassed.Should().BeEquivalentTo(expected);
         }
 
-        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string queryString) where T : IApiOperation
+        private static ApiOperationContext GetContext<T>(
+            TestApiOperationExecutor executor,
+            Dictionary<string, string> headers) where T : IApiOperation
         {
             var context = executor.HttpContextFor<T>();
-            context.GetHttpContext().Request.QueryString = new QueryString(queryString);
+
+            foreach (var h in headers)
+            {
+                context.GetHttpContext().Request.Headers[h.Key] = h.Value;
+            }
 
             return context;
         }

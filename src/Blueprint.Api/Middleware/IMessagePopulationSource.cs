@@ -37,9 +37,13 @@ namespace Blueprint.Api.Middleware
         /// <summary>
         /// Builds this source's body, adding the required <see cref="Frame" />s to the pipeline's body.
         /// </summary>
-        /// <param name="ownedProperties">The properties that are considered to be "owned", used to potentially
-        /// exclude this source's output.</param>
+        /// <param name="allOwnedProperties">The properties that are considered to be "owned", used to potentially
+        ///     exclude this source's output.</param>
+        /// <param name="ownedBySource">The set of properties from <seealso cref="GetOwnedProperties" />.</param>
         /// <param name="context">The builder context.</param>
-        void Build(IReadOnlyCollection<PropertyInfo> ownedProperties, MiddlewareBuilderContext context);
+        void Build(
+            IReadOnlyCollection<PropertyInfo> allOwnedProperties,
+            IEnumerable<PropertyInfo> ownedBySource,
+            MiddlewareBuilderContext context);
     }
 }

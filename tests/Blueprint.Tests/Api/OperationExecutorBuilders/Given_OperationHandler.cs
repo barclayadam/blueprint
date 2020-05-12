@@ -24,7 +24,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             });
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be("1234");
         }
 
@@ -38,7 +38,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             var result = await executor.ExecuteWithNewScopeAsync(new ScanOperation());
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be("6789");
         }
 

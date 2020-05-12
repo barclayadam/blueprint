@@ -6,7 +6,7 @@ using System.Reflection;
 namespace Blueprint.Core.Utilities
 {
     /// <summary>
-    /// Provides a number of extension methods to relfection-based classes, consiting of small
+    /// Provides a number of extension methods to reflection-based classes, consisting of small
     /// utility methods that can cut down on a small amount of boilerplate elsewhere in the codebase.
     /// </summary>
     public static class ReflectionExtensions
@@ -106,6 +106,46 @@ namespace Blueprint.Core.Utilities
             Guard.NotNull(nameof(type), type);
 
             return type != typeof(string) && type.GetInterface("IEnumerable") != null;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="CustomAttributeData" /> of an attribute that has been applied to
+        /// this <see cref="MemberInfo" />, or <c>null</c> if no such attribute exists.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <param name="type">The type of the attribute to search for.</param>
+        /// <returns>The <see cref="CustomAttributeData" /> or <c>null</c>.</returns>
+        public static CustomAttributeData GetCustomAttributeData(this MemberInfo memberInfo, Type type)
+        {
+            Guard.NotNull(nameof(type), type);
+
+            return memberInfo.CustomAttributes.FirstOrDefault(a => type.IsAssignableFrom(a.AttributeType));
+        }
+
+        /// <summary>
+        /// Gets the <see cref="CustomAttributeData" /> of an attribute that has been applied to
+        /// this <see cref="ParameterInfo" />, or <c>null</c> if no such attribute exists.
+        /// </summary>
+        /// <param name="parameterInfo">The parameter.</param>
+        /// <param name="type">The type of the attribute to search for.</param>
+        /// <returns>The <see cref="CustomAttributeData" /> or <c>null</c>.</returns>
+        public static CustomAttributeData GetCustomAttributeData(this ParameterInfo parameterInfo, Type type)
+        {
+            Guard.NotNull(nameof(type), type);
+
+            return parameterInfo.CustomAttributes.FirstOrDefault(a => type.IsAssignableFrom(a.AttributeType));
+        }
+
+        /// <summary>
+        /// Tries to find the constructor argument to an attribute based on it's index.
+        /// </summary>
+        /// <param name="customAttributeData">The attribute data to check.</param>
+        /// <param name="index">The 0-based index of the argument to load.</param>
+        /// <typeparam name="TValue">The expected type of the argument.</typeparam>
+        /// <returns>The value used in the constructor.</returns>
+        public static TValue GetConstructorArgument<TValue>(this CustomAttributeData customAttributeData, int index)
+        {
+            return index < customAttributeData.ConstructorArguments.Count ? (TValue)customAttributeData.ConstructorArguments[index].Value : default;
         }
 
         public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)

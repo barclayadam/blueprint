@@ -38,18 +38,24 @@ operation at startup.
 ````c#
 namespace Blueprint.Sample.WebApi.Api
 {
-    [RootLink("echoName")]
-    public class EchoNameQuery : IQuery
+    [RootLink("forecast")]
+    public class WeatherForecastQuery : IQuery<IEnumerable<WeatherForecast>>
     {
         [Required]
-        public string Name { get; set; }
-    }
+        public string City { get; set; }
 
-    public class EchoNameQueryHandler : IApiOperationHandler<EchoNameQuery>
-    {
-        public async Task<object> Invoke(EchoNameQuery operation, ApiOperationContext apiOperationContext)
+        [FromHeader("X-Header-Key")]
+        public string MyHeader { get; set; }
+
+        [FromCookie]
+        public string MyCookie { get; set; }
+
+        [FromCookie("a-different-cookie-name")]
+        public int MyCookieNumber { get; set; }
+
+        public IEnumerable<WeatherForecast> Invoke(IWeatherDataSource weatherDataSource)
         {
-            return new { operation.Name };
+            return weatherDataSource.Get(this.City);
         }
     }
 }
@@ -61,6 +67,164 @@ to have a homogeneous way of organising command and queries whilst having a comm
 Blueprint compiles a class per operation, with middleware builders contributing cross-cutting concerns. Because we
 build the pipeline dynamically per type builders are able to eliminate unused code per type, remove reflection over property
 types and with DI integration potentially eliminate DI calls and replace them with direct constructor calls in some cases.
+
+Given the `WeatherForecastQuery` class above Blueprint will generate a class similar to the one below that will
+execute the query when the `/forecast?city=London` URL is hit.
+
+````c#
+public class WeatherForecastQueryExecutorPipeline : Blueprint.Api.IOperationExecutorPipeline
+{
+    private readonly Microsoft.Extensions.Logging.ILogger _logger;
+    private readonly Blueprint.Sample.WebApi.Data.IWeatherDataSource _weatherDataSource;
+    private readonly Blueprint.Api.IApiLinkGenerator _apiLinkGenerator;
+    private readonly Blueprint.Core.Errors.IErrorLogger _errorLogger;
+
+    public WeatherForecastQueryExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.Sample.WebApi.Data.IWeatherDataSource weatherDataSource, Blueprint.Api.IApiLinkGenerator apiLinkGenerator, Blueprint.Core.Errors.IErrorLogger errorLogger)
+    {
+        _logger = loggerFactory.CreateLogger("Blueprint.Sample.WebApi.Api.WeatherForecastQueryExecutorPipeline");
+        _weatherDataSource = weatherDataSource;
+        _apiLinkGenerator = apiLinkGenerator;
+        _errorLogger = errorLogger;
+    }
+
+    public class WeatherForecastQueryExecutorPipeline : Blueprint.Api.IOperationExecutorPipeline
+    {
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly Blueprint.Sample.WebApi.Data.IWeatherDataSource _weatherDataSource;
+        private readonly Blueprint.Api.IApiLinkGenerator _apiLinkGenerator;
+        private readonly Blueprint.Core.Errors.IErrorLogger _errorLogger;
+
+        public WeatherForecastQueryExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.Sample.WebApi.Data.IWeatherDataSource weatherDataSource, Blueprint.Api.IApiLinkGenerator apiLinkGenerator, Blueprint.Core.Errors.IErrorLogger errorLogger)
+        {
+            _logger = loggerFactory.CreateLogger("Blueprint.Sample.WebApi.Api.WeatherForecastQueryExecutorPipeline");
+            _weatherDataSource = weatherDataSource;
+            _apiLinkGenerator = apiLinkGenerator;
+            _errorLogger = errorLogger;
+        }
+
+        public async System.Threading.Tasks.Task<Blueprint.Api.OperationResult> ExecuteAsync(Blueprint.Api.ApiOperationContext context)
+        {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var weatherForecastQuery = (Blueprint.Sample.WebApi.Api.WeatherForecastQuery) context.Operation;
+            var httpContext = Blueprint.Api.Http.ApiOperationContextHttpExtensions.GetHttpContext(context);
+            var requestTelemetry = httpContext.Features.Get<Microsoft.ApplicationInsights.DataContracts.RequestTelemetry>();
+            
+            try
+            {
+                // ApplicationInsightsMiddleware
+                if (requestTelemetry != null)
+                {
+                    requestTelemetry.Name = "WeatherForecastInline";
+                }
+
+                // MessagePopulationMiddlewareBuilder
+                 var fromCookieMyCookie = httpContext.Request.Cookies["MyCookie"];
+                weatherForecastQuery.MyCookie = fromCookieMyCookie != null ? fromCookieMyCookie.ToString() : weatherForecastQuery.MyCookie;
+
+                var fromCookieMyCookieNumber = httpContext.Request.Cookies["a-different-cookie-name"];
+                weatherForecastQuery.MyCookieNumber = fromCookieMyCookieNumber != null ? int.Parse(fromCookieMyCookieNumber.ToString()) : weatherForecastQuery.MyCookieNumber;
+
+                var fromHeaderMyHeader = httpContext.Request.Headers["X-Header-Key"];
+                weatherForecastQuery.MyHeader = fromHeaderMyHeader != Microsoft.Extensions.Primitives.StringValues.Empty ? fromHeaderMyHeader.ToString() : weatherForecastQuery.MyHeader;
+
+                var fromQueryCity = httpContext.Request.Query["City"];
+                weatherForecastQuery.City = fromQueryCity != Microsoft.Extensions.Primitives.StringValues.Empty ? fromQueryCity.ToString() : weatherForecastQuery.City;
+
+                var fromQueryDays = httpContext.Request.Query["Days"] == Microsoft.Extensions.Primitives.StringValues.Empty ? httpContext.Request.Query["Days[]"] : httpContext.Request.Query["Days"];
+                weatherForecastQuery.Days = fromQueryDays != Microsoft.Extensions.Primitives.StringValues.Empty ? (System.String[]) Blueprint.Api.Http.MessagePopulation.HttpPartMessagePopulationSource.ConvertValue("Days", fromQueryDays, typeof(System.String[])) : weatherForecastQuery.Days;
+
+                // ValidationMiddlewareBuilder
+                var validationFailures = new Blueprint.Api.Validation.ValidationFailures();
+                var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(weatherForecastQuery);
+                validationContext.MemberName = "City";
+                validationContext.DisplayName = "City";
+
+                // context.Descriptor.Properties[0] == WeatherForecastQuery.City
+                foreach (var attribute in context.Descriptor.PropertyAttributes[0])
+                {
+                    if (attribute is System.ComponentModel.DataAnnotations.ValidationAttribute x)
+                    {
+                        var result =  x.GetValidationResult(weatherForecastQuery.City, validationContext);
+                        if (result != System.ComponentModel.DataAnnotations.ValidationResult.Success)
+                        {
+                            validationFailures.AddFailure(result);
+                        }
+                    }
+                }
+
+                if (validationFailures.Count > 0)
+                {
+                    var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(validationFailures);
+                    return validationFailedOperationResult;
+                }
+
+                // OperationExecutorMiddlewareBuilder
+                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Debug, "Executing API operation. handler_type=WeatherForecastQuery");
+                var handlerResult = weatherForecastQuery.Invoke(_weatherDataSource);
+                Blueprint.Api.OperationResult operationResult = handlerResult;
+
+                // LinkGeneratorMiddlewareBuilder
+                var resourceLinkGeneratorIEnumerable = context.ServiceProvider.GetRequiredService<System.Collections.Generic.IEnumerable<Blueprint.Api.IResourceLinkGenerator>>();
+                await Blueprint.Api.Middleware.LinkGeneratorHandler.AddLinksAsync(_apiLinkGenerator, resourceLinkGeneratorIEnumerable, context, operationResult);
+
+                // BackgroundTaskRunnerMiddleware
+                var backgroundTaskScheduler = context.ServiceProvider.GetRequiredService<Blueprint.Tasks.IBackgroundTaskScheduler>();
+                await backgroundTaskScheduler.RunNowAsync();
+
+                // ReturnFrameMiddlewareBuilder
+                return operationResult;
+            }
+            catch (Blueprint.Api.Validation.ValidationException e)
+            {
+                var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(e.ValidationResults);
+                return validationFailedOperationResult;
+            }
+            catch (System.ComponentModel.DataAnnotations.ValidationException e)
+            {
+                var validationFailedOperationResult = Blueprint.Api.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
+                return validationFailedOperationResult;
+            }
+            catch (System.Exception e)
+            {
+                var userAuthorisationContext = context.UserAuthorisationContext;
+                var identifier = new Blueprint.Core.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
+
+                userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
+                e.Data["WeatherForecastQuery.City"] = weatherForecastQuery.City?.ToString();
+                e.Data["WeatherForecastQuery.MyHeader"] = weatherForecastQuery.MyHeader?.ToString();
+                e.Data["WeatherForecastQuery.MyCookie"] = weatherForecastQuery.MyCookie?.ToString();
+                e.Data["WeatherForecastQuery.MyCookieNumber"] = weatherForecastQuery.MyCookieNumber.ToString();
+
+                _errorLogger.Log(e, identifier);
+
+                if (requestTelemetry != null)
+                {
+                    requestTelemetry.Success = false;
+                }
+
+                return new Blueprint.Api.UnhandledExceptionOperationResult(e);
+            }
+            finally
+            {
+                var userContext = context.UserAuthorisationContext;
+                if (requestTelemetry != null)
+                {
+                    if (userContext != null && userContext.IsAnonymous == false)
+                    {
+                        requestTelemetry.Context.User.AuthenticatedUserId = userContext.Id;
+                        requestTelemetry.Context.User.AccountId = userContext.AccountId;
+                    }
+
+                    requestTelemetry.Success = requestTelemetry.Success ?? true;
+                }
+
+                stopwatch.Stop();
+                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "Operation {0} finished in {1}ms", "Blueprint.Sample.WebApi.Api.WeatherForecastQuery", stopwatch.Elapsed.TotalMilliseconds);
+            }
+        }
+    }
+}
+````
 
 ### Built With
 
@@ -84,26 +248,25 @@ To use Blueprint API in your ASP.NET app:
  2. Add Blueprint.Api to your project (note we only currently have pre-release NuGet packages)
     ```sh
     dotnet add package Blueprint.Api -v 0.1.0-*
+    dotnet add package Blueprint.Api.Http -v 0.1.0-*
     ```
  3. Add Blueprint.Api to `Startup.ConfigureServices`
     ```c#
             public void ConfigureServices(IServiceCollection services)
             {
-                // MVC Core is currently a requirement
-                services.AddMvcCore();
-    
                 services.AddApplicationInsightsTelemetry();
     
-                services.AddBlueprintApi(o => o
+                services.AddBlueprintApi(b => b
                     .SetApplicationName("SampleWebApi")
-                    .ScanForOperations(typeof(Startup).Assembly)
+                    .Operations(o => o.ScanForOperations(typeof(Startup).Assembly))
+                    .AddHttp()
+                    .AddTasksClient(t => t.UseHangfire())
+                    .AddApplicationInsights()
                     .Pipeline(m => m
                         .AddLogging()
-                        .AddApplicationInsights()
-                        .AddHttp()
                         .AddValidation()
                         .AddHateoasLinks()
-                        .AddResourceEvents()
+                        .AddResourceEvents<NullResourceEventRepository>()
                     ));
             }
     ```
@@ -131,8 +294,8 @@ To use Blueprint API in your ASP.NET app:
 At runtime Blueprint will, for every operation it finds, generate a class that is used for running an operation with
 all the configured middlewares.
 
-The pipeline is fully customisable with many built-in middlewares such as APM integration, logging, auditing, link (HATEOAS) 
-generation and validation. 
+The pipeline is fully customisable with many built-in middlewares such as APM integration, logging, auditing, link
+generation (HATEOAS) and validation. 
 
 ## Roadmap
 

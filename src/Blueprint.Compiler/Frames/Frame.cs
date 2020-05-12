@@ -139,23 +139,6 @@ namespace Blueprint.Compiler.Frames
                 return Record(inner.TryFindVariable(type));
             }
 
-            public Variable FindVariableByName(Type dependency, string name)
-            {
-                return Record(inner.FindVariableByName(dependency, name));
-            }
-
-            public bool TryFindVariableByName(Type dependency, string name, out Variable variable)
-            {
-                var found = inner.TryFindVariableByName(dependency, name, out variable);
-
-                if (found)
-                {
-                    uses.Add(variable);
-                }
-
-                return found;
-            }
-
             private Variable Record(Variable v)
             {
                 if (v != null)

@@ -183,7 +183,6 @@ namespace Blueprint.Api
 
             var context = new MiddlewareBuilderContext(
                 executeMethod,
-                apiOperationContextSource,
                 operation,
                 model,
                 serviceScope.ServiceProvider,

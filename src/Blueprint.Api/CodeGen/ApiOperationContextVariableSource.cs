@@ -81,9 +81,9 @@ namespace Blueprint.Api.CodeGen
                 return operationContextVariable;
             }
 
-            if (type == typeof(IApiOperation))
+            if (type == typeof(IApiOperation) || type == OperationVariable.VariableType)
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation));
+                return OperationVariable;
             }
 
             if (type == typeof(IServiceProvider))
@@ -104,11 +104,6 @@ namespace Blueprint.Api.CodeGen
             if (type == typeof(CancellationToken))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.OperationCancelled));
-            }
-
-            if (type == OperationVariable.VariableType)
-            {
-                return OperationVariable;
             }
 
             return null;

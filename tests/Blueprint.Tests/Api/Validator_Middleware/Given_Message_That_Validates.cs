@@ -35,7 +35,7 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var result = await executor.ExecuteWithNewScopeAsync(new EmptyOperation());
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be(toReturn);
             handler.WasCalled.Should().BeTrue();
         }
@@ -59,7 +59,7 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             });
 
             // Assert
-            var okResult = result.Should().BeOfType<OkResult>().Subject;
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
             okResult.Content.Should().Be(toReturn);
             handler.WasCalled.Should().BeTrue();
         }
