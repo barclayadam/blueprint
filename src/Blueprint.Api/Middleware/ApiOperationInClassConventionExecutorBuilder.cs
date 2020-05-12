@@ -36,8 +36,13 @@ namespace Blueprint.Api.Middleware
             // operation), and to fill in the parameters of that method as required.
             var handlerInvokeCall = new MethodCall(context.Descriptor.OperationType, method);
 
+            // Note that although we know the handler type at compile time, we still specify it as a
+            // parameter to logging so that it is output as a structured value (as it changes between
+            // invocations)
             context.AppendFrames(
-                LogFrame.Debug($"Executing API operation. handler_type={method.DeclaringType.Name}"),
+                LogFrame.Debug(
+                    "Executing API operation with handler {HandlerType}",
+                    $"\"{method.DeclaringType.Name}\""),
                 handlerInvokeCall);
 
             // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'

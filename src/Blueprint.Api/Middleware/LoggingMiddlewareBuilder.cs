@@ -67,7 +67,7 @@ namespace Blueprint.Api.Middleware
 
                 writer.Write(
                     LogFrame.Information(
-                        "Operation {0} finished in {1}ms",
+                        "Operation {OperationName} finished in {TotalMilliseconds}ms",
                         $"\"{operationType}\"",
                         $"{stopwatchVariable}.{nameof(Stopwatch.Elapsed)}.{nameof(TimeSpan.TotalMilliseconds)}"));
             }

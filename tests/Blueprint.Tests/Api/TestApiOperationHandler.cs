@@ -30,8 +30,6 @@ namespace Blueprint.Tests.Api
 
         public Task<object> Invoke(T operation, ApiOperationContext apiOperationContext)
         {
-            var httpRequest = apiOperationContext.GetHttpContext().Request;
-
             WasCalled = true;
             OperationPassed = operation;
             ContextPassed = apiOperationContext;

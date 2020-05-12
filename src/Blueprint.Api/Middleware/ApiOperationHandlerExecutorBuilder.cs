@@ -35,7 +35,9 @@ namespace Blueprint.Api.Middleware
 
             context.AppendFrames(
                 getInstanceFrame,
-                LogFrame.Debug("Executing API operation. handler_type={0}", $"{getInstanceFrame.InstanceVariable}.GetType().Name"),
+                LogFrame.Debug(
+                    "Executing API operation with handler {HandlerType}",
+                    $"{getInstanceFrame.InstanceVariable}.GetType().Name"),
                 handlerInvokeCall);
 
             return handlerInvokeCall.ReturnVariable;

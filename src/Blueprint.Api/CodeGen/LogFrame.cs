@@ -21,8 +21,6 @@ namespace Blueprint.Api.CodeGen
         private readonly string message;
         private readonly string[] parameters;
 
-        private LoggerVariable loggerVariable;
-
         private LogFrame(LogLevel level, string message, string[] parameters)
         {
             this.level = level;
@@ -103,28 +101,25 @@ namespace Blueprint.Api.CodeGen
         }
 
         /// <inheritdoc />
-        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-        {
-            loggerVariable = (LoggerVariable)variables.FindVariable(typeof(ILogger));
-            var safeMessage = message.Replace("\"", "\\\"");
-
-            if (loggerVariable.Logger.IsEnabled(level))
-            {
-                var methodCall = $"{loggerVariable}.{nameof(ILogger.Log)}";
-                var logLevel = Variable.StaticFrom<LogLevel>(level.ToString());
-
-                writer.WriteLine(parameters.Length == 0
-                    ? $"{methodCall}({logLevel}, \"{safeMessage}\");"
-                    : $"{methodCall}({logLevel}, \"{safeMessage}\", {string.Join(", ", parameters)});");
-            }
-
-            next();
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             return $"Log.{level}(\"{message}\")";
+        }
+
+        /// <inheritdoc />
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
+        {
+            var loggerVariable = variables.FindVariable(typeof(ILogger));
+            var safeMessage = message.Replace("\"", "\\\"");
+
+            var methodCall = $"{loggerVariable}.{nameof(ILogger.Log)}";
+            var logLevel = Variable.StaticFrom<LogLevel>(level.ToString());
+
+            writer.WriteLine(parameters.Length == 0
+                ? $"{methodCall}({logLevel}, \"{safeMessage}\");"
+                : $"{methodCall}({logLevel}, \"{safeMessage}\", {string.Join(", ", parameters)});");
+
+            next();
         }
     }
 }
