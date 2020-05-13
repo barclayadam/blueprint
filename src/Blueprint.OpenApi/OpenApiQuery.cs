@@ -184,8 +184,9 @@ namespace Blueprint.OpenApi
                             generator,
                             openApiDocumentSchemaResolver);
 
-                        openApiOperation.Responses["200"] = new OpenApiResponse
+                        openApiOperation.Responses[ToHttpStatusCode(response.Category)] = new OpenApiResponse
                         {
+                            Description = response.Description,
                             Schema = jsonSchema,
                         };
                     }
@@ -199,6 +200,20 @@ namespace Blueprint.OpenApi
             return new PlainTextResult(document.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
             {
                 ContentType = "application/json",
+            };
+        }
+
+        private static string ToHttpStatusCode(ResponseDescriptorCategory responseCategory)
+        {
+            return responseCategory switch
+            {
+                ResponseDescriptorCategory.Success => "200",
+                ResponseDescriptorCategory.ValidationFailure => "422",
+                ResponseDescriptorCategory.AuthenticationFailure => "401",
+                ResponseDescriptorCategory.AuthorisationFailure => "403",
+                ResponseDescriptorCategory.MissingData => "404",
+                ResponseDescriptorCategory.UnexpectedFailure => "5XX",
+                _ => throw new ArgumentOutOfRangeException(nameof(responseCategory), responseCategory, null)
             };
         }
 

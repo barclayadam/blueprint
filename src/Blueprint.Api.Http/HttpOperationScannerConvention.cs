@@ -31,6 +31,14 @@ namespace Blueprint.Api.Http
 
             descriptor.Name = descriptor.Name;
             descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
+
+            // TODO: Consider pushing these down to Blueprint.Api as they are core there, but allow the response
+            // types to be described further (i.e. ProblemDetails is HTTP specific representation)
+            descriptor.AddResponse(
+                new ResponseDescriptor(typeof(ProblemDetails), ResponseDescriptorCategory.UnexpectedFailure, "Unexpected error"));
+
+            descriptor.AddResponse(
+                new ResponseDescriptor(typeof(ProblemDetails), ResponseDescriptorCategory.ValidationFailure, "Validation failure"));
         }
 
         /// <inheritdoc />

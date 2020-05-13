@@ -12,11 +12,19 @@ namespace Blueprint.Api
         /// Initialises a new instance of the <see cref="ResponseDescriptor" /> class.
         /// </summary>
         /// <param name="type">The type of response.</param>
-        public ResponseDescriptor(Type type)
+        /// <param name="category">The category of this response.</param>
+        /// <param name="description">A description of this response.</param>
+        public ResponseDescriptor(
+            Type type,
+            ResponseDescriptorCategory category,
+            string description)
         {
             Guard.NotNull(nameof(type), type);
+            Guard.EnumDefined(nameof(type), category);
 
             Type = type;
+            Category = category;
+            Description = description;
         }
 
         /// <summary>
@@ -24,5 +32,15 @@ namespace Blueprint.Api
         /// commands or <see cref="ApiResource" /> for queries.
         /// </summary>
         public Type Type { get; }
+
+        /// <summary>
+        /// The category of this response.
+        /// </summary>
+        public ResponseDescriptorCategory Category { get; }
+
+        /// <summary>
+        /// A description of this response.
+        /// </summary>
+        public string Description { get; }
     }
 }

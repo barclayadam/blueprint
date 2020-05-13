@@ -210,7 +210,8 @@ namespace Blueprint.Api.Configuration
 
             if (typedOperation != null)
             {
-                descriptor.AddResponse(new ResponseDescriptor(typedOperation.GetGenericArguments()[0]));
+                descriptor.AddResponse(
+                    new ResponseDescriptor(typedOperation.GetGenericArguments()[0], ResponseDescriptorCategory.Success, "OK"));
             }
 
             return descriptor;

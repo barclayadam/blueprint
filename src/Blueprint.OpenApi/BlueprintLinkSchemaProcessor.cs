@@ -50,7 +50,7 @@ namespace Blueprint.OpenApi
                     rel = r.Rel,
                     operationId = r.OperationDescriptor.Name,
                     method = r.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
-                    responseSchema = context.Settings.SchemaNameGenerator.Generate(OpenApiQuery.GetActualType(r.OperationDescriptor.Responses.Single().Type)),
+                    responseSchema = context.Settings.SchemaNameGenerator.Generate(OpenApiQuery.GetActualType(r.OperationDescriptor.Responses.Single(r => r.Category == ResponseDescriptorCategory.Success).Type)),
                     body = OpenApiQuery.GetCommandBodySchema(r.OperationDescriptor, r, this.openApiDocument, context.Generator, context.Resolver)?.Reference.Id,
                 });
             }
