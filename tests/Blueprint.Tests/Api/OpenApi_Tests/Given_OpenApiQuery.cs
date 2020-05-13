@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -106,7 +108,11 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         /// <remarks>
         /// Some more remarks about this query.
         /// </remarks>
-        /// <exception cref="NotFoundException">If no resource can be found.</exception>
+        /// <exception cref="NotFoundException">When needed (will be 404).</exception>
+        /// <exception cref="InvalidOperationException">When needed (will be 400).</exception>
+        /// <exception cref="ForbiddenException">When needed (will be 403).</exception>
+        /// <exception cref="SecurityException">When needed (will be 401).</exception>
+        /// <exception cref="ApplicationException">When needed (will be 500).</exception>
         [RootLink("/resources/{AnId}")]
         public class OpenApiGetQuery : IQuery<OpenApiResource>
         {

@@ -213,11 +213,12 @@ namespace Blueprint.OpenApi
             return responseCategory switch
             {
                 ResponseDescriptorCategory.Success => "200",
-                ResponseDescriptorCategory.ValidationFailure => "422",
+                ResponseDescriptorCategory.InvalidOperationFailure => "400",
                 ResponseDescriptorCategory.AuthenticationFailure => "401",
                 ResponseDescriptorCategory.AuthorisationFailure => "403",
+                ResponseDescriptorCategory.ValidationFailure => "422",
                 ResponseDescriptorCategory.MissingData => "404",
-                ResponseDescriptorCategory.UnexpectedFailure => "5XX",
+                ResponseDescriptorCategory.UnexpectedFailure => "500",
                 _ => throw new ArgumentOutOfRangeException(nameof(responseCategory), responseCategory, null)
             };
         }
