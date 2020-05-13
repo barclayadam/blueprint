@@ -6,6 +6,7 @@ using System.Reflection;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Http;
+using Blueprint.Api.Http.MessagePopulation;
 using Blueprint.Api.Middleware;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -121,16 +122,58 @@ namespace Blueprint.OpenApi
                         openApiOperation.Tags.Add(operation.OperationType.Namespace.Split('.').Last());
                     }
 
-                    foreach (var routeProperty in route.Placeholders)
+                    var httpMethod = operation.GetFeatureData<HttpOperationFeatureData>().HttpMethod;
+
+                    var allOwned = messagePopulationSources
+                        .SelectMany(s => s.GetOwnedProperties(apiDataModel, operation))
+                        .ToList();
+
+                    // First, add the explicit "owned" properties, those that we know come from a particular
+                    // place and are therefore _not_ part of the body
+                    foreach (var property in operation.Properties)
                     {
+                        // We are only considering "owned" parameters here. All non-owned properties will
+                        // be part of the "body" of this command, as handled below UNLESS this is a GET request,
+                        // in which case we determine the parameter comes from the query (if not explictly
+                        // overriden)
+                        if (!allOwned.Contains(property) && httpMethod != "GET")
+                        {
+                            continue;
+                        }
+
+                        var isRoute = route.Placeholders.Any(p => p.Property == property);
+
                         openApiOperation.Parameters.Add(new OpenApiParameter
                         {
-                            Kind = OpenApiParameterKind.Path,
-                            Name = routeProperty.Property.Name,
-                            IsRequired = true,
-                            Schema = JsonSchema.FromType(routeProperty.Property.PropertyType),
-                            Description = routeProperty.Property.GetXmlDocsSummary(),
+                            Kind = isRoute ? OpenApiParameterKind.Path : ToKind(property),
+
+                            Name = HttpPartMessagePopulationSource.GetPartKey(property),
+
+                            IsRequired = isRoute ||
+                                         property.ToContextualProperty().Nullability == Nullability.NotNullable ||
+                                         property.GetCustomAttributes<RequiredAttribute>().Any(),
+
+                            Schema = generator.Generate(property.PropertyType),
+
+                            Description = property.GetXmlDocsSummary(),
                         });
+                    }
+
+                    // GETs will NOT have their body parsed, meaning we need not handle body parameter at all
+                    if (httpMethod != "GET")
+                    {
+                        // The body schema would contain all non-owned properties (owned properties are
+                        // handled above as coming from a specific part of the HTTP request).
+                        var bodySchema = GetCommandBodySchema(operation, route, document, generator, openApiDocumentSchemaResolver);
+
+                        if (bodySchema != null)
+                        {
+                            openApiOperation.Parameters.Add(new OpenApiParameter
+                            {
+                                Kind = OpenApiParameterKind.Body,
+                                Schema = bodySchema,
+                            });
+                        }
                     }
 
                     foreach (var response in operation.Responses)
@@ -145,49 +188,6 @@ namespace Blueprint.OpenApi
                         {
                             Schema = jsonSchema,
                         };
-                    }
-
-                    // If the operation is a command then it takes a command body if there are non-route properties
-                    if (operation.IsCommand)
-                    {
-                        var bodySchema = GetCommandBodySchema(operation, route, document, generator, openApiDocumentSchemaResolver);
-
-                        if (bodySchema != null)
-                        {
-                            openApiOperation.Parameters.Add(new OpenApiParameter
-                            {
-                                Kind = OpenApiParameterKind.Body,
-                                Schema = bodySchema,
-                            });
-                        }
-                    }
-                    else
-                    {
-                        // If this is not a command we assume all parameters come in from the query string
-                        foreach (var parameter in operation.Properties)
-                        {
-                            // We have already handled this property above when adding route
-                            // parameters
-                            if (route.Placeholders.Any(p => p.Property == parameter))
-                            {
-                                continue;
-                            }
-
-                            openApiOperation.Parameters.Add(new OpenApiParameter
-                            {
-                                Kind = ToKind(parameter),
-
-                                Name = parameter.Name,
-
-                                IsRequired = parameter.ToContextualProperty().Nullability == Nullability.NotNullable ||
-                                             parameter.GetCustomAttributes<RequiredAttribute>().Any(),
-
-                                // Exclude "owned" properties?
-                                Schema = generator.Generate(parameter.PropertyType),
-
-                                Description = parameter.GetXmlDocsSummary(),
-                            });
-                        }
                     }
 
                     openApiPathItem[ToOpenApiOperationMethod(httpData.HttpMethod)] = openApiOperation;

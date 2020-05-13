@@ -29,6 +29,24 @@
             }
           },
           {
+            "name": "ImplicitlyFromQuery",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "DifferentNameForQuery",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
             "name": "ACookieValue",
             "in": "cookie",
             "description": "With some more documentation.",

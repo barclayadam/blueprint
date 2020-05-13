@@ -13,7 +13,7 @@ using Snapper.Attributes;
 
 namespace Blueprint.Tests.Api.OpenApi_Tests
 {
-    // [UpdateSnapshots]
+    [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]
@@ -39,11 +39,31 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
-        public async Task When_OpenApi_with_operation_then_renders_correctly()
+        public async Task When_OpenApi_with_GET_operation_then_renders_correctly()
         {
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<OpenApiGetQuery>()
+                .Configure(p => p.AddHttp().AddOpenApi()));
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_OpenApi_with_POST_operation_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<OpenApiPostCommand>()
                 .Configure(p => p.AddHttp().AddOpenApi()));
 
             // Act
@@ -87,6 +107,11 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         {
             public string AnId { get; set; }
 
+            public string ImplicitlyFromQuery { get; set; }
+
+            [FromQuery("DifferentNameForQuery")]
+            public string ExplicitlyFromQuery { get; set; }
+
             /// <summary>
             /// With some more documentation.
             /// </summary>
@@ -102,6 +127,37 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             public OpenApiResource Invoke()
             {
                 return new OpenApiResource();
+            }
+        }
+
+        /// <summary>
+        /// The OpenApiPostCommand summary
+        /// </summary>
+        [RootLink("/resources/{AnId}")]
+        public class OpenApiPostCommand : ICommand<ResourceCreated<OpenApiResource>>
+        {
+            public string AnId { get; set; }
+
+            public string ABodyParameter { get; set; }
+
+            [Required]
+            public string AnotherBodyParameter { get; set; }
+
+            /// <summary>
+            /// With some more documentation.
+            /// </summary>
+            [FromCookie]
+            public string ACookieValue { get; set; }
+
+            /// <summary>
+            /// With some documentation.
+            /// </summary>
+            [FromHeader]
+            public string AHeaderValue { get; set; }
+
+            public ResourceCreated<OpenApiResource> Invoke()
+            {
+                return new ResourceCreated<OpenApiResource>(new OpenApiGetQuery());
             }
         }
 

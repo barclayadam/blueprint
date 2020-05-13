@@ -161,7 +161,8 @@ namespace Blueprint.Api.Http.MessagePopulation
 
             var methodCall = $"{typeof(HttpPartMessagePopulationSource).FullNameInCode()}.{nameof(ConvertValue)}";
 
-            return $"({property.PropertyType.FullNameInCode()}) {methodCall}(\"{property.Name}\", {valueAccessor}, typeof({property.PropertyType.FullNameInCode()}))";
+            return
+                $"({property.PropertyType.FullNameInCode()}) {methodCall}(\"{property.Name}\", {valueAccessor}, typeof({property.PropertyType.FullNameInCode()}))";
         }
 
         /// <summary>
@@ -172,8 +173,7 @@ namespace Blueprint.Api.Http.MessagePopulation
         /// <returns>All properties with a custom attribute of the type this source represents.</returns>
         public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return isCatchAll ? Enumerable.Empty<PropertyInfo>() :
-                operationDescriptor.Properties.Where(p => p.GetCustomAttributes(partAttribute).Any());
+            return isCatchAll ? Enumerable.Empty<PropertyInfo>() : operationDescriptor.Properties.Where(p => p.GetCustomAttributes(partAttribute).Any());
         }
 
         /// <inheritdoc />
@@ -200,14 +200,7 @@ namespace Blueprint.Api.Http.MessagePopulation
                     continue;
                 }
 
-                var partKey = prop.Name;
-
-                if (!isCatchAll)
-                {
-                    var attribute = prop.GetCustomAttributeData(partAttribute);
-                    partKey = attribute.GetConstructorArgument<string>(0) ?? partKey;
-                }
-
+                var partKey = GetPartKey(prop);
                 var operationProperty = operationVariable.GetProperty(prop.Name);
 
                 // When this property is not in ALL routes we use TryGetValue from the RouteData dictionary and pass
@@ -252,6 +245,36 @@ namespace Blueprint.Api.Http.MessagePopulation
                         tryConversionExpression),
                     new BlankLineFrame());
             }
+        }
+
+        /// <summary>
+        /// Given a <see cref="PropertyInfo" /> finds the key that will be used to load the data from the HTTP
+        /// request.
+        /// </summary>
+        /// <param name="prop">The prop to find the key for.</param>
+        /// <returns>The key used for the part for this property.</returns>
+        public static string GetPartKey(PropertyInfo prop)
+        {
+            return
+                GetPartKeyOverride(prop, typeof(FromHeaderAttribute)) ??
+                GetPartKeyOverride(prop, typeof(FromCookieAttribute)) ??
+                GetPartKeyOverride(prop, typeof(FromQueryAttribute)) ??
+                prop.Name;
+        }
+
+        /// <summary>
+        /// Given a <see cref="PropertyInfo" /> and a <see cref="Type" /> representing
+        /// a "part" attribute, finds the overriden key that will be used to load the data from the HTTP
+        /// request (if it exists).
+        /// </summary>
+        /// <param name="prop">The prop to find the key for.</param>
+        /// <param name="partAttributeType">The (optional) part attribute to search for overriden key.</param>
+        /// <returns>The key used for the part for this property, or <c>null</c> is not overriden.</returns>
+        private static string GetPartKeyOverride(PropertyInfo prop, Type partAttributeType)
+        {
+            var attribute = prop.GetCustomAttributeData(partAttributeType);
+
+            return attribute?.GetConstructorArgument<string>(0);
         }
 
         private static bool IsArrayLike(Type type)

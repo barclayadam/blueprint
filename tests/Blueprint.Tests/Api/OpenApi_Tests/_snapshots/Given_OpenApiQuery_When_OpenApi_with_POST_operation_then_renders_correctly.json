@@ -11,35 +11,17 @@
   ],
   "paths": {
     "/resources/{AnId}": {
-      "get": {
+      "post": {
         "tags": [
           "OpenApi_Tests"
         ],
-        "description": "The OpenApiGetQuery summary",
-        "operationId": "OpenApiGet",
+        "description": "The OpenApiPostCommand summary",
+        "operationId": "OpenApiPost",
         "parameters": [
           {
             "name": "AnId",
             "in": "path",
             "required": true,
-            "description": "",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
-            "name": "ImplicitlyFromQuery",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
-            "name": "DifferentNameForQuery",
-            "in": "query",
             "description": "",
             "schema": {
               "title": "String",
@@ -65,44 +47,22 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Open"
-                }
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenApiPostCommand"
               }
             }
           }
-        }
-      },
-      "put": {
-        "tags": [
-          "OpenApi_Tests"
-        ],
-        "description": "The OpenApiPutCommand summary",
-        "operationId": "OpenApiPut",
-        "parameters": [
-          {
-            "name": "AnId",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          }
-        ],
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResourceUpdatedOfOpen"
+                  "$ref": "#/components/schemas/ResourceCreatedOfOpen"
                 }
               }
             }
@@ -113,65 +73,10 @@
   },
   "components": {
     "schemas": {
-      "Open": {
-        "id": "Open",
+      "ResourceCreatedOfOpen": {
+        "id": "ResourceCreatedOfOpen",
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "$object",
-          "$links",
-          "$partial"
-        ],
-        "properties": {
-          "$object": {
-            "type": "string",
-            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
-          },
-          "$links": {
-            "type": "object",
-            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "$partial": {
-            "type": "boolean",
-            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
-          },
-          "aProperty": {
-            "type": "string"
-          }
-        },
-        "x-links": [
-          {
-            "rel": "update",
-            "operationId": "OpenApiPut",
-            "method": "PUT",
-            "responseSchema": "ResourceUpdatedOfOpen",
-            "body": null
-          }
-        ]
-      },
-      "Link": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "href",
-          "type"
-        ],
-        "properties": {
-          "href": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          }
-        }
-      },
-      "ResourceUpdatedOfOpen": {
-        "id": "ResourceUpdatedOfOpen",
-        "type": "object",
-        "description": "A specific implementation of ResourceEvent`1 for events of change type Updated.",
+        "description": "A specific implementation of ResourceEvent`1 for events of change type Created.",
         "additionalProperties": false,
         "required": [
           "data",
@@ -235,6 +140,51 @@
           }
         }
       },
+      "Open": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$object",
+          "$links",
+          "$partial"
+        ],
+        "properties": {
+          "$object": {
+            "type": "string",
+            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
+          },
+          "$links": {
+            "type": "object",
+            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "$partial": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
+          },
+          "aProperty": {
+            "type": "string"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "type"
+        ],
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
       "ResourceEventChangeType": {
         "type": "string",
         "description": "",
@@ -248,6 +198,24 @@
           "Updated",
           "Deleted"
         ]
+      },
+      "OpenApiPostCommand": {
+        "id": "OpenApiPostCommand",
+        "type": "object",
+        "description": "The OpenApiPostCommand summary",
+        "additionalProperties": false,
+        "required": [
+          "anotherBodyParameter"
+        ],
+        "properties": {
+          "aBodyParameter": {
+            "type": "string"
+          },
+          "anotherBodyParameter": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
     }
   }
