@@ -85,7 +85,9 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_OpenApi_with_PlaintextResponse_result_operation_then_renders_correctly()
         {
             // Arrange
+            // Add 'BasicOpenApiGetQuery' so that we output x-links to a PlaintextResult operation
             var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<BasicOpenApiGetQuery>()
                 .WithOperation<OpenApiPlaintextResponseCommand>()
                 .Configure(p => p.AddHttp().AddOpenApi()));
 
@@ -155,6 +157,16 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             [FromHeader]
             public string AHeaderValue { get; set; }
 
+            public OpenApiResource Invoke()
+            {
+                return new OpenApiResource();
+            }
+        }
+
+
+        [RootLink("/resources/basic")]
+        public class BasicOpenApiGetQuery : IQuery<OpenApiResource>
+        {
             public OpenApiResource Invoke()
             {
                 return new OpenApiResource();

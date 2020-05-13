@@ -45,13 +45,32 @@ namespace Blueprint.OpenApi
             {
                 context.Schema.ExtensionData ??= new Dictionary<string, object>();
 
-                context.Schema.ExtensionData["x-links"] = resourceLinks.Select(r => new
+                context.Schema.ExtensionData["x-links"] = resourceLinks.Select(l =>
                 {
-                    rel = r.Rel,
-                    operationId = r.OperationDescriptor.Name,
-                    method = r.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
-                    responseSchema = context.Settings.SchemaNameGenerator.Generate(OpenApiQuery.GetActualType(r.OperationDescriptor.Responses.Single(r => r.Category == ResponseDescriptorCategory.Success).Type)),
-                    body = OpenApiQuery.GetCommandBodySchema(r.OperationDescriptor, r, this.openApiDocument, context.Generator, context.Resolver)?.Reference.Id,
+                    var descriptor = l.OperationDescriptor;
+
+                    var commandBodySchema = OpenApiQuery.GetCommandBodySchema(
+                        descriptor,
+                        l,
+                        openApiDocument,
+                        context.Generator,
+                        context.Resolver);
+
+                    var successResponse = descriptor
+                        .Responses
+                        .Single(r => r.Category == ResponseDescriptorCategory.Success);
+
+                    var successResponseType = OpenApiQuery.GetActualType(successResponse.Type);
+
+                    return new
+                    {
+                        rel = l.Rel,
+                        operationId = descriptor.Name,
+                        method = descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
+                        responseSchema = successResponseType == typeof(PlainTextResult) ?
+                            "string" : context.Settings.SchemaNameGenerator.Generate(successResponseType),
+                        body = commandBodySchema?.Reference.Id,
+                    };
                 });
             }
         }
