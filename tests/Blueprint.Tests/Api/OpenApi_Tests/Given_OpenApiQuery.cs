@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Errors;
 using Blueprint.Api.Http;
 using Blueprint.OpenApi;
 using Blueprint.Testing;
@@ -102,6 +103,10 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         /// <summary>
         /// The OpenApiGetQuery summary
         /// </summary>
+        /// <remarks>
+        /// Some more remarks about this query.
+        /// </remarks>
+        /// <exception cref="NotFoundException">If no resource can be found.</exception>
         [RootLink("/resources/{AnId}")]
         public class OpenApiGetQuery : IQuery<OpenApiResource>
         {

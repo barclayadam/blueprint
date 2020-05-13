@@ -112,7 +112,8 @@ namespace Blueprint.OpenApi
                     var openApiOperation = new OpenApiOperation
                     {
                         OperationId = operation.Name,
-                        Description = operation.OperationType.GetXmlDocsSummary(),
+                        Summary = operation.OperationType.GetXmlDocsSummary(),
+                        Description = operation.OperationType.GetXmlDocsRemarks(),
                     };
 
                     // Use the last namespace segment as a tag of this operation, which provides a generally
@@ -178,8 +179,12 @@ namespace Blueprint.OpenApi
 
                     foreach (var response in operation.Responses)
                     {
+                        // We make the assumption here that if the category is a success type then
+                        // we return the response type, otherwise as we are HTTP-reliant use
+                        // ProblemDetails as every failure is turned in to that
                         var jsonSchema = GetOrAddJsonSchema(
-                            response.Type,
+                            response.Category == ResponseDescriptorCategory.Success ?
+                                response.Type : typeof(ProblemDetails),
                             document,
                             generator,
                             openApiDocumentSchemaResolver);

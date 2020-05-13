@@ -6,6 +6,8 @@ namespace Blueprint.Api
 
         ValidationFailure,
 
+        InvalidOperationFailure,
+
         AuthenticationFailure,
 
         AuthorisationFailure,

@@ -2,9 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using Blueprint.Api.Authorisation;
+using Blueprint.Api.Errors;
+using Blueprint.Api.Middleware;
 using Blueprint.Core;
 using Blueprint.Core.Utilities;
+using Namotion.Reflection;
+using NJsonSchema.Infrastructure;
 
 namespace Blueprint.Api.Configuration
 {
@@ -214,7 +219,61 @@ namespace Blueprint.Api.Configuration
                     new ResponseDescriptor(typedOperation.GetGenericArguments()[0], ResponseDescriptorCategory.Success, "OK"));
             }
 
+            // TODO: Consider pushing these down to Blueprint.Api as they are core there, but allow the response
+            // types to be described further (i.e. ProblemDetails is HTTP specific representation)
+            descriptor.AddResponse(
+                new ResponseDescriptor(typeof(UnhandledExceptionOperationResult), ResponseDescriptorCategory.UnexpectedFailure, "Unexpected error"));
+
+            descriptor.AddResponse(
+                new ResponseDescriptor(typeof(ValidationFailedOperationResult), ResponseDescriptorCategory.ValidationFailure, "Validation failure"));
+
+            var docs = descriptor.OperationType.GetXmlDocsElement();
+            var exceptionElements = docs.Elements("exception");
+
+            foreach (var e in exceptionElements)
+            {
+                // The exception type is stored as T:[full name]. Strip the first two characters.
+                var exceptionTypeText = e.Attribute("cref").Value.Substring(2);
+                var exceptionType = Type.GetType(exceptionTypeText);
+
+                if (exceptionType == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Could not find type {exceptionTypeText} as described by an exception tag in documentation for the operation {descriptor.OperationType.FullName}.");
+                }
+
+                var description = e.Value;
+
+                descriptor.AddResponse(
+                    new ResponseDescriptor(exceptionType, ToDescriptorCategory(exceptionType), description));
+            }
+
             return descriptor;
+        }
+
+        private static ResponseDescriptorCategory ToDescriptorCategory(Type exceptionType)
+        {
+            if (exceptionType == typeof(NotFoundException))
+            {
+                return ResponseDescriptorCategory.MissingData;
+            }
+
+            if (exceptionType == typeof(InvalidOperationException))
+            {
+                return ResponseDescriptorCategory.InvalidOperationFailure;
+            }
+
+            if (exceptionType == typeof(ForbiddenException))
+            {
+                return ResponseDescriptorCategory.AuthorisationFailure;
+            }
+
+            if (exceptionType == typeof(SecurityException))
+            {
+                return ResponseDescriptorCategory.AuthenticationFailure;
+            }
+
+            return ResponseDescriptorCategory.UnexpectedFailure;
         }
     }
 }
