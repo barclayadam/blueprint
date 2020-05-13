@@ -82,6 +82,26 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
+        public async Task When_OpenApi_with_PlaintextResponse_result_operation_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<OpenApiPlaintextResponseCommand>()
+                .Configure(p => p.AddHttp().AddOpenApi()));
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
         public async Task When_OpenApi_with_operations_same_url_then_renders_correctly()
         {
             // Arrange
@@ -185,6 +205,23 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             public ResourceUpdated<OpenApiResource> Invoke()
             {
                 return new ResourceUpdated<OpenApiResource>(new OpenApiGetQuery());
+            }
+        }
+
+
+        /// <summary>
+        /// The OpenApiPlaintextResponse summary
+        /// </summary>
+        [Link(typeof(OpenApiResource), "/resources/{AnId}/as-plaintext", Rel = "plaintext-rel")]
+        [HttpPut]
+        public class OpenApiPlaintextResponseCommand : ICommand<PlainTextResult>
+        {
+            [Required]
+            public string AnId { get; set; }
+
+            public PlainTextResult Invoke()
+            {
+                return new PlainTextResult("The content to respond with");
             }
         }
 

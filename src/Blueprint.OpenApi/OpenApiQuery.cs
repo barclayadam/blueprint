@@ -179,6 +179,27 @@ namespace Blueprint.OpenApi
 
                     foreach (var response in operation.Responses)
                     {
+                        if (response.Type == typeof(PlainTextResult))
+                        {
+                            openApiOperation.Responses[ToHttpStatusCode(response.Category)] = new OpenApiResponse
+                            {
+                                Description = response.Description,
+
+                                Content =
+                                {
+                                    ["text/plain"] = new OpenApiMediaType
+                                    {
+                                        Schema = new JsonSchema
+                                        {
+                                            Type = JsonObjectType.String,
+                                        },
+                                    },
+                                },
+                            };
+
+                            continue;
+                        }
+
                         // We make the assumption here that if the category is a success type then
                         // we return the response type, otherwise as we are HTTP-reliant use
                         // ProblemDetails as every failure is turned in to that
