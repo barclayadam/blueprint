@@ -183,8 +183,7 @@ namespace Blueprint.OpenApi
                         // we return the response type, otherwise as we are HTTP-reliant use
                         // ProblemDetails as every failure is turned in to that
                         var jsonSchema = GetOrAddJsonSchema(
-                            response.Category == ResponseDescriptorCategory.Success ?
-                                response.Type : typeof(ProblemDetails),
+                            GetResponseType(response),
                             document,
                             generator,
                             openApiDocumentSchemaResolver);
@@ -205,6 +204,16 @@ namespace Blueprint.OpenApi
             return new PlainTextResult(document.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
             {
                 ContentType = "application/json",
+            };
+        }
+
+        private static Type GetResponseType(ResponseDescriptor response)
+        {
+            return response.Category switch
+            {
+                ResponseDescriptorCategory.Success => response.Type,
+                ResponseDescriptorCategory.ValidationFailure => typeof(ValidationProblemDetails),
+                _ => typeof(ProblemDetails)
             };
         }
 
