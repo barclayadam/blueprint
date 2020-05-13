@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Blueprint.Api.Configuration;
-using NJsonSchema.Infrastructure;
 
 namespace Blueprint.Api.Http
 {
@@ -30,7 +29,6 @@ namespace Blueprint.Api.Http
                 supportedMethod = typeof(ICommand).IsAssignableFrom(descriptor.OperationType) ? "POST" : "GET";
             }
 
-            descriptor.Name = descriptor.Name;
             descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
         }
 
