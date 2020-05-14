@@ -32,7 +32,4 @@
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Api\OpenApi_Tests\_snapshots" />
-  </ItemGroup>
 </Project>

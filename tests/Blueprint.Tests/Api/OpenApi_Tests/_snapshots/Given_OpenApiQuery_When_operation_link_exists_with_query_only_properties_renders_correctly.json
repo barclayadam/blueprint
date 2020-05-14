@@ -11,18 +11,36 @@
   ],
   "paths": {
     "/resources/{AnId}": {
-      "post": {
+      "get": {
         "tags": [
           "OpenApi_Tests"
         ],
-        "summary": "The OpenApiPostCommand summary",
-        "description": "",
-        "operationId": "OpenApiPost",
+        "summary": "The OpenApiGetQuery summary",
+        "description": "Some more remarks about this query.",
+        "operationId": "OpenApiGet",
         "parameters": [
           {
             "name": "AnId",
             "in": "path",
             "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ImplicitlyFromQuery",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "DifferentNameForQuery",
+            "in": "query",
             "description": "",
             "schema": {
               "title": "String",
@@ -48,22 +66,161 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OpenApiPostCommand"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResourceCreatedOfOpen"
+                  "$ref": "#/components/schemas/Open"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "When needed (will be 500).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "When needed (will be 404).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "When needed (will be 400).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "When needed (will be 403).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "When needed (will be 401).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/a-static-query-url": {
+      "get": {
+        "tags": [
+          "OpenApi_Tests"
+        ],
+        "summary": "The LinkedQueryWithQueryOnlyProperties summary",
+        "description": "",
+        "operationId": "LinkedWithOnlyProperties",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "query",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/a-static-command-url": {
+      "post": {
+        "tags": [
+          "OpenApi_Tests"
+        ],
+        "summary": "The LinkedCommandWithNoBody summary",
+        "description": "",
+        "operationId": "LinkedWithNoBody",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "query",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
                 }
               }
             }
@@ -94,92 +251,8 @@
   },
   "components": {
     "schemas": {
-      "OpenApiPostCommand": {
-        "id": "OpenApiPostCommand",
-        "type": "object",
-        "description": "The OpenApiPostCommand summary",
-        "additionalProperties": false,
-        "required": [
-          "anotherBodyParameter"
-        ],
-        "properties": {
-          "aBodyParameter": {
-            "type": "string"
-          },
-          "anotherBodyParameter": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      },
-      "ResourceCreatedOfOpen": {
-        "id": "ResourceCreatedOfOpen",
-        "type": "object",
-        "description": "A specific implementation of ResourceEvent`1 for events of change type Created.",
-        "additionalProperties": false,
-        "required": [
-          "data",
-          "$object",
-          "eventId",
-          "changeType",
-          "created",
-          "resourceObject"
-        ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/Open"
-          },
-          "$object": {
-            "type": "string",
-            "description": "Gets the object of this 'resource', which is \"event\"."
-          },
-          "eventId": {
-            "type": "string",
-            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
-          },
-          "changeType": {
-            "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ResourceEventChangeType"
-              }
-            ]
-          },
-          "created": {
-            "type": "string",
-            "description": "Gets the created date of this event.",
-            "format": "date-time"
-          },
-          "resourceObject": {
-            "type": "string",
-            "description": "Gets the type of resource represented."
-          },
-          "href": {
-            "type": "string",
-            "description": "Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware\ncomponent from the resource type and id definition object."
-          },
-          "changedValues": {
-            "type": "object",
-            "description": "Gets or sets a dictionary of previous values, used to identify what has actually changed\nbetween two resources, keyed on the property name with the previous value of the resource\nbeing the value.",
-            "additionalProperties": {}
-          },
-          "metadata": {
-            "type": "object",
-            "description": "Gets the metadata dictionary of this resource event, a simple bag of key value pairs\nof useful information that can be stored free-form against an event.",
-            "additionalProperties": {}
-          },
-          "secureData": {
-            "type": "object",
-            "description": "Gets a dictionary of security-related data that will NOT be persisted anywhere.",
-            "additionalProperties": {}
-          },
-          "correlationId": {
-            "type": "string",
-            "description": "Gets or sets the correlation id for this event, which can be used to tie it back to\nthe initial request that resulted in an event."
-          }
-        }
-      },
       "Open": {
+        "id": "Open",
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -206,7 +279,23 @@
           "aProperty": {
             "type": "string"
           }
-        }
+        },
+        "x-links": [
+          {
+            "rel": "no-body-query",
+            "operationId": "LinkedWithOnlyProperties",
+            "method": "GET",
+            "responseSchema": "Open",
+            "body": null
+          },
+          {
+            "rel": "no-body-command",
+            "operationId": "LinkedWithNoBody",
+            "method": "POST",
+            "responseSchema": "Open",
+            "body": null
+          }
+        ]
       },
       "Link": {
         "type": "object",
@@ -223,20 +312,6 @@
             "type": "string"
           }
         }
-      },
-      "ResourceEventChangeType": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Created",
-          "Updated",
-          "Deleted"
-        ],
-        "enum": [
-          "Created",
-          "Updated",
-          "Deleted"
-        ]
       },
       "ProblemDetails": {
         "id": "ProblemDetails",

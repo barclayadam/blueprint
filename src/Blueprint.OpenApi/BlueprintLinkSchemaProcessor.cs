@@ -49,12 +49,10 @@ namespace Blueprint.OpenApi
                 {
                     var descriptor = l.OperationDescriptor;
 
-                    var commandBodySchema = OpenApiQuery.GetCommandBodySchema(
+                    var commandBodySchema = OpenApiQuery.GetExistingBodySchema(
                         descriptor,
-                        l,
                         openApiDocument,
-                        context.Generator,
-                        context.Resolver);
+                        context.Generator);
 
                     var successResponse = descriptor
                         .Responses

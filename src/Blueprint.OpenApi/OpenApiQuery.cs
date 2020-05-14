@@ -165,7 +165,7 @@ namespace Blueprint.OpenApi
                     {
                         // The body schema would contain all non-owned properties (owned properties are
                         // handled above as coming from a specific part of the HTTP request).
-                        var bodySchema = GetCommandBodySchema(operation, route, document, generator, openApiDocumentSchemaResolver);
+                        var bodySchema = GetExistingBodySchema(operation, document, generator);
 
                         if (bodySchema != null)
                         {
@@ -228,6 +228,53 @@ namespace Blueprint.OpenApi
             };
         }
 
+        internal static JsonSchema? GetExistingBodySchema(
+            ApiOperationDescriptor operation,
+            OpenApiDocument document,
+            JsonSchemaGenerator generator)
+        {
+            var type = GetActualType(operation.OperationType);
+
+            var jsonSchemaName = generator.Settings.SchemaNameGenerator.Generate(type);
+
+            if (document.Components.Schemas.TryGetValue(jsonSchemaName, out var jsonSchema))
+            {
+                return new JsonSchema
+                {
+                    Type = JsonObjectType.Object,
+                    Reference = jsonSchema,
+                };
+            }
+
+            return null;
+        }
+
+        internal static Type GetActualType(Type type)
+        {
+            // We do not output the individual event types, but instead consolidate down to only a concrete
+            // implementation of the well-known subclasses (i.e. we would only have _one_ ResourceUpdated per
+            // type instead of multiple for every subclass.
+            if (type.IsOfGenericType(typeof(ResourceUpdated<>), out var concreteUpdatedGenericType) &&
+                !type.IsGenericType)
+            {
+                return GetActualType(concreteUpdatedGenericType);
+            }
+
+            if (type.IsAbstract == false && type.IsOfGenericType(typeof(ResourceCreated<>), out var concreteCreatedType) &&
+                !type.IsGenericType)
+            {
+                return GetActualType(concreteCreatedType);
+            }
+
+            if (type.IsAbstract == false && type.IsOfGenericType(typeof(ResourceDeleted<>), out var concreteDeletedType) &&
+                !type.IsGenericType)
+            {
+                return GetActualType(concreteDeletedType);
+            }
+
+            return type;
+        }
+
         private static Type GetResponseType(ResponseDescriptor response)
         {
             return response.Category switch
@@ -273,56 +320,6 @@ namespace Blueprint.OpenApi
             return OpenApiParameterKind.Query;
         }
 
-        internal static JsonSchema? GetCommandBodySchema(
-            ApiOperationDescriptor operation,
-            ApiOperationLink route,
-            OpenApiDocument document,
-            JsonSchemaGenerator generator,
-            JsonSchemaResolver openApiDocumentSchemaResolver)
-        {
-            var nonRouteProperties = operation
-                .Properties
-                .Where(p => route.Placeholders.All(ph => ph.Property != p));
-
-            if (nonRouteProperties.Any())
-            {
-                // Exclude "owned" properties?
-                return GetOrAddJsonSchema(
-                    operation.OperationType,
-                    document,
-                    generator,
-                    openApiDocumentSchemaResolver);
-            }
-
-            return null;
-        }
-
-        internal static Type GetActualType(Type type)
-        {
-            // We do not output the individual event types, but instead consolidate down to only a concrete
-            // implementation of the well-known subclasses (i.e. we would only have _one_ ResourceUpdated per
-            // type instead of multiple for every subclass.
-            if (type.IsOfGenericType(typeof(ResourceUpdated<>), out var concreteUpdatedGenericType) &&
-                !type.IsGenericType)
-            {
-                return GetActualType(concreteUpdatedGenericType);
-            }
-
-            if (type.IsAbstract == false && type.IsOfGenericType(typeof(ResourceCreated<>), out var concreteCreatedType) &&
-                !type.IsGenericType)
-            {
-                return GetActualType(concreteCreatedType);
-            }
-
-            if (type.IsAbstract == false && type.IsOfGenericType(typeof(ResourceDeleted<>), out var concreteDeletedType) &&
-                !type.IsGenericType)
-            {
-                return GetActualType(concreteDeletedType);
-            }
-
-            return type;
-        }
-
         private static JsonSchema GetOrAddJsonSchema(
             Type type,
             OpenApiDocument document,
@@ -338,6 +335,12 @@ namespace Blueprint.OpenApi
             if (!document.Components.Schemas.TryGetValue(jsonSchemaName, out var jsonSchema))
             {
                 jsonSchema = generator.Generate(type, jsonSchemaResolver);
+
+                if (jsonSchema.Properties.Any() == false)
+                {
+                    return null;
+                }
+
                 jsonSchema.DocumentPath = "#/components/schemas/" + jsonSchemaName;
                 jsonSchema.Id = jsonSchemaName;
 

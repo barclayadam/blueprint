@@ -42,7 +42,7 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
-        public async Task When_OpenApi_with_GET_operation_then_renders_correctly()
+        public async Task When_GET_operation_then_renders_correctly()
         {
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
@@ -62,7 +62,7 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
-        public async Task When_OpenApi_with_POST_operation_then_renders_correctly()
+        public async Task When_POST_operation_then_renders_correctly()
         {
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
@@ -82,7 +82,7 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
-        public async Task When_OpenApi_with_PlaintextResponse_result_operation_then_renders_correctly()
+        public async Task When_PlaintextResponse_result_operation_then_renders_correctly()
         {
             // Arrange
             // Add 'BasicOpenApiGetQuery' so that we output x-links to a PlaintextResult operation
@@ -104,12 +104,36 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         }
 
         [Test]
-        public async Task When_OpenApi_with_operations_same_url_then_renders_correctly()
+        public async Task When_operations_same_url_then_renders_correctly()
         {
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<OpenApiGetQuery>()
                 .WithOperation<OpenApiPutCommand>()
+                .Configure(p => p.AddHttp().AddOpenApi()));
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        // If a linked operation exists that would not have a body a "Collection was modified; enumeration operation may not execute."
+        // exception thrown prior to 14/05/2020
+        [Test]
+        public async Task When_operation_link_exists_with_query_only_properties_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<OpenApiGetQuery>()
+                .WithOperation<LinkedQueryWithQueryOnlyProperties>()
+                .WithOperation<LinkedCommandWithNoBody>()
                 .Configure(p => p.AddHttp().AddOpenApi()));
 
             // Act
@@ -162,7 +186,6 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
                 return new OpenApiResource();
             }
         }
-
 
         [RootLink("/resources/basic")]
         public class BasicOpenApiGetQuery : IQuery<OpenApiResource>
@@ -220,7 +243,6 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             }
         }
 
-
         /// <summary>
         /// The OpenApiPlaintextResponse summary
         /// </summary>
@@ -234,6 +256,37 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             public PlainTextResult Invoke()
             {
                 return new PlainTextResult("The content to respond with");
+            }
+        }
+
+        /// <summary>
+        /// The LinkedQueryWithQueryOnlyProperties summary
+        /// </summary>
+        [Link(typeof(OpenApiResource), "/resources/a-static-query-url", Rel = "no-body-query")]
+        public class LinkedQueryWithQueryOnlyProperties : IQuery<OpenApiResource>
+        {
+            [Required]
+            public string AnId { get; set; }
+
+            public OpenApiResource Invoke()
+            {
+                return new OpenApiResource();
+            }
+        }
+
+        /// <summary>
+        /// The LinkedCommandWithNoBody summary
+        /// </summary>
+        [Link(typeof(OpenApiResource), "/resources/a-static-command-url", Rel = "no-body-command")]
+        public class LinkedCommandWithNoBody : ICommand<OpenApiResource>
+        {
+            [Required]
+            [FromQuery]
+            public string AnId { get; set; }
+
+            public OpenApiResource Invoke()
+            {
+                return new OpenApiResource();
             }
         }
 
