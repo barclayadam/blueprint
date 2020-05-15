@@ -334,6 +334,11 @@
           }
         }
       },
+      "OpenApiPutCommand": {
+        "type": "object",
+        "description": "The OpenApiPutCommand summary",
+        "additionalProperties": false
+      },
       "ResourceUpdatedOfOpen": {
         "id": "ResourceUpdatedOfOpen",
         "type": "object",

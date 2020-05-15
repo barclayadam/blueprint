@@ -247,6 +247,11 @@
             }
           }
         }
+      },
+      "OpenApiPlaintextResponseCommand": {
+        "type": "object",
+        "description": "The OpenApiPlaintextResponse summary",
+        "additionalProperties": false
       }
     }
   }

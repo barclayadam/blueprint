@@ -48,6 +48,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenApiPostCommand"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -85,6 +94,24 @@
   },
   "components": {
     "schemas": {
+      "OpenApiPostCommand": {
+        "id": "OpenApiPostCommand",
+        "type": "object",
+        "description": "The OpenApiPostCommand summary",
+        "additionalProperties": false,
+        "required": [
+          "anotherBodyParameter"
+        ],
+        "properties": {
+          "aBodyParameter": {
+            "type": "string"
+          },
+          "anotherBodyParameter": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
       "ResourceCreatedOfOpen": {
         "id": "ResourceCreatedOfOpen",
         "type": "object",

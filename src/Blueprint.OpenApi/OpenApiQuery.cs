@@ -165,15 +165,20 @@ namespace Blueprint.OpenApi
                     {
                         // The body schema would contain all non-owned properties (owned properties are
                         // handled above as coming from a specific part of the HTTP request).
-                        var bodySchema = GetExistingBodySchema(operation, document, generator);
+                        var bodySchema = GetOrAddJsonSchema(operation.OperationType, document, generator, openApiDocumentSchemaResolver);
 
                         if (bodySchema != null)
                         {
-                            openApiOperation.Parameters.Add(new OpenApiParameter
+                            openApiOperation.RequestBody = new OpenApiRequestBody
                             {
-                                Kind = OpenApiParameterKind.Body,
-                                Schema = bodySchema,
-                            });
+                                Content =
+                                {
+                                    ["application/json"] = new OpenApiMediaType
+                                    {
+                                        Schema = bodySchema,
+                                    },
+                                },
+                            };
                         }
                     }
 

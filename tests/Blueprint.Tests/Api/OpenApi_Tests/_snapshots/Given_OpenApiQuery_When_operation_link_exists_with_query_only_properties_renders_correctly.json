@@ -396,6 +396,11 @@
             }
           }
         }
+      },
+      "LinkedCommandWithNoBody": {
+        "type": "object",
+        "description": "The LinkedCommandWithNoBody summary",
+        "additionalProperties": false
       }
     }
   }
