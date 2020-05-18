@@ -81,7 +81,7 @@ namespace Blueprint.OpenApi
             foreach (var processor in openApiOptions.SchemaProcessors)
             {
                 jsonSchemaGeneratorSettings.SchemaProcessors.Add(
-                    (ISchemaProcessor)ActivatorUtilities.CreateInstance(serviceProvider, processor, apiDataModel, document));
+                    (ISchemaProcessor)ActivatorUtilities.CreateInstance(serviceProvider, processor, apiDataModel));
             }
 
             openApiOptions.ConfigureSettings?.Invoke(jsonSchemaGeneratorSettings);

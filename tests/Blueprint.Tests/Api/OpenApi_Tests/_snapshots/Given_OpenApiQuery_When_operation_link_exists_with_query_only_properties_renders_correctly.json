@@ -284,16 +284,12 @@
           {
             "rel": "no-body-query",
             "operationId": "LinkedWithOnlyProperties",
-            "method": "GET",
-            "responseSchema": "Open",
-            "body": null
+            "method": "GET"
           },
           {
             "rel": "no-body-command",
             "operationId": "LinkedWithNoBody",
-            "method": "POST",
-            "responseSchema": "Open",
-            "body": null
+            "method": "POST"
           }
         ]
       },

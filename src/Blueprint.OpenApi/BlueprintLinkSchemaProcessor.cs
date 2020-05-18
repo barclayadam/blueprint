@@ -3,7 +3,6 @@ using System.Linq;
 using Blueprint.Api;
 using Blueprint.Api.Http;
 using NJsonSchema.Generation;
-using NSwag;
 
 namespace Blueprint.OpenApi
 {
@@ -15,17 +14,14 @@ namespace Blueprint.OpenApi
     public class BlueprintLinkSchemaProcessor : ISchemaProcessor
     {
         private readonly ApiDataModel apiDataModel;
-        private readonly OpenApiDocument openApiDocument;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintLinkSchemaProcessor" /> class.
         /// </summary>
         /// <param name="apiDataModel">The <see cref="ApiDataModel" /> being processed.</param>
-        /// <param name="openApiDocument">The <see cref="OpenApiDocument" /> being generated.</param>
-        public BlueprintLinkSchemaProcessor(ApiDataModel apiDataModel, OpenApiDocument openApiDocument)
+        public BlueprintLinkSchemaProcessor(ApiDataModel apiDataModel)
         {
             this.apiDataModel = apiDataModel;
-            this.openApiDocument = openApiDocument;
         }
 
         /// <inheritdoc />
@@ -49,25 +45,11 @@ namespace Blueprint.OpenApi
                 {
                     var descriptor = l.OperationDescriptor;
 
-                    var commandBodySchema = OpenApiQuery.GetExistingBodySchema(
-                        descriptor,
-                        openApiDocument,
-                        context.Generator);
-
-                    var successResponse = descriptor
-                        .Responses
-                        .Single(r => r.Category == ResponseDescriptorCategory.Success);
-
-                    var successResponseType = OpenApiQuery.GetActualType(successResponse.Type);
-
                     return new
                     {
                         rel = l.Rel,
                         operationId = descriptor.Name,
                         method = descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
-                        responseSchema = successResponseType == typeof(PlainTextResult) ?
-                            "string" : context.Settings.SchemaNameGenerator.Generate(successResponseType),
-                        body = commandBodySchema?.Reference.Id,
                     };
                 });
             }

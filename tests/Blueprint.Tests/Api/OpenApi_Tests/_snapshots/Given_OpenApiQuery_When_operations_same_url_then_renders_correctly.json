@@ -228,9 +228,7 @@
           {
             "rel": "update",
             "operationId": "OpenApiPut",
-            "method": "PUT",
-            "responseSchema": "ResourceUpdatedOfOpen",
-            "body": null
+            "method": "PUT"
           }
         ]
       },
