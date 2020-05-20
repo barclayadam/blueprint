@@ -59,7 +59,7 @@ namespace Blueprint.Api.Authorisation
             var requiredClaim = claimRequiredAttribute.GetClaim(resource);
 
             // Pre-expand key if it is a match
-            var apiResource = resource as ApiResource;
+            var apiResource = resource as IHaveResourceKey;
             var expandedKey = apiResource?.ResourceKey;
 
             if (expandedKey != null && expandedKey.EndsWith(requiredClaim.Value))

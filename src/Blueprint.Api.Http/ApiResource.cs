@@ -2,17 +2,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Blueprint.Api.Authorisation;
 using Blueprint.Core.ThirdParty;
 using Newtonsoft.Json;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// An ApiResource that can be returned from an operation that has a standard format
     /// to be consumed by clients, including resource type ($object), links ($links) and whether this
     /// represents a 'partial' response ($partial).
     /// </summary>
-    public class ApiResource : ILinkableResource
+    public class ApiResource : ILinkableResource, IHaveResourceKey
     {
         private static readonly ConcurrentDictionary<Type, string> TypeNameCache = new ConcurrentDictionary<Type, string>();
 

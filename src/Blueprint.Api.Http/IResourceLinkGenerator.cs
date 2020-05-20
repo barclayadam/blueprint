@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// A resource link generator provides the means to generate the links that are presented with

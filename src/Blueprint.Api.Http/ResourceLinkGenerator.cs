@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// A small helper base class implementing <see cref="IResourceLinkGenerator" /> that will check for the correct type of

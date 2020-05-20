@@ -3,6 +3,7 @@ using Blueprint.Api.Http;
 using Blueprint.Api.Http.Formatters;
 using Blueprint.Api.Http.Infrastructure;
 using Blueprint.Api.Http.MessagePopulation;
+using Blueprint.Api.Http.Middleware;
 using Blueprint.Api.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,8 @@ namespace Blueprint.Api.Configuration
 
             apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
             apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
+
+            apiBuilder.Services.AddScoped<IApiLinkGenerator, ApiLinkGenerator>();
 
             // "Owned" HTTP part sources
             apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
@@ -67,6 +70,27 @@ namespace Blueprint.Api.Configuration
             apiBuilder.UseHost(new HttpBlueprintApiHost());
 
             return apiBuilder;
+        }
+
+        public static BlueprintPipelineBuilder AddHateoasLinks(this BlueprintPipelineBuilder pipelineBuilder)
+        {
+            // Resource events needs authoriser services to be registered
+            BuiltinBlueprintMiddlewares.TryAddAuthServices(pipelineBuilder);
+
+            pipelineBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
+
+            pipelineBuilder.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution);
+
+            return pipelineBuilder;
+        }
+
+        public static BlueprintPipelineBuilder AddResourceEvents<T>(this BlueprintPipelineBuilder pipelineBuilder) where T : class, IResourceEventRepository
+        {
+            pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
+
+            pipelineBuilder.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution);
+
+            return pipelineBuilder;
         }
     }
 }

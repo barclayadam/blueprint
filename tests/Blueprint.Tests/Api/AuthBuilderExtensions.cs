@@ -11,9 +11,16 @@ namespace Blueprint.Tests.Api
         {
             var context = executor.ContextFor(operation);
 
-            context.ClaimsIdentity = new ClaimsIdentity(claims, "TestAuth");
+            context.WithAuth(claims);
 
             return executor.ExecuteAsync(context);
+        }
+
+        public static ApiOperationContext WithAuth(this ApiOperationContext context, params Claim[] claims)
+        {
+            context.ClaimsIdentity = new ClaimsIdentity(claims, "TestAuth");
+
+            return context;
         }
     }
 }

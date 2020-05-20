@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     public class PagedApiResource<T> : ApiResource, IPagedApiResource
     {

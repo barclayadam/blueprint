@@ -1,4 +1,4 @@
-﻿namespace Blueprint.Api
+﻿namespace Blueprint.Api.Http
 {
     public enum ResourceEventChangeType
     {

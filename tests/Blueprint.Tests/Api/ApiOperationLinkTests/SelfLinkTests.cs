@@ -1,7 +1,9 @@
-﻿using System.Linq;
-using Blueprint.Api;
+﻿using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
+using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ApiOperationLinkTests
@@ -21,7 +23,6 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public string AnotherProperty { get; set; }
         }
 
-        private ApiOperationDescriptor descriptor;
         private BlueprintApiOptions options;
         private ApiLinkGenerator linkGenerator;
 
@@ -34,17 +35,17 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 .AddOperation<SelfLinkGeneratorTestsOperation>()
                 .Register(options.Model);
 
-            linkGenerator = new ApiLinkGenerator(options);
-            descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(SelfLinkGeneratorTestsOperation));
+            var httpContext = new DefaultHttpContext();
+            httpContext.SetRequestUri("http://api.example.com/api/");
+            httpContext.SetBaseUri("api/");
+
+            linkGenerator = new ApiLinkGenerator(options.Model, new HttpContextAccessor { HttpContext = httpContext });
         }
 
         [Test]
         public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
         {
             // Arrange
-            options.BaseApiUrl = "http://api.example.com/api/";
-            linkGenerator = new ApiLinkGenerator(options);
-
             var link = new SelfLinkGeneratorTestsOperation
             {
                 Id = "myId"
@@ -69,7 +70,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             // Assert
             var selfLink = linkGenerator.CreateSelfLink<LinkGeneratorResource>(link);
             selfLink.Type.Should().Be("linkGenerator");
-            selfLink.Href.Should().Be("/linkGenerators/myId");
+            selfLink.Href.Should().EndWith("/linkGenerators/myId");
         }
 
         [Test]
@@ -84,7 +85,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             // Assert
             var selfLink = linkGenerator.CreateSelfLink<LinkGeneratorResource>(link.Id, new { format = "pdf" });
             selfLink.Type.Should().Be("linkGenerator");
-            selfLink.Href.Should().Be("/linkGenerators/myId?format=pdf");
+            selfLink.Href.Should().EndWith("/linkGenerators/myId?format=pdf");
         }
     }
 }

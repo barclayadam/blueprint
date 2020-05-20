@@ -139,6 +139,8 @@ namespace Blueprint.Compiler.Frames
             {
                 if (Arguments[i] != null)
                 {
+                    AddUses(Arguments[i]);
+
                     continue;
                 }
 

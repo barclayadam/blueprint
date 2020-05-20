@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using Blueprint.Core;
 using MediatR;
-using Microsoft.CodeAnalysis.Differencing;
 using Newtonsoft.Json;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// Represents an event that has happened within an API that has resulted in the modification, creation or

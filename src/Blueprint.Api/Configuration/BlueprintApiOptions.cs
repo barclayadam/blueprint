@@ -20,8 +20,6 @@ namespace Blueprint.Api.Configuration
             {
                 OptimizationLevel = OptimizationLevel.Release,
             };
-
-            BaseApiUrl = string.Empty;
         }
 
         /// <summary>
@@ -46,12 +44,6 @@ namespace Blueprint.Api.Configuration
         /// executors.
         /// </summary>
         public string ApplicationName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Base URL for the API, the fully-qualified URL that represents where the
-        /// root of the API can be accessed from (i.e. https://api.somewhere.com/api/).
-        /// </summary>
-        public string BaseApiUrl { get; set; }
 
         /// <summary>
         /// The "host" of the API, i.e. a HTTP host or a background task processor.

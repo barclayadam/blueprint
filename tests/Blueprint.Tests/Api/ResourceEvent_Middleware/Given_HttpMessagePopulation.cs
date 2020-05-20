@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -12,8 +13,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
     {
         public class CreationOperation : ICommand
         {
-            [Required]
-            public string IdToCreate { get; set; }
+            [Required] public string IdToCreate { get; set; }
 
             public CreatedResourceEvent Invoke()
             {
@@ -25,15 +25,11 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         [SelfLink(typeof(AwesomeApiResource), "/resources/{Id}")]
         public class SelfQuery : IQuery<AwesomeApiResource>
         {
-            [Required]
-            public string Id { get; set; }
+            [Required] public string Id { get; set; }
 
             public AwesomeApiResource Invoke()
             {
-                return new AwesomeApiResource
-                {
-                    Id = Id
-                };
+                return new AwesomeApiResource { Id = Id };
             }
         }
 
@@ -60,8 +56,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
-            var context = executor.HttpContextFor<CreationOperation>();
-            ((CreationOperation)context.Operation).IdToCreate = "1234";
+            var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });
 
             var result = await executor.ExecuteAsync(context);
 

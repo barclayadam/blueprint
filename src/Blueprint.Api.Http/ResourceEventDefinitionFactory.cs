@@ -1,6 +1,6 @@
 using System;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// A factory to create instances of <see cref="ResourceEventDefinition{TResource}" /> without having to

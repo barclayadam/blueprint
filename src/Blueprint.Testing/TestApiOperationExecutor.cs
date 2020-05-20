@@ -123,6 +123,22 @@ namespace Blueprint.Testing
 
         /// <summary>
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
+        /// type, adding HTTP-specific properties to the context.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
+        /// <typeparam name="T">The type of operation to create a context for.</typeparam>
+        /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
+        public ApiOperationContext HttpContextFor<T>(T operation, CancellationToken token = default) where T : IApiOperation
+        {
+            var context = DataModel.CreateOperationContext(serviceProvider, operation, token);
+            context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+
+            return context;
+        }
+
+        /// <summary>
+        /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type.
         /// </summary>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>

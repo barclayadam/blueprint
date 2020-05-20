@@ -67,7 +67,7 @@ namespace Blueprint.Api
         /// Gets the <see cref="Format" /> string as "{0:`Format`}" to be used in a call to string.Format, pre-built
         /// here to avoid string concatenation at link generation time.
         /// </summary>
-        internal string FormatSpecifier { get; }
+        public string FormatSpecifier { get; }
 
         /// <summary>
         /// Returns <see cref="OriginalText" />.

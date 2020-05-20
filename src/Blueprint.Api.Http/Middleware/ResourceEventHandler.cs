@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Blueprint.Api.Middleware;
 using Blueprint.Api.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Api.Middleware
+namespace Blueprint.Api.Http.Middleware
 {
     /// <summary>
     /// A middleware component that will take any <see cref="ResourceEvent" /> objects returned from

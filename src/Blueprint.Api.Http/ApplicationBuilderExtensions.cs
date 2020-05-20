@@ -187,8 +187,9 @@ namespace Microsoft.AspNetCore.Builder
                         {
                             HttpContext = context.HttpContext,
                             RouteData = context.RouteData,
-                            BasePath = basePath,
                         });
+
+                        context.HttpContext.SetBaseUri(basePath);
 
                         apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
 

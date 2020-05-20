@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Core;
 using Blueprint.Testing;
 using FluentAssertions;
@@ -57,12 +58,16 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
+                .Configure(a => a.AddHttp())
                 .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
             // Note, do 2 executions to ensure correct parameters and being passed around
-            var result1 = await executor.ExecuteWithNewScopeAsync(new CreationOperation { IdToCreate = "1234" });
-            var result2 = await executor.ExecuteWithNewScopeAsync(new CreationOperation { IdToCreate = "9876" });
+            var context1 = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });
+            var context2 = executor.HttpContextFor(new CreationOperation { IdToCreate = "9876" });
+
+            var result1 = await executor.ExecuteAsync(context1);
+            var result2 = await executor.ExecuteAsync(context2);
 
             // Assert
             result1.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
@@ -78,14 +83,16 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 var executor = TestApiOperationExecutor.Create(o => o
                     .WithOperation<CreationOperation>()
                     .WithOperation<SelfQuery>()
+                    .Configure(a => a.AddHttp())
                     .Pipeline(p => p
                         .AddResourceEvents<NullResourceEventRepository>()
                         .AddAuth<TestUserAuthorisationContextFactory>()));
 
                 // Act
-                var result = await executor.ExecuteWithAuth(
-                    new CreationOperation { IdToCreate = "1234" },
-                    new Claim("sub", "User8547"));
+                var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" })
+                    .WithAuth(new Claim("sub", "User8547"));
+
+                var result = await executor.ExecuteAsync(context);
 
                 // Assert
                 var @event = result.ShouldBeContent<CreatedResourceEvent>();

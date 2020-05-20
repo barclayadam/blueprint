@@ -15,6 +15,22 @@ namespace Blueprint.Testing
     public static class ApiOperationContextSetup
     {
         /// <summary>
+        /// Sets the properties of <see cref="HttpRequest" /> of the given context to match those from
+        /// the specified URL.
+        /// </summary>
+        /// <param name="httpContext">The HttpContext to configure.</param>
+        /// <param name="url">The URL to set.</param>
+        public static void SetRequestUri(this DefaultHttpContext httpContext, string url)
+        {
+            var uri = new Uri(url);
+
+            httpContext.Request.Scheme = uri.Scheme;
+            httpContext.Request.Host = new HostString(uri.Host);
+            httpContext.Request.Path = new PathString(uri.LocalPath);
+            httpContext.Request.QueryString = new QueryString(uri.Query);
+        }
+
+        /// <summary>
         /// Configures the <see cref="ApiOperationContext" /> with a HTTP context configured for the given URL.
         /// </summary>
         /// <remarks>
@@ -26,24 +42,19 @@ namespace Blueprint.Testing
         /// <param name="url">The URL to set for this context's request.</param>
         public static void ConfigureHttp(this ApiOperationContext context, string url)
         {
-            var uri = new Uri(url);
-
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
-
-            httpContext.Request.Scheme = uri.Scheme;
-            httpContext.Request.Host = new HostString(uri.Host);
-            httpContext.Request.Path = new PathString(uri.LocalPath);
-            httpContext.Request.QueryString = new QueryString(uri.Query);
-            httpContext.Request.Method = context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod.ToString();
+            httpContext.SetRequestUri(url);
+            httpContext.Request.Method = context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod;
             httpContext.Request.Headers["Content-Type"] = "application/test-data";
 
             context.SetHttpFeatureContext(new HttpFeatureContext
             {
                 HttpContext = httpContext,
                 RouteData = new RouteData(),
-                BasePath = "/",
             });
+
+            httpContext.SetBaseUri("/");
 
             context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
         }

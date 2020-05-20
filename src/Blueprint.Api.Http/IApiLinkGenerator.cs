@@ -1,7 +1,7 @@
 using System;
 using Blueprint.Api.Configuration;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     public interface IApiLinkGenerator
     {

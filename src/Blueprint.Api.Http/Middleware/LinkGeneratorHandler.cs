@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Api.Middleware
+namespace Blueprint.Api.Http.Middleware
 {
     public static class LinkGeneratorHandler
     {

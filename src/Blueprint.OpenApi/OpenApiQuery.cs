@@ -9,6 +9,7 @@ using Blueprint.Api.Http;
 using Blueprint.Api.Http.MessagePopulation;
 using Blueprint.Api.Middleware;
 using Blueprint.Core.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Namotion.Reflection;
@@ -33,26 +34,27 @@ namespace Blueprint.OpenApi
         /// <summary>
         /// Returns the OpenAPI representation of the given <see cref="ApiDataModel" />.
         /// </summary>
-        /// <param name="httpFeatureContext">The <see cref="HttpFeatureContext" />.</param>
+        /// <param name="httpContext">The <see cref="HttpContext" />.</param>
         /// <param name="serviceProvider">Service provider used to create new <see cref="ISchemaProcessor" /> instances.</param>
         /// <param name="apiDataModel">The current data model.</param>
         /// <param name="messagePopulationSources">The registered message population sources.</param>
         /// <param name="options">The options to configure the OpenAPI document</param>
         /// <returns>An OpenAPI representation.</returns>
         public PlainTextResult Invoke(
-            HttpFeatureContext httpFeatureContext,
+            HttpContext httpContext,
             IServiceProvider serviceProvider,
             ApiDataModel apiDataModel,
             IEnumerable<IMessagePopulationSource> messagePopulationSources,
             IOptions<OpenApiOptions> options)
         {
             var openApiOptions = options.Value;
+            var basePath = httpContext.GetBlueprintBasePath();
 
             var document = new OpenApiDocument
             {
                 // Special case a base path of just "/" to avoid "//". We prepend "/" to
                 // indicate this is relative to the URL the document was accessed at
-                BasePath = httpFeatureContext.BasePath == "/" ? "/" : "/" + httpFeatureContext.BasePath,
+                BasePath = basePath == "/" ? "/" : "/" + basePath,
             };
 
             var jsonSchemaGeneratorSettings = new JsonSchemaGeneratorSettings

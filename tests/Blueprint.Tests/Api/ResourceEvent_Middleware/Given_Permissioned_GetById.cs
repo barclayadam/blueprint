@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Authorisation;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,12 +62,14 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
                 .WithServices(s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>())
+                .Configure(a => a.AddHttp())
                 .Pipeline(p => p
                     .AddAuth<AnonymousUserAuthorisationContextFactory>()
                     .AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new CreationOperation { IdToCreate = "1234" });
+            var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });
+            var result = await executor.ExecuteAsync(context);
 
             // Assert
             result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");

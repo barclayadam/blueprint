@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Api.Http;
+using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ApiOperationLinkTests
@@ -37,7 +39,11 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 .AddOperation<LinkGeneratorTestsOperation>()
                 .Register(options.Model);
 
-            linkGenerator = new ApiLinkGenerator(options);
+            var httpContext = new DefaultHttpContext();
+            httpContext.SetRequestUri("http://api.example.com/api/");
+            httpContext.SetBaseUri("api/");
+
+            linkGenerator = new ApiLinkGenerator(options.Model, new HttpContextAccessor { HttpContext = httpContext });
             descriptor = options.Model.Operations.Single(o => o.OperationType == typeof(LinkGeneratorTestsOperation));
         }
 
@@ -47,9 +53,6 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
             {
                 // Arrange
-                options.BaseApiUrl = "http://api.example.com/api/";
-                linkGenerator = new ApiLinkGenerator(options);
-
                 var link = new ApiOperationLink(descriptor, "/aUrl", "a.rel");
 
                 // Assert
@@ -134,9 +137,6 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
             public void When_AbsoluteUrl_Prepends_Configuration_Base_Url()
             {
                 // Arrange
-                options.BaseApiUrl = "http://api.example.com/api/";
-                linkGenerator = new ApiLinkGenerator(options);
-
                 var link = new LinkGeneratorTestsOperation
                 {
                     Category = "the-category",
@@ -160,7 +160,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
                 };
 
                 // Assert
-                linkGenerator.CreateUrl(link).Should().Be("/aUrl/726/the-category/some-more?AnotherProp=some%20value%20to%20escape&AndAnotherOne=1548");
+                linkGenerator.CreateUrl(link).Should().EndWith("/aUrl/726/the-category/some-more?AnotherProp=some%20value%20to%20escape&AndAnotherOne=1548");
             }
         }
     }

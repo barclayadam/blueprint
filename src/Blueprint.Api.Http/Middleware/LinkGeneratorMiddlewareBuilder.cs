@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Compiler.Frames;
 
-namespace Blueprint.Api.Middleware
+namespace Blueprint.Api.Http.Middleware
 {
     public class LinkGeneratorMiddlewareBuilder : IMiddlewareBuilder
     {

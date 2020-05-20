@@ -66,21 +66,6 @@ namespace Blueprint.Api.Configuration
         }
 
         /// <summary>
-        /// Sets the "base" URL of this HTTP API, which is used throughout to, for example, generate API links (see <see cref="ApiResource.Links" />)
-        /// with absolute paths.
-        /// </summary>
-        /// <param name="baseUrl">The fully-qualified URL to set.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder SetHttpBaseUrl(string baseUrl)
-        {
-            Guard.NotNullOrEmpty(nameof(baseUrl), baseUrl);
-
-            options.BaseApiUrl = baseUrl;
-
-            return this;
-        }
-
-        /// <summary>
         /// Registers an <see cref="IBlueprintApiHost" />, such as a background task processor or HTTP.
         /// </summary>
         /// <param name="host">The host to set.</param>
@@ -172,7 +157,6 @@ namespace Blueprint.Api.Configuration
             // Model / Links / Options
             Services.AddSingleton(options);
             Services.AddSingleton(options.Model);
-            Services.TryAddSingleton<IApiLinkGenerator, ApiLinkGenerator>();
 
             // Logging
             Services.TryAddSingleton<IErrorLogger, ErrorLogger>();

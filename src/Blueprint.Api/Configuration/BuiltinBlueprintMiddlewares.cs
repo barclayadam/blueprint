@@ -97,28 +97,7 @@ namespace Blueprint.Api.Configuration
             return pipelineBuilder;
         }
 
-        public static BlueprintPipelineBuilder AddHateoasLinks(this BlueprintPipelineBuilder pipelineBuilder)
-        {
-            // Resource events needs authoriser services to be registered
-            TryAddAuthServices(pipelineBuilder);
-
-            pipelineBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
-
-            pipelineBuilder.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution);
-
-            return pipelineBuilder;
-        }
-
-        public static BlueprintPipelineBuilder AddResourceEvents<T>(this BlueprintPipelineBuilder pipelineBuilder) where T : class, IResourceEventRepository
-        {
-            pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
-
-            pipelineBuilder.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution);
-
-            return pipelineBuilder;
-        }
-
-        private static void TryAddAuthServices(BlueprintPipelineBuilder pipelineBuilder)
+        public static void TryAddAuthServices(BlueprintPipelineBuilder pipelineBuilder)
         {
             pipelineBuilder.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
             pipelineBuilder.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();

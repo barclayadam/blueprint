@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Blueprint.Core;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     {

@@ -1,3 +1,5 @@
+using Blueprint.Api.Http;
+
 namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 {
     using System.ComponentModel.DataAnnotations;
@@ -68,9 +70,11 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
-            var context = executor.HttpContextFor<CreationOperation>();
-            ((CreationOperation)context.Operation).IdToCreate = "1234";
-            ((CreationOperation)context.Operation).EmailToCreate = "test@email.com";
+            var context = executor.HttpContextFor(new CreationOperation
+            {
+                IdToCreate = "1234",
+                EmailToCreate = "test@email.com",
+            });
 
             var result = await executor.ExecuteAsync(context);
 

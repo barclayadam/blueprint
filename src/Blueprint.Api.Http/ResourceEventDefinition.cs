@@ -1,6 +1,6 @@
 using System;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// An entry point to constructing <see cref="ResourceEventDefinition{TResource, TDomain}" /> instances.

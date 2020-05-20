@@ -1,6 +1,6 @@
 ﻿using Blueprint.Compiler.Frames;
 
-namespace Blueprint.Api.Middleware
+namespace Blueprint.Api.Http.Middleware
 {
     public class ResourceEventHandlerMiddlewareBuilder : IMiddlewareBuilder
     {
@@ -17,11 +17,9 @@ namespace Blueprint.Api.Middleware
         public void Build(MiddlewareBuilderContext context)
         {
             var getResourceEventRepository = context.VariableFromContainer<IResourceEventRepository>();
-            var getApiLinkGenerator = context.VariableFromContainer<IApiLinkGenerator>();
 
             context.AppendFrames(
                 getResourceEventRepository,
-                getApiLinkGenerator,
                 new MethodCall(typeof(ResourceEventHandler), nameof(ResourceEventHandler.HandleAsync)));
         }
     }

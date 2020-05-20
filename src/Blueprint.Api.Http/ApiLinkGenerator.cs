@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Blueprint.Api.Configuration;
 using Blueprint.Core;
+using Microsoft.AspNetCore.Http;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     /// <summary>
     /// The API link generator is responsible for creating the URLs that would be used, for example, to generate
@@ -13,21 +13,21 @@ namespace Blueprint.Api
     /// </summary>
     public class ApiLinkGenerator : IApiLinkGenerator
     {
-        private static readonly char[] PathSeparatorChars = { '/' };
-
-        private readonly string baseUri;
         private readonly ApiDataModel apiDataModel;
+        private readonly string baseUri;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiLinkGenerator"/> class.
         /// </summary>
-        /// <param name="apiConfiguration">The configuration of the API we are generating links for.</param>
-        public ApiLinkGenerator(BlueprintApiOptions apiConfiguration)
+        /// <param name="apiDataModel">The API data model this generator is for.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+        public ApiLinkGenerator(ApiDataModel apiDataModel, IHttpContextAccessor httpContextAccessor)
         {
-            Guard.NotNull(nameof(apiConfiguration), apiConfiguration);
+            Guard.NotNull(nameof(apiDataModel), apiDataModel);
+            Guard.NotNull(nameof(httpContextAccessor), httpContextAccessor);
 
-            apiDataModel = apiConfiguration.Model;
-            baseUri = apiConfiguration.BaseApiUrl.TrimEnd(PathSeparatorChars) + '/';
+            this.apiDataModel = apiDataModel;
+            baseUri = httpContextAccessor.HttpContext.GetBlueprintBaseUri();
         }
 
         /// <inheritdoc />

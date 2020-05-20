@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Blueprint.Api
+namespace Blueprint.Api.Http
 {
     public interface IResourceEventRepository
     {
