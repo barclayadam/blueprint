@@ -65,7 +65,6 @@ namespace Blueprint.Api.Http.MessagePopulation
             foreach (var routePropertyPlaceholder in placeholderProperties)
             {
                 var routeProperty = routePropertyPlaceholder.Property;
-                var inAllRoutes = allLinks.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty));
 
                 if (routeProperty.PropertyType != typeof(string) && !TypeDescriptor.GetConverter(routeProperty.PropertyType).CanConvertFrom(typeof(string)))
                 {
@@ -76,37 +75,21 @@ namespace Blueprint.Api.Http.MessagePopulation
                 var operationProperty = operationVariable.GetProperty(routeProperty.Name);
                 var routeValuesVariable = routeDataFrame.ReturnVariable.GetProperty(nameof(RouteData.Values));
 
-                // If the property exists in ALL routes for the operation then we know it _must_ exist in RouteData otherwise we would
-                // not have got this far as the URL would not have matched. Therefore we do not need the TryGetValue method call and instead can
-                // directly use the conversion expression from routeData[propertyName].
-                if (inAllRoutes)
-                {
-                    var fromRouteData = $"{routeValuesVariable}[\"{routeProperty.Name}\"]";
+                // When this property is not in ALL routes we use TryGetValue from the RouteData dictionary and pass
+                // the var output from that to `GetConversionExpression` as part of ternary. If the route data
+                // does not exist then we fallback to the value already on the operation
+                var outVariableName = "routeValue" + routeProperty.Name;
+                var conversionExpression = HttpPartMessagePopulationSource.GetConversionExpression(routeProperty, outVariableName);
 
-                    // Generates "operation.[Property] = ([propertyType]) [expression];
-                    // where [expression] can be a direct conversion, or
-                    context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
-                        operationProperty,
-                        HttpPartMessagePopulationSource.GetConversionExpression(routeProperty, fromRouteData)));
-                }
-                else
-                {
-                    // When this property is not in ALL routes we use TryGetValue from the RouteData dictionary and pass
-                    // the var output from that to `GetConversionExpression` as part of ternary. If the route data
-                    // does not exist then we fallback to the value already on the operation
-                    var outVariableName = "routeValue" + routeProperty.Name;
-                    var conversionExpression = HttpPartMessagePopulationSource.GetConversionExpression(routeProperty, outVariableName);
+                // context.RouteData.TryGetValue("PropertyName", out var routeValuePropertyName) ? [conversion of routeValuePropertyName] : [operationProperty];
+                var tryConversionExpression =
+                    $"{routeValuesVariable}.{nameof(RouteValueDictionary.TryGetValue)}(\"{routeProperty.Name}\", out var {outVariableName}) ? " +
+                    $"{conversionExpression} : " +
+                    $"{operationProperty}";
 
-                    // context.RouteData.TryGetValue("PropertyName", out var routeValuePropertyName) ? [conversion of routeValuePropertyName] : [operationProperty];
-                    var tryConversionExpression =
-                        $"{routeValuesVariable}.{nameof(RouteValueDictionary.TryGetValue)}(\"{routeProperty.Name}\", out var {outVariableName}) ? " +
-                        $"{conversionExpression} : " +
-                        $"{operationProperty}";
-
-                    context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
-                        operationProperty,
-                        tryConversionExpression));
-                }
+                context.ExecuteMethod.Frames.Add(new VariableSetterFrame(
+                    operationProperty,
+                    tryConversionExpression));
             }
         }
     }
