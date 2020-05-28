@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
+using Blueprint.Api.Configuration;
 using Blueprint.Tasks;
 using Blueprint.Testing;
 using Blueprint.Tests.Tasks.TaskRunner_Middleware;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Tasks
