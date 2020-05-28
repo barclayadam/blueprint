@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Blueprint.Hangfire;
+using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks;
 using FluentAssertions;
 using Hangfire;

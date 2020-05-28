@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Blueprint.Api.Configuration;
 using Blueprint.Tasks;
-using Blueprint.Tasks.Provider;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
-// This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
 // ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.DependencyInjection
+namespace Blueprint.Api.Configuration
 {
     /// <summary>
     /// Adds background task processing entry points to <see cref="BlueprintApiBuilder" />.
@@ -30,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             RegisterClient(builder);
 
-            configureTasks(new BlueprintTasksClientBuilder(builder));
+            configureTasks(new BlueprintTasksClientBuilder(builder.Services));
 
             return builder;
         }
@@ -56,9 +50,9 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddScoped<TaskExecutor>();
             builder.Services.AddScoped<RecurringTaskManager>();
 
-            builder.Services.AddHostedService<RecurringJobManagerStartup>();
+            builder.Services.AddHostedService<RecurringJobManagerRegistrationHostedService>();
 
-            configureTasks(new BlueprintTasksServerBuilder(builder));
+            configureTasks(new BlueprintTasksServerBuilder(builder.Services));
 
             return builder;
         }
@@ -69,44 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // this is in affect a no-op.
             builder.Pipeline(p => p.AddMiddleware<BackgroundTaskRunnerMiddleware>(MiddlewareStage.PostExecution));
 
-            builder.Services.AddScoped<IBackgroundTaskScheduler, BackgroundTaskScheduler>();
-            builder.Services.TryAddSingleton<IBackgroundTaskContextProvider, InMemoryBackgroundTaskContextProvider>();
-        }
-
-        /// <summary>
-        /// An <see cref="IHostedService" /> that is responsible, on startup of the application, to install
-        /// the recurring task manager service using <see cref="IRecurringTaskProvider.SetupRecurringManagerAsync" />.
-        /// </summary>
-        private class RecurringJobManagerStartup : IHostedService
-        {
-            private readonly IHostApplicationLifetime appLifetime;
-            private readonly IServiceProvider serviceProvider;
-
-            public RecurringJobManagerStartup(IHostApplicationLifetime appLifetime, IServiceProvider serviceProvider)
-            {
-                this.appLifetime = appLifetime;
-                this.serviceProvider = serviceProvider;
-            }
-
-            public Task StartAsync(CancellationToken cancellationToken)
-            {
-                appLifetime.ApplicationStarted.Register(OnStarted);
-
-                return Task.CompletedTask;
-            }
-
-            public Task StopAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
-
-            private async void OnStarted()
-            {
-                using var scope = serviceProvider.CreateScope();
-                var provider = scope.ServiceProvider.GetRequiredService<IRecurringTaskProvider>();
-
-                await provider.SetupRecurringManagerAsync();
-            }
+            TasksServiceCollectionExtensions.RegisterClientServices(builder.Services);
         }
     }
 }

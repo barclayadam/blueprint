@@ -2,7 +2,7 @@
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// A Hangfire <see cref="JobActivator"/> that uses Microsoft's DI <see cref="IServiceProvider"/> abstraction.

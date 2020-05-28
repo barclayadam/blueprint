@@ -13,7 +13,7 @@ using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// An implementation of <see cref="IBackgroundTaskScheduleProvider" /> that uses Hangfire to

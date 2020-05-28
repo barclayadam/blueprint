@@ -2,7 +2,7 @@
 using Blueprint.Core;
 using Hangfire;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// Global Configuration extensions.

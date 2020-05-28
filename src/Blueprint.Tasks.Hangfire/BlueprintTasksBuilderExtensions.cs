@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Blueprint.Hangfire;
+using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks.Provider;
 using Hangfire;
 using Hangfire.Common;

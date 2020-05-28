@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core.Apm;
 using Blueprint.Core.Tracing;
-using Blueprint.Hangfire;
+using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks;
 using FluentAssertions;
 using Hangfire;

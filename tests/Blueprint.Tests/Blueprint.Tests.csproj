@@ -24,8 +24,8 @@
     <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.Hangfire\Blueprint.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.StructureMap\Blueprint.StructureMap.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>

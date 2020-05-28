@@ -9,7 +9,7 @@ using Blueprint.Tasks;
 using Hangfire;
 using Hangfire.Server;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// Resolves an appropriate task handler and allows it to perform the required action for the task.

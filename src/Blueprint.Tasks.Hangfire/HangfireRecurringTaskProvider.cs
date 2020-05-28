@@ -10,7 +10,7 @@ using Hangfire.Common;
 using Hangfire.Storage;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// An <see cref="IRecurringTaskProvider" /> that integrates in to Hangfire.

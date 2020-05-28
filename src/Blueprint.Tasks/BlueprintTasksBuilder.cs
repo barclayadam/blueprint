@@ -12,17 +12,11 @@ namespace Blueprint.Tasks
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
         /// </summary>
-        /// <param name="apiBuilder">The builder being configured.</param>
-        protected BlueprintTasksBuilder(BlueprintApiBuilder apiBuilder)
+        /// <param name="serviceCollection">The service collection being configured.</param>
+        protected BlueprintTasksBuilder(IServiceCollection serviceCollection)
         {
-            ApiBuilder = apiBuilder;
-            Services = apiBuilder.Services;
+            Services = serviceCollection;
         }
-
-        /// <summary>
-        /// The <see cref="BlueprintApiBuilder" /> being configured.
-        /// </summary>
-        public BlueprintApiBuilder ApiBuilder { get; }
 
         /// <summary>
         /// The <see cref="IServiceCollection" /> to configure.

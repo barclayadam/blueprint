@@ -6,7 +6,7 @@ using Hangfire.Common;
 using Hangfire.States;
 using Hangfire.Storage;
 
-namespace Blueprint.Hangfire
+namespace Blueprint.Tasks.Hangfire
 {
     /// <summary>
     /// A JobFilter that will apply any AutomatedRetry job filter attribute for a task (applied to

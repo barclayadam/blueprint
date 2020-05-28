@@ -1,4 +1,4 @@
-﻿using Blueprint.Api.Configuration;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tasks
 {
@@ -10,8 +10,9 @@ namespace Blueprint.Tasks
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
         /// </summary>
-        /// <param name="apiBuilder">The builder being configured.</param>
-        public BlueprintTasksClientBuilder(BlueprintApiBuilder apiBuilder) : base(apiBuilder)
+        /// <param name="serviceCollection">The service collection being configured.</param>
+        public BlueprintTasksClientBuilder(IServiceCollection serviceCollection)
+            : base(serviceCollection)
         {
         }
     }

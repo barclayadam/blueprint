@@ -11,8 +11,8 @@ using Microsoft.Extensions.Logging;
 namespace Blueprint.Tasks
 {
     /// <summary>
-    /// The default implementation of <see cref="IBackgroundTaskScheduler" /> that uses a teh
-    /// registered <see cref="IBackgroundTaskScheduleProvider" /> to perform the enqueing and
+    /// The default implementation of <see cref="IBackgroundTaskScheduler" /> that uses the
+    /// registered <see cref="IBackgroundTaskScheduleProvider" /> to perform the enqueuing and
     /// scheduling of <see cref="IBackgroundTask" />s, implementing a unit of work pattern
     /// in which tasks are only "released" once <see cref="IBackgroundTaskScheduler.RunNowAsync" />
     /// is executed.
