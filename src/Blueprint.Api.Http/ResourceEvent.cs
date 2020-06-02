@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Blueprint.Core;
 using MediatR;
 using Newtonsoft.Json;
@@ -54,6 +55,7 @@ namespace Blueprint.Api.Http
         /// Gets the object of this 'resource', which is "event".
         /// </summary>
         [JsonProperty(PropertyName = "$object")]
+        [JsonPropertyName("$object")]
         public string Object => "event";
 
         /// <summary>
@@ -80,14 +82,14 @@ namespace Blueprint.Api.Http
         /// Gets the query that represents the query that will load the resource this
         /// event represents.
         /// </summary>
-        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public IApiOperation SelfQuery => selfQuery;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
-        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public Type ResourceType => resourceType;
 
@@ -138,7 +140,7 @@ namespace Blueprint.Api.Http
         /// <summary>
         /// Gets or sets the operation that triggered the generation of this resource event.
         /// </summary>
-        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public IApiOperation Operation { get; set; }
 
