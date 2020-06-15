@@ -94,7 +94,7 @@ namespace Blueprint.Apm.Elastic
                 writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
 
                 writer.WriteIf($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
-                writer.Write($"{transactionVariable}.Context.User.Id = userContext.{nameof(IUserAuthorisationContext.Id)};");
+                writer.Write($"{transactionVariable}.Context.User = new {typeof(User).FullNameInCode()} {{ Id = userContext.{nameof(IUserAuthorisationContext.Id)} }};");
                 writer.FinishBlock();
 
                 // Only if we created the transaction and therefore "own" it will we manually end it. If the transaction already existed (i.e. ASP.NET

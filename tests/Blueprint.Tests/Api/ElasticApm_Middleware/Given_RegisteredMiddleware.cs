@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
@@ -77,10 +78,9 @@ namespace Blueprint.Tests.Api.ElasticApm_Middleware
         public async Task When_ElasticApm_Added_Then_Sets_RequestTelemetry_Name()
         {
             // Arrange
-            var toReturn = 12345;
             var transaction = Elastic.Apm.Agent.Tracer.StartTransaction("TestTransaction", "Test");
 
-            var handler = new TestApiOperationHandler<EmptyOperation>(toReturn);
+            var handler = new TestApiOperationHandler<EmptyOperation>(12345);
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithHandler(handler)
                 .Configure(p => p.AddElasticApm()));
@@ -107,6 +107,30 @@ namespace Blueprint.Tests.Api.ElasticApm_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
+        }
+
+        [Test]
+        public async Task When_ElasticApm_Added_With_User_Then_Sets_User_Context_Id_From_Sub_Claim()
+        {
+            // Arrange
+            var transaction = Elastic.Apm.Agent.Tracer.StartTransaction("TestTransaction", "Test");
+
+            var handler = new TestApiOperationHandler<EmptyOperation>(12345);
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithHandler(handler)
+                .Configure(p => p.AddElasticApm())
+                .Pipeline(p => p.AddAuth<TestUserAuthorisationContextFactory>()));
+
+            // Act
+            var context = executor.ContextFor<EmptyOperation>();
+            await executor.ExecuteAsync(context);
+
+            await executor.ExecuteWithAuth(
+                new EmptyOperation(),
+                new Claim("sub", "UserId12345"));
+
+            // Assert
+            transaction.Context.User.Id.Should().Be("UserId12345");
         }
     }
 }
