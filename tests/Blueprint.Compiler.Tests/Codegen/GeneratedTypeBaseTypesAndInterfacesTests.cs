@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
-    public class GeneratedType_automatically_adds_methods_for_base_types_and_interfaces
+    public class GeneratedType_BaseTypesAndInterfaces_Tests
     {
         [Test]
         public void generate_methods_for_an_interface()

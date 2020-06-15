@@ -13,7 +13,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         public void add_Frame_immediately_before_when_Source_creates_new_Frame()
         {
             var assembly = Builder.Assembly();
-            var type = assembly.AddType("MyGuy", typeof(IHandler));
+            var type = assembly.AddType("Tests", "MyGuy", typeof(IHandler));
             var method = type.MethodFor("Go");
 
             method.Sources.Add(new FrameGeneratingVariableSource());

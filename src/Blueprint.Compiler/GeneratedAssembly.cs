@@ -23,12 +23,19 @@ namespace Blueprint.Compiler
             assemblies.Add(assembly);
         }
 
-        public GeneratedType AddType(string fullTypeName, Type baseType)
+        /// <summary>
+        /// Creates a new <see cref="GeneratedType" /> and adds it to this assembly.
+        /// </summary>
+        /// <param name="namespace">The namespace of the type.</param>
+        /// <param name="typeName">The name of the type / class.</param>
+        /// <returns>A new <see cref="GeneratedType" />.</returns>
+        /// <exception cref="ArgumentException">If a type already exists.</exception>
+        public GeneratedType AddType(string @namespace, string typeName, Type baseType)
         {
-            var lastDotIndex = fullTypeName.LastIndexOf('.');
-
-            var @namespace = lastDotIndex == -1 ? null : fullTypeName.Substring(0, lastDotIndex);
-            var typeName = lastDotIndex == -1 ? fullTypeName : fullTypeName.Substring(lastDotIndex + 1);
+            if (GeneratedTypes.Any(t => t.Namespace == @namespace && t.TypeName == typeName))
+            {
+                throw new ArgumentException($"A type already exists at {@namespace}.{typeName}");
+            }
 
             var generatedType = new GeneratedType(this, typeName, @namespace ?? generationRules.AssemblyName);
 

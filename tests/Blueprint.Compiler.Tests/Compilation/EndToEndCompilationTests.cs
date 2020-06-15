@@ -16,7 +16,7 @@ namespace Blueprint.Compiler.Tests.Compilation
         {
             var assembly = Builder.Assembly();
 
-            var adder = assembly.AddType("Adder", typeof(INumberGenerator));
+            var adder = assembly.AddType("Tests", "Adder", typeof(INumberGenerator));
             adder.MethodFor("Generate").Frames.Append<AddFrame>();
 
             assembly.CompileAll();
@@ -33,7 +33,7 @@ namespace Blueprint.Compiler.Tests.Compilation
         {
             var assembly = Builder.Assembly();
 
-            var multiplier = assembly.AddType("Multiplier", typeof(INumberGenerator));
+            var multiplier = assembly.AddType("Tests", "Multiplier", typeof(INumberGenerator));
             multiplier.MethodFor(nameof(INumberGenerator.Generate)).Frames.Append<MultiplyFrame>();
 
             assembly.CompileAll();
@@ -50,7 +50,7 @@ namespace Blueprint.Compiler.Tests.Compilation
         {
             var assembly = Builder.Assembly();
 
-            var multiplier = assembly.AddType("Multiplier", typeof(NumberGenerator));
+            var multiplier = assembly.AddType("Tests", "Multiplier", typeof(NumberGenerator));
             multiplier.MethodFor(nameof(NumberGenerator.Generate)).Frames.Append<MultiplyFrame>();
 
             assembly.CompileAll();
@@ -67,7 +67,7 @@ namespace Blueprint.Compiler.Tests.Compilation
         {
             var assembly = Builder.Assembly();
 
-            var multiplier = assembly.AddType("Multiplier", typeof(NumberGenerator));
+            var multiplier = assembly.AddType("Tests", "Multiplier", typeof(NumberGenerator));
             multiplier.MethodFor(nameof(NumberGenerator.Generate)).Frames.Append<SyntaxErrorFrame>();
 
             Action tryCompile = () => assembly.CompileAll();
@@ -90,7 +90,7 @@ namespace Blueprint.Compiler.Tests.Compilation
 
             compilationException.Code.ShouldContainIgnoringNewlines(@"using System.Threading.Tasks;
 
-namespace Blueprint.Compiler.Tests
+namespace Tests
 {
     public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator
     {

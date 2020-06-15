@@ -166,11 +166,6 @@ namespace Blueprint.Compiler
             writer.FinishBlock();
         }
 
-        public void FindType(Type[] generated)
-        {
-            CompiledType = generated.Single(x => x.Name == TypeName);
-        }
-
         public IEnumerable<Assembly> AssemblyReferences()
         {
             if (BaseType != null)
@@ -213,6 +208,11 @@ namespace Blueprint.Compiler
         public override string ToString()
         {
             return GetDeclaration();
+        }
+
+        internal void FindType(Type[] generated)
+        {
+            CompiledType = generated.Single(x => x.Name == TypeName && x.Namespace == Namespace);
         }
 
         Variable IVariableSource.TryFindVariable(IMethodVariables variables, Type variableType)

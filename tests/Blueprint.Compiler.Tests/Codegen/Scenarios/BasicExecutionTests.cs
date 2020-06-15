@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Compiler.Tests.Codegen.Scenarios
 {
-    public class basic_execution
+    public class BasicExecutionTests
     {
         [Test]
         public void simple_execution_with_action()

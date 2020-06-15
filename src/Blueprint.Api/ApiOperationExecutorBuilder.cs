@@ -69,14 +69,16 @@ namespace Blueprint.Api
 
                     foreach (var operation in options.Model.Operations)
                     {
-                        var typeName = GetTypeName(operation);
-                        var operationType = exportedTypes.SingleOrDefault(t => t.FullName == typeName);
+                        var typeName = NormaliseTypeName(operation);
+
+                        var operationType = exportedTypes.SingleOrDefault(
+                            t => t.Namespace == operation.OperationType.Namespace && t.Name == typeName);
 
                         if (operationType == null)
                         {
                             throw new InvalidOperationException(
-                                $"The assembly {options.GenerationRules.AssemblyName} loaded in the current domain is NOT valid as it is missing executor pipeline " +
-                                $"{typeName} for operation {operation.Name}");
+                                $"The assembly {options.GenerationRules.AssemblyName} loaded in the current domain is NOT valid as it is " +
+                                $"missing executor pipeline {typeName} for operation {operation.Name}");
                         }
 
                         typeToCreationMappings.Add(operation.OperationType, () => operationType);
@@ -123,9 +125,10 @@ namespace Blueprint.Api
                 {
                     logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
 
-                    var typeName = GetTypeName(operation);
+                    var typeName = NormaliseTypeName(operation);
 
                     var pipelineExecutorType = assembly.AddType(
+                        operation.OperationType.Namespace,
                         typeName,
                         typeof(IOperationExecutorPipeline));
 
@@ -156,10 +159,10 @@ namespace Blueprint.Api
             }
         }
 
-        private static string GetTypeName(ApiOperationDescriptor operation)
+        private static string NormaliseTypeName(ApiOperationDescriptor operation)
         {
             // Replace + with _ to enable nested operation classes to compile successfully
-            return operation.OperationType.FullName.Replace("+", "_") + "ExecutorPipeline";
+            return operation.OperationType.Name.Replace("+", "_") + "ExecutorPipeline";
         }
 
         private void Generate(

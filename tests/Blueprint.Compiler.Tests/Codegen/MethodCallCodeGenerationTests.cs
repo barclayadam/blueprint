@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
-    public class MethodCall_generate_code
+    public class MethodCallCodeGenerationTests
     {
         private readonly GeneratedMethod theMethod = GeneratedMethod.ForNoArg(Builder.NewType(), "Foo");
 

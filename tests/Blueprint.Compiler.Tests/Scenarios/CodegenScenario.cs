@@ -35,7 +35,7 @@ namespace Blueprint.Compiler.Tests.Scenarios
             rules = rules ?? Builder.Rules("CodegenScenario.Tests");
             var assembly = new GeneratedAssembly(rules);
 
-            var generatedType = assembly.AddType("GeneratedType", typeof(TObject));
+            var generatedType = assembly.AddType("Tests", "GeneratedType", typeof(TObject));
 
             var method = generatedType.Methods.Single();
 

@@ -5,10 +5,9 @@ using NUnit.Framework;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
-    public class when_building_a_method_call_for_a_task_of_tuple
+    public class MethodCallTaskTupleTests
     {
         private readonly MethodCall theCall= MethodCall.For<MethodTarget>(x => x.AsyncReturnTuple());
-
 
         [Test]
         public void return_variable_usage()

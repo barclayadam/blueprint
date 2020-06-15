@@ -14,7 +14,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Methods
         {
             var assembly = Builder.Assembly();
 
-            var generatedType = assembly.AddType("NumberGetter", typeof(INumberGetter));
+            var generatedType = assembly.AddType("Tests", "NumberGetter", typeof(INumberGetter));
 
             generatedType.MethodFor("GetNumber").Frames.Append(new ReturnFive());
 
