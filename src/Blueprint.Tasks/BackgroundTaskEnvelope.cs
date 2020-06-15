@@ -10,17 +10,17 @@
         /// Initialises a new instance of the <see cref="BackgroundTaskEnvelope" /> for the specified
         /// <see cref="IBackgroundTask" />.
         /// </summary>
-        /// <param name="backgroundTask">The background task being wrapped.</param>
-        public BackgroundTaskEnvelope(IBackgroundTask backgroundTask)
+        /// <param name="task">The background task being wrapped.</param>
+        public BackgroundTaskEnvelope(IBackgroundTask task)
         {
-            BackgroundTask = backgroundTask;
+            Task = task;
             Metadata = new BackgroundTaskMetadata();
         }
 
         /// <summary>
         /// Gets the <see cref="IBackgroundTask" /> this envelope is wrapping.
         /// </summary>
-        public IBackgroundTask BackgroundTask { get; }
+        public IBackgroundTask Task { get; }
 
         /// <summary>
         /// Gets or sets the envelope of this background task that helps to identify metadata about.

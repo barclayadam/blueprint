@@ -6,7 +6,7 @@ using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
 using Microsoft.ApplicationInsights.DataContracts;
 
-namespace Blueprint.ApplicationInsights
+namespace Blueprint.Apm.ApplicationInsights
 {
     /// <summary>
     /// A middleware component that will set data on the current <see cref="RequestTelemetry" /> that

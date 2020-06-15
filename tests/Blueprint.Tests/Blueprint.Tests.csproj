@@ -20,7 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />

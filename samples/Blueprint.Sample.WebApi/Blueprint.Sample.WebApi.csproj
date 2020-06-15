@@ -16,7 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Api.Http\Blueprint.Api.Http.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks\Blueprint.Tasks.csproj" />

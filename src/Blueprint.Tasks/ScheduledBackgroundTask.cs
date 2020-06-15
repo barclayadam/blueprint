@@ -10,7 +10,7 @@ namespace Blueprint.Tasks
     /// Represents a "root" scheduled / enqeueued task from <see cref="BackgroundTaskScheduler" />, one that has no parent but supports
     /// continuation through <see cref="IScheduledBackgroundTask.ContinueWith" />.
     /// </summary>
-    [DebuggerDisplay("ScheduledBackgroundTask: Type {taskEnvelope.BackgroundTask.GetType()}")]
+    [DebuggerDisplay("ScheduledBackgroundTask: Type {taskEnvelope.Task.GetType()}")]
     internal class ScheduledBackgroundTask : IScheduledBackgroundTask
     {
         private readonly BackgroundTaskScheduler scheduler;
@@ -52,7 +52,7 @@ namespace Blueprint.Tasks
 
         public override string ToString()
         {
-            return taskEnvelope.BackgroundTask.GetType().Name;
+            return taskEnvelope.Task.GetType().Name;
         }
 
         internal async Task PushToProviderAsync(IBackgroundTaskScheduleProvider provider)

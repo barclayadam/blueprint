@@ -21,11 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "src\B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Api", "src\Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.ApplicationInsights", "src\Blueprint.ApplicationInsights\Blueprint.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.ApplicationInsights", "src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.StructureMap", "src\Blueprint.StructureMap\Blueprint.StructureMap.csproj", "{2A11A316-1F23-4FED-B480-2DC55B9C4A31}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Stackify", "src\Blueprint.Stackify\Blueprint.Stackify.csproj", "{8AA96541-267F-42FD-8399-37952881347F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.Stackify", "src\Blueprint.Apm.Stackify\Blueprint.Apm.Stackify.csproj", "{8AA96541-267F-42FD-8399-37952881347F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EACE4109-A1D6-4FAE-846D-98A171871FF6}"
 ProjectSection(SolutionItems) = preProject
@@ -74,6 +74,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.OpenApi", "src\Blueprint.OpenApi\Blueprint.OpenApi.csproj", "{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks.AspNetCore", "src\Blueprint.Tasks.AspNetCore\Blueprint.Tasks.AspNetCore.csproj", "{BFC7A75B-7026-4C63-A1D8-FC084039661B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.Elastic", "src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj", "{7C99F27D-D717-4E09-87EA-3224C30B26FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,6 +163,10 @@ Global
 		{BFC7A75B-7026-4C63-A1D8-FC084039661B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFC7A75B-7026-4C63-A1D8-FC084039661B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFC7A75B-7026-4C63-A1D8-FC084039661B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -186,6 +192,7 @@ Global
 		{B19A1330-860B-4F86-B639-EDD05885C270} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
 		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{BFC7A75B-7026-4C63-A1D8-FC084039661B} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{7C99F27D-D717-4E09-87EA-3224C30B26FF} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}

@@ -42,15 +42,15 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
-            var typeName = taskEnvelope.BackgroundTask.GetType().Name;
+            var typeName = taskEnvelope.Task.GetType().Name;
 
             var activity = new Activity("Task_In")
-                .SetParentId(taskEnvelope.Metadata.RequestId)
+                .SetParentId(taskEnvelope.Metadata.ActivityId)
                 .AddTag("TaskType", typeName);
 
-            if (taskEnvelope.Metadata.RequestBaggage != null)
+            if (taskEnvelope.Metadata.ActivityBaggage != null)
             {
-                foreach (var pair in taskEnvelope.Metadata.RequestBaggage)
+                foreach (var pair in taskEnvelope.Metadata.ActivityBaggage)
                 {
                     activity.AddBaggage(pair.Key, pair.Value);
                 }
@@ -65,7 +65,7 @@ namespace Blueprint.Tasks
                 var apiContext = new ApiOperationContext(
                     nestedContainer.ServiceProvider,
                     apiOperationExecutor.DataModel,
-                    taskEnvelope.BackgroundTask,
+                    taskEnvelope.Task,
                     token);
 
                 var result = await apiOperationExecutor.ExecuteAsync(apiContext);

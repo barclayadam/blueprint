@@ -7,8 +7,8 @@ namespace Blueprint.Tasks
 {
     /// <summary>
     /// A wrapper for a <see cref="IBackgroundTaskScheduleProvider" /> implementation that will use <see cref="Activity" /> to
-    /// track the scheduling of a task in a request, to give a new ID to each task enqueued (see <see cref="BackgroundTaskMetadata.RequestId" />) and
-    /// add any <see cref="Activity.Baggage" /> to <see cref="BackgroundTaskMetadata.RequestBaggage" />.
+    /// track the scheduling of a task in a request, to give a new ID to each task enqueued (see <see cref="BackgroundTaskMetadata.ActivityId" />) and
+    /// add any <see cref="Activity.Baggage" /> to <see cref="BackgroundTaskMetadata.ActivityBaggage" />.
     /// </summary>
     public class ActivityTrackingBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
@@ -62,8 +62,8 @@ namespace Blueprint.Tasks
         {
             var activity = new Activity("Task_Out").Start();
 
-            task.Metadata.RequestId = activity.Id;
-            task.Metadata.RequestBaggage = activity.Baggage;
+            task.Metadata.ActivityId = activity.Id;
+            task.Metadata.ActivityBaggage = activity.Baggage;
 
             var id = await fn();
 

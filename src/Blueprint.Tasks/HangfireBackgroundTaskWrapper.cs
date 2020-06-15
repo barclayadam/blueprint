@@ -31,14 +31,14 @@ namespace Blueprint.Tasks
         {
             // A slightly more useful default for Hangfire to not
             // include the type's namespace
-            return $"{Envelope.BackgroundTask.GetType().Name}({GetParamDisplay()})";
+            return $"{Envelope.Task.GetType().Name}({GetParamDisplay()})";
         }
 
         private string GetParamDisplay()
         {
             // Parameters displayed as JSON but without the opening and closing parens
             // to slightly aid readability
-            var parameters = JsonConvert.SerializeObject(Envelope.BackgroundTask);
+            var parameters = JsonConvert.SerializeObject(Envelope.Task);
 
             return parameters.Substring(1, parameters.Length - 2);
         }

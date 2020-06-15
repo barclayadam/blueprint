@@ -5,7 +5,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace Blueprint.ApplicationInsights
+namespace Blueprint.Apm.ApplicationInsights
 {
     /// <summary>
     /// An <see cref="IApmTool" /> that will push operations to Application Insights.

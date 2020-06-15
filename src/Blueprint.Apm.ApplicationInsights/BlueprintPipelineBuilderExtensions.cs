@@ -1,5 +1,5 @@
 using System;
-using Blueprint.ApplicationInsights;
+using Blueprint.Apm.ApplicationInsights;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Apm;

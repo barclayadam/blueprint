@@ -14,7 +14,7 @@ namespace Blueprint.Tasks
     /// <see cref="IBackgroundTaskScheduleProvider" /> which would have been created from the parent (which would be either another
     /// instance of <see cref="ChildScheduledBackgroundTask" /> or a "root" instance of <see cref="ScheduledBackgroundTask" />.
     /// </remarks>
-    [DebuggerDisplay("ChildScheduledBackgroundTask: Type {taskEnvelope.BackgroundTask.GetType()}")]
+    [DebuggerDisplay("ChildScheduledBackgroundTask: Type {taskEnvelope.Task.GetType()}")]
     internal class ChildScheduledBackgroundTask : IScheduledBackgroundTask
     {
         private readonly BackgroundTaskEnvelope taskEnvelope;

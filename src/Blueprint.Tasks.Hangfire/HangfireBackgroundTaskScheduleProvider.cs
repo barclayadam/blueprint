@@ -84,7 +84,7 @@ namespace Blueprint.Tasks.Hangfire
 
         private string GetQueueForTask(BackgroundTaskEnvelope envelope)
         {
-            var taskType = envelope.BackgroundTask.GetType();
+            var taskType = envelope.Task.GetType();
 
             if (!taskToQueue.TryGetValue(taskType, out var queue))
             {

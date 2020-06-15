@@ -15,14 +15,14 @@ namespace Blueprint.Tasks
         /// background task.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string RequestId { get; set; }
+        public string ActivityId { get; set; }
 
         /// <summary>
         /// Gets or sets the request 'baggage' that is used to pass around context data about requests through
         /// distributed systems.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IEnumerable<KeyValuePair<string, string>> RequestBaggage { get; set; }
+        public IEnumerable<KeyValuePair<string, string>> ActivityBaggage { get; set; }
 
         /// <summary>
         /// Gets or sets the source system that triggered the associated background task.

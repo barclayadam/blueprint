@@ -9,14 +9,6 @@ namespace Blueprint.Core.Apm
     public interface IApmTool
     {
         /// <summary>
-        /// Executes the given operation, tracking it in the APM tool using the specified operation name.
-        /// </summary>
-        /// <param name="operationName">The name of the operation being performed.</param>
-        /// <param name="executor">The method to execute.</param>
-        /// <returns>The task from the child Func.</returns>
-        Task InvokeAsync(string operationName, Func<Task> executor);
-
-        /// <summary>
         /// Starts tracking a dependency, using the provided data to identify the dependency, returning a
         /// <see cref="IDisposable" /> that will, when disposed, actually store the tracking information.
         /// </summary>
