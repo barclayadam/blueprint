@@ -1,4 +1,7 @@
-﻿namespace Blueprint.Tasks
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace Blueprint.Tasks
 {
     /// <summary>
     /// Wraps an <see cref="IBackgroundTask" /> to be pushed to the background processing queue, containing
@@ -14,7 +17,6 @@
         public BackgroundTaskEnvelope(IBackgroundTask task)
         {
             Task = task;
-            Metadata = new BackgroundTaskMetadata();
         }
 
         /// <summary>
@@ -23,8 +25,10 @@
         public IBackgroundTask Task { get; }
 
         /// <summary>
-        /// Gets or sets the envelope of this background task that helps to identify metadata about.
+        /// A simple string dictionary that APM tools use to inject & extract state (i.e. Spans from
+        /// OpenTracing) to enable cross-process propagation.
         /// </summary>
-        public BackgroundTaskMetadata Metadata { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IDictionary<string, string> ApmContext { get; set; }
     }
 }

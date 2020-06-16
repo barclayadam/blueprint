@@ -111,7 +111,6 @@ namespace Blueprint.Apm.ApplicationInsights
                 writer.Write($"{requestTelemetryVariable}.Success = {value.ToString().ToLowerInvariant()};");
 
                 writer.FinishBlock();
-
             }
         }
     }

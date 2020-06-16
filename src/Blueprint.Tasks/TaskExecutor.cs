@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Core;
+using Blueprint.Core.Apm;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tasks
@@ -17,18 +17,22 @@ namespace Blueprint.Tasks
     {
         private readonly IApiOperationExecutor apiOperationExecutor;
         private readonly IServiceProvider rootServiceProvider;
+        private readonly IApmTool apmTool;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="TaskExecutor" /> class.
         /// </summary>
         /// <param name="apiOperationExecutor">The API operation executor that can handle incoming background tasks.</param>
         /// <param name="rootServiceProvider">The root <see cref="IServiceProvider" /> of the application.</param>
+        /// <param name="apmTool">The APM integration.</param>
         public TaskExecutor(
             IApiOperationExecutor apiOperationExecutor,
-            IServiceProvider rootServiceProvider)
+            IServiceProvider rootServiceProvider,
+            IApmTool apmTool)
         {
             this.apiOperationExecutor = apiOperationExecutor;
             this.rootServiceProvider = rootServiceProvider;
+            this.apmTool = apmTool;
         }
 
         /// <summary>
@@ -44,22 +48,16 @@ namespace Blueprint.Tasks
 
             var typeName = taskEnvelope.Task.GetType().Name;
 
-            var activity = new Activity("Task_In")
-                .SetParentId(taskEnvelope.Metadata.ActivityId)
-                .AddTag("TaskType", typeName);
+            using var op = this.apmTool.Start(
+                SpanType.Transaction,
+                "tasks.process",
+                "background",
+                taskEnvelope.ApmContext);
 
-            if (taskEnvelope.Metadata.ActivityBaggage != null)
-            {
-                foreach (var pair in taskEnvelope.Metadata.ActivityBaggage)
-                {
-                    activity.AddBaggage(pair.Key, pair.Value);
-                }
-            }
+            op.SetTag("task.name", typeName);
 
             try
             {
-                activity.Start();
-
                 using var nestedContainer = rootServiceProvider.CreateScope();
 
                 var apiContext = new ApiOperationContext(
@@ -75,9 +73,11 @@ namespace Blueprint.Tasks
                     unhandledExceptionOperationResult.Rethrow();
                 }
             }
-            finally
+            catch (Exception e)
             {
-                activity.Stop();
+                op.RecordException(e);
+
+                throw;
             }
         }
     }

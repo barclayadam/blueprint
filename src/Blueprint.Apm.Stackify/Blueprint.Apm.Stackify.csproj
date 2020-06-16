@@ -6,7 +6,7 @@
     <PackageTags>Stackify;APM;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="StackifyLib" Version="1.25.4" />
+    <PackageReference Include="StackifyLib" Version="2.1.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />

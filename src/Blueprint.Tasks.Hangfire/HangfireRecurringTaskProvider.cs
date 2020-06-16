@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Core;
-using Blueprint.Tasks;
 using Blueprint.Tasks.Provider;
 using Hangfire;
 using Hangfire.Common;
@@ -62,13 +61,7 @@ namespace Blueprint.Tasks.Hangfire
             {
                 var schedule = kvp.Value;
 
-                var envelope = new BackgroundTaskEnvelope(schedule.Schedule.BackgroundTask)
-                {
-                    Metadata =
-                    {
-                        System = nameof(HangfireRecurringTaskProvider),
-                    },
-                };
+                var envelope = new BackgroundTaskEnvelope(schedule.Schedule.BackgroundTask);
 
                 var job = Job.FromExpression<HangfireTaskExecutor>(
                     e => e.Execute(

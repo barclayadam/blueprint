@@ -2,14 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core.Apm;
-using Blueprint.Core.Tracing;
 using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks;
 using FluentAssertions;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
@@ -32,7 +30,7 @@ namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
             var parentId = Guid.NewGuid().ToString();
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
             var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(backgroundJobClient.Object, new NullLogger<HangfireBackgroundTaskScheduleProvider>());
-            var backgroundTaskScheduler = new BackgroundTaskScheduler(Enumerable.Empty<IBackgroundTaskPreprocessor>(), backgroundTaskExecutor, new NulloVersionInfoProvider(), new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
+            var backgroundTaskScheduler = new BackgroundTaskScheduler(Enumerable.Empty<IBackgroundTaskPreprocessor>(), backgroundTaskExecutor, new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)))
                 .Returns(parentId).Verifiable();
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)))

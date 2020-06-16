@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Blueprint.Core.Apm
 {
@@ -9,15 +9,34 @@ namespace Blueprint.Core.Apm
     public class NullApmTool : IApmTool
     {
         /// <inheritdoc />
-        public Task InvokeAsync(string operationName, Func<Task> executor)
+        public IApmSpan Start(SpanType spanType, string operationName, string type1, IDictionary<string, string> existingContext = null)
         {
-            return executor();
+            return NullApmSpan.Instance;
         }
 
-        /// <inheritdoc />
-        public Task TrackDependencyAsync(string operationName, string target, string type, string extraData, Func<IApmDependencyOperation, Task> executor)
+        private class NullApmSpan : IApmSpan
         {
-            return executor(NulloApmDependencyOperation.Instance);
+            public static readonly NullApmSpan Instance = new NullApmSpan();
+
+            /// <inheritdoc />
+            public void Dispose()
+            {
+            }
+
+            /// <inheritdoc />
+            public void RecordException(Exception e)
+            {
+            }
+
+            /// <inheritdoc />
+            public void SetTag(string key, string value)
+            {
+            }
+
+            /// <inheritdoc />
+            public void InjectContext(IDictionary<string, string> context)
+            {
+            }
         }
     }
 }

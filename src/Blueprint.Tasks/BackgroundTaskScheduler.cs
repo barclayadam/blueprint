@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Core;
 using Blueprint.Core.Apm;
-using Blueprint.Core.Tracing;
 using Blueprint.Tasks.Provider;
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +18,8 @@ namespace Blueprint.Tasks
     /// </summary>
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
-        private readonly ActivityTrackingBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
+        private readonly ApmBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
         private readonly IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors;
-        private readonly IVersionInfoProvider versionInfoProvider;
         private readonly IApmTool apmTool;
         private readonly ILogger<BackgroundTaskScheduler> logger;
 
@@ -32,24 +30,20 @@ namespace Blueprint.Tasks
         /// </summary>
         /// <param name="backgroundTaskPreprocessors">The registered background task preprocessors.</param>
         /// <param name="backgroundTaskScheduleProvider">The provider-specific implementation to delegate to.</param>
-        /// <param name="versionInfoProvider">A registered version provider used to decorate tasks with extra metadata.</param>
         /// <param name="apmTool">The registered APM tool used to register a dependency with.</param>
         /// <param name="logger">The logger for this class.</param>
         public BackgroundTaskScheduler(
             IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
-            IVersionInfoProvider versionInfoProvider,
             IApmTool apmTool,
             ILogger<BackgroundTaskScheduler> logger)
         {
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
-            Guard.NotNull(nameof(versionInfoProvider), versionInfoProvider);
             Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
 
-            this.backgroundTaskScheduleProvider = new ActivityTrackingBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider);
+            this.backgroundTaskScheduleProvider = new ApmBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider, apmTool);
             this.backgroundTaskPreprocessors = backgroundTaskPreprocessors;
-            this.versionInfoProvider = versionInfoProvider;
             this.apmTool = apmTool;
             this.logger = logger;
         }
@@ -77,49 +71,32 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public Task RunNowAsync()
+        public async Task RunNowAsync()
         {
             if (!tasks.Any())
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            return apmTool.TrackDependencyAsync(
-                "BackgroundTaskScheduler.RunNowAsync",
-                backgroundTaskScheduleProvider.InnerProvider.GetType().Name,
-                "Task",
-                string.Join(", ", tasks.Select(t => t.ToString())),
-                async operation =>
-                {
-                    // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
-                    var currentTasks = new List<ScheduledBackgroundTask>(tasks);
+            // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
+            var currentTasks = new List<ScheduledBackgroundTask>(tasks);
 
-                    tasks.Clear();
+            tasks.Clear();
 
-                    if (currentTasks.Count > 5)
-                    {
-                        logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
-                    }
+            if (currentTasks.Count > 5)
+            {
+                logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
+            }
 
-                    foreach (var task in currentTasks)
-                    {
-                        await task.PushToProviderAsync(backgroundTaskScheduleProvider);
-                    }
-
-                    operation.MarkSuccess();
-                });
+            foreach (var task in currentTasks)
+            {
+                await task.PushToProviderAsync(backgroundTaskScheduleProvider);
+            }
         }
 
         private BackgroundTaskEnvelope CreateTaskEnvelope<T>(T task) where T : IBackgroundTask
         {
-            var envelope = new BackgroundTaskEnvelope(task)
-            {
-                Metadata =
-                {
-                    System = versionInfoProvider.Value.AppName,
-                    SystemVersion = versionInfoProvider.Value.Version,
-                },
-            };
+            var envelope = new BackgroundTaskEnvelope(task);
 
             foreach (var p in backgroundTaskPreprocessors)
             {

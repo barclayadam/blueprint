@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Blueprint.Core.Apm;
 using Elastic.Apm.Api;
 
@@ -11,31 +11,56 @@ namespace Blueprint.Apm.Elastic
     public class ElasticApmTool : IApmTool
     {
         /// <inheritdoc />
-        public Task TrackDependencyAsync(string operationName, string target, string type, string extraData, Func<IApmDependencyOperation, Task> executor)
+        public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
         {
-            return global::Elastic.Apm.Agent.Tracer.CurrentTransaction?.CaptureSpan(
-                operationName,
-                type,
-                (s) => executor(new ElasticApmApmDependencyOperation(s)));
+            var tracer = global::Elastic.Apm.Agent.Tracer;
+            DistributedTracingData? distributedTracingData = null;
+
+            if (existingContext != null && existingContext.TryGetValue("ElasticDTD", out var d))
+            {
+                distributedTracingData = DistributedTracingData.TryDeserializeFromString(d);
+            }
+
+            if (spanType == SpanType.Transaction)
+            {
+                return new ElasticSpan(tracer.StartTransaction(
+                    operationName,
+                    type,
+                    distributedTracingData));
+            }
+
+            return new ElasticSpan(
+                tracer.CurrentTransaction.StartSpan(operationName, type));
         }
 
-        private class ElasticApmApmDependencyOperation : IApmDependencyOperation
+        private class ElasticSpan : IApmSpan
         {
-            private readonly ISpan span;
+            private readonly IExecutionSegment segment;
 
-            public ElasticApmApmDependencyOperation(ISpan span)
+            public ElasticSpan(IExecutionSegment segment)
             {
-                this.span = span;
+                this.segment = segment;
             }
 
-            public void MarkSuccess(string resultCode)
+            public void Dispose()
             {
-                span.End();
+                this.segment.End();
             }
 
-            public void MarkFailure(string resultCode, Exception exception = null)
+            public void RecordException(Exception e)
             {
-                span.CaptureException(exception);
+                this.segment.CaptureException(e);
+            }
+
+            public void SetTag(string key, string value)
+            {
+                this.segment.Labels[key] = value;
+            }
+
+            /// <inheritdoc />
+            public void InjectContext(IDictionary<string, string> context)
+            {
+                context["ElasticDTD"] = segment.OutgoingDistributedTracingData.SerializeToString();
             }
         }
     }
