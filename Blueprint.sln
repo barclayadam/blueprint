@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks.AspNetCore"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.Elastic", "src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj", "{7C99F27D-D717-4E09-87EA-3224C30B26FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.OpenTracing", "src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj", "{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,10 @@ Global
 		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C99F27D-D717-4E09-87EA-3224C30B26FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -193,6 +199,7 @@ Global
 		{F85FB069-29AD-48A2-AA7D-2C9F4109F23B} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{BFC7A75B-7026-4C63-A1D8-FC084039661B} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{7C99F27D-D717-4E09-87EA-3224C30B26FF} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02F562F3-07E9-4916-86D8-34B35CFC527E}
