@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <Title>Blueprint - OpenTracing APM Provider</Title>
+    <Description>Blueprint: Integrates Datadog APM with Blueprint API projects</Description>
+    <PackageTags>Datadog;APM;$(PackageBaseTags)</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Datadog.Trace" Version="1.17.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
+  </ItemGroup>
+</Project>

@@ -66,6 +66,12 @@ namespace Blueprint.Apm.OpenTracing
                     [LogFields.Event] = "error",
                     [LogFields.ErrorObject] = e,
                 });
+
+                // We also set some additional tags directly on the span which some tools (i.e. Datadog)
+                // pick up instead of the log event from above.
+                this.span.SetTag("error.msg", e.Message);
+                this.span.SetTag("error.stack", e.ToString());
+                this.span.SetTag("error.type", e.GetType().ToString());
             }
 
             public void SetTag(string key, string value)

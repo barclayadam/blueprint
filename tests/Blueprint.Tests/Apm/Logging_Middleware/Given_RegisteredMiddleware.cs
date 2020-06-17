@@ -2,10 +2,11 @@
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Testing;
+using Blueprint.Tests.Api;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Api.Logging_Middleware
+namespace Blueprint.Tests.Apm.Logging_Middleware
 {
     public class Given_Logging_Middleware
     {

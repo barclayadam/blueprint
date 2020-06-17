@@ -149,9 +149,13 @@ namespace Blueprint.Compiler.Model
         /// </summary>
         /// <param name="propertyName">The name of the property to load.</param>
         /// <param name="bindingFlags">The binding flags that can be modified to change how the property is searched for.</param>
+        /// <param name="creator">The <see cref="Frame" /> that creates this variable.</param>
         /// <returns>A new variable representing the child property (i.e. {thisVariable}.{propertyName}.</returns>
         /// <exception cref="ArgumentException">If the property cannot be found.</exception>
-        public Variable GetProperty(string propertyName, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
+        public Variable GetProperty(
+            string propertyName,
+            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public,
+            Frame creator = null)
         {
             var prop = VariableType.GetProperty(propertyName, bindingFlags);
 
@@ -160,7 +164,7 @@ namespace Blueprint.Compiler.Model
                 throw new ArgumentException($"Property {propertyName} does not exist on type {VariableType.FullName}");
             }
 
-            return new Variable(prop.PropertyType, $"{Usage}.{propertyName}")
+            return new Variable(prop.PropertyType, $"{Usage}.{propertyName}", creator)
             {
                 Dependencies =
                 {

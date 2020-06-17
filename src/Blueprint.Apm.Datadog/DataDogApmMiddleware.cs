@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using Blueprint.Api;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
-using OpenTracing;
-using OpenTracing.Tag;
+using Datadog.Trace;
 
-namespace Blueprint.Apm.OpenTracing
+namespace Blueprint.Apm.DataDog
 {
     /// <summary>
-    /// A middleware component that create OpenTracing <see cref="ISpan" />s to identify the
+    /// A middleware component that integrates Blueprint pipeline execution with DataDog APM.
     /// </summary>
-    public class OpenTracingApmMiddleware : IMiddlewareBuilder
+    public class DataDogApmMiddleware : IMiddlewareBuilder
     {
         /// <summary>
         /// Returns <c>false</c>.
@@ -34,7 +32,7 @@ namespace Blueprint.Apm.OpenTracing
 
             context.ExecuteMethod.Frames.Insert(0, startFrame);
 
-            context.RegisterFinallyFrames(new FinallyFrame(startFrame.SpanOwnedVariable));
+            context.RegisterFinallyFrames(new FinallyFrame(startFrame.ScopeOwnedVariable));
 
             context.RegisterUnhandledExceptionHandler(typeof(Exception), (e) =>
             {
@@ -46,47 +44,51 @@ namespace Blueprint.Apm.OpenTracing
         {
             private readonly MiddlewareBuilderContext builderContext;
 
+            private readonly Variable scopeVariable;
             private readonly Variable spanVariable;
-            private readonly Variable spanOwnedVariable;
+            private readonly Variable scopeOwnedVariable;
 
             public StartFrame(MiddlewareBuilderContext builderContext)
             {
                 this.builderContext = builderContext;
 
-                this.spanVariable = new Variable(typeof(ISpan), this);
-                this.spanOwnedVariable = new Variable(typeof(bool), "spanIsOwned", this);
+                this.scopeVariable = new Variable(typeof(Scope), this);
+                this.spanVariable = new Variable(typeof(Span), this);
+
+                this.scopeOwnedVariable = new Variable(typeof(bool), "scopeIsOwned", this);
             }
 
-            public Variable SpanOwnedVariable => spanOwnedVariable;
+            public Variable ScopeOwnedVariable => scopeOwnedVariable;
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                var tracerVariable = variables.FindVariable(typeof(ITracer));
+                var tracerVariable = new Variable(typeof(Tracer), $"{typeof(Tracer).FullNameInCode()}.{nameof(Tracer.Instance)}");
                 var operationName = builderContext.Descriptor.Name;
 
-                writer.Write($"var {spanOwnedVariable} = {tracerVariable}.{nameof(ITracer.ActiveSpan)} == null;");
-                writer.Write($"var {spanVariable} = {spanOwnedVariable} == false ? {tracerVariable}.{nameof(ITracer.ActiveSpan)} : {tracerVariable}.{nameof(ITracer.BuildSpan)}(\"operation.process\").StartActive().Span;");
+                writer.Write($"var {scopeOwnedVariable} = {tracerVariable}.{nameof(Tracer.ActiveScope)} == null;");
+                writer.Write($"var {scopeVariable} = {scopeOwnedVariable} == false ? {tracerVariable}.{nameof(Tracer.ActiveScope)} : {tracerVariable}.{nameof(Tracer.StartActive)}(\"operation.process\");");
+                writer.Write($"var {spanVariable} = {scopeVariable}.{nameof(Scope.Span)};");
 
                 // The component is used to identify the individual "resource" / "component", which here is defined as the
                 // operation name (for example that would mean a web request may be represented as operation "http.request", with a component
                 // of "GetCurrentUser".
-                writer.Write($"{spanVariable}.{nameof(ISpan.SetTag)}(\"{Tags.Component.Key}\", \"{operationName}\");");
+                writer.Write($"{spanVariable}.{nameof(Span.ResourceName)} = \"{operationName}\";");
                 next();
             }
         }
 
         private class FinallyFrame : SyncFrame
         {
-            private readonly Variable spanOwnedVariable;
+            private readonly Variable scopeOwnedVariable;
 
-            public FinallyFrame(Variable spanOwnedVariable)
+            public FinallyFrame(Variable scopeOwnedVariable)
             {
-                this.spanOwnedVariable = spanOwnedVariable;
+                this.scopeOwnedVariable = scopeOwnedVariable;
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                var spanVariable = variables.FindVariable(typeof(ISpan));
+                var spanVariable = variables.FindVariable(typeof(Span));
 
                 var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
 
@@ -100,8 +102,8 @@ namespace Blueprint.Apm.OpenTracing
 
                 // Only if we created the transaction and therefore "own" it will we manually end it. If the transaction already existed (i.e. ASP.NET
                 // Core integration setup in application) then we should not be ending the transaction ourselves
-                writer.WriteIf($"{spanOwnedVariable}");
-                writer.Write($"{spanVariable}.{nameof(ISpan.Finish)}();");
+                writer.WriteIf($"{scopeOwnedVariable}");
+                writer.Write($"{spanVariable}.{nameof(Span.Finish)}();");
                 writer.FinishBlock();
             }
         }
@@ -117,17 +119,9 @@ namespace Blueprint.Apm.OpenTracing
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                var spanVariable = variables.FindVariable(typeof(ISpan));
+                var spanVariable = variables.FindVariable(typeof(Span));
 
-                writer.Write($"{spanVariable}.SetTag(\"error\", true);");
-
-                writer.Write($"{spanVariable}.Log(new {typeof(Dictionary<string, object>).FullNameInCode()} {{");
-                writer.Write($"    [\"event\"] = \"error\",");
-                writer.Write($"    [\"message\"] = {exceptionVariable}.Message,");
-                writer.Write($"    [\"error.kind\"] = \"Exception\",");
-                writer.Write($"    [\"error.object\"] = {exceptionVariable},");
-                writer.Write($"    [\"error.stack\"] = {exceptionVariable}.StackTrace,");
-                writer.Write("});");
+                writer.Write($"{spanVariable}.{nameof(Span.SetException)}({exceptionVariable});");
             }
         }
     }

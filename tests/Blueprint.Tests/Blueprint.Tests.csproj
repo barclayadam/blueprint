@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint.Apm.DataDog\Blueprint.Apm.DataDog.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
@@ -33,5 +34,8 @@
   <ItemGroup>
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Apm" />
   </ItemGroup>
 </Project>
