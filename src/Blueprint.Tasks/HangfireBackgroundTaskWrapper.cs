@@ -24,11 +24,18 @@ namespace Blueprint.Tasks
         public BackgroundTaskEnvelope Envelope { get; private set; }
 
         /// <summary>
-        /// Converts the task into a JSON representation as: [<c>TaskName</c>]([<c>JSON without {}</c>]).
+        /// Converts the task into a JSON representation as: <c>TaskTypeName</c>([<c>JSON without {}</c>]).
         /// </summary>
         /// <returns>A string representation of the task.</returns>
         public override string ToString()
         {
+            // Extra safety if, for some reason, deserialisation fails. We do not want this to blow up
+            // on a single job as it could mean not being able to view jobs at all in the Hangfire dashboard.
+            if (Envelope?.Task == null)
+            {
+                return "[ERR] Unknown task";
+            }
+
             // A slightly more useful default for Hangfire to not
             // include the type's namespace
             return $"{Envelope.Task.GetType().Name}({GetParamDisplay()})";
