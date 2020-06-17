@@ -48,9 +48,18 @@ namespace Blueprint.Tasks.Hangfire
         {
             Guard.NotNull(nameof(task), task);
 
+            var attempt = context.GetJobParameter<int?>("RetryCount");
+
             try
             {
-                await taskExecutor.Execute(task.Envelope, token);
+                await taskExecutor.Execute(
+                    task.Envelope,
+                    s =>
+                    {
+                        s.SetTag("hangfire.jobId", context.BackgroundJob.Id);
+                        s.SetTag("hangfire.retryAttempt", (attempt ?? 1).ToString());
+                    },
+                    token);
             }
             catch (Exception e)
             {
@@ -62,8 +71,6 @@ namespace Blueprint.Tasks.Hangfire
                 // If this was not the last attempt then we will _not_ attempt to record this exception
                 // but will instead just throw to retry. This is designed to reduce intermittent noise
                 // of transient errors.
-                var attempt = context.GetJobParameter<int?>("RetryCount");
-
                 if (attempt != null && attempt < GetMaxAttempts())
                 {
                     throw;

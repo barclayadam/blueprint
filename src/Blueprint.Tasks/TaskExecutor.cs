@@ -40,9 +40,14 @@ namespace Blueprint.Tasks
         /// to a <see cref="IApiOperationExecutor" />.
         /// </summary>
         /// <param name="taskEnvelope">The task to be executed.</param>
+        /// <param name="configureSpan">An action that will be called with an <see cref="IApmSpan" /> for the service-specific
+        /// provider to add tags.</param>
         /// <param name="token">A cancellation token that indicates this method should be aborted.</param>
         /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
-        public async Task Execute(BackgroundTaskEnvelope taskEnvelope, CancellationToken token)
+        public async Task Execute(
+            BackgroundTaskEnvelope taskEnvelope,
+            Action<IApmSpan> configureSpan,
+            CancellationToken token)
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
@@ -52,28 +57,23 @@ namespace Blueprint.Tasks
                 "background",
                 taskEnvelope.ApmContext);
 
-            try
+            configureSpan(op);
+
+            using var nestedContainer = rootServiceProvider.CreateScope();
+
+            var apiContext = new ApiOperationContext(
+                nestedContainer.ServiceProvider,
+                apiOperationExecutor.DataModel,
+                taskEnvelope.Task,
+                token);
+
+            var result = await apiOperationExecutor.ExecuteAsync(apiContext);
+
+            if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
             {
-                using var nestedContainer = rootServiceProvider.CreateScope();
+                op.RecordException(unhandledExceptionOperationResult.Exception);
 
-                var apiContext = new ApiOperationContext(
-                    nestedContainer.ServiceProvider,
-                    apiOperationExecutor.DataModel,
-                    taskEnvelope.Task,
-                    token);
-
-                var result = await apiOperationExecutor.ExecuteAsync(apiContext);
-
-                if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
-                {
-                    unhandledExceptionOperationResult.Rethrow();
-                }
-            }
-            catch (Exception e)
-            {
-                op.RecordException(e);
-
-                throw;
+                unhandledExceptionOperationResult.Rethrow();
             }
         }
     }
