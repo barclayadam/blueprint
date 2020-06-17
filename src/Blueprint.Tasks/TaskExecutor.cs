@@ -46,15 +46,11 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
-            var typeName = taskEnvelope.Task.GetType().Name;
-
             using var op = this.apmTool.Start(
                 SpanType.Transaction,
-                "tasks.process",
+                "task.process",
                 "background",
                 taskEnvelope.ApmContext);
-
-            op.SetTag("task.name", typeName);
 
             try
             {

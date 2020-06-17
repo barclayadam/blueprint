@@ -6,6 +6,7 @@ using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core.Authorisation;
 using OpenTracing;
+using OpenTracing.Tag;
 
 namespace Blueprint.Apm.OpenTracing
 {
@@ -66,8 +67,10 @@ namespace Blueprint.Apm.OpenTracing
                 writer.Write($"var {spanOwnedVariable} = {tracerVariable}.{nameof(ITracer.ActiveSpan)} == null;");
                 writer.Write($"var {spanVariable} = {spanOwnedVariable} == false ? {tracerVariable}.{nameof(ITracer.ActiveSpan)} : {tracerVariable}.{nameof(ITracer.BuildSpan)}(\"{operationName}\").StartActive().Span;");
 
-                // Always set the Name of the transaction, to modify existing transactions to have a better, more accurate name
-                writer.Write($"{spanVariable}.{nameof(ISpan.SetOperationName)}(\"{operationName}\");");
+                // The component is used to identify the individual "resource" / "component", which here is defined as the
+                // operation name (for example that would mean a web request may be represented as operation "http.request", with a component
+                // of "GetCurrentUser".
+                writer.Write($"{spanVariable}.{nameof(ISpan.SetTag)}(\"{Tags.Component.Key}\", \"{operationName}\");");
                 next();
             }
         }
