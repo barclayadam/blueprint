@@ -8,6 +8,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using OpenTracing.Mock;
+using OpenTracing.Tag;
 using OpenTracing.Util;
 
 namespace Blueprint.Tests.Api.OpenTracing_Middleware
@@ -87,7 +88,7 @@ namespace Blueprint.Tests.Api.OpenTracing_Middleware
         }
 
         [Test]
-        public async Task When_OpenTracing_Added_Then_Sets_RequestTelemetry_Name()
+        public async Task When_OpenTracing_Added_Then_Sets_Component_Tag()
         {
             // Arrange
             var scope = GlobalTracer.Instance.BuildSpan("ParentSpan").StartActive();
@@ -103,7 +104,7 @@ namespace Blueprint.Tests.Api.OpenTracing_Middleware
             await executor.ExecuteAsync(context);
 
             // Assert
-            ((MockSpan)scope.Span).OperationName.Should().Be(nameof(EmptyOperation));
+            ((MockSpan)scope.Span).Tags[Tags.Component.Key].Should().Be(nameof(EmptyOperation));
         }
 
         [Test]
