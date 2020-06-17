@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Blueprint.Core.Apm;
 using OpenTracing;
 using OpenTracing.Propagation;
+using OpenTracing.Tag;
 
 namespace Blueprint.Apm.OpenTracing
 {
@@ -25,16 +26,19 @@ namespace Blueprint.Apm.OpenTracing
         /// <inheritdoc />
         public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
         {
-            var spanBuilder = tracer.BuildSpan(operationName)
-                .WithTag("span.kind", spanType == SpanType.Transaction ? "server" : "client")
-                .WithTag("type", type);
+            var spanBuilder = tracer.BuildSpan(operationName);
 
             if (existingContext != null)
             {
                 spanBuilder.AsChildOf(this.tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(existingContext)));
             }
 
-            return new OpenTracingSpan(tracer, spanBuilder.Start());
+            var span = spanBuilder.Start();
+
+            Tags.SpanKind.Set(span, spanType == SpanType.Transaction ? Tags.SpanKindServer : Tags.SpanKindClient);
+            span.SetTag("type", type);
+
+            return new OpenTracingSpan(tracer, span);
         }
 
         private class OpenTracingSpan : IApmSpan
@@ -55,15 +59,12 @@ namespace Blueprint.Apm.OpenTracing
 
             public void RecordException(Exception e)
             {
-                this.span.SetTag("error", true);
+                Tags.Error.Set(this.span, true);
 
                 this.span.Log(new Dictionary<string, object>
                 {
-                    ["event"] = "error",
-                    ["message"] = e.Message,
-                    ["error.kind"] = "Exception",
-                    ["error.object"] = e,
-                    ["error.stack"] = e.StackTrace,
+                    [LogFields.Event] = "error",
+                    [LogFields.ErrorObject] = e,
                 });
             }
 
