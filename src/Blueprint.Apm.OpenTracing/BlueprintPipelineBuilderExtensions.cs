@@ -19,7 +19,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         public static BlueprintApiBuilder AddOpenTracing(this BlueprintApiBuilder pipelineBuilder)
         {
-            pipelineBuilder.Services.AddScoped<IApmTool, OpenTracingApmTool>();
+            pipelineBuilder.Services.AddSingleton<IApmTool, OpenTracingApmTool>();
 
             return pipelineBuilder;
         }

@@ -20,7 +20,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         public static BlueprintApiBuilder AddElasticApm(this BlueprintApiBuilder pipelineBuilder)
         {
-            pipelineBuilder.Services.AddScoped<IApmTool, ElasticApmTool>();
+            pipelineBuilder.Services.AddSingleton<IApmTool, ElasticApmTool>();
 
             return pipelineBuilder;
         }

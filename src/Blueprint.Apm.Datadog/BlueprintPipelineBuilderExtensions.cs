@@ -19,7 +19,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         public static BlueprintApiBuilder AddDataDog(this BlueprintApiBuilder pipelineBuilder)
         {
-            pipelineBuilder.Services.AddScoped<IApmTool, DataDogApmTool>();
+            pipelineBuilder.Services.AddSingleton<IApmTool, DataDogApmTool>();
 
             return pipelineBuilder;
         }

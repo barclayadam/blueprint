@@ -171,7 +171,7 @@ namespace Blueprint.Api.Configuration
 
             // Random infrastructure
             Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
-            Services.TryAddScoped<IApmTool, NullApmTool>();
+            Services.TryAddSingleton<IApmTool, NullApmTool>();
 
             Services.TryAddSingleton(ArrayPool<byte>.Shared);
             Services.TryAddSingleton(ArrayPool<char>.Shared);

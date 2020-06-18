@@ -26,7 +26,7 @@ namespace Blueprint.Api.Configuration
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         public static BlueprintApiBuilder AddApplicationInsights(this BlueprintApiBuilder pipelineBuilder)
         {
-            pipelineBuilder.Services.AddScoped<IApmTool, ApplicationInsightsApmTool>();
+            pipelineBuilder.Services.AddSingleton<IApmTool, ApplicationInsightsApmTool>();
 
             pipelineBuilder.Compilation(c => c.AddVariableSource(new HttpRequestTelemetrySource()));
 
