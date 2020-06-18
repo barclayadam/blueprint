@@ -18,40 +18,51 @@ namespace Blueprint.Core.Apm
         {
             return NullApmSpan.Instance;
         }
+    }
 
-        private class NullApmSpan : IApmSpan
+    /// <summary>
+    /// A null implementation of <see cref="IApmSpan" /> that can be used when no APM
+    /// is setup.
+    /// </summary>
+    public class NullApmSpan : IApmSpan
+    {
+        /// <summary>
+        /// The single instance of <see cref="NullApmSpan" /> that should be used.
+        /// </summary>
+        public static readonly NullApmSpan Instance = new NullApmSpan();
+
+        private NullApmSpan()
         {
-            public static readonly NullApmSpan Instance = new NullApmSpan();
+        }
 
-            /// <inheritdoc />
-            public void Dispose()
-            {
-            }
+        /// <inheritdoc />
+        public void Dispose()
+        {
+        }
 
-            /// <inheritdoc />
-            public void RecordException(Exception e)
-            {
-            }
+        /// <inheritdoc />
+        public void RecordException(Exception e)
+        {
+        }
 
-            /// <inheritdoc />
-            public void SetTag(string key, string value)
-            {
-            }
+        /// <inheritdoc />
+        public void SetTag(string key, string value)
+        {
+        }
 
-            /// <inheritdoc />
-            public void MarkAsError()
-            {
-            }
+        /// <inheritdoc />
+        public void MarkAsError()
+        {
+        }
 
-            /// <inheritdoc />
-            public void InjectContext(IDictionary<string, string> context)
-            {
-            }
+        /// <inheritdoc />
+        public void InjectContext(IDictionary<string, string> context)
+        {
+        }
 
-            /// <inheritdoc />
-            public void SetResource(string resourceName)
-            {
-            }
+        /// <inheritdoc />
+        public void SetResource(string resourceName)
+        {
         }
     }
 }

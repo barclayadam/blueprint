@@ -19,6 +19,11 @@ namespace Blueprint.Apm.Elastic
             IDictionary<string, string> existingContext = null,
             string resourceName = null)
         {
+            if (!global::Elastic.Apm.Agent.IsConfigured)
+            {
+                return NullApmSpan.Instance;
+            }
+
             var tracer = global::Elastic.Apm.Agent.Tracer;
             DistributedTracingData? distributedTracingData = null;
 
