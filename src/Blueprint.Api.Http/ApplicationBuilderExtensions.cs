@@ -218,6 +218,8 @@ namespace Microsoft.AspNetCore.Builder
 
                         httpContext.SetBaseUri(basePath);
 
+                        apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
+
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
