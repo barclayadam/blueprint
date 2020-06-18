@@ -22,8 +22,6 @@ namespace Blueprint.Api.Configuration
         {
             pipelineBuilder.Services.AddScoped<IApmTool, ElasticApmTool>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<ElasticApmMiddleware>(MiddlewareStage.Setup));
-
             return pipelineBuilder;
         }
     }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Http;
 using Blueprint.Compiler;
+using Blueprint.Core.Apm;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
@@ -32,6 +33,7 @@ namespace Microsoft.AspNetCore.Builder
             var routeBuilder = new RouteBuilder(applicationBuilder);
             var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
             var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
+            var apmTool = applicationBuilder.ApplicationServices.GetRequiredService<IApmTool>();
 
             IRouter routeHandler;
 
@@ -41,6 +43,7 @@ namespace Microsoft.AspNetCore.Builder
 
                 routeHandler = new BlueprintApiRouter(
                     apiOperationExecutor,
+                    apmTool,
                     applicationBuilder.ApplicationServices,
                     applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>(),
                     basePath);
@@ -139,17 +142,20 @@ namespace Microsoft.AspNetCore.Builder
         private class BlueprintApiRouter : IRouter
         {
             private readonly IApiOperationExecutor apiOperationExecutor;
+            private readonly IApmTool apmTool;
             private readonly IServiceProvider rootServiceProvider;
             private readonly ILogger<BlueprintApiRouter> logger;
             private readonly string basePath;
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
+                IApmTool apmTool,
                 IServiceProvider rootServiceProvider,
                 ILogger<BlueprintApiRouter> logger,
                 string basePath)
             {
                 this.apiOperationExecutor = apiOperationExecutor;
+                this.apmTool = apmTool;
                 this.rootServiceProvider = rootServiceProvider;
                 this.logger = logger;
                 this.basePath = basePath;
@@ -157,46 +163,79 @@ namespace Microsoft.AspNetCore.Builder
 
             public Task RouteAsync(RouteContext context)
             {
-                context.Handler = async c =>
+                context.Handler = async httpContext =>
                 {
-                    var operation = (ApiOperationDescriptor)context.RouteData.Values["operation"];
-                    var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
+                    var routeData = httpContext.GetRouteData();
+                    var httpRequest = httpContext.Request;
 
-                    if (httpFeatureData.HttpMethod != context.HttpContext.Request.Method)
+                    var operation = (ApiOperationDescriptor)routeData.Values["operation"];
+
+                    using var span = apmTool.Start(
+                        SpanType.Transaction,
+                        "operation.process",
+                        "web",
+                        resourceName: operation.Name);
+
+                    span.SetTag("span.kind", "server");
+
+                    span.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
+                    span.SetTag("http.request.headers.host", httpRequest.Host.Value);
+                    span.SetTag("http.url", httpRequest.GetDisplayUrl());
+
+                    try
                     {
-                        logger.LogInformation(
-                            "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
-                            context.HttpContext.Request.GetDisplayUrl(),
-                            context.HttpContext.Request.Method,
-                            httpFeatureData.HttpMethod);
+                        var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
 
-                        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                        if (httpFeatureData.HttpMethod != httpRequest.Method)
+                        {
+                            logger.LogInformation(
+                                "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
+                                httpRequest.GetDisplayUrl(),
+                                httpRequest.Method,
+                                httpFeatureData.HttpMethod);
 
-                        return;
-                    }
+                            httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 
-                    using (var nestedContainer = rootServiceProvider.CreateScope())
-                    {
+                            return;
+                        }
+
+                        using var nestedContainer = rootServiceProvider.CreateScope();
+
                         var apiContext = new ApiOperationContext(
                             nestedContainer.ServiceProvider,
                             apiOperationExecutor.DataModel,
                             operation,
-                            context.HttpContext.RequestAborted);
+                            httpContext.RequestAborted)
+                        {
+                            ApmSpan = span,
+                        };
 
                         apiContext.SetHttpFeatureContext(new HttpFeatureContext
                         {
-                            HttpContext = context.HttpContext,
-                            RouteData = context.RouteData,
+                            HttpContext = httpContext,
+                            RouteData = routeData,
                         });
 
-                        context.HttpContext.SetBaseUri(basePath);
-
-                        apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
+                        httpContext.SetBaseUri(basePath);
 
                         var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
                         await result.ExecuteAsync(apiContext);
+
+                        span.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
+
+                        if (httpContext.Response.StatusCode >= 500 || httpContext.Response.StatusCode <= 599)
+                        {
+                            // 5xx codes are server-side errors
+                            span.MarkAsError();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        span.RecordException(e);
+
+                        throw;
                     }
                 };
 

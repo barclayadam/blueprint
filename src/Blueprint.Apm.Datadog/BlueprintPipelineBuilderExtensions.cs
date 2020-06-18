@@ -21,8 +21,6 @@ namespace Blueprint.Api.Configuration
         {
             pipelineBuilder.Services.AddScoped<IApmTool, DataDogApmTool>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<DataDogApmMiddleware>(MiddlewareStage.Setup));
-
             return pipelineBuilder;
         }
     }

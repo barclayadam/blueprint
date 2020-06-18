@@ -51,13 +51,14 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
-            using var op = this.apmTool.Start(
+            using var span = this.apmTool.Start(
                 SpanType.Transaction,
                 "task.process",
                 "background",
-                taskEnvelope.ApmContext);
+                taskEnvelope.ApmContext,
+                taskEnvelope.Task.GetType().Name);
 
-            configureSpan(op);
+            configureSpan(span);
 
             using var nestedContainer = rootServiceProvider.CreateScope();
 
@@ -65,13 +66,16 @@ namespace Blueprint.Tasks
                 nestedContainer.ServiceProvider,
                 apiOperationExecutor.DataModel,
                 taskEnvelope.Task,
-                token);
+                token)
+            {
+                ApmSpan = span,
+            };
 
             var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 
             if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
             {
-                op.RecordException(unhandledExceptionOperationResult.Exception);
+                span.RecordException(unhandledExceptionOperationResult.Exception);
 
                 unhandledExceptionOperationResult.Rethrow();
             }

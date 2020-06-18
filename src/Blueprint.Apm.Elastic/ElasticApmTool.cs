@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Blueprint.Core.Apm;
 using Elastic.Apm.Api;
 
@@ -11,7 +12,12 @@ namespace Blueprint.Apm.Elastic
     public class ElasticApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
+        public IApmSpan Start(
+            SpanType spanType,
+            string operationName,
+            string type,
+            IDictionary<string, string> existingContext = null,
+            string resourceName = null)
         {
             var tracer = global::Elastic.Apm.Agent.Tracer;
             DistributedTracingData? distributedTracingData = null;
@@ -30,7 +36,7 @@ namespace Blueprint.Apm.Elastic
             }
 
             return new ElasticSpan(
-                tracer.CurrentTransaction.StartSpan(operationName, type));
+                tracer.CurrentTransaction.StartSpan(operationName, type, resourceName));
         }
 
         private class ElasticSpan : IApmSpan
@@ -57,10 +63,23 @@ namespace Blueprint.Apm.Elastic
                 this.segment.Labels[key] = value;
             }
 
+            public void MarkAsError()
+            {
+                var st = new StackTrace(1, true);
+                var stFrames = st.GetFrames();
+
+                this.segment.CaptureError("Unknown error in processing", "unknown", stFrames);
+            }
+
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
                 context["ElasticDTD"] = segment.OutgoingDistributedTracingData.SerializeToString();
+            }
+
+            public void SetResource(string resourceName)
+            {
+                this.segment.Labels["resource"] = resourceName;
             }
         }
     }

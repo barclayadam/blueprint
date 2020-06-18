@@ -25,7 +25,7 @@ namespace Blueprint.Tasks
         public IBackgroundTask Task { get; }
 
         /// <summary>
-        /// A simple string dictionary that APM tools use to inject & extract state (i.e. Spans from
+        /// A simple string dictionary that APM tools use to inject &amp; extract state (i.e. Spans from
         /// OpenTracing) to enable cross-process propagation.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]

@@ -9,7 +9,12 @@ namespace Blueprint.Core.Apm
     public class NullApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(SpanType spanType, string operationName, string type1, IDictionary<string, string> existingContext = null)
+        public IApmSpan Start(
+            SpanType spanType,
+            string operationName,
+            string type,
+            IDictionary<string, string> existingContext = null,
+            string resourceName = null)
         {
             return NullApmSpan.Instance;
         }
@@ -34,7 +39,17 @@ namespace Blueprint.Core.Apm
             }
 
             /// <inheritdoc />
+            public void MarkAsError()
+            {
+            }
+
+            /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
+            {
+            }
+
+            /// <inheritdoc />
+            public void SetResource(string resourceName)
             {
             }
         }

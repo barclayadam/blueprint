@@ -8,6 +8,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Core;
+using Blueprint.Core.Apm;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -195,9 +196,10 @@ namespace Blueprint.Api
             // For the base Exception type we will add, as the first step, logging to the exception sinks. This frame DOES NOT
             // include a return frame, as we add that after all the other middleware builders have had chance to potentially add
             // more frames to perform other operations on unknown Exception
-            context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new[]
+            context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new Frame[]
             {
                 new PushToErrorLoggerExceptionCatchFrame(context, e),
+                new PushExceptionToApmSpanFrame(e),
             });
 
             executeMethod.Sources.Add(apiOperationContextSource);

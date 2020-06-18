@@ -11,7 +11,12 @@ namespace Blueprint.Apm.DataDog
     public class DataDogApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
+        public IApmSpan Start(
+            SpanType spanType,
+            string operationName,
+            string type,
+            IDictionary<string, string> existingContext = null,
+            string resourceName = null)
         {
             SpanContext parent = null;
 
@@ -29,6 +34,7 @@ namespace Blueprint.Apm.DataDog
             var scope = Tracer.Instance.StartActive(operationName, parent);
 
             scope.Span.Type = type;
+            scope.Span.ResourceName = resourceName ?? scope.Span.ResourceName;
             scope.Span.SetTag(Tags.SpanKind, spanType == SpanType.Transaction ? "server" : "client");
 
             return new OpenTracingSpan(scope);
@@ -58,12 +64,22 @@ namespace Blueprint.Apm.DataDog
                 this.scope.Span.SetTag(key, value);
             }
 
+            public void MarkAsError()
+            {
+                this.scope.Span.Error = true;
+            }
+
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
                 context["SpanId"] = this.scope.Span.SpanId.ToString();
                 context["TraceId"] = this.scope.Span.TraceId.ToString();
                 context["SamplingPriority"] = this.scope.Span.GetTag(Tags.SamplingPriority);
+            }
+
+            public void SetResource(string resourceName)
+            {
+                this.scope.Span.ResourceName = resourceName;
             }
         }
     }

@@ -12,7 +12,12 @@ namespace Blueprint.Apm.Stackify
     public class StackifyApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
+        public IApmSpan Start(
+            SpanType spanType,
+            string operationName,
+            string type,
+            IDictionary<string, string> existingContext = null,
+            string resourceName = null)
         {
             // Stackify requires us to pass a Func or Action, but Blueprint uses disposables. To make this work we have
             // Stackify wait on an "empty" async method that waits on the TCS completed below, that will be trigged when the returned
@@ -21,7 +26,7 @@ namespace Blueprint.Apm.Stackify
 
             var dependency = spanType == SpanType.Transaction ?
                 ProfileTracer.CreateAsOperation(operationName) :
-                ProfileTracer.CreateAsDependency(operationName, string.Empty);
+                ProfileTracer.CreateAsDependency(operationName, resourceName);
 
             dependency.ExecAsync(async () => await tcs.Task);
 
@@ -54,9 +59,19 @@ namespace Blueprint.Apm.Stackify
             {
             }
 
+            public void MarkAsError()
+            {
+                // Nothing to do here
+            }
+
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
+            }
+
+            public void SetResource(string resourceName)
+            {
+                // Nothing to do here
             }
         }
     }

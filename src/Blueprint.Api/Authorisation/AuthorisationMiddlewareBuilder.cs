@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Api.Errors;
+using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
+using Blueprint.Compiler.Model;
+using Blueprint.Core.Apm;
 using Blueprint.Core.Authorisation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -94,6 +98,32 @@ namespace Blueprint.Api.Authorisation
                 new IfBlock(
                     $"{context.FindVariable<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
                     checkFrames.ToArray()));
+
+            context.RegisterFinallyFrames(new SetApmUserDetailsFrame());
+        }
+
+        private class SetApmUserDetailsFrame : SyncFrame
+        {
+            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
+            {
+                var spanVariable = variables.FindVariable(typeof(IApmSpan));
+
+                var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
+
+                // It is possible that no span exists
+                writer.WriteIf($"{spanVariable} != null");
+
+                // We set user data as tags. Individual APM tools may wish to react accordingly to these tags if there is some specific
+                // location user details need to be stored.
+                writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
+
+                writer.WriteIf($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
+                writer.Write($"{spanVariable}.SetTag(\"user.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
+                writer.Write($"{spanVariable}.SetTag(\"user.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
+                writer.FinishBlock();
+
+                writer.FinishBlock();
+            }
         }
     }
 }

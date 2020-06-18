@@ -28,8 +28,6 @@ namespace Blueprint.Api.Configuration
         {
             pipelineBuilder.Services.AddScoped<IApmTool, ApplicationInsightsApmTool>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<ApplicationInsightsMiddleware>(MiddlewareStage.Setup));
-
             pipelineBuilder.Compilation(c => c.AddVariableSource(new HttpRequestTelemetrySource()));
 
             return pipelineBuilder;

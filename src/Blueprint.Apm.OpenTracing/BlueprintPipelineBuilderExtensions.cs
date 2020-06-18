@@ -21,8 +21,6 @@ namespace Blueprint.Api.Configuration
         {
             pipelineBuilder.Services.AddScoped<IApmTool, OpenTracingApmTool>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<OpenTracingApmMiddleware>(MiddlewareStage.Setup));
-
             return pipelineBuilder;
         }
     }

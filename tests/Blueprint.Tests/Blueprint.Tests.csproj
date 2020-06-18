@@ -35,7 +35,4 @@
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Apm" />
-  </ItemGroup>
 </Project>

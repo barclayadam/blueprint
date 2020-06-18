@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using Blueprint.Core;
+using Blueprint.Core.Apm;
 using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Api
@@ -110,6 +111,12 @@ namespace Blueprint.Api
         /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.
         /// </summary>
         public ApiOperationContext Parent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IApmSpan" /> for this context, which may be <c>null</c> if the host
+        /// of an operation has not integrated with APM tooling.
+        /// </summary>
+        public IApmSpan ApmSpan { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an

@@ -24,7 +24,12 @@ namespace Blueprint.Apm.OpenTracing
         }
 
         /// <inheritdoc />
-        public IApmSpan Start(SpanType spanType, string operationName, string type, IDictionary<string, string> existingContext = null)
+        public IApmSpan Start(
+            SpanType spanType,
+            string operationName,
+            string type,
+            IDictionary<string, string> existingContext = null,
+            string resourceName = null)
         {
             var spanBuilder = tracer.BuildSpan(operationName);
 
@@ -35,6 +40,7 @@ namespace Blueprint.Apm.OpenTracing
 
             var span = spanBuilder.Start();
 
+            Tags.Component.Set(span, resourceName);
             Tags.SpanKind.Set(span, spanType == SpanType.Transaction ? Tags.SpanKindServer : Tags.SpanKindClient);
             span.SetTag("type", type);
 
@@ -79,10 +85,20 @@ namespace Blueprint.Apm.OpenTracing
                 this.span.SetTag(key, value);
             }
 
+            public void MarkAsError()
+            {
+                Tags.Error.Set(this.span, true);
+            }
+
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
                 this.tracer.Inject(this.tracer.ActiveSpan.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(context));
+            }
+
+            public void SetResource(string resourceName)
+            {
+                Tags.Component.Set(this.span, resourceName);
             }
         }
     }

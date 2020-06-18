@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Threading;
 using Blueprint.Compiler.Model;
+using Blueprint.Core.Apm;
 using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Api.CodeGen
@@ -19,6 +20,7 @@ namespace Blueprint.Api.CodeGen
     ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />.
     ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />.
     ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />.
+    ///  * <see cref="IApmSpan" /> from <see cref="ApiOperationContext.ApmSpan" />.
     ///  * <see cref="ClaimsIdentity" /> from <see cref="ApiOperationContext.ClaimsIdentity" />.
     /// </remarks>
     public class ApiOperationContextVariableSource : IVariableSource
@@ -99,6 +101,11 @@ namespace Blueprint.Api.CodeGen
             if (type == typeof(ClaimsIdentity))
             {
                 return operationContextVariable.GetProperty(nameof(ApiOperationContext.ClaimsIdentity));
+            }
+
+            if (type == typeof(IApmSpan))
+            {
+                return operationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
             }
 
             if (type == typeof(CancellationToken))
