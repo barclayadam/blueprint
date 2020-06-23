@@ -30,14 +30,18 @@ namespace Blueprint.Api.Configuration
         }
 
         /// <summary>
-        /// Adds a Tasks 'server', <see cref="TaskExecutor" /> and <see cref="RecurringTaskManager" /> implementations in
+        /// Adds a Tasks 'server', <see cref="TaskExecutor" /> implementations in
         /// addition to provider-specific functionality that enables the execution of <see cref="IBackgroundTask" />s in
         /// this application.
         /// </summary>
+        /// <remarks>
+        /// Note that by default we DO NOT register recurring task support.
+        /// </remarks>
         /// <param name="builder">The builder to add the task server to.</param>
         /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
         /// <seealso cref="AddTasksClient" />
+        /// <seealso cref="BlueprintTasksServerBuilder.AddRecurringTasks" />
         public static BlueprintApiBuilder AddTasksServer(
             this BlueprintApiBuilder builder,
             Action<BlueprintTasksServerBuilder> configureTasks)
@@ -48,9 +52,6 @@ namespace Blueprint.Api.Configuration
             builder.Operations(o => o.AddConvention(new TasksOperationScannerConvention()));
 
             builder.Services.AddScoped<TaskExecutor>();
-            builder.Services.AddScoped<RecurringTaskManager>();
-
-            builder.Services.AddHostedService<RecurringJobManagerRegistrationHostedService>();
 
             configureTasks(new BlueprintTasksServerBuilder(builder.Services));
 

@@ -15,5 +15,20 @@ namespace Blueprint.Tasks
             : base(serviceCollection)
         {
         }
+
+        /// <summary>
+        /// Adds recurring tasks support, which will register the required hosted services and
+        /// task managers needed.
+        /// </summary>
+        /// <remarks>
+        /// Recurring tasks are defined by <see cref="IRecurringTaskScheduler" />s that can
+        /// bre registered and provide CRON-based jobs that allow for the creation of
+        /// <see cref="IBackgroundTask" />s that can be executed on a schedule.
+        /// </remarks>
+        public void AddRecurringTasks()
+        {
+            this.Services.AddScoped<RecurringTaskManager>();
+            this.Services.AddHostedService<RecurringJobManagerRegistrationHostedService>();
+        }
     }
 }
