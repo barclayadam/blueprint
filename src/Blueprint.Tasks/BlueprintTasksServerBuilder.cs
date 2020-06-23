@@ -25,10 +25,13 @@ namespace Blueprint.Tasks
         /// bre registered and provide CRON-based jobs that allow for the creation of
         /// <see cref="IBackgroundTask" />s that can be executed on a schedule.
         /// </remarks>
-        public void AddRecurringTasks()
+        /// <returns>This builder for further configuration.</returns>
+        public BlueprintTasksServerBuilder AddRecurringTasks()
         {
             this.Services.AddScoped<RecurringTaskManager>();
             this.Services.AddHostedService<RecurringJobManagerRegistrationHostedService>();
+
+            return this;
         }
     }
 }
