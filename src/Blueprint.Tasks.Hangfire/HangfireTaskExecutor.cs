@@ -79,7 +79,7 @@ namespace Blueprint.Tasks.Hangfire
                 e.Data["RetryCount"] = attempt?.ToString();
                 e.Data["HangfireJobId"] = context.BackgroundJob.Id;
 
-                errorLogger.Log(e);
+                await errorLogger.LogAsync(e);
 
                 throw;
             }

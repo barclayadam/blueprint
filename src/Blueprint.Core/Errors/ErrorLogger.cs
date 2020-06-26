@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Blueprint.Core.Authorisation;
 using Blueprint.Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -70,7 +71,7 @@ namespace Blueprint.Core.Errors
         }
 
         /// <inheritdoc />
-        public ErrorLogStatus Log(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
+        public ValueTask<ErrorLogStatus> LogAsync(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
             var exception = new Exception(exceptionMessage);
 
@@ -84,11 +85,11 @@ namespace Blueprint.Core.Errors
                 }
             }
 
-            return Log(exception, identifier);
+            return LogAsync(exception, identifier);
         }
 
         /// <inheritdoc />
-        public ErrorLogStatus Log(Exception exception, UserExceptionIdentifier userExceptionIdentifier = null)
+        public async ValueTask<ErrorLogStatus> LogAsync(Exception exception, UserExceptionIdentifier userExceptionIdentifier = null)
         {
             if (ShouldIgnore(exception))
             {
@@ -113,7 +114,7 @@ namespace Blueprint.Core.Errors
 
                 foreach (var sink in exceptionSinks)
                 {
-                    sink.Record(exception, userExceptionIdentifier);
+                    await sink.RecordAsync(exception, userExceptionIdentifier);
                 }
             }
             catch (Exception ex)

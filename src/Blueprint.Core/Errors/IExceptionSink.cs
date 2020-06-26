@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Core.Errors
@@ -11,6 +12,6 @@ namespace Blueprint.Core.Errors
     /// <seealso cref="IErrorLogger" />
     public interface IExceptionSink
     {
-        void Record(Exception e, UserExceptionIdentifier identifier);
+        Task RecordAsync(Exception e, UserExceptionIdentifier identifier);
     }
 }

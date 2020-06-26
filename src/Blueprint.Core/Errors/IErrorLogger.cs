@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Core.Errors
@@ -17,7 +18,7 @@ namespace Blueprint.Core.Errors
         /// <param name="identifier">A user identifier that will be sent along with this error to track by-user.</param>
         /// <returns>The status of recording, useful to determine the next course of action depending
         /// on application.</returns>
-        ErrorLogStatus Log(
+        ValueTask<ErrorLogStatus> LogAsync(
             Exception exception,
             UserExceptionIdentifier identifier = default);
 
@@ -30,7 +31,7 @@ namespace Blueprint.Core.Errors
         /// <param name="identifier">A user identifier that will be sent along with this error to track by-user.</param>
         /// <returns>The status of recording, useful to determine the next course of action depending
         /// on application.</returns>
-        ErrorLogStatus Log(
+        ValueTask<ErrorLogStatus> LogAsync(
             string exceptionMessage,
             object errorData = default,
             UserExceptionIdentifier identifier = default);

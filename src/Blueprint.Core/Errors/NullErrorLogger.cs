@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Blueprint.Core.Authorisation;
 
 namespace Blueprint.Core.Errors
@@ -9,22 +10,24 @@ namespace Blueprint.Core.Errors
     /// </summary>
     public class NullErrorLogger : IErrorLogger
     {
+        private static readonly ValueTask<ErrorLogStatus> RecordedStatus = new ValueTask<ErrorLogStatus>(ErrorLogStatus.Recorded);
+
         /// <inheritdoc />
         /// <remarks>
         /// This method does nothing but return <see cref="ErrorLogStatus.Recorded" />.
         /// </remarks>
-        public ErrorLogStatus Log(Exception exception, UserExceptionIdentifier identifier = default)
+        public ValueTask<ErrorLogStatus> LogAsync(Exception exception, UserExceptionIdentifier identifier = default)
         {
-            return ErrorLogStatus.Recorded;
+            return RecordedStatus;
         }
 
         /// <inheritdoc />
         /// <remarks>
         /// This method does nothing but return <see cref="ErrorLogStatus.Recorded" />.
         /// </remarks>
-        public ErrorLogStatus Log(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
+        public ValueTask<ErrorLogStatus> LogAsync(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
-            return ErrorLogStatus.Recorded;
+            return RecordedStatus;
         }
 
         /// <inheritdoc />
