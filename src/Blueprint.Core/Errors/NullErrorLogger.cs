@@ -16,7 +16,7 @@ namespace Blueprint.Core.Errors
         /// <remarks>
         /// This method does nothing but return <see cref="ErrorLogStatus.Recorded" />.
         /// </remarks>
-        public ValueTask<ErrorLogStatus> LogAsync(Exception exception, UserExceptionIdentifier identifier = default)
+        public ValueTask<ErrorLogStatus> LogAsync(Exception exception, object errorData = default, UserExceptionIdentifier identifier = default)
         {
             return RecordedStatus;
         }

@@ -73,8 +73,21 @@ namespace Blueprint.Core.Errors
         /// <inheritdoc />
         public ValueTask<ErrorLogStatus> LogAsync(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
-            var exception = new Exception(exceptionMessage);
+            return LogAsync(new Exception(exceptionMessage), errorData, identifier);
+        }
 
+        /// <inheritdoc />
+        public async ValueTask<ErrorLogStatus> LogAsync(Exception exception, object errorData = default, UserExceptionIdentifier userExceptionIdentifier = null)
+        {
+            if (ShouldIgnore(exception))
+            {
+                return ErrorLogStatus.Ignored;
+            }
+
+            exception = exception.Demystify();
+
+            // Attach extra data to the Exception object via. it's Data property, used in exception sinks to
+            // add metadata useful for diagnostics purposes.
             if (errorData != null)
             {
                 var dataAsDictionary = errorData is Dictionary<string, string> data ? data : errorData.ToStringDictionary();
@@ -84,19 +97,6 @@ namespace Blueprint.Core.Errors
                     exception.Data[kvp.Key] = kvp.Value;
                 }
             }
-
-            return LogAsync(exception, identifier);
-        }
-
-        /// <inheritdoc />
-        public async ValueTask<ErrorLogStatus> LogAsync(Exception exception, UserExceptionIdentifier userExceptionIdentifier = null)
-        {
-            if (ShouldIgnore(exception))
-            {
-                return ErrorLogStatus.Ignored;
-            }
-
-            exception = exception.Demystify();
 
             // This is not a known and well-handled exception
             logger.LogError(exception, "An unhandled exception has occurred");

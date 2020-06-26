@@ -68,7 +68,7 @@ namespace Blueprint.Api.CodeGen
             writer.BlankLine();
 
             // We use an inline MethodCall here to enable it to ensure surrounding method is marked as async as necessary
-            var methodCall = MethodCall.For<IErrorLogger>(e => e.LogAsync(default(Exception), default(UserExceptionIdentifier)));
+            var methodCall = MethodCall.For<IErrorLogger>(e => e.LogAsync(default(Exception), default(object), default(UserExceptionIdentifier)));
             methodCall.Arguments[0] = exceptionVariable;
             methodCall.Arguments[1] = new Variable(typeof(UserExceptionIdentifier), "identifier");
             writer.Write(methodCall);

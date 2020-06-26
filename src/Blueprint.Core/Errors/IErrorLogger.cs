@@ -15,11 +15,14 @@ namespace Blueprint.Core.Errors
         /// recorded at all (not recorded in essence suppresses the exception).
         /// </summary>
         /// <param name="exception">The exception to attempt to log.</param>
+        /// <param name="errorData">Extra data to attach to the Exception object via. it's Data property, used in exception sinks to
+        /// add metadata useful for diagnostics purposes (likely an anonymous object that will be converted to a string).</param>
         /// <param name="identifier">A user identifier that will be sent along with this error to track by-user.</param>
         /// <returns>The status of recording, useful to determine the next course of action depending
         /// on application.</returns>
         ValueTask<ErrorLogStatus> LogAsync(
             Exception exception,
+            object errorData = default,
             UserExceptionIdentifier identifier = default);
 
         /// <summary>
