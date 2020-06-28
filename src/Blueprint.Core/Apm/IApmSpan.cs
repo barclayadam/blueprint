@@ -23,11 +23,6 @@ namespace Blueprint.Core.Apm
         void SetTag(string key, string value);
 
         /// <summary>
-        /// Marks this span as errored, without recording an attached <see cref="Exception" />.
-        /// </summary>
-        void MarkAsError();
-
-        /// <summary>
         /// Injects context in to the given dictionary, a way of propagating span context across boundaries
         /// by stashing some information that, when passed to <see cref="IApmTool.Start" /> as the existing context,
         /// can be rehydrated and tracked as a child of this span.

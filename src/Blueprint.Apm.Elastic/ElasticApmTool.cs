@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Blueprint.Core.Apm;
 using Elastic.Apm.Api;
 
@@ -30,6 +29,14 @@ namespace Blueprint.Apm.Elastic
             if (existingContext != null && existingContext.TryGetValue("ElasticDTD", out var d))
             {
                 distributedTracingData = DistributedTracingData.TryDeserializeFromString(d);
+            }
+
+            // We special-case when we have no parent information to set and Elastic already has a
+            // current transaction to instead create a child span, not a new Transaction
+            if (tracer.CurrentTransaction != null && existingContext == null)
+            {
+                return new ElasticSpan(
+                    tracer.CurrentTransaction.StartSpan(operationName, type, resourceName));
             }
 
             if (spanType == SpanType.Transaction)
@@ -65,15 +72,34 @@ namespace Blueprint.Apm.Elastic
 
             public void SetTag(string key, string value)
             {
-                this.segment.Labels[key] = value;
-            }
+                if (this.segment is ISpan span)
+                {
+                    switch (key)
+                    {
+                        case "db.type":
+                            span.Context.Db ??= new Database();
+                            span.Context.Db.Type = value;
+                            break;
 
-            public void MarkAsError()
-            {
-                var st = new StackTrace(1, true);
-                var stFrames = st.GetFrames();
+                        case "db.instance":
+                            span.Context.Db ??= new Database();
+                            span.Context.Db.Instance = value;
+                            break;
 
-                this.segment.CaptureError("Unknown error in processing", "unknown", stFrames);
+                        case "db.statement":
+                            span.Context.Db ??= new Database();
+                            span.Context.Db.Statement = value;
+                            break;
+
+                        default:
+                            span.Labels[key] = value;
+                            break;
+                    }
+                }
+                else
+                {
+                    this.segment.Labels[key] = value;
+                }
             }
 
             /// <inheritdoc />
@@ -84,7 +110,14 @@ namespace Blueprint.Apm.Elastic
 
             public void SetResource(string resourceName)
             {
-                this.segment.Labels["resource"] = resourceName;
+                if (this.segment is ISpan span)
+                {
+                    span.Subtype = resourceName;
+                }
+                else
+                {
+                    this.segment.Labels["resource"] = resourceName;
+                }
             }
         }
     }

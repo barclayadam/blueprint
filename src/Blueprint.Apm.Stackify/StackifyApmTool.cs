@@ -59,11 +59,6 @@ namespace Blueprint.Apm.Stackify
             {
             }
 
-            public void MarkAsError()
-            {
-                // Nothing to do here
-            }
-
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {

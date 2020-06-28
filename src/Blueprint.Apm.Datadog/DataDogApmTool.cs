@@ -64,11 +64,6 @@ namespace Blueprint.Apm.DataDog
                 this.scope.Span.SetTag(key, value);
             }
 
-            public void MarkAsError()
-            {
-                this.scope.Span.Error = true;
-            }
-
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {

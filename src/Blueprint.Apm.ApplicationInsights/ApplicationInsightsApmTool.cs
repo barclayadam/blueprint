@@ -107,11 +107,6 @@ namespace Blueprint.Apm.ApplicationInsights
                 }
             }
 
-            public void MarkAsError()
-            {
-                operation.Telemetry.Success = false;
-            }
-
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {

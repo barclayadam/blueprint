@@ -64,6 +64,8 @@ namespace Blueprint.Tasks
 
             using var op = this.apmTool.Start(SpanType.Span, "tasks.enqueue", "queue");
 
+            op.SetTag("span.kind", "producer");
+
             op.InjectContext(task.ApmContext);
 
             return await fn();

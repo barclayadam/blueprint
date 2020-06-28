@@ -58,6 +58,8 @@ namespace Blueprint.Tasks
                 taskEnvelope.ApmContext,
                 taskEnvelope.Task.GetType().Name);
 
+            span.SetTag("span.kind", "consumer");
+
             configureSpan(span);
 
             using var nestedContainer = rootServiceProvider.CreateScope();

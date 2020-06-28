@@ -85,11 +85,6 @@ namespace Blueprint.Apm.OpenTracing
                 this.span.SetTag(key, value);
             }
 
-            public void MarkAsError()
-            {
-                Tags.Error.Set(this.span, true);
-            }
-
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {

@@ -170,17 +170,17 @@ namespace Microsoft.AspNetCore.Builder
 
                     var operation = (ApiOperationDescriptor)routeData.Values["operation"];
 
-                    using var span = apmTool.Start(
+                    using var apmTransaction = apmTool.Start(
                         SpanType.Transaction,
                         "operation.process",
-                        "web",
+                        "request",
                         resourceName: operation.Name);
 
-                    span.SetTag("span.kind", "server");
+                    apmTransaction.SetTag("span.kind", "server");
 
-                    span.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
-                    span.SetTag("http.request.headers.host", httpRequest.Host.Value);
-                    span.SetTag("http.url", httpRequest.GetDisplayUrl());
+                    apmTransaction.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
+                    apmTransaction.SetTag("http.request.headers.host", httpRequest.Host.Value);
+                    apmTransaction.SetTag("http.url", httpRequest.GetDisplayUrl());
 
                     try
                     {
@@ -207,7 +207,7 @@ namespace Microsoft.AspNetCore.Builder
                             operation,
                             httpContext.RequestAborted)
                         {
-                            ApmSpan = span,
+                            ApmSpan = apmTransaction,
                         };
 
                         apiContext.SetHttpFeatureContext(new HttpFeatureContext
@@ -225,17 +225,13 @@ namespace Microsoft.AspNetCore.Builder
                         // We want to immediately execute the result to allow it to write to the HTTP response
                         await result.ExecuteAsync(apiContext);
 
-                        span.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
-
-                        if (httpContext.Response.StatusCode >= 500 || httpContext.Response.StatusCode <= 599)
-                        {
-                            // 5xx codes are server-side errors
-                            span.MarkAsError();
-                        }
+                        // We set the specific status code, but rely on the APM integration in the actual pipeline]
+                        // to have set the error correctly on the surrounding transaction.
+                        apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
                     }
                     catch (Exception e)
                     {
-                        span.RecordException(e);
+                        apmTransaction.RecordException(e);
 
                         throw;
                     }

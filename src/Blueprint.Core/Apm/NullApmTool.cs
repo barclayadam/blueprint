@@ -51,11 +51,6 @@ namespace Blueprint.Core.Apm
         }
 
         /// <inheritdoc />
-        public void MarkAsError()
-        {
-        }
-
-        /// <inheritdoc />
         public void InjectContext(IDictionary<string, string> context)
         {
         }
