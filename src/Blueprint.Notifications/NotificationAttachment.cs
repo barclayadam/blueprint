@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Net.Mail;
-using Blueprint.Core;
+using Blueprint;
 
 namespace Blueprint.Notifications
 {

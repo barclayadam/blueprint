@@ -9,6 +9,6 @@
     <PackageReference Include="Npgsql" Version="4.0.9" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
   </ItemGroup>
 </Project>

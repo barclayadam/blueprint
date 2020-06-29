@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Core;
+using Blueprint;
 using Blueprint.Tasks.Provider;
 
 namespace Blueprint.Tasks

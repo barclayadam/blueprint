@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Blueprint.Api.Validation;
+using Blueprint.Validation;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.Validation.GreaterThanPropertyAttribute_Tests

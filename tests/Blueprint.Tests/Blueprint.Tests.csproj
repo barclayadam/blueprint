@@ -19,14 +19,13 @@
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.DataDog\Blueprint.Apm.DataDog.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.OpenApi\Blueprint.OpenApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.StructureMap\Blueprint.StructureMap.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />

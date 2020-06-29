@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Blueprint.Core.Apm;
 using Elastic.Apm.Api;
 
 namespace Blueprint.Apm.Elastic

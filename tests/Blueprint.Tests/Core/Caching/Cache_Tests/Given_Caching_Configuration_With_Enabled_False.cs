@@ -1,6 +1,6 @@
 ﻿using System;
-using Blueprint.Core.Caching;
-using Blueprint.Core.Caching.Configuration;
+using Blueprint.Caching;
+using Blueprint.Caching.Configuration;
 using Blueprint.Tests.Fakes;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Blueprint.Api;
-using Blueprint.Api.Http;
-using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Tests.Api
 {

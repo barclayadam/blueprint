@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
-using Blueprint.Core;
+using Blueprint;
 using Commons.Collections;
 using NVelocity;
 using NVelocity.App;

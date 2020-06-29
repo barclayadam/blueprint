@@ -1,4 +1,5 @@
 ﻿using System;
+using Blueprint.Configuration;
 using Blueprint.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 

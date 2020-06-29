@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Blueprint.Core.Apm;
+using Blueprint.Apm;
 using Blueprint.Tasks.Provider;
 
 namespace Blueprint.Tasks

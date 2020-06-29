@@ -1,4 +1,4 @@
-﻿using Blueprint.Api.Validation;
+﻿using Blueprint.Validation;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.Validation.LessThanOrEqualToAttribute_Tests

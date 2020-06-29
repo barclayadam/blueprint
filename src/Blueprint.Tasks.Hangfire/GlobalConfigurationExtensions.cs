@@ -1,5 +1,5 @@
 ﻿using System;
-using Blueprint.Core;
+using Blueprint;
 using Hangfire;
 
 namespace Blueprint.Tasks.Hangfire

@@ -1,5 +1,5 @@
 using System;
-using Blueprint.Core.Caching;
+using Blueprint.Caching;
 using FluentAssertions;
 using NUnit.Framework;
 

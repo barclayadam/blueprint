@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Blueprint.Api.Configuration;
+using Blueprint.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -50,8 +51,7 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddBlueprintApi(b => b
                         .SetApplicationName(AppName)
                         .Operations(o => o.ScanForOperations(typeof(Program).Assembly))
-                        .Pipeline(m => m
-                            .AddLogging()
+                        .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
                             .AddValidation(v => v
                                 .UseBlueprintSource()
                                 .UseDataAnnotationSource()

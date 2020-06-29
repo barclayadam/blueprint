@@ -1,8 +1,9 @@
 using System.Data;
+using Blueprint.Data;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace Blueprint.Core.Data
+namespace Blueprint.Postgres
 {
     public class PostgresDatabaseConnectionFactory : IDatabaseConnectionFactory
     {

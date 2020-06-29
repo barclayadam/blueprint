@@ -5,6 +5,7 @@ using Blueprint.Api;
 using Blueprint.Api.Configuration;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
+using Blueprint.Configuration;
 using Blueprint.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;

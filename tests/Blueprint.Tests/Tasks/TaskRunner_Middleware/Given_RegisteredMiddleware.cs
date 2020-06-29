@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Configuration;
 using Blueprint.Tasks;
 using Blueprint.Testing;
 using FluentAssertions;

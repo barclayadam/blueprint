@@ -1,5 +1,5 @@
 using System;
-using Blueprint.Core.Utilities;
+using Blueprint.Utilities;
 using FluentAssertions;
 using NUnit.Framework;
 

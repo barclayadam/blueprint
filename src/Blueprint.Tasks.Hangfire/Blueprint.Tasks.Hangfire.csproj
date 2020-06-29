@@ -9,8 +9,7 @@
     <PackageReference Include="Hangfire.Core" Version="1.7.9" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
     <ProjectReference Include="..\Blueprint.Tasks\Blueprint.Tasks.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Mail;
-using Blueprint.Core;
+using Blueprint;
 using Blueprint.Notifications.Templates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

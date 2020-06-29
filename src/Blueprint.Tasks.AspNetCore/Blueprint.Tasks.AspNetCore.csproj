@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
       <ProjectReference Include="..\Blueprint.Tasks\Blueprint.Tasks.csproj" />
+      <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
     </ItemGroup>
 </Project>

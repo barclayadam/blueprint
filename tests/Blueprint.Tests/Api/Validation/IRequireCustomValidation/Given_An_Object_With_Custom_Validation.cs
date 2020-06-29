@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Api.Validation;
+using Blueprint.Validation;
 using FluentAssertions;
 using NUnit.Framework;
 

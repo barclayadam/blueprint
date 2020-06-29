@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Blueprint.Core.Apm;
 using OpenTracing;
 using OpenTracing.Propagation;
 using OpenTracing.Tag;

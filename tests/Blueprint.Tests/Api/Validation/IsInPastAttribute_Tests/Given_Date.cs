@@ -1,6 +1,6 @@
 ﻿using System;
-using Blueprint.Api.Validation;
-using Blueprint.Core;
+using Blueprint;
+using Blueprint.Validation;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -37,7 +37,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_DateTime_Is_Invalid_String_Then_Is_Invalid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
             var dateTime = "Tenth Of June 2011";
 
@@ -51,7 +51,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_DateTime_Is_Not_DateTime_Or_String_Then_Exception_Is_Thrown()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
             const int dateInteger = 10102010;
 
@@ -65,7 +65,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_DateTime_Is_String_In_Future_Then_Invalid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
             var dateTime = DateTime.Now.AddDays(1).Date.ToString();
 
@@ -79,7 +79,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_DateTime_Is_String_In_Past_Then_Valid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
             var dateTime = DateTime.Now.AddDays(-1).Date.ToString();
 
@@ -119,7 +119,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_Date_Is_Invalid_String_Then_Is_Invalid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.Date);
             var dateTime = "Tenth Of June 2011";
 
@@ -133,7 +133,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_Date_Is_Not_DateTime_Or_String_Then_Exception_Is_Thrown()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.Date);
             const int dateInteger = 10102010;
 
@@ -147,7 +147,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_Date_Is_String_In_Future_Then_Invalid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.Date);
             var dateTime = DateTime.Now.AddDays(1).Date.ToString();
 
@@ -161,7 +161,7 @@ namespace Blueprint.Tests.Api.Validation.IsInPastAttribute_Tests
         [Test]
         public void When_Date_Is_String_In_Past_Then_Valid()
         {
-            // Arrange 
+            // Arrange
             var inPastAttribute = new InPastAttribute(TemporalCheck.Date);
             var dateTime = DateTime.Now.AddDays(-1).Date.ToString();
 

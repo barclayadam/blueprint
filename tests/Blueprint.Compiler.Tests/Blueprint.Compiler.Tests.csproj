@@ -12,8 +12,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />
   </ItemGroup>
 </Project>

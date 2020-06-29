@@ -1,13 +1,12 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Authorisation;
-using Blueprint.Api.Configuration;
-using Blueprint.Api.Errors;
+using Blueprint.Authorisation;
+using Blueprint.Configuration;
+using Blueprint.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
-using ClaimTypes = Blueprint.Core.Authorisation.ClaimTypes;
+using ClaimTypes = Blueprint.Authorisation.ClaimTypes;
 
 namespace Blueprint.Tests.Api.Authorisation_Middleware
 {

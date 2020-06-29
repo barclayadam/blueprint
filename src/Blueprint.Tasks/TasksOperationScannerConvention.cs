@@ -1,6 +1,7 @@
 using System;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
+using Blueprint.Configuration;
 
 namespace Blueprint.Tasks
 {

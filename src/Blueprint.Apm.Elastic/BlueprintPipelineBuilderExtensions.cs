@@ -1,6 +1,6 @@
+using Blueprint.Apm;
 using Blueprint.Apm.Elastic;
-using Blueprint.Core.Apm;
-using Elastic.Apm.Api;
+using Blueprint.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 // This should be discoverable when configuring without extra namespace imports
@@ -14,7 +14,7 @@ namespace Blueprint.Api.Configuration
     {
         /// <summary>
         /// Adds Elastic APM integration to this API, registering an <see cref="IApmTool" /> to allow
-        /// tracking dependencies, and middleware that will create or configure an <see cref="ITransaction" />.
+        /// tracking dependencies using Elastic APM.
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>

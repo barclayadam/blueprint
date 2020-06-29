@@ -1,5 +1,5 @@
 ﻿using Blueprint.Api;
-using Blueprint.Core.Auditing;
+using Blueprint.Auditing;
 
 namespace Blueprint.Tests.Api
 {

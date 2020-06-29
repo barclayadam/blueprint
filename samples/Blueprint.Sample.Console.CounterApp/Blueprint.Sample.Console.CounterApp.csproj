@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
   </ItemGroup>

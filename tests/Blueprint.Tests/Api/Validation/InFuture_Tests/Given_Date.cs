@@ -1,6 +1,6 @@
 ﻿using System;
-using Blueprint.Core;
-using Blueprint.Core.Utilities;
+using Blueprint;
+using Blueprint.Utilities;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.Validation.InFuture_Tests

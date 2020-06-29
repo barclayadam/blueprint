@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Blueprint.Core.Apm;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;

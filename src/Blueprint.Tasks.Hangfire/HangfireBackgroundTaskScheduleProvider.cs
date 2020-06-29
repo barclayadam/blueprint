@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Blueprint.Core;
-using Blueprint.Core.Utilities;
+using Blueprint;
+using Blueprint.Utilities;
 using Blueprint.Tasks;
 using Blueprint.Tasks.Provider;
 using Hangfire;

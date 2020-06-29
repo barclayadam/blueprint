@@ -1,6 +1,7 @@
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Http;
+using Blueprint.Configuration;
+using Blueprint.Http;
 using Blueprint.Sample.WebApi.Data;
 using Blueprint.Tasks;
 using Hangfire;
@@ -35,8 +36,7 @@ namespace Blueprint.Sample.WebApi
                 .AddTasksClient(t => t.UseHangfire())
                 .AddApplicationInsights()
                 .AddOpenApi()
-                .Pipeline(m => m
-                    .AddLogging()
+                .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
                     .AddValidation()
                     .AddHateoasLinks()
                     .AddResourceEvents<NullResourceEventRepository>()

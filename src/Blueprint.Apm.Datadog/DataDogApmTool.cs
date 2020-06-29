@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Blueprint.Core.Apm;
 using Datadog.Trace;
 
 namespace Blueprint.Apm.DataDog

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Blueprint.Core;
+using Blueprint;
 using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Tasks.AspNetCore

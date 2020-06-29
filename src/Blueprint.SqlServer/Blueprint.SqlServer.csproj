@@ -10,7 +10,6 @@
     <PackageReference Include="Dapper" Version="2.0.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
   </ItemGroup>
 </Project>

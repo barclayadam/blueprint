@@ -9,6 +9,6 @@
     <PackageReference Include="StructureMap" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
   </ItemGroup>
 </Project>

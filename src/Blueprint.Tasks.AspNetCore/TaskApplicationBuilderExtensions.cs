@@ -1,4 +1,4 @@
-﻿using Blueprint.Core;
+﻿using Blueprint;
 using Blueprint.Tasks;
 using Blueprint.Tasks.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;

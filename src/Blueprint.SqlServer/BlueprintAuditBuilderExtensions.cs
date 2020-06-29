@@ -1,5 +1,6 @@
-﻿using Blueprint.Core;
-using Blueprint.Core.Data;
+﻿using Blueprint;
+using Blueprint.Configuration;
+using Blueprint.Data;
 using Blueprint.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

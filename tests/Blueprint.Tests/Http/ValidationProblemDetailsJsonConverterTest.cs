@@ -3,8 +3,8 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using Blueprint.Api.Http;
-using Blueprint.Api.Http.Formatters;
+using Blueprint.Http;
+using Blueprint.Http.Formatters;
 using FluentAssertions;
 using NUnit.Framework;
 

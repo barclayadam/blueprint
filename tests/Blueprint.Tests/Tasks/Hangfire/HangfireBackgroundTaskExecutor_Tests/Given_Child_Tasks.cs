@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Core.Apm;
+using Blueprint.Apm;
 using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks;
 using FluentAssertions;

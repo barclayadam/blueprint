@@ -11,10 +11,10 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.8.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
-    <ProjectReference Include="..\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks\Blueprint.Tasks.csproj" />
   </ItemGroup>
 </Project>

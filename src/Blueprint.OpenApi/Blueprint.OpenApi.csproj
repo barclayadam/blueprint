@@ -11,6 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api.Http\Blueprint.Api.Http.csproj" />
+    <ProjectReference Include="..\Blueprint.Http\Blueprint.Http.csproj" />
   </ItemGroup>
 </Project>

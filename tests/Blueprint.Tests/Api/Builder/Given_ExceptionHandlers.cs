@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
-using Blueprint.Api.CodeGen;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Errors;
+using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Configuration;
+using Blueprint.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;

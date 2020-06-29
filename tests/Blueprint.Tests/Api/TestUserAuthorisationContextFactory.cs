@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Blueprint.Core.Authorisation;
+using Blueprint.Authorisation;
 
 namespace Blueprint.Tests.Api
 {

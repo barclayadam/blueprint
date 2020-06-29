@@ -1,7 +1,7 @@
 using System;
 using Blueprint.Api;
-using Blueprint.Api.Middleware;
-using Blueprint.Api.Validation;
+using Blueprint.Middleware;
+using Blueprint.Validation;
 
 namespace Blueprint.Testing
 {

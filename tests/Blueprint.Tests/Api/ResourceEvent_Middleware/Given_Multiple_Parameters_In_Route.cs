@@ -1,15 +1,15 @@
-using Blueprint.Api.Http;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Blueprint.Api;
+using Blueprint.Api.Configuration;
+using Blueprint.Configuration;
+using Blueprint.Http;
+using Blueprint.Testing;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 {
-    using System.ComponentModel.DataAnnotations;
-    using System.Threading.Tasks;
-    using Blueprint.Api;
-    using Blueprint.Api.Configuration;
-    using FluentAssertions;
-    using NUnit.Framework;
-    using Testing;
-
     public class Given_Multiple_Parameters_In_Route
     {
         public class CreationOperation : ICommand

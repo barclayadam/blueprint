@@ -10,10 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blueprint.Api.Http\Blueprint.Api.Http.csproj" />
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
+    <ProjectReference Include="..\Blueprint.Http\Blueprint.Http.csproj" />
     <ProjectReference Include="..\Blueprint.Postgres\Blueprint.Postgres.csproj" />
     <ProjectReference Include="..\Blueprint.SqlServer\Blueprint.SqlServer.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
   </ItemGroup>
 </Project>

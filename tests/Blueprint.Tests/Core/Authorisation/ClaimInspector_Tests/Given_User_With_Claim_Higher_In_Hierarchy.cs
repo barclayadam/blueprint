@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using Blueprint.Core.Authorisation;
-using Blueprint.Core.Caching;
+using Blueprint.Authorisation;
+using Blueprint.Caching;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using ClaimTypes = Blueprint.Core.Authorisation.ClaimTypes;
+using ClaimTypes = Blueprint.Authorisation.ClaimTypes;
 
 namespace Blueprint.Tests.Core.Authorisation.ClaimInspector_Tests
 {

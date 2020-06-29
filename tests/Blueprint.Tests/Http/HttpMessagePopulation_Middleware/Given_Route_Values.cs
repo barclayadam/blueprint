@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Http;
+using Blueprint.Configuration;
+using Blueprint.Http;
 using Blueprint.Testing;
 using Blueprint.Tests.Api;
 using FluentAssertions;

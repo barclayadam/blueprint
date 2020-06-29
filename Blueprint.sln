@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Compiler", "src\Blueprint.Compiler\Blueprint.Compiler.csproj", "{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Core", "src\Blueprint.Core\Blueprint.Core.csproj", "{C7A422DB-A037-4F15-BD0C-FADD08DEEADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint", "src\Blueprint\Blueprint.csproj", "{C7A422DB-A037-4F15-BD0C-FADD08DEEADC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tasks.Hangfire", "src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj", "{6EC8053C-6A69-4103-9663-711E42E9EADB}"
 EndProject
@@ -18,8 +18,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.SqlServer", "src\Blueprint.SqlServer\Blueprint.SqlServer.csproj", "{13F6F4DE-8A22-413C-A685-7413ACEAB2FC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Postgres", "src\Blueprint.Postgres\Blueprint.Postgres.csproj", "{08F031E5-4B36-4C4D-8A85-A245025D3B55}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Api", "src\Blueprint.Api\Blueprint.Api.csproj", "{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.ApplicationInsights", "src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj", "{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}"
 EndProject
@@ -65,7 +63,7 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Api.Http", "src\Blueprint.Api.Http\Blueprint.Api.Http.csproj", "{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Http", "src\Blueprint.Http\Blueprint.Http.csproj", "{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks", "src\Blueprint.Tasks\Blueprint.Tasks.csproj", "{92A00B44-2D35-4291-852D-14B9A1386908}"
 EndProject
@@ -119,10 +117,6 @@ Global
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08F031E5-4B36-4C4D-8A85-A245025D3B55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -187,7 +181,6 @@ Global
 		{F469E40C-B0F3-4645-9344-1F4F35717958} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
 		{8C575F82-1372-485C-83C1-67C359CF9273} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
 		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
-		{DCF9FF2E-557A-4D47-BFAF-CC57F45E7494} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{C7A422DB-A037-4F15-BD0C-FADD08DEEADC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}

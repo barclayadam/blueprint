@@ -1,7 +1,7 @@
 ﻿//using System.IdentityModel.Claims;
 //using System.Linq;
-//using Blueprint.Core.Authorisation;
-//using Blueprint.Core.Caching;
+//using Blueprint.Authorisation;
+//using Blueprint.Caching;
 //using FluentAssertions;
 //using NUnit.Framework;
 //using Claim = System.Security.Claims.Claim;

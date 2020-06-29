@@ -1,4 +1,5 @@
 using System;
+using Blueprint.Configuration;
 using Blueprint.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using NSwag;

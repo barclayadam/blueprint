@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Security.Claims;
-using Blueprint.Core.Authorisation;
+using Blueprint.Authorisation;
 using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;

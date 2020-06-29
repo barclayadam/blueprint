@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Api;
-using Blueprint.Api.Http;
+using Blueprint.Http;
 using NJsonSchema.Generation;
 
 namespace Blueprint.OpenApi

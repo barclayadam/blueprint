@@ -1,8 +1,9 @@
 using System;
+using Blueprint.Apm;
 using Blueprint.Apm.ApplicationInsights;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Blueprint.Core.Apm;
+using Blueprint.Configuration;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;

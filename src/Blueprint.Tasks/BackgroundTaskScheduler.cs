@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Core;
-using Blueprint.Core.Apm;
+using Blueprint;
+using Blueprint.Apm;
 using Blueprint.Tasks.Provider;
 using Microsoft.Extensions.Logging;
 

@@ -10,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
-    <ProjectReference Include="..\Blueprint.Core\Blueprint.Core.csproj" />
-    <ProjectReference Include="..\Blueprint.Api\Blueprint.Api.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
+    <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
   </ItemGroup>
 </Project>

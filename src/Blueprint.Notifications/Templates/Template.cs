@@ -1,4 +1,4 @@
-﻿using Blueprint.Core;
+﻿using Blueprint;
 
 namespace Blueprint.Notifications.Templates
 {

@@ -1,5 +1,6 @@
+using Blueprint.Apm;
 using Blueprint.Apm.DataDog;
-using Blueprint.Core.Apm;
+using Blueprint.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 // This should be discoverable when configuring without extra namespace imports

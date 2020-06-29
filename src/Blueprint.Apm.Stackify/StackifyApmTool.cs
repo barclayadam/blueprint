@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Core.Apm;
 using StackifyLib;
 
 namespace Blueprint.Apm.Stackify

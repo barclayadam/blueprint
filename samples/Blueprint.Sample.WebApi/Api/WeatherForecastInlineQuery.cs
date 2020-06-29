@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Blueprint.Api;
-using Blueprint.Api.Http;
+using Blueprint.Http;
 using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api

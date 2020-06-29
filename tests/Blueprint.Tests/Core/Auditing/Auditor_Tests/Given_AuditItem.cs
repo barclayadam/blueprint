@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Blueprint.Core.Auditing;
+using Blueprint.Auditing;
 using Blueprint.SqlServer;
 using FluentAssertions;
 using Microsoft.Extensions.Options;

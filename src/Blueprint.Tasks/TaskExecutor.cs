@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Api;
-using Blueprint.Core;
-using Blueprint.Core.Apm;
+using Blueprint;
+using Blueprint.Apm;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tasks

@@ -1,8 +1,8 @@
-﻿using Blueprint.Api;
-using Blueprint.Api.Configuration;
+﻿using Blueprint.StructureMap;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.StructureMap
+// ReSharper disable once CheckNamespace For discoverability we add to existing namespace
+namespace Blueprint.Configuration
 {
     /// <summary>
     /// Extensions to <see cref="BlueprintApiBuilder" /> for installing StructureMap.

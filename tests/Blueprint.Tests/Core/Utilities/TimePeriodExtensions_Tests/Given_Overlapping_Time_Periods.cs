@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Blueprint.Core.Utilities;
+using Blueprint.Utilities;
 using FluentAssertions;
 using NUnit.Framework;
 

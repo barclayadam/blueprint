@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using Blueprint.Core;
-using Blueprint.Core.Data;
+using Blueprint;
+using Blueprint.Data;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.SqlServer

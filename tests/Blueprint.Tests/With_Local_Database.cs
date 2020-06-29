@@ -2,8 +2,8 @@
 using System.Data;
 using System.Data.SQLite;
 using System.Transactions;
-using Blueprint.Core.Data;
-using Blueprint.Core.Utilities;
+using Blueprint.Data;
+using Blueprint.Utilities;
 using Blueprint.SqlServer;
 using Dapper;
 using NUnit.Framework;

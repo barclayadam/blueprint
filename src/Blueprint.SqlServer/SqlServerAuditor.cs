@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Blueprint.Core;
-using Blueprint.Core.Auditing;
-using Blueprint.Core.Data;
+using Blueprint;
+using Blueprint.Auditing;
+using Blueprint.Data;
 using Dapper;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;

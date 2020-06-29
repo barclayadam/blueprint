@@ -2,17 +2,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Errors;
-using Blueprint.Api.Http;
+using Blueprint.Configuration;
+using Blueprint.Http;
 using Blueprint.OpenApi;
 using Blueprint.Testing;
 using FluentAssertions;
 using NSwag;
 using NUnit.Framework;
 using Snapper;
-using Snapper.Attributes;
 
 namespace Blueprint.Tests.Api.OpenApi_Tests
 {

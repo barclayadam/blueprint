@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
-using Blueprint.Core;
-using Blueprint.Core.Utilities;
+using Blueprint;
+using Blueprint.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications

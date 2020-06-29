@@ -1,4 +1,5 @@
 using Blueprint.Api.Configuration;
+using Blueprint.Configuration;
 using Blueprint.Tasks;
 using Hangfire;
 using Hangfire.Dashboard;
@@ -37,8 +38,7 @@ namespace Blueprint.Samples.TaskProcessor
                     .ScanForOperations(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
                 .AddTasksServer(b => b.UseHangfire())
                 // .AddApplicationInsights()
-                .Pipeline(m => m
-                    .AddLogging()
+                .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
                     .AddValidation()
                 ));
         }

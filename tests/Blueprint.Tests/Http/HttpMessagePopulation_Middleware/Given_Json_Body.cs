@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blueprint.Api;
 using Blueprint.Api.Configuration;
-using Blueprint.Api.Http;
-using Blueprint.Core.Utilities;
+using Blueprint.Configuration;
+using Blueprint.Http;
+using Blueprint.Utilities;
 using Blueprint.Testing;
 using Blueprint.Tests.Api;
 using FluentAssertions;
@@ -92,7 +93,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             var context = GetContext(executor, expected);
 
             // Act
-            var result = await executor.ExecuteAsync(context);
+            await executor.ExecuteAsync(context);
 
             // Assert
             handler.OperationPassed.Should().BeEquivalentTo(expected);

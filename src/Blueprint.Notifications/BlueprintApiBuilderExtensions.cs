@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
-using Blueprint.Api.Configuration;
+using Blueprint.Notifications;
 using Blueprint.Notifications.Handlers;
 using Blueprint.Notifications.Templates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Notifications
+// ReSharper disable once CheckNamespace For discoverability we add to existing namespace
+namespace Blueprint.Configuration
 {
     public static class BlueprintApiBuilderExtensions
     {

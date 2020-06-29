@@ -1,4 +1,4 @@
-﻿using Blueprint.Core.Utilities;
+﻿using Blueprint.Utilities;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Core.Utilities.CommonRegularExpressions_Tests

@@ -1,5 +1,5 @@
 ﻿using System;
-using Blueprint.Core;
+using Blueprint;
 
 namespace Blueprint.Tasks
 {

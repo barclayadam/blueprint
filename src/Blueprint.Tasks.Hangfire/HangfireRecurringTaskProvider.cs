@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Core;
+using Blueprint;
 using Blueprint.Tasks.Provider;
 using Hangfire;
 using Hangfire.Common;
