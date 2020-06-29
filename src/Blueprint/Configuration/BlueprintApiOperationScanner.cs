@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security;
 using Blueprint.Authorisation;
-using Blueprint.Errors;
 using Blueprint.Middleware;
 using Blueprint.Utilities;
-using Namotion.Reflection;
 
 namespace Blueprint.Configuration
 {
@@ -26,6 +23,15 @@ namespace Blueprint.Configuration
         private readonly List<IOperationScannerConvention> conventions = new List<IOperationScannerConvention>();
 
         private delegate void RegisterOperation(Type operationType, string source);
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="BlueprintApiOperationScanner" /> class.
+        /// </summary>
+        public BlueprintApiOperationScanner()
+        {
+            conventions.Add(new XmlDocResponseConvention());
+            conventions.Add(new ApiExceptionFactoryResponseConvention());
+        }
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
@@ -145,73 +151,23 @@ namespace Blueprint.Configuration
             }
         }
 
-        private static void RegisterResponses(Type type, ApiOperationDescriptor descriptor)
+        private static void RegisterResponses(ApiOperationDescriptor descriptor)
         {
-            var typedOperation = type
+            var typedOperation = descriptor.OperationType
                 .GetInterfaces()
                 .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IApiOperation<>));
 
             if (typedOperation != null)
             {
                 descriptor.AddResponse(
-                    new ResponseDescriptor(typedOperation.GetGenericArguments()[0], ResponseDescriptorCategory.Success, "OK"));
+                    new ResponseDescriptor(typedOperation.GetGenericArguments()[0], 200, "OK"));
             }
 
             descriptor.AddResponse(
-                new ResponseDescriptor(typeof(UnhandledExceptionOperationResult), ResponseDescriptorCategory.UnexpectedFailure, "Unexpected error"));
+                new ResponseDescriptor(typeof(UnhandledExceptionOperationResult), 500, "Unexpected error"));
 
             descriptor.AddResponse(
-                new ResponseDescriptor(typeof(ValidationFailedOperationResult), ResponseDescriptorCategory.ValidationFailure, "Validation failure"));
-
-            var docs = descriptor.OperationType.GetXmlDocsElement();
-
-            if (docs != null)
-            {
-                var exceptionElements = docs.Elements("exception");
-
-                foreach (var e in exceptionElements)
-                {
-                    // The exception type is stored as T:[full name]. Strip the first two characters.
-                    var exceptionTypeText = e.Attribute("cref").Value.Substring(2);
-                    var exceptionType = Type.GetType(exceptionTypeText);
-
-                    if (exceptionType == null)
-                    {
-                        throw new InvalidOperationException(
-                            $"Could not find type {exceptionTypeText} as described by an exception tag in documentation for the operation {descriptor.OperationType.FullName}.");
-                    }
-
-                    var description = e.Value;
-
-                    descriptor.AddResponse(
-                        new ResponseDescriptor(exceptionType, ToDescriptorCategory(exceptionType), description));
-                }
-            }
-        }
-
-        private static ResponseDescriptorCategory ToDescriptorCategory(Type exceptionType)
-        {
-            if (exceptionType == typeof(NotFoundException))
-            {
-                return ResponseDescriptorCategory.MissingData;
-            }
-
-            if (exceptionType == typeof(InvalidOperationException))
-            {
-                return ResponseDescriptorCategory.InvalidOperationFailure;
-            }
-
-            if (exceptionType == typeof(ForbiddenException))
-            {
-                return ResponseDescriptorCategory.AuthorisationFailure;
-            }
-
-            if (exceptionType == typeof(SecurityException))
-            {
-                return ResponseDescriptorCategory.AuthenticationFailure;
-            }
-
-            return ResponseDescriptorCategory.UnexpectedFailure;
+                new ResponseDescriptor(typeof(ValidationFailedOperationResult), 422, "Validation failure"));
         }
 
         private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
@@ -276,7 +232,7 @@ namespace Blueprint.Configuration
                     });
             }
 
-            RegisterResponses(type, descriptor);
+            RegisterResponses(descriptor);
 
             return descriptor;
         }

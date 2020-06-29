@@ -64,6 +64,7 @@ namespace Blueprint.Http
                     return new ProblemDetails
                     {
                         Status = (int)HttpStatusCode.Unauthorized,
+                        Type = "security_failure",
                         Title = exception.Message,
                     };
 
@@ -71,6 +72,7 @@ namespace Blueprint.Http
                     return new ProblemDetails
                     {
                         Status = (int)HttpStatusCode.BadRequest,
+                        Type = "invalid_request",
                         Title = shouldExposeErrorMessage ? exception.Message : "There was a problem with the request",
                         Detail = shouldExposeErrorMessage ? exception.ToString() : null,
                     };
@@ -79,6 +81,7 @@ namespace Blueprint.Http
                     return new ProblemDetails
                     {
                         Status = (int)HttpStatusCode.InternalServerError,
+                        Type = "unknown_error",
                         Title = shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
                         Detail = shouldExposeErrorMessage ? exception.ToString() : null,
                     };

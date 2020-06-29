@@ -4,6 +4,7 @@ using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
+using Blueprint.Errors;
 using Blueprint.Http;
 using Blueprint.OpenApi;
 using Blueprint.Testing;
@@ -11,10 +12,11 @@ using FluentAssertions;
 using NSwag;
 using NUnit.Framework;
 using Snapper;
+using Snapper.Attributes;
 
 namespace Blueprint.Tests.Api.OpenApi_Tests
 {
-    // [UpdateSnapshots]
+    [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]
@@ -157,9 +159,16 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         /// <exception cref="ForbiddenException">When needed (will be 403).</exception>
         /// <exception cref="SecurityException">When needed (will be 401).</exception>
         /// <exception cref="ApplicationException">When needed (will be 500).</exception>
+        /// <exception cref="ApiException" type="some_error_type" status="400">Invalid op (will be 400).</exception>
+        /// <exception cref="ApiException" type="another_specific_problem_detail" status="404">Missing data (will be 404).</exception>
         [RootLink("/resources/{AnId}")]
         public class OpenApiGetQuery : IQuery<OpenApiResource>
         {
+            public static readonly ApiExceptionFactory OtherMissingData = new ApiExceptionFactory(
+                "Missing data again (will be 404)",
+                "other_missing_data",
+                404);
+
             public string AnId { get; set; }
 
             public string ImplicitlyFromQuery { get; set; }

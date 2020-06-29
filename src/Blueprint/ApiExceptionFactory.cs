@@ -1,13 +1,16 @@
-﻿using System;
-
 namespace Blueprint
 {
     /// <summary>
-    /// An exception that provides a means of carrying more specific details about an exception that
-    /// can be used to generate standards-based responses depending on the API host.
+    /// A factory that can be used to consolidate the creation of <see cref="ApiException" /> and put the
+    /// static values in an easily accessible location for tooling to read from, and for exception to
+    /// be created from.
     /// </summary>
-    [Serializable]
-    public class ApiException : Exception
+    /// <remarks>
+    /// By using exception factories it is possible to for the API to be more self-describing as the
+    /// factories can be public within an <see cref="IApiOperation" /> class and therefore can be
+    /// read on API creation to populate <see cref="ResponseDescriptor" />s of the operation.
+    /// </remarks>
+    public class ApiExceptionFactory
     {
         /// <summary>
         /// Initialises a new instance of the <see cref="ApiException" /> class.
@@ -16,28 +19,8 @@ namespace Blueprint
         ///     occurrence.</param>
         /// <param name="type">The type of this exception, which <em>SHOULD NOT</em> change from occurrence to
         ///     occurrence, and is typically a URI that when followed gives more details of the problem.</param>
-        /// <param name="detail">Detailed information about this exception, which is specific to this instance.</param>
         /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
-        public ApiException(string title, string type, string detail, int httpStatus)
-            : base(detail)
-        {
-            Title = title;
-            Type = type;
-            HttpStatus = httpStatus;
-        }
-
-        /// <summary>
-        /// Initialises a new instance of the <see cref="ApiException" /> class.
-        /// </summary>
-        /// <param name="title">The title of this exception, which <em>SHOULD NOT</em> change from occurrence to
-        ///     occurrence.</param>
-        /// <param name="type">The type of this exception, which <em>SHOULD NOT</em> change from occurrence to
-        ///     occurrence, and is typically a URI that when followed gives more details of the problem.</param>
-        /// <param name="detail">Detailed information about this exception, which is specific to this instance.</param>
-        /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
-        /// <param name="inner">The exception that triggered this one.</param>
-        public ApiException(string title, string type, string detail, int httpStatus, Exception inner)
-            : base(detail, inner)
+        public ApiExceptionFactory(string title, string type, int httpStatus)
         {
             Title = title;
             Type = type;
@@ -65,8 +48,14 @@ namespace Blueprint
         public string Title { get; }
 
         /// <summary>
-        /// A human-readable explanation specific to this occurrence of the problem.
+        /// Creates a new <see cref="ApiException" /> using the details this factory was created with, in addition
+        /// to the specified detail string.
         /// </summary>
-        public string Detail => Message;
+        /// <param name="detail"></param>
+        /// <returns></returns>
+        public ApiException Create(string detail)
+        {
+            return new ApiException(this.Title, this.Type, detail, this.HttpStatus);
+        }
     }
 }

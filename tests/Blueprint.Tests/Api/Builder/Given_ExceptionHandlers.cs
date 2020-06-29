@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -64,7 +62,7 @@ namespace Blueprint.Tests.Api.Builder
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<TestApiCommand>();
-            code.Should().Contain("catch (Blueprint.Api.Errors.NotFoundException");
+            code.Should().Contain("catch (Blueprint.Errors.NotFoundException");
             code.Should().Contain("Exception happened, oops");
         }
 

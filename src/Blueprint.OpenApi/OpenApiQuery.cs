@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using Blueprint.Api;
 using Blueprint.Authorisation;
 using Blueprint.Http;
 using Blueprint.Http.MessagePopulation;
@@ -186,41 +185,73 @@ namespace Blueprint.OpenApi
 
                     foreach (var response in operation.Responses)
                     {
-                        if (response.Type == typeof(PlainTextResult))
+                        var httpStatusCode = ToHttpStatusCode(response).ToString();
+
+                        if (!openApiOperation.Responses.TryGetValue(httpStatusCode, out var oaResponse))
                         {
-                            openApiOperation.Responses[ToHttpStatusCode(response.Category)] = new OpenApiResponse
+                            oaResponse = new OpenApiResponse
                             {
                                 Description = response.Description,
-
-                                Content =
-                                {
-                                    ["text/plain"] = new OpenApiMediaType
-                                    {
-                                        Schema = new JsonSchema
-                                        {
-                                            Type = JsonObjectType.String,
-                                        },
-                                    },
-                                },
                             };
 
-                            continue;
+                            openApiOperation.Responses[httpStatusCode] = oaResponse;
                         }
 
-                        // We make the assumption here that if the category is a success type then
-                        // we return the response type, otherwise as we are HTTP-reliant use
-                        // ProblemDetails as every failure is turned in to that
-                        var jsonSchema = GetOrAddJsonSchema(
-                            GetResponseType(response),
-                            document,
-                            generator,
-                            openApiDocumentSchemaResolver);
-
-                        openApiOperation.Responses[ToHttpStatusCode(response.Category)] = new OpenApiResponse
+                        // Note below assignments are once-only. We always return a ProblemResult from HTTP,
+                        // so we can assume we only need to set the failure schema's once, and can
+                        // only return a single type for success.
+                        //
+                        // If we override Content then Examples are removed.
+                        if (response.Type == typeof(PlainTextResult))
                         {
-                            Description = response.Description,
-                            Schema = jsonSchema,
-                        };
+                            if (!oaResponse.Content.ContainsKey("text/plain"))
+                            {
+                                oaResponse.Content["text/plain"] = new OpenApiMediaType
+                                {
+                                    Schema = new JsonSchema
+                                    {
+                                        Type = JsonObjectType.String,
+                                    },
+                                };
+                            }
+                        }
+                        else
+                        {
+                            if (!oaResponse.Content.ContainsKey("application/json"))
+                            {
+                                // Assume for now we always return JSON
+                                oaResponse.Content["application/json"] = new OpenApiMediaType
+                                {
+                                    Schema = GetOrAddJsonSchema(
+                                        GetResponseType(response),
+                                        document,
+                                        generator,
+                                        openApiDocumentSchemaResolver),
+                                };
+                            }
+                        }
+
+                        // When we have an ApiException that has additional metadata attached we try to find
+                        // "type", which can be declared on the <exception /> tag to enable us to provide
+                        // more details about the types of failures within a status code that could be expected
+                        if (response.Metadata != null && response.Type == typeof(ApiException))
+                        {
+                            if (response.Metadata.TryGetValue("type", out var problemType))
+                            {
+                                var examples = oaResponse.Examples as Dictionary<string, object> ?? new Dictionary<string, object>();
+                                oaResponse.Examples = examples;
+
+                                examples[problemType.ToPascalCase()] = new
+                                {
+                                    summary = response.Description,
+
+                                    value = new
+                                    {
+                                        type = problemType,
+                                    },
+                                };
+                            }
+                        }
                     }
 
                     openApiPathItem[ToOpenApiOperationMethod(httpData.HttpMethod)] = openApiOperation;
@@ -233,27 +264,6 @@ namespace Blueprint.OpenApi
             {
                 ContentType = "application/json",
             };
-        }
-
-        internal static JsonSchema? GetExistingBodySchema(
-            ApiOperationDescriptor operation,
-            OpenApiDocument document,
-            JsonSchemaGenerator generator)
-        {
-            var type = GetActualType(operation.OperationType);
-
-            var jsonSchemaName = generator.Settings.SchemaNameGenerator.Generate(type);
-
-            if (document.Components.Schemas.TryGetValue(jsonSchemaName, out var jsonSchema))
-            {
-                return new JsonSchema
-                {
-                    Type = JsonObjectType.Object,
-                    Reference = jsonSchema,
-                };
-            }
-
-            return null;
         }
 
         internal static Type GetActualType(Type type)
@@ -284,27 +294,17 @@ namespace Blueprint.OpenApi
 
         private static Type GetResponseType(ResponseDescriptor response)
         {
-            return response.Category switch
+            return response.HttpStatus switch
             {
-                ResponseDescriptorCategory.Success => response.Type,
-                ResponseDescriptorCategory.ValidationFailure => typeof(ValidationProblemDetails),
+                var x when x >= 200 && x <= 299 => response.Type,
+                422 => typeof(ValidationProblemDetails),
                 _ => typeof(ProblemDetails)
             };
         }
 
-        private static string ToHttpStatusCode(ResponseDescriptorCategory responseCategory)
+        private static int ToHttpStatusCode(ResponseDescriptor responseCategory)
         {
-            return responseCategory switch
-            {
-                ResponseDescriptorCategory.Success => "200",
-                ResponseDescriptorCategory.InvalidOperationFailure => "400",
-                ResponseDescriptorCategory.AuthenticationFailure => "401",
-                ResponseDescriptorCategory.AuthorisationFailure => "403",
-                ResponseDescriptorCategory.ValidationFailure => "422",
-                ResponseDescriptorCategory.MissingData => "404",
-                ResponseDescriptorCategory.UnexpectedFailure => "500",
-                _ => throw new ArgumentOutOfRangeException(nameof(responseCategory), responseCategory, null)
-            };
+            return responseCategory.HttpStatus;
         }
 
         private static OpenApiParameterKind ToKind(PropertyInfo property)
