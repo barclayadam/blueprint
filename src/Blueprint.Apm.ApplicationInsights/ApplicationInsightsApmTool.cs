@@ -25,14 +25,25 @@ namespace Blueprint.Apm.ApplicationInsights
         }
 
         /// <inheritdoc />
-        public IApmSpan Start(
-            SpanType spanType,
-            string operationName,
-            string type,
-            IDictionary<string, string> existingContext = null,
-            string resourceName = null)
+        public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
         {
-            if (spanType == SpanType.Span)
+            var request = telemetryClient.StartOperation<RequestTelemetry>(operation.Name);
+
+            if (existingContext != null &&
+                existingContext.TryGetValue("RootId", out var rootId) &&
+                existingContext.TryGetValue("ParentId", out var parentId))
+            {
+                request.Telemetry.Context.Operation.Id = rootId;
+                request.Telemetry.Context.Operation.ParentId = parentId;
+            }
+
+            return new ApplicationInsightsApmSpan<RequestTelemetry>(request);
+        }
+
+        /// <inheritdoc />
+        public IApmSpan Start(string spanKind, string operationName, string type, IDictionary<string, string> existingContext = null, string resourceName = null)
+        {
+            if (spanKind == SpanKinds.Client || spanKind == SpanKinds.Producer || spanKind == SpanKinds.Internal)
             {
                 var operation = telemetryClient.StartOperation<DependencyTelemetry>(operationName);
                 operation.Telemetry.Type = type;

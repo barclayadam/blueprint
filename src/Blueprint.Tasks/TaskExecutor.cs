@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint;
 using Blueprint.Apm;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,27 +49,21 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
-            using var span = this.apmTool.Start(
-                SpanType.Transaction,
-                "task.process",
-                "background",
-                taskEnvelope.ApmContext,
-                taskEnvelope.Task.GetType().Name);
-
-            span.SetTag("span.kind", "consumer");
-
-            configureSpan(span);
-
             using var nestedContainer = rootServiceProvider.CreateScope();
 
             var apiContext = new ApiOperationContext(
                 nestedContainer.ServiceProvider,
                 apiOperationExecutor.DataModel,
                 taskEnvelope.Task,
-                token)
-            {
-                ApmSpan = span,
-            };
+                token);
+
+            using var span = this.apmTool.StartOperation(
+                apiContext.Descriptor,
+                SpanKinds.Consumer);
+
+            configureSpan(span);
+
+            apiContext.ApmSpan = span;
 
             var result = await apiOperationExecutor.ExecuteAsync(apiContext);
 

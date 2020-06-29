@@ -170,11 +170,9 @@ namespace Microsoft.AspNetCore.Builder
 
                     var operation = (ApiOperationDescriptor)routeData.Values["operation"];
 
-                    using var apmTransaction = apmTool.Start(
-                        SpanType.Transaction,
-                        "operation.process",
-                        "request",
-                        resourceName: operation.Name);
+                    using var apmTransaction = apmTool.StartOperation(
+                        operation,
+                        SpanKinds.Server);
 
                     apmTransaction.SetTag("span.kind", "server");
 

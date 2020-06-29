@@ -10,12 +10,32 @@ namespace Blueprint.Apm.DataDog
     public class DataDogApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(
-            SpanType spanType,
-            string operationName,
-            string type,
-            IDictionary<string, string> existingContext = null,
-            string resourceName = null)
+        public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
+        {
+            SpanContext parent = null;
+
+            if (existingContext != null &&
+                existingContext.TryGetValue("SpanId", out var spanId) &&
+                existingContext.TryGetValue("TraceId", out var traceId) &&
+                existingContext.TryGetValue("SamplingPriority", out var samplingPriority))
+            {
+                parent = new SpanContext(
+                    ulong.Parse(traceId),
+                    ulong.Parse(spanId),
+                    Enum.TryParse<SamplingPriority>(samplingPriority, out var p) ? p : SamplingPriority.AutoKeep);
+            }
+
+            var scope = Tracer.Instance.StartActive("operation.execute", parent);
+
+            scope.Span.Type = "request";
+            scope.Span.ResourceName = operation.Name;
+            scope.Span.SetTag(Tags.SpanKind, spanKind);
+
+            return new OpenTracingSpan(scope);
+        }
+
+        /// <inheritdoc />
+        public IApmSpan Start(string spanKind, string operationName, string type, IDictionary<string, string> existingContext = null, string resourceName = null)
         {
             SpanContext parent = null;
 
@@ -34,7 +54,7 @@ namespace Blueprint.Apm.DataDog
 
             scope.Span.Type = type;
             scope.Span.ResourceName = resourceName ?? scope.Span.ResourceName;
-            scope.Span.SetTag(Tags.SpanKind, spanType == SpanType.Transaction ? "server" : "client");
+            scope.Span.SetTag(Tags.SpanKind, spanKind);
 
             return new OpenTracingSpan(scope);
         }

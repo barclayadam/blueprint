@@ -10,12 +10,42 @@ namespace Blueprint.Apm.Elastic
     public class ElasticApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(
-            SpanType spanType,
-            string operationName,
-            string type,
-            IDictionary<string, string> existingContext = null,
-            string resourceName = null)
+        public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
+        {
+            if (!global::Elastic.Apm.Agent.IsConfigured)
+            {
+                return NullApmSpan.Instance;
+            }
+
+            var tracer = global::Elastic.Apm.Agent.Tracer;
+
+            if (tracer.CurrentTransaction != null)
+            {
+                // If a transaction is already underway we want to set it's name for a more accurate picture (i.e. this is
+                // a HTTP call but we want to use the operation name not the HTTP route name).
+                tracer.CurrentTransaction.Name = operation.Name;
+
+                // We will also start a new span as there may be work before and after in the framework that should
+                // be tracked separately from the Blueprint processing work.
+                return new ElasticSpan(
+                    tracer.CurrentTransaction.StartSpan(operation.Name, ApiConstants.TypeRequest, "operation", ApiConstants.ActionExec));
+            }
+
+            DistributedTracingData? distributedTracingData = null;
+
+            if (existingContext != null && existingContext.TryGetValue("ElasticDTD", out var d))
+            {
+                distributedTracingData = DistributedTracingData.TryDeserializeFromString(d);
+            }
+
+            return new ElasticSpan(tracer.StartTransaction(
+                operation.Name,
+                spanKind,
+                distributedTracingData));
+        }
+
+        /// <inheritdoc />
+        public IApmSpan Start(string spanKind, string operationName, string type, IDictionary<string, string> existingContext = null, string resourceName = null)
         {
             if (!global::Elastic.Apm.Agent.IsConfigured)
             {
@@ -30,15 +60,7 @@ namespace Blueprint.Apm.Elastic
                 distributedTracingData = DistributedTracingData.TryDeserializeFromString(d);
             }
 
-            // We special-case when we have no parent information to set and Elastic already has a
-            // current transaction to instead create a child span, not a new Transaction
-            if (tracer.CurrentTransaction != null && existingContext == null)
-            {
-                return new ElasticSpan(
-                    tracer.CurrentTransaction.StartSpan(operationName, type, resourceName));
-            }
-
-            if (spanType == SpanType.Transaction)
+            if (tracer.CurrentTransaction == null)
             {
                 return new ElasticSpan(tracer.StartTransaction(
                     operationName,

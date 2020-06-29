@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Blueprint.Apm
@@ -9,55 +8,15 @@ namespace Blueprint.Apm
     public class NullApmTool : IApmTool
     {
         /// <inheritdoc />
-        public IApmSpan Start(
-            SpanType spanType,
-            string operationName,
-            string type,
-            IDictionary<string, string> existingContext = null,
-            string resourceName = null)
+        public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
         {
             return NullApmSpan.Instance;
         }
-    }
-
-    /// <summary>
-    /// A null implementation of <see cref="IApmSpan" /> that can be used when no APM
-    /// is setup.
-    /// </summary>
-    public class NullApmSpan : IApmSpan
-    {
-        /// <summary>
-        /// The single instance of <see cref="NullApmSpan" /> that should be used.
-        /// </summary>
-        public static readonly NullApmSpan Instance = new NullApmSpan();
-
-        private NullApmSpan()
-        {
-        }
 
         /// <inheritdoc />
-        public void Dispose()
+        public IApmSpan Start(string spanKind, string operationName, string type, IDictionary<string, string> existingContext = null, string resourceName = null)
         {
-        }
-
-        /// <inheritdoc />
-        public void RecordException(Exception e)
-        {
-        }
-
-        /// <inheritdoc />
-        public void SetTag(string key, string value)
-        {
-        }
-
-        /// <inheritdoc />
-        public void InjectContext(IDictionary<string, string> context)
-        {
-        }
-
-        /// <inheritdoc />
-        public void SetResource(string resourceName)
-        {
+            return NullApmSpan.Instance;
         }
     }
 }

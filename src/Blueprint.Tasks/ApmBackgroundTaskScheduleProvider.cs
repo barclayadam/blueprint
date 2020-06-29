@@ -62,9 +62,10 @@ namespace Blueprint.Tasks
         {
             task.ApmContext = new Dictionary<string, string>();
 
-            using var op = this.apmTool.Start(SpanType.Span, "tasks.enqueue", "queue");
-
-            op.SetTag("span.kind", "producer");
+            using var op = this.apmTool.Start(
+                SpanKinds.Producer,
+                "task.enqueue",
+                "queue");
 
             op.InjectContext(task.ApmContext);
 
