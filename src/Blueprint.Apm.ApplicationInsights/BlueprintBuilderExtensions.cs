@@ -7,16 +7,15 @@ using Blueprint.Configuration;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.DependencyInjection;
 
-// This should be discoverable when configuring without extra namespace imports
+// Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Blueprint.Api.Configuration
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
     /// </summary>
-    public static class BlueprintPipelineBuilderExtensions
+    public static class BlueprintBuilderExtensions
     {
         /// <summary>
         /// Adds Application Insights integration to this API, registering an <see cref="IApmTool" /> to allow

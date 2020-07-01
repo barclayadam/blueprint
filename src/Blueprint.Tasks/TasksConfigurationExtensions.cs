@@ -1,10 +1,10 @@
 ﻿using System;
 using Blueprint.Configuration;
 using Blueprint.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
+// Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Blueprint.Api.Configuration
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Adds background task processing entry points to <see cref="BlueprintApiBuilder" />.

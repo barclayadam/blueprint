@@ -5,7 +5,7 @@ using Blueprint;
 using Blueprint.Configuration;
 using Blueprint.Middleware;
 
-// This is the recommendation from MS for extensions to IServiceCollection to aid discoverability
+// Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {

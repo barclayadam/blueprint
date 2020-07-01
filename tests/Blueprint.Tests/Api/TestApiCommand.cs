@@ -1,5 +1,4 @@
-﻿using Blueprint.Api;
-using Blueprint.Auditing;
+﻿using Blueprint.Auditing;
 
 namespace Blueprint.Tests.Api
 {

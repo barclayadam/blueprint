@@ -1,6 +1,4 @@
-﻿using Blueprint.Api;
-using Blueprint.Api.Configuration;
-using Blueprint.Configuration;
+﻿using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;

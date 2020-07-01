@@ -1,17 +1,16 @@
 using System;
 using Blueprint.Configuration;
 using Blueprint.OpenApi;
-using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 
-// This should be discoverable when configuring without extra namespace imports
+// Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Blueprint.Api.Configuration
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
     /// </summary>
-    public static class BlueprintPipelineBuilderExtensions
+    public static class BlueprintApiBuilderExtensions
     {
         /// <summary>
         /// Adds an OpenAPI query that will return an OpenAPI specification at /openapi.

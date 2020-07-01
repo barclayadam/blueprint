@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Net.Mail;
-using Blueprint;
-using Blueprint.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Notifications

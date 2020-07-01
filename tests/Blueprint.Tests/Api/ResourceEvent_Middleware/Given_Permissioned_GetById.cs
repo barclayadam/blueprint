@@ -61,8 +61,8 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
                 .WithServices(s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>())
-                .Configure(a => a.AddHttp())
-                .Pipeline(p => p
+                .Configure(a => a
+                    .AddHttp()
                     .AddAuth<AnonymousUserAuthorisationContextFactory>()
                     .AddResourceEvents<NullResourceEventRepository>()));
 

@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using StructureMap;
 using StructureMap.Pipeline;
-using StructureMap.TypeRules;
 
 namespace Blueprint.StructureMap
 {

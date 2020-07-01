@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Blueprint.Properties;
 
 namespace Blueprint.Utilities
 {

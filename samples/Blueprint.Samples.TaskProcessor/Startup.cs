@@ -1,4 +1,3 @@
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Tasks;
 using Hangfire;
@@ -38,9 +37,8 @@ namespace Blueprint.Samples.TaskProcessor
                     .ScanForOperations(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
                 .AddTasksServer(b => b.UseHangfire())
                 // .AddApplicationInsights()
-                .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
-                    .AddValidation()
-                ));
+                .AddLogging()
+                .AddValidation());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

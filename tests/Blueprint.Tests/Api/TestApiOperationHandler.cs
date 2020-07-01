@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Blueprint.Api;
 
 namespace Blueprint.Tests.Api
 {

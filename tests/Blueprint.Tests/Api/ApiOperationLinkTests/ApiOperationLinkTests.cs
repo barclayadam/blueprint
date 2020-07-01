@@ -1,5 +1,4 @@
-﻿using Blueprint.Api;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ApiOperationLinkTests

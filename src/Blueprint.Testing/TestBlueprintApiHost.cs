@@ -1,4 +1,3 @@
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 
 namespace Blueprint.Testing

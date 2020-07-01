@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Blueprint;
 using Blueprint.Utilities;
-using Blueprint.Tasks;
 using Blueprint.Tasks.Provider;
 using Hangfire;
 using Hangfire.Common;

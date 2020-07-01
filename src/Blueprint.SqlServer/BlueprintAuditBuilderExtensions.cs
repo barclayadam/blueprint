@@ -2,12 +2,11 @@
 using Blueprint.Configuration;
 using Blueprint.Data;
 using Blueprint.SqlServer;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-// This should be discoverable when configuring without extra namespace imports
+// Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Blueprint.Api.Configuration
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class BlueprintAuditBuilderExtensions
     {

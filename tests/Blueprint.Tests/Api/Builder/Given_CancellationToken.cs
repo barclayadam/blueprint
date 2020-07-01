@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Api;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;

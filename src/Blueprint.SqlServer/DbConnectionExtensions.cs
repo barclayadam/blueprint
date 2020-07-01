@@ -3,8 +3,6 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Blueprint;
-using Blueprint.Utilities;
 using Dapper;
 
 namespace Blueprint.SqlServer

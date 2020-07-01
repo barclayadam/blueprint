@@ -1,15 +1,17 @@
-﻿using Blueprint.Http;
+﻿using Blueprint;
+using Blueprint.Configuration;
+using Blueprint.Http;
 using Blueprint.Http.Formatters;
 using Blueprint.Http.Infrastructure;
 using Blueprint.Http.MessagePopulation;
 using Blueprint.Http.Middleware;
 using Blueprint.Middleware;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-// ReSharper disable once CheckNamespace For discoverability we add to existing namespace
-namespace Blueprint.Configuration
+// Match the DI container namespace so that Blueprint is immediately discoverable
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extensions to <see cref="BlueprintApiBuilder" /> to register HTTP-specific features.
@@ -71,23 +73,23 @@ namespace Blueprint.Configuration
             return apiBuilder;
         }
 
-        public static BlueprintPipelineBuilder AddHateoasLinks(this BlueprintPipelineBuilder pipelineBuilder)
+        public static BlueprintApiBuilder AddHateoasLinks(this BlueprintApiBuilder apiBuilder)
         {
             // Resource events needs authoriser services to be registered
-            BuiltinBlueprintMiddlewares.TryAddAuthServices(pipelineBuilder);
+            BuiltinBlueprintMiddlewares.TryAddAuthServices(apiBuilder);
 
-            pipelineBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
+            apiBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
-            pipelineBuilder.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution);
+            apiBuilder.Pipeline(p => p.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution));
 
-            return pipelineBuilder;
+            return apiBuilder;
         }
 
-        public static BlueprintPipelineBuilder AddResourceEvents<T>(this BlueprintPipelineBuilder pipelineBuilder) where T : class, IResourceEventRepository
+        public static BlueprintApiBuilder AddResourceEvents<T>(this BlueprintApiBuilder pipelineBuilder) where T : class, IResourceEventRepository
         {
             pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
 
-            pipelineBuilder.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution);
+            pipelineBuilder.Pipeline(p => p.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution));
 
             return pipelineBuilder;
         }

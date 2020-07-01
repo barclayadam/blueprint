@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Blueprint.Api;
 using Blueprint.Testing;
 
 namespace Blueprint.Tests.Api

@@ -1,5 +1,4 @@
 using System;
-using Blueprint.Api;
 using Blueprint.Tasks;
 
 namespace Blueprint.Sample.WebApi.Tasks

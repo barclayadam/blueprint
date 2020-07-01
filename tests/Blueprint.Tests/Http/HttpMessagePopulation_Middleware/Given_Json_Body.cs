@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Utilities;
 using Blueprint.Testing;
 using Blueprint.Tests.Api;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;
 

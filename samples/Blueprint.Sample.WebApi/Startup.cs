@@ -1,5 +1,3 @@
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Sample.WebApi.Data;
@@ -36,11 +34,10 @@ namespace Blueprint.Sample.WebApi
                 .AddTasksClient(t => t.UseHangfire())
                 .AddApplicationInsights()
                 .AddOpenApi()
-                .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
-                    .AddValidation()
-                    .AddHateoasLinks()
-                    .AddResourceEvents<NullResourceEventRepository>()
-                ));
+                .AddLogging()
+                .AddValidation()
+                .AddHateoasLinks()
+                .AddResourceEvents<NullResourceEventRepository>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

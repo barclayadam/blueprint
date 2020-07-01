@@ -1,6 +1,4 @@
-﻿using Blueprint;
-
-namespace Blueprint.Notifications.Templates
+﻿namespace Blueprint.Notifications.Templates
 {
     /// <summary>
     /// Represents a loaded template.

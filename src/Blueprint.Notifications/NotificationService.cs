@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using Blueprint;
-using Blueprint.Utilities;
 using Blueprint.Notifications.Handlers;
 using Microsoft.Extensions.Logging;
 

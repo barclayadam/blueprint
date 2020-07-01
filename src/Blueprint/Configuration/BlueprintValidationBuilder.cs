@@ -6,13 +6,13 @@ namespace Blueprint.Configuration
 {
     public class BlueprintValidationBuilder
     {
-        private readonly BlueprintPipelineBuilder pipelineBuilder;
+        private readonly BlueprintApiBuilder apiBuilder;
 
-        internal BlueprintValidationBuilder(BlueprintPipelineBuilder pipelineBuilder)
+        internal BlueprintValidationBuilder(BlueprintApiBuilder apiBuilder)
         {
-            this.pipelineBuilder = pipelineBuilder;
+            this.apiBuilder = apiBuilder;
 
-            pipelineBuilder.Services.TryAddSingleton<IValidator, BlueprintValidator>();
+            apiBuilder.Services.TryAddSingleton<IValidator, BlueprintValidator>();
         }
 
         /// <summary>
@@ -26,8 +26,8 @@ namespace Blueprint.Configuration
         /// <returns>This builder.</returns>
         public BlueprintValidationBuilder UseBlueprintSource()
         {
-            pipelineBuilder.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
-            pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
+            apiBuilder.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
+            apiBuilder.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
 
             return this;
         }
@@ -39,8 +39,8 @@ namespace Blueprint.Configuration
         /// <returns>This builder.</returns>
         public BlueprintValidationBuilder UseDataAnnotationSource()
         {
-            pipelineBuilder.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
-            pipelineBuilder.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
+            apiBuilder.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
+            apiBuilder.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();
 
             return this;
         }

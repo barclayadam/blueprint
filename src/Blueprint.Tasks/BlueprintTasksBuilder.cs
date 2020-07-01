@@ -1,4 +1,3 @@
-using Blueprint.Api.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tasks

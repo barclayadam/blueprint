@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Caching;
 
-using Blueprint.Utilities;
-
 namespace Blueprint.Caching
 {
     /// <summary>

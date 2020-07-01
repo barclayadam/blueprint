@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Blueprint;
 
 namespace Blueprint.SqlServer
 {

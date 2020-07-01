@@ -11,18 +11,18 @@ namespace Blueprint.Configuration
 {
     public static class BuiltinBlueprintMiddlewares
     {
-        public static BlueprintPipelineBuilder AddAuditing(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintAuditBuilder> configure)
+        public static BlueprintApiBuilder AddAuditing(this BlueprintApiBuilder apiBuilder, Action<BlueprintAuditBuilder> configure)
         {
-            pipelineBuilder.AddMiddleware<AuditMiddleware>(MiddlewareStage.Setup);
+            apiBuilder.Pipeline(p => p.AddMiddleware<AuditMiddleware>(MiddlewareStage.Setup));
 
-            configure(new BlueprintAuditBuilder(pipelineBuilder));
+            configure(new BlueprintAuditBuilder(apiBuilder));
 
-            if (pipelineBuilder.Services.All(s => s.ServiceType != typeof(IAuditor)))
+            if (apiBuilder.Services.All(s => s.ServiceType != typeof(IAuditor)))
             {
                 throw new InvalidOperationException("An auditor must be configured");
             }
 
-            return pipelineBuilder;
+            return apiBuilder;
         }
 
         /// <summary>
@@ -30,11 +30,11 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource"/>
         /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource"/>
-        /// <param name="pipelineBuilder">The builder to add validation to.</param>
+        /// <param name="apiBuilder">The builder to add validation to.</param>
         /// <returns>The builder.</returns>
-        public static BlueprintPipelineBuilder AddValidation(this BlueprintPipelineBuilder pipelineBuilder)
+        public static BlueprintApiBuilder AddValidation(this BlueprintApiBuilder apiBuilder)
         {
-            return AddValidation(pipelineBuilder, o => o.UseBlueprintSource().UseDataAnnotationSource());
+            return AddValidation(apiBuilder, o => o.UseBlueprintSource().UseDataAnnotationSource());
         }
 
         /// <summary>
@@ -43,29 +43,29 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource"/>
         /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource"/>
-        /// <param name="pipelineBuilder">The builder to add validation to.</param>
+        /// <param name="apiBuilder">The builder to add validation to.</param>
         /// <param name="configure">An action that will be given an instance of <see cref="BlueprintValidationBuilder"/> to configure the validation
         /// middleware.</param>
         /// <returns>The builder.</returns>
-        public static BlueprintPipelineBuilder AddValidation(this BlueprintPipelineBuilder pipelineBuilder, Action<BlueprintValidationBuilder> configure)
+        public static BlueprintApiBuilder AddValidation(this BlueprintApiBuilder apiBuilder, Action<BlueprintValidationBuilder> configure)
         {
-            pipelineBuilder.AddMiddleware<ValidationMiddlewareBuilder>(MiddlewareStage.Validation);
+            apiBuilder.Pipeline(p => p.AddMiddleware<ValidationMiddlewareBuilder>(MiddlewareStage.Validation));
 
-            configure(new BlueprintValidationBuilder(pipelineBuilder));
+            configure(new BlueprintValidationBuilder(apiBuilder));
 
-            if (pipelineBuilder.Services.All(s => s.ServiceType != typeof(IValidationSource)))
+            if (apiBuilder.Services.All(s => s.ServiceType != typeof(IValidationSource)))
             {
                 throw new InvalidOperationException("At least one validation source should be specified");
             }
 
-            return pipelineBuilder;
+            return apiBuilder;
         }
 
-        public static BlueprintPipelineBuilder AddLogging(this BlueprintPipelineBuilder pipelineBuilder)
+        public static BlueprintApiBuilder AddLogging(this BlueprintApiBuilder apiBuilder)
         {
-            pipelineBuilder.AddMiddleware<LoggingMiddlewareBuilder>(MiddlewareStage.Setup);
+            apiBuilder.Pipeline(p => p.AddMiddleware<LoggingMiddlewareBuilder>(MiddlewareStage.Setup));
 
-            return pipelineBuilder;
+            return apiBuilder;
         }
 
         /// <summary>
@@ -80,36 +80,39 @@ namespace Blueprint.Configuration
         /// <item><description><see cref="AuthorisationMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authorisation"/>.</description></item>
         /// </list>
         /// </remarks>
-        /// <param name="pipelineBuilder">The builder to add auth to.</param>
+        /// <param name="apiBuilder">The builder to add auth to.</param>
         /// <typeparam name="T">The type used as a user auth context factory.</typeparam>
         /// <returns>The builder.</returns>
-        public static BlueprintPipelineBuilder AddAuth<T>(this BlueprintPipelineBuilder pipelineBuilder) where T : class, IUserAuthorisationContextFactory
+        public static BlueprintApiBuilder AddAuth<T>(this BlueprintApiBuilder apiBuilder) where T : class, IUserAuthorisationContextFactory
         {
-            pipelineBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();
+            apiBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();
 
-            TryAddAuthServices(pipelineBuilder);
+            TryAddAuthServices(apiBuilder);
 
-            pipelineBuilder.AddMiddleware<AuthenticationMiddlewareBuilder>(MiddlewareStage.Authentication);
-            pipelineBuilder.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authorisation);
-            pipelineBuilder.AddMiddleware<AuthorisationMiddlewareBuilder>(MiddlewareStage.Authorisation);
+            apiBuilder.Pipeline(p =>
+            {
+                p.AddMiddleware<AuthenticationMiddlewareBuilder>(MiddlewareStage.Authentication);
+                p.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authorisation);
+                p.AddMiddleware<AuthorisationMiddlewareBuilder>(MiddlewareStage.Authorisation);
+            });
 
-            return pipelineBuilder;
+            return apiBuilder;
         }
 
-        public static void TryAddAuthServices(BlueprintPipelineBuilder pipelineBuilder)
+        public static void TryAddAuthServices(BlueprintApiBuilder apiBuilder)
         {
-            pipelineBuilder.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            pipelineBuilder.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();
+            apiBuilder.Services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            apiBuilder.Services.TryAddSingleton<IClaimInspector, ClaimInspector>();
 
             // It is expected that this is overriden, for example by AddHttp
-            pipelineBuilder.Services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
+            apiBuilder.Services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
 
             // We add the authoriser to the enumerable of `IApiAuthoriser`, as well as registering itself as a concrete type so that it can
             // be grabbed from default DI container by it's type (as is required by the code gen)
             void AddAuthoriser<T>() where T : class, IApiAuthoriser
             {
-                pipelineBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(T)));
-                pipelineBuilder.Services.TryAddSingleton<T, T>();
+                apiBuilder.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(T)));
+                apiBuilder.Services.TryAddSingleton<T, T>();
             }
 
             AddAuthoriser<ClaimsRequiredApiAuthoriser>();

@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Errors;
 using Blueprint.Http;
 using Blueprint.OpenApi;
 using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NUnit.Framework;
 using Snapper;

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using Blueprint.Tests.Api;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware

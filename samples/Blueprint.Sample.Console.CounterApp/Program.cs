@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,14 +50,13 @@ namespace Blueprint.Sample.Console.CounterApp
                     services.AddBlueprintApi(b => b
                         .SetApplicationName(AppName)
                         .Operations(o => o.ScanForOperations(typeof(Program).Assembly))
-                        .Pipeline(m => BuiltinBlueprintMiddlewares.AddLogging(m)
-                            .AddValidation(v => v
-                                .UseBlueprintSource()
-                                .UseDataAnnotationSource()
-                            )
-                            .AddAuditing(a => a
-                                .StoreInSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint-examples;Integrated Security=True", "AuditTrail")
-                            )
+                        .AddLogging()
+                        .AddValidation(v => v
+                            .UseBlueprintSource()
+                            .UseDataAnnotationSource()
+                        )
+                        .AddAuditing(a => a
+                            .StoreInSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=blueprint-examples;Integrated Security=True", "AuditTrail")
                         ));
 
                     // Configure Hosted Services

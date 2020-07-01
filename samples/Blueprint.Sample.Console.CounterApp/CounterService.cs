@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Api;
 using Blueprint.Sample.Console.CounterApp.Api;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

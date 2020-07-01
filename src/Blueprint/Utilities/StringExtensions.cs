@@ -1,8 +1,5 @@
 using System;
-using System.Globalization;
 using System.Text;
-
-using JetBrains.Annotations;
 
 namespace Blueprint.Utilities
 {

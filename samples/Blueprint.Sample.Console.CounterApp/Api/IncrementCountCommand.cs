@@ -1,5 +1,4 @@
-﻿using Blueprint.Api;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Sample.Console.CounterApp.Api
 {

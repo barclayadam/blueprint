@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Tasks;
 using Blueprint.Testing;
@@ -21,8 +19,9 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
 
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<TaskOperation>()
-                .Configure(c => c.AddTasksClient(p => p.UseInMemory(inMemoryProvider)))
-                .Pipeline(p => p.AddLogging()));
+                .Configure(c => c
+                    .AddTasksClient(p => p.UseInMemory(inMemoryProvider))
+                    .AddLogging()));
 
             // Act
             var context = executor.ContextFor(new TaskOperation { ToReturn = toReturn });

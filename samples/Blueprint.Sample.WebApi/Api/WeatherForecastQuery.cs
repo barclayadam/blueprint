@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Blueprint.Api;
 using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api

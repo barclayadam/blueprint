@@ -27,7 +27,7 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<ClaimRequiredOperation>()
-                .Pipeline(p => p.AddAuth<TestUserAuthorisationContextFactory>()));
+                .Configure(p => p.AddAuth<TestUserAuthorisationContextFactory>()));
 
             // Act
             var result = await executor.ExecuteWithAuth(new ClaimRequiredOperation());
@@ -47,7 +47,7 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<ClaimRequiredOperation>()
-                .Pipeline(p => p
+                .Configure(p => p
                     .AddAuth<TestUserAuthorisationContextFactory>()));
 
             // Act

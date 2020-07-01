@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Api.ResourceEvent_Middleware
@@ -66,8 +65,9 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
-                .Configure(a => a.AddHttp())
-                .Pipeline(p => p.AddResourceEvents<NullResourceEventRepository>()));
+                .Configure(a => a
+                    .AddHttp()
+                    .AddResourceEvents<NullResourceEventRepository>()));
 
             // Act
             var context = executor.HttpContextFor(new CreationOperation

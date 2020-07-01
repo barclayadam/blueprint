@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using Blueprint.Api;
-using Blueprint.Api.Configuration;
 using Blueprint.Authorisation;
 using Blueprint.Configuration;
 using Blueprint.Testing;
@@ -26,7 +24,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
                     s.AddTransient<IDependency, Dependency>();
                 });
                 o.WithOperation<InlineHandle>();
-                o.Pipeline(p => p.AddAuth<AnonymousUserAuthorisationContextFactory>());
+                o.Configure(p => p.AddAuth<AnonymousUserAuthorisationContextFactory>());
             });
 
             // Act
