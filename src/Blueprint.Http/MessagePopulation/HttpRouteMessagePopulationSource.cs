@@ -27,7 +27,7 @@ namespace Blueprint.Http.MessagePopulation
         /// <param name="apiDataModel">The API data model.</param>
         /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>The properties owned by this source, which are from links on the operation.</returns>
-        public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
+        public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
             var allLinks = apiDataModel.GetLinksForOperation(operationDescriptor.OperationType).ToList();
 
@@ -38,13 +38,15 @@ namespace Blueprint.Http.MessagePopulation
                 .SelectMany(l => l.Placeholders)
                 .Select(l => l.Property)
                 .Where(routeProperty => allLinks.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty)))
+                .Select(p => new OwnedPropertyDescriptor(p))
                 .ToList();
 
             return placeholderProperties;
         }
 
         /// <inheritdoc />
-        public void Build(IReadOnlyCollection<PropertyInfo> ownedProperties, IEnumerable<PropertyInfo> ownedBySource, MiddlewareBuilderContext context)
+        public void Build(IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties, IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
+            MiddlewareBuilderContext context)
         {
             var allLinks = context.Model.GetLinksForOperation(context.Descriptor.OperationType).ToList();
 

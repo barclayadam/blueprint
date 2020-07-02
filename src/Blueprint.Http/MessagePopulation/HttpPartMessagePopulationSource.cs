@@ -171,15 +171,21 @@ namespace Blueprint.Http.MessagePopulation
         /// <param name="apiDataModel">The API data model.</param>
         /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>All properties with a custom attribute of the type this source represents.</returns>
-        public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
+        public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return isCatchAll ? Enumerable.Empty<PropertyInfo>() : operationDescriptor.Properties.Where(p => p.GetCustomAttributes(partAttribute).Any());
+            return isCatchAll ?
+                Enumerable.Empty<OwnedPropertyDescriptor>() :
+                operationDescriptor.Properties
+                    .Where(p => p.GetCustomAttributes(partAttribute).Any())
+                    .Select(p => new OwnedPropertyDescriptor(p)
+                    {
+                        PropertyName = GetPartKey(p),
+                    });
         }
 
         /// <inheritdoc />
-        public void Build(
-            IReadOnlyCollection<PropertyInfo> ownedProperties,
-            IEnumerable<PropertyInfo> ownedBySource,
+        public void Build(IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties,
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
             MiddlewareBuilderContext context)
         {
             if (applies?.Invoke(context) == false)
@@ -191,11 +197,11 @@ namespace Blueprint.Http.MessagePopulation
             var httpContextVariable = context.FindVariable(typeof(HttpContext));
             var sourceVariable = sourceCodeExpression(httpContextVariable);
 
-            foreach (var prop in isCatchAll ? context.Descriptor.Properties : ownedBySource)
+            foreach (var prop in isCatchAll ? context.Descriptor.Properties : ownedBySource.Select(s => s.Property))
             {
                 // If this is a catch-all instance we DO NOT want to generate any code for a property
                 // that is owned by a different source.
-                if (isCatchAll && ownedProperties.Contains(prop))
+                if (isCatchAll && ownedProperties.Any(p => p.Property == prop))
                 {
                     continue;
                 }
@@ -249,32 +255,21 @@ namespace Blueprint.Http.MessagePopulation
 
         /// <summary>
         /// Given a <see cref="PropertyInfo" /> finds the key that will be used to load the data from the HTTP
-        /// request.
+        /// request for the specified property, done by trying to find the "part attribute" and grabbing
+        /// the first constructor argument (that we know must be the override).
         /// </summary>
         /// <param name="prop">The prop to find the key for.</param>
         /// <returns>The key used for the part for this property.</returns>
-        public static string GetPartKey(PropertyInfo prop)
+        private string GetPartKey(PropertyInfo prop)
         {
-            return
-                GetPartKeyOverride(prop, typeof(FromHeaderAttribute)) ??
-                GetPartKeyOverride(prop, typeof(FromCookieAttribute)) ??
-                GetPartKeyOverride(prop, typeof(FromQueryAttribute)) ??
-                prop.Name;
-        }
+            if (partAttribute == null)
+            {
+                return prop.Name;
+            }
 
-        /// <summary>
-        /// Given a <see cref="PropertyInfo" /> and a <see cref="Type" /> representing
-        /// a "part" attribute, finds the overriden key that will be used to load the data from the HTTP
-        /// request (if it exists).
-        /// </summary>
-        /// <param name="prop">The prop to find the key for.</param>
-        /// <param name="partAttributeType">The (optional) part attribute to search for overriden key.</param>
-        /// <returns>The key used for the part for this property, or <c>null</c> is not overriden.</returns>
-        private static string GetPartKeyOverride(PropertyInfo prop, Type partAttributeType)
-        {
-            var attribute = prop.GetCustomAttributeData(partAttributeType);
+            var attribute = prop.GetCustomAttributeData(partAttribute);
 
-            return attribute?.GetConstructorArgument<string>(0);
+            return attribute?.GetConstructorArgument<string>(0) ?? prop.Name;
         }
 
         private static bool IsArrayLike(Type type)

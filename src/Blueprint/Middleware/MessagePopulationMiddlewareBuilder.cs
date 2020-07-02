@@ -35,8 +35,8 @@ namespace Blueprint.Middleware
                 .GetServices<IMessagePopulationSource>().OrderBy(s => s.Priority)
                 .ToList();
 
-            var allOwned = new List<PropertyInfo>();
-            var ownedBySources = new Dictionary<IMessagePopulationSource, IEnumerable<PropertyInfo>>();
+            var allOwned = new List<OwnedPropertyDescriptor>();
+            var ownedBySources = new Dictionary<IMessagePopulationSource, IReadOnlyCollection<OwnedPropertyDescriptor>>();
 
             foreach (var s in sources)
             {
@@ -49,7 +49,7 @@ namespace Blueprint.Middleware
                     if (allOwned.Contains(p))
                     {
                         throw new InvalidOperationException(
-                            $"Property {p.DeclaringType.Name}.{p.Name} has been marked as owned by multiple sources. A property can only be owned by a single source.");
+                            $"Property {p.Property.DeclaringType.Name}.{p.Property.Name} has been marked as owned by multiple sources. A property can only be owned by a single source.");
                     }
 
                     allOwned.Add(p);

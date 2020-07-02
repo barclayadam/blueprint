@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Blueprint.Authorisation;
 using Blueprint.Http;
-using Blueprint.Http.MessagePopulation;
 using Blueprint.Middleware;
 using Blueprint.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -136,11 +135,19 @@ namespace Blueprint.OpenApi
                     // place and are therefore _not_ part of the body
                     foreach (var property in operation.Properties)
                     {
+                        var ownedPropertyDescriptor = allOwned.SingleOrDefault(o => o.Property == property);
+
                         // We are only considering "owned" parameters here. All non-owned properties will
                         // be part of the "body" of this command, as handled below UNLESS this is a GET request,
-                        // in which case we determine the parameter comes from the query (if not explictly
+                        // in which case we determine the parameter comes from the query (if not explicitly
                         // overriden)
-                        if (!allOwned.Contains(property) && httpMethod != "GET")
+                        if (ownedPropertyDescriptor == null && httpMethod != "GET")
+                        {
+                            continue;
+                        }
+
+                        // This owned property is internal and should never be exposed
+                        if (ownedPropertyDescriptor?.IsInternal == true)
                         {
                             continue;
                         }
@@ -151,7 +158,7 @@ namespace Blueprint.OpenApi
                         {
                             Kind = isRoute ? OpenApiParameterKind.Path : ToKind(property),
 
-                            Name = HttpPartMessagePopulationSource.GetPartKey(property),
+                            Name = ownedPropertyDescriptor?.PropertyName ?? property.Name,
 
                             IsRequired = isRoute ||
                                          property.ToContextualProperty().Nullability == Nullability.NotNullable ||
@@ -435,7 +442,7 @@ namespace Blueprint.OpenApi
                     .ToList();
 
                 return base.GetSerializableMembers(objectType)
-                    .Where(p => !allOwned.Contains(p))
+                    .Where(p => allOwned.All(o => o.Property != p))
                     .ToList();
             }
 

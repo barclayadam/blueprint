@@ -53,13 +53,16 @@ namespace Blueprint.Http.MessagePopulation
         /// <param name="apiDataModel">The API data model.</param>
         /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>An empty enumeration.</returns>
-        public IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
+        public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return Enumerable.Empty<PropertyInfo>();
+            return Enumerable.Empty<OwnedPropertyDescriptor>();
         }
 
         /// <inheritdoc />
-        public void Build(IReadOnlyCollection<PropertyInfo> ownedProperties, IEnumerable<PropertyInfo> ownedBySource, MiddlewareBuilderContext context)
+        public void Build(
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties,
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
+            MiddlewareBuilderContext context)
         {
             // We can bail early on any code generation as we know that all properties are fulfilled by
             // other sources

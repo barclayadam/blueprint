@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using Blueprint.Compiler.Frames;
 
 namespace Blueprint.Middleware
@@ -32,7 +31,7 @@ namespace Blueprint.Middleware
         /// <param name="apiDataModel">The API data model.</param>
         /// <param name="operationDescriptor">The descriptor to grab owned properties for.</param>
         /// <returns>A list of owned properties.</returns>
-        IEnumerable<PropertyInfo> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor);
+        IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor);
 
         /// <summary>
         /// Builds this source's body, adding the required <see cref="Frame" />s to the pipeline's body.
@@ -42,8 +41,8 @@ namespace Blueprint.Middleware
         /// <param name="ownedBySource">The set of properties from <seealso cref="GetOwnedProperties" />.</param>
         /// <param name="context">The builder context.</param>
         void Build(
-            IReadOnlyCollection<PropertyInfo> allOwnedProperties,
-            IEnumerable<PropertyInfo> ownedBySource,
+            IReadOnlyCollection<OwnedPropertyDescriptor> allOwnedProperties,
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
             MiddlewareBuilderContext context);
     }
 }
