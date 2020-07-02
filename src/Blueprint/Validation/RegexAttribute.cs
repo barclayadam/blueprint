@@ -2,8 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using NJsonSchema;
 
 namespace Blueprint.Validation
 {
@@ -18,7 +16,7 @@ namespace Blueprint.Validation
     /// causes page failures.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
-    public abstract class RegexAttribute : ValidationAttribute, IOpenApiValidationAttribute
+    public abstract class RegexAttribute : ValidationAttribute
     {
         private readonly Regex regex;
 
@@ -60,8 +58,6 @@ namespace Blueprint.Validation
         /// </summary>
         public Regex Regex => regex;
 
-        public string ValidatorKeyword => "pattern";
-
         /// <summary>
         /// Determines whether or not the specified value is valid, which means that is matches
         /// fully the regular expression this attribute represents when converted to a string.
@@ -99,18 +95,6 @@ namespace Blueprint.Validation
                 CultureInfo.CurrentCulture,
                 ErrorMessageString,
                 new object[] { name, regex.ToString() });
-        }
-
-        public virtual Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            if (regex.Options.HasFlag(RegexOptions.IgnoreCase))
-            {
-                throw new Exception("Ignore case flag is not supported.");
-            }
-
-            schema.Pattern = regex.ToString();
-
-            return Task.CompletedTask;
         }
     }
 }

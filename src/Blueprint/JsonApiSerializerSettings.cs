@@ -23,7 +23,6 @@ namespace Blueprint
 
             settings.Converters.Add(new IsoDateTimeConverter());
             settings.Converters.Add(new StringEnumConverter());
-            settings.Converters.Add(new Base64FileConverter());
 
             return settings;
         }

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using Blueprint.ThirdParty;
-using NJsonSchema;
 
 namespace Blueprint.Validation
 {
@@ -11,7 +7,7 @@ namespace Blueprint.Validation
     /// Ensures the property has a greater value than the 'dependant property'.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class MustBeGreaterThanOrEqualAttribute : ValidationAttribute, IOpenApiValidationAttribute
+    public sealed class MustBeGreaterThanOrEqualAttribute : ValidationAttribute
     {
         private const string RequiredIfFieldMessage = "The {0} field must be greater than or equal to";
 
@@ -25,18 +21,6 @@ namespace Blueprint.Validation
         /// Gets the property to check for one of the dependant values.
         /// </summary>
         public string DependentProperty { get; }
-
-        public string ValidatorKeyword => "x-validator-greater-than-or-equal";
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
-            {
-                ["$data"] = $"1/{DependentProperty.Camelize()}",
-            };
-
-            return Task.CompletedTask;
-        }
 
         protected override ValidationResult IsValid(object maxValue, ValidationContext validationContext)
         {

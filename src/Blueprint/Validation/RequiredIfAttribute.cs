@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
-using Blueprint.ThirdParty;
-using NJsonSchema;
 
 namespace Blueprint.Validation
 {
@@ -12,7 +9,7 @@ namespace Blueprint.Validation
     /// Makes the property required if the 'dependant property' has a value that exists in the 'dependant value'.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class RequiredIfAttribute : ValidationAttribute, IOpenApiValidationAttribute
+    public sealed class RequiredIfAttribute : ValidationAttribute
     {
         private const string RequiredIfFieldMessage = "The {0} field is required";
 
@@ -55,19 +52,6 @@ namespace Blueprint.Validation
         /// Gets the collection of values that will trigger this property to be required.
         /// </summary>
         public IEnumerable<object> DependentValues { get; }
-
-        public string ValidatorKeyword => "x-validator-required-if";
-
-        public Task PopulateAsync(JsonSchema4 schema, ApiOperationContext apiOperationContext)
-        {
-            schema.ExtensionData[ValidatorKeyword] = new Dictionary<string, object>
-            {
-                ["$data"] = $"1/{DependentProperty.Camelize()}",
-                ["dependentValues"] = DependentValues,
-            };
-
-            return Task.CompletedTask;
-        }
 
         /// <summary>
         /// Validates the specified value.
