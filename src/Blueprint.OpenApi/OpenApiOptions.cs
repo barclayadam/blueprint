@@ -35,7 +35,7 @@ namespace Blueprint.OpenApi
         /// the fully configured <see cref="JsonSchemaGeneratorSettings" />.
         /// </summary>
         [CanBeNull]
-        public Func<JsonSchemaGeneratorSettings, JsonSchemaGenerator> CreateGenerator { get; set; }
+        public Func<IServiceProvider, ApiDataModel, JsonSchemaGeneratorSettings, JsonSchemaGenerator> CreateGenerator { get; set; }
 
         /// <summary>
         /// The schema type to generate, defaults to <see cref="NJsonSchema.SchemaType.OpenApi3"/>
