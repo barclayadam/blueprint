@@ -19,7 +19,7 @@ namespace Blueprint.Tasks
 
         private readonly IEnumerable<IRecurringTaskScheduler> taskSchedulers;
         private readonly IRecurringTaskProvider provider;
-        private readonly ILogger<TaskScheduler> logger;
+        private readonly ILogger<RecurringTaskManager> logger;
         private readonly IOptions<RecurringTaskManagerOptions> options;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Blueprint.Tasks
         public RecurringTaskManager(
             IEnumerable<IRecurringTaskScheduler> taskSchedulers,
             IRecurringTaskProvider provider,
-            ILogger<TaskScheduler> logger,
+            ILogger<RecurringTaskManager> logger,
             IOptions<RecurringTaskManagerOptions> options)
         {
             Guard.NotNull(nameof(taskSchedulers), taskSchedulers);
