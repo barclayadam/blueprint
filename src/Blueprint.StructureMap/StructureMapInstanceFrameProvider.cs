@@ -33,7 +33,14 @@ namespace Blueprint.StructureMap
         /// <inheritdoc />
         protected override IEnumerable<IoCRegistration> GetRegistrations(Type type)
         {
-            var instanceRefs = container.Model.AllInstances.Where(i => i.ReturnedType == type || i.PluginType == type);
+            var instanceRefs = container.Model.AllInstances.Where(i => i.ReturnedType == type || i.PluginType == type).ToArray();
+
+            // IF the instanceRefs are empty AND type is a concrete rather than an interface then return a single instance
+            // IsAbstract is true for interfaces
+            if (instanceRefs.Length == 0 && !type.IsAbstract)
+            {
+                return new[] { new IoCRegistration { IsSingleton = false, ServiceType = type } };
+            }
 
             return instanceRefs.Select(i => new IoCRegistration
             {
