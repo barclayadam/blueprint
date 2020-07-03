@@ -48,7 +48,9 @@ namespace Blueprint.Middleware
             // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'
             if (handlerInvokeCall.ReturnVariable == null || handlerInvokeCall.ReturnVariable.VariableType == typeof(Task))
             {
-                var emptyResultCreation = new VariableCreationFrame(typeof(NoResultOperationResult),  $"new {typeof(NoResultOperationResult).FullNameInCode()}();");
+                var emptyResultCreation = new VariableCreationFrame(
+                    typeof(NoResultOperationResult),
+                    $"{typeof(NoResultOperationResult).FullNameInCode()}.{nameof(NoResultOperationResult.Instance)};");
 
                 context.AppendFrames(emptyResultCreation);
 
