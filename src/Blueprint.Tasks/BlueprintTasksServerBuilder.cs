@@ -1,3 +1,5 @@
+using System;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Tasks
@@ -25,11 +27,18 @@ namespace Blueprint.Tasks
         /// bre registered and provide CRON-based jobs that allow for the creation of
         /// <see cref="IBackgroundTask" />s that can be executed on a schedule.
         /// </remarks>
+        /// <param name="configureOptions">An action to configure <see cref="RecurringTaskManagerOptions" />.</param>
         /// <returns>This builder for further configuration.</returns>
-        public BlueprintTasksServerBuilder AddRecurringTasks()
+        public BlueprintTasksServerBuilder AddRecurringTasks([CanBeNull] Action<RecurringTaskManagerOptions> configureOptions = null)
         {
+            this.Services.AddOptions<RecurringTaskManagerOptions>();
             this.Services.AddScoped<RecurringTaskManager>();
             this.Services.AddHostedService<RecurringJobManagerRegistrationHostedService>();
+
+            if (configureOptions != null)
+            {
+                this.Services.Configure(configureOptions);
+            }
 
             return this;
         }
