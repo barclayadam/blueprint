@@ -33,23 +33,23 @@ namespace Microsoft.Extensions.DependencyInjection
             apiBuilder.Services.TryAddSingleton<JsonOperationResultOutputFormatter>();
             apiBuilder.Services.TryAddSingleton<IOperationResultOutputFormatter, JsonOperationResultOutputFormatter>();
 
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpRouteMessagePopulationSource>();
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource, HttpBodyMessagePopulationSource>();
-
             apiBuilder.Services.AddScoped<IApiLinkGenerator, ApiLinkGenerator>();
 
+            apiBuilder.AddMessageSource<HttpRouteMessagePopulationSource>();
+            apiBuilder.AddMessageSource<HttpBodyMessagePopulationSource>();
+
             // "Owned" HTTP part sources
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+            apiBuilder.AddMessageSource(
                 HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies))));
 
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+            apiBuilder.AddMessageSource(
                 HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers))));
 
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+            apiBuilder.AddMessageSource(
                 HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query))));
 
             // Catch-all query string population source
-            apiBuilder.Services.AddSingleton<IMessagePopulationSource>(
+            apiBuilder.AddMessageSource(
                 HttpPartMessagePopulationSource.CatchAll(
                     "fromQuery",
                     c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),

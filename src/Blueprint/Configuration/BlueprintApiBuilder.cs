@@ -7,6 +7,7 @@ using Blueprint.Apm;
 using Blueprint.Caching;
 using Blueprint.Compiler;
 using Blueprint.Errors;
+using Blueprint.Middleware;
 using Blueprint.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -121,6 +122,36 @@ namespace Blueprint.Configuration
             Guard.NotNull(nameof(compilationAction), compilationAction);
 
             compilationAction(new BlueprintCompilationBuilder(this));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an <see cref="IMessagePopulationSource" /> that can be used to populate the data
+        /// for properties of an operation and mark some as "owned".
+        /// </summary>
+        /// <typeparam name="T">The type of the source to add.</typeparam>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        /// <seealso cref="IMessagePopulationSource" />
+        /// <seealso cref="MessagePopulationMiddlewareBuilder" />
+        public BlueprintApiBuilder AddMessageSource<T>() where T : class, IMessagePopulationSource
+        {
+            this.Services.AddSingleton<IMessagePopulationSource, T>();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an <see cref="IMessagePopulationSource" /> that can be used to populate the data
+        /// for properties of an operation and mark some as "owned".
+        /// </summary>
+        /// <param name="source">The source to add.</param>
+        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        /// <seealso cref="IMessagePopulationSource" />
+        /// <seealso cref="MessagePopulationMiddlewareBuilder" />
+        public BlueprintApiBuilder AddMessageSource(IMessagePopulationSource source)
+        {
+            this.Services.AddSingleton(source);
 
             return this;
         }
