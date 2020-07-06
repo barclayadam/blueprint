@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware
@@ -13,9 +14,8 @@ namespace Blueprint.Middleware
         private static readonly string[] AllowedMethodNames = {"Invoke", "InvokeAsync", "Execute", "ExecuteAsync", "Handle", "HandleAsync"};
 
         /// <inheritdoc />
-        public IEnumerable<IOperationExecutorBuilder> FindHandlers(
-            IServiceCollection services,
-            IEnumerable<ApiOperationDescriptor> operations)
+        public IEnumerable<IOperationExecutorBuilder> FindHandlers(IServiceCollection services,
+            IEnumerable<ApiOperationDescriptor> operations, List<Assembly> scannedAssemblies)
         {
             foreach (var operation in operations)
             {

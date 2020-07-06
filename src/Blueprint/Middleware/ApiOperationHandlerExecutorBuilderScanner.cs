@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware
@@ -14,7 +15,8 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
-            IEnumerable<ApiOperationDescriptor> operations)
+            IEnumerable<ApiOperationDescriptor> operations,
+            List<Assembly> scannedAssemblies)
         {
             foreach (var operation in operations)
             {
@@ -29,7 +31,7 @@ namespace Blueprint.Middleware
 
                 // If not, we try to manually find and register the handler, looking for an implementation of
                 // IApiOperationHandler<{OperationType}> alongside the operation (i.e. in the same assembly)
-                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType);
+                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType, scannedAssemblies);
 
                 if (apiOperationHandler != null)
                 {
@@ -39,9 +41,33 @@ namespace Blueprint.Middleware
             }
         }
 
-        private static Type FindApiOperationHandler(ApiOperationDescriptor apiOperationDescriptor, Type apiOperationHandlerType)
+        private static Type FindApiOperationHandler(
+            ApiOperationDescriptor apiOperationDescriptor,
+            Type apiOperationHandlerType,
+            List<Assembly> scannedAssemblies)
         {
-            return apiOperationDescriptor.OperationType.Assembly.GetExportedTypes().SingleOrDefault(apiOperationHandlerType.IsAssignableFrom);
+            // Most likely is the handler lives beside the operation, check that assembly first.
+            foreach (var t in apiOperationDescriptor.OperationType.Assembly.GetExportedTypes())
+            {
+                if (apiOperationHandlerType.IsAssignableFrom(t))
+                {
+                    return t;
+                }
+            }
+
+            // We could not find it, check other scanned assemblies.
+            foreach (var a in scannedAssemblies)
+            {
+                foreach (var t in a.GetExportedTypes())
+                {
+                    if (apiOperationHandlerType.IsAssignableFrom(t))
+                    {
+                        return t;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

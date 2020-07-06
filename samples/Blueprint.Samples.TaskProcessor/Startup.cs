@@ -33,8 +33,8 @@ namespace Blueprint.Samples.TaskProcessor
             services.AddBlueprintApi(a => a
                 .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
-                    .ScanForOperations(typeof(Startup).Assembly)
-                    .ScanForOperations(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
+                    .Scan(typeof(Startup).Assembly)
+                    .Scan(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
                 .AddTasksServer(b => b.UseHangfire())
                 // .AddApplicationInsights()
                 .AddLogging()

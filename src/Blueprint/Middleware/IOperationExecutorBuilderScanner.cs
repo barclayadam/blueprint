@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware
@@ -16,9 +17,11 @@ namespace Blueprint.Middleware
         /// </summary>
         /// <param name="services">The service collection that services can be registered for use at pipeline runtime.</param>
         /// <param name="operations">The operations to scan for builders for.</param>
+        /// <param name="scannedAssemblies">A list of assemblies added for scanning operations.</param>
         /// <returns>The list of found builders.</returns>
         IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
-            IEnumerable<ApiOperationDescriptor> operations);
+            IEnumerable<ApiOperationDescriptor> operations,
+            List<Assembly> scannedAssemblies);
     }
 }

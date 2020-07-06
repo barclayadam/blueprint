@@ -22,8 +22,6 @@ namespace Blueprint.Configuration
 
         private readonly List<IOperationScannerConvention> conventions = new List<IOperationScannerConvention>();
 
-        private delegate void RegisterOperation(Type operationType, string source);
-
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintApiOperationScanner" /> class.
         /// </summary>
@@ -32,6 +30,10 @@ namespace Blueprint.Configuration
             conventions.Add(new XmlDocResponseConvention());
             conventions.Add(new ApiExceptionFactoryResponseConvention());
         }
+
+        private delegate void RegisterOperation(Type operationType, string source);
+
+        internal List<Assembly> ScannedAssemblies { get; } = new List<Assembly>();
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
@@ -51,14 +53,16 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Scans the given assemblies for operations to register, with an optional filter function to exclude
+        /// Scans the given assemblies for operations and handlers to register, with an optional filter function to exclude
         /// found types.
         /// </summary>
         /// <param name="assemblies">The assemblies to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner ScanForOperations(Assembly[] assemblies, Func<Type, bool> filter = null)
+        public BlueprintApiOperationScanner Scan(Assembly[] assemblies, Func<Type, bool> filter = null)
         {
+            ScannedAssemblies.AddRange(assemblies);
+
             scanOperations.Add((add) =>
             {
                 foreach (var assembly in assemblies)
@@ -71,14 +75,16 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Scans the given assembly for operations to register, with an optional filter function to exclude
+        /// Scans the given assembly for operations and handlers to register, with an optional filter function to exclude
         /// found types.
         /// </summary>
         /// <param name="assembly">The assembly to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner ScanForOperations(Assembly assembly, Func<Type, bool> filter = null)
+        public BlueprintApiOperationScanner Scan(Assembly assembly, Func<Type, bool> filter = null)
         {
+            ScannedAssemblies.Add(assembly);
+
             scanOperations.Add((add) =>
             {
                 DoScan(assembly, filter, add);

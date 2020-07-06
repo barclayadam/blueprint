@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
@@ -205,7 +206,52 @@ namespace Blueprint.Configuration
             Services.TryAddSingleton(ArrayPool<byte>.Shared);
             Services.TryAddSingleton(ArrayPool<char>.Shared);
 
-            Services.AddApiOperationHandlers(options.Model.Operations.ToList());
+            this.AddApiOperationHandlers(Services, options.Model.Operations.ToList());
+        }
+
+        private void AddApiOperationHandlers(
+            IServiceCollection services,
+            List<ApiOperationDescriptor> operations)
+        {
+            var allFound = new List<IOperationExecutorBuilder>();
+            var scanners = new IOperationExecutorBuilderScanner[]
+            {
+                new ApiOperationHandlerExecutorBuilderScanner(),
+                new ApiOperationInClassConventionExecutorBuilderScanner(),
+            };
+
+            var problems = new List<string>();
+
+            foreach (var scanner in scanners)
+            {
+                foreach (var found in scanner.FindHandlers(services, operations, this.operationScanner.ScannedAssemblies))
+                {
+                    var existing = allFound.Where(e => e.Operation == found.Operation).ToList();
+
+                    if (existing.Any())
+                    {
+                        var all = string.Join(", ", existing.Select(e => e.ToString()));
+
+                        problems.Add($"Multiple handlers have been found for the operation {found}: {all} ");
+                    }
+
+                    allFound.Add(found);
+                }
+            }
+
+            var missing = operations.Where(o => allFound.All(f => f.Operation != o)).ToList();
+
+            if (missing.Any())
+            {
+                throw new MissingApiOperationHandlerException(missing.ToArray());
+            }
+
+            if (problems.Any())
+            {
+                throw new InvalidOperationException(string.Join("\n", problems));
+            }
+
+            services.AddSingleton(allFound);
         }
     }
 }

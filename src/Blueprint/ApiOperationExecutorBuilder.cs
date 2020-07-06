@@ -132,7 +132,6 @@ namespace Blueprint
                         typeof(IOperationExecutorPipeline));
 
                     // We need to set up a LoggerVariable once, to be shared between methods
-                    var executorLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(typeName);
                     pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(typeName));
 
                     var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
