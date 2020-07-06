@@ -29,6 +29,13 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             public string RouteProperty { get; set; }
         }
 
+        [RootLink("/multiple1/{RouteProperty}")]
+        [RootLink("/multiple2/{RouteProperty}")]
+        public class MultipleRouteSamePropertyOperation : RouteableOperation<string>
+        {
+            public string RouteProperty { get; set; }
+        }
+
         [RootLink("/string/{RouteProperty:ADifferentName}")]
         public class StringOperationWithAlternativeName : RouteableOperation<string>
         {
@@ -82,6 +89,16 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             await AssertPopulatedFromRoute<StringOperationWithAlternativeName, string>(new StringOperationWithAlternativeName
             {
                 RouteProperty = "expected-route-value"
+            });
+        }
+
+        [Test]
+        public async Task When_Multiple_Routes_With_Same_Property_Then_Populates()
+        {
+            // Arrange
+            await AssertPopulatedFromRoute<MultipleRouteSamePropertyOperation, string>(new MultipleRouteSamePropertyOperation()
+            {
+                RouteProperty = "the-value-in-route"
             });
         }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using Blueprint.Compiler.Frames;
 using Blueprint.Middleware;
 using Microsoft.AspNetCore.Routing;
@@ -37,6 +36,7 @@ namespace Blueprint.Http.MessagePopulation
             var placeholderProperties = allLinks
                 .SelectMany(l => l.Placeholders)
                 .Select(l => l.Property)
+                .Distinct()
                 .Where(routeProperty => allLinks.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty)))
                 .Select(p => new OwnedPropertyDescriptor(p))
                 .ToList();
@@ -52,6 +52,8 @@ namespace Blueprint.Http.MessagePopulation
 
             var placeholderProperties = allLinks
                 .SelectMany(l => l.Placeholders)
+                .Select(p => p.Property)
+                .Distinct()
                 .ToList();
 
             var operationVariable = context.FindVariable(context.Descriptor.OperationType);
@@ -66,7 +68,7 @@ namespace Blueprint.Http.MessagePopulation
 
             foreach (var routePropertyPlaceholder in placeholderProperties)
             {
-                var routeProperty = routePropertyPlaceholder.Property;
+                var routeProperty = routePropertyPlaceholder;
 
                 if (routeProperty.PropertyType != typeof(string) && !TypeDescriptor.GetConverter(routeProperty.PropertyType).CanConvertFrom(typeof(string)))
                 {

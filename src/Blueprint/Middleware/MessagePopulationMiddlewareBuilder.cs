@@ -32,7 +32,8 @@ namespace Blueprint.Middleware
         public void Build(MiddlewareBuilderContext context)
         {
             var sources = context.ServiceProvider
-                .GetServices<IMessagePopulationSource>().OrderBy(s => s.Priority)
+                .GetServices<IMessagePopulationSource>()
+                .OrderBy(s => s.Priority)
                 .ToList();
 
             var allOwned = new List<OwnedPropertyDescriptor>();
