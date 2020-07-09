@@ -23,8 +23,6 @@ namespace Blueprint.Configuration
             Add(new ReturnFrameMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
         }
 
-        public IServiceCollection Services => blueprintApiBuilder.Services;
-
         public BlueprintPipelineBuilder AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
             Add(new T(), middlewareStage, -1);

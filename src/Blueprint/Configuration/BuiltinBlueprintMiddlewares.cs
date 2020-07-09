@@ -76,7 +76,7 @@ namespace Blueprint.Configuration
         /// Three new middleware builders will be added:
         /// <list type="bullet">
         /// <item><description><see cref="AuthenticationMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authentication"/>.</description></item>
-        /// <item><description><see cref="UserContextLoaderMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authorisation"/>.</description></item>
+        /// <item><description><see cref="UserContextLoaderMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authentication"/>.</description></item>
         /// <item><description><see cref="AuthorisationMiddlewareBuilder"/> added to <see cref="MiddlewareStage.Authorisation"/>.</description></item>
         /// </list>
         /// </remarks>
@@ -92,7 +92,7 @@ namespace Blueprint.Configuration
             apiBuilder.Pipeline(p =>
             {
                 p.AddMiddleware<AuthenticationMiddlewareBuilder>(MiddlewareStage.Authentication);
-                p.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authorisation);
+                p.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authentication);
                 p.AddMiddleware<AuthorisationMiddlewareBuilder>(MiddlewareStage.Authorisation);
             });
 
