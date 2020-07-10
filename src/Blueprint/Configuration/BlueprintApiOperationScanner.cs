@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if !NET472
+using System.Runtime.Loader;
+#endif
 using Blueprint.Authorisation;
 using Blueprint.Middleware;
 using Blueprint.Utilities;
@@ -53,6 +56,60 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
+        /// Scans the calling assembly (<see cref="Assembly.GetCallingAssembly"/> for operations and handlers to
+        /// register, with an optional filter function to exclude found types.
+        /// </summary>
+        /// <param name="filter">The optional filter over found operations.</param>
+        /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
+        public BlueprintApiOperationScanner ScanCallingAssembly(Func<Type, bool> filter = null)
+        {
+            return this.Scan(Assembly.GetCallingAssembly(), filter);
+        }
+
+        /// <summary>
+        /// Scans the assembly that the <typeparamref name="T" /> type is contained in, plus
+        /// any recursive references that assembly has that match the given filter.
+        /// </summary>
+        /// <remarks>
+        /// Although it is possible to pass an assembly filter that always returns <c>true</c> it
+        /// is highly recommended that this is <b>NOT</b> done as that can leave to a performance
+        /// penalty on startup as thousands of types may need to be checked.
+        /// </remarks>
+        /// <param name="assemblyFilter">A filter to determine whether to scan a given assembly.</param>
+        /// <param name="filter">A type filter to exclude types from the search.</param>
+        /// <typeparam name="T">The type from which an <see cref="Assembly"/> is loaded and recursively
+        /// scanned.</typeparam>
+        /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
+        public BlueprintApiOperationScanner ScanReferencedAssembliesOf<T>(
+            Func<AssemblyName, bool> assemblyFilter,
+            Func<Type, bool> filter = null)
+        {
+            void ScanRecursive(Assembly a)
+            {
+                if (assemblyFilter(a.GetName()))
+                {
+                    Scan(a, filter);
+                }
+
+
+                foreach (var referenced in a.GetReferencedAssemblies())
+                {
+#if !NET472
+                    ScanRecursive(AssemblyLoadContext.Default.LoadFromAssemblyName(referenced));
+#endif
+
+#if NET472
+                    ScanRecursive(Assembly.Load(referenced));
+#endif
+                }
+            }
+
+            ScanRecursive(typeof(T).Assembly);
+
+            return this;
+        }
+
+        /// <summary>
         /// Scans the given assemblies for operations and handlers to register, with an optional filter function to exclude
         /// found types.
         /// </summary>
@@ -61,15 +118,10 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
         public BlueprintApiOperationScanner Scan(Assembly[] assemblies, Func<Type, bool> filter = null)
         {
-            ScannedAssemblies.AddRange(assemblies);
-
-            scanOperations.Add((add) =>
+            foreach (var assembly in assemblies)
             {
-                foreach (var assembly in assemblies)
-                {
-                    DoScan(assembly, filter, add);
-                }
-            });
+                Scan(assembly, filter);
+            }
 
             return this;
         }
@@ -83,6 +135,11 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
         public BlueprintApiOperationScanner Scan(Assembly assembly, Func<Type, bool> filter = null)
         {
+            if (ScannedAssemblies.Contains(assembly))
+            {
+                return this;
+            }
+
             ScannedAssemblies.Add(assembly);
 
             scanOperations.Add((add) =>

@@ -4,6 +4,7 @@
     <Title>Blueprint - Core</Title>
     <Description>Blueprint: Core package used by other packages</Description>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.4" />
     <PackageReference Include="CompareNETObjects" Version="4.57.0" />
@@ -19,9 +20,15 @@
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <DefineConstants>$(DefineConstants);NET472</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
