@@ -84,27 +84,33 @@ namespace Blueprint.Configuration
             Func<AssemblyName, bool> assemblyFilter,
             Func<Type, bool> filter = null)
         {
-            void ScanRecursive(Assembly a)
+            void ScanRecursive(Assembly a, ISet<Assembly> seen)
             {
+                if (seen.Contains(a))
+                {
+                    return;
+                }
+
+                seen.Add(a);
+
                 if (assemblyFilter(a.GetName()))
                 {
                     Scan(a, filter);
                 }
 
-
                 foreach (var referenced in a.GetReferencedAssemblies())
                 {
 #if !NET472
-                    ScanRecursive(AssemblyLoadContext.Default.LoadFromAssemblyName(referenced));
+                    ScanRecursive(AssemblyLoadContext.Default.LoadFromAssemblyName(referenced), seen);
 #endif
 
 #if NET472
-                    ScanRecursive(Assembly.Load(referenced));
+                    ScanRecursive(Assembly.Load(referenced), seen);
 #endif
                 }
             }
 
-            ScanRecursive(typeof(T).Assembly);
+            ScanRecursive(typeof(T).Assembly, new HashSet<Assembly>());
 
             return this;
         }
