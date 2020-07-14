@@ -17,7 +17,6 @@ namespace Blueprint.CodeGen
         private readonly MiddlewareBuilderContext context;
 
         private readonly Variable exceptionVariable;
-        private readonly GetInstanceFrame<IErrorLogger> getErrorLoggerFrame;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="PushToErrorLoggerExceptionCatchFrame" /> class.
@@ -29,16 +28,12 @@ namespace Blueprint.CodeGen
         {
             this.context = context;
             this.exceptionVariable = exceptionVariable;
-
-            getErrorLoggerFrame = context.VariableFromContainer<IErrorLogger>();
         }
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var contextVariable = variables.FindVariable(typeof(ApiOperationContext));
-
-            getErrorLoggerFrame.GenerateCode(variables, method, writer);
 
             writer.Write($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
             writer.Write($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
@@ -72,6 +67,7 @@ namespace Blueprint.CodeGen
             methodCall.Arguments[0] = exceptionVariable;
             methodCall.Arguments[1] = new Variable(typeof(object), "null");
             methodCall.Arguments[2] = new Variable(typeof(UserExceptionIdentifier), "identifier");
+
             writer.Write(methodCall);
 
             writer.BlankLine();
