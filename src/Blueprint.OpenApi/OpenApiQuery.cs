@@ -352,7 +352,7 @@ namespace Blueprint.OpenApi
             {
                 jsonSchema = generator.Generate(type, jsonSchemaResolver);
 
-                if (jsonSchema.Properties.Any() == false)
+                if (jsonSchema.Properties.Any() == false && jsonSchema.Type == JsonObjectType.Object)
                 {
                     return null;
                 }

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Errors;
 using Blueprint.Http;
 using Blueprint.OpenApi;
@@ -47,6 +47,46 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             // Arrange
             var executor = TestApiOperationExecutor.Create(o => o
                 .WithOperation<OpenApiGetQuery>()
+                .Configure(p => p.AddHttp().AddOpenApi()));
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_enumerable_result_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<EnumerableOpenApiGetQuery>()
+                .Configure(p => p.AddHttp().AddOpenApi()));
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_PagedApiResponse_result_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.Create(o => o
+                .WithOperation<PagedOpenApiGetQuery>()
                 .Configure(p => p.AddHttp().AddOpenApi()));
 
             // Act
@@ -200,6 +240,24 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
             public OpenApiResource Invoke()
             {
                 return new OpenApiResource();
+            }
+        }
+
+        [RootLink("/resources/enumerable")]
+        public class EnumerableOpenApiGetQuery : IQuery<IEnumerable<OpenApiResource>>
+        {
+            public IEnumerable<OpenApiResource> Invoke()
+            {
+                return new [] { new OpenApiResource() };
+            }
+        }
+
+        [RootLink("/resources/paged")]
+        public class PagedOpenApiGetQuery : IQuery<PagedApiResource<OpenApiResource>>
+        {
+            public PagedApiResource<OpenApiResource> Invoke()
+            {
+                return new PagedApiResource<OpenApiResource>(new [] { new OpenApiResource() });
             }
         }
 
