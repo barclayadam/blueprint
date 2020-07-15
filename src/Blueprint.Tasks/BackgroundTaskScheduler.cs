@@ -48,7 +48,7 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public IScheduledBackgroundTask Enqueue<T>(T task) where T : IBackgroundTask
+        public IScheduledBackgroundTask Enqueue(IBackgroundTask task)
         {
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, null, this);
@@ -59,7 +59,7 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public IScheduledBackgroundTask Schedule<T>(T task, TimeSpan delay) where T : IBackgroundTask
+        public IScheduledBackgroundTask Schedule(IBackgroundTask task, TimeSpan delay)
         {
             var envelope = CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, delay, this);

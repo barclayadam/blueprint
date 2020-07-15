@@ -24,10 +24,9 @@ namespace Blueprint.Tasks
         /// to <see cref="RunNowAsync" />.
         /// </summary>
         /// <param name="task">The task.</param>
-        /// <typeparam name="T">The exact type of the task being executed, usually can be inferred by compiler.</typeparam>
         /// <returns>A scheduled task that can be used to perform further operations, such as adding
         /// a continuation task.</returns>
-        IScheduledBackgroundTask Enqueue<T>(T task) where T : IBackgroundTask;
+        IScheduledBackgroundTask Enqueue(IBackgroundTask task);
 
         /// <summary>
         /// Scheduled the given task to be executed after a specified delay, but <b>does not</b> immediately
@@ -35,10 +34,9 @@ namespace Blueprint.Tasks
         /// </summary>
         /// <param name="task">The task.</param>
         /// <param name="delay">The amount of time to wait before executing this task.</param>
-        /// <typeparam name="T">The exact type of the task being executed, usually can be inferred by compiler.</typeparam>
         /// <returns>A scheduled task that can be used to perform further operations, such as adding
         /// a continuation task.</returns>
-        IScheduledBackgroundTask Schedule<T>(T task, TimeSpan delay) where T : IBackgroundTask;
+        IScheduledBackgroundTask Schedule(IBackgroundTask task, TimeSpan delay);
 
         /// <summary>
         /// Runs all enqueued and scheduled tasks that have been queued up with this task scheduler.
