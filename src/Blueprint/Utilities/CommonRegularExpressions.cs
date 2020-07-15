@@ -26,7 +26,7 @@ namespace Blueprint.Utilities
         /// <summary>
         /// A regular expression pattern which attempts to match a phone number.
         /// </summary>
-        public const string PhoneNumberPattern = @"[\d .()+-]{1,30}";
+        public const string PhoneNumberPattern = @"[\d .()+x-]{1,30}";
 
         /// <summary>
         /// Attempts to match a UK postcode, eliminating many of the invalid postcodes which do not follow patterns set
