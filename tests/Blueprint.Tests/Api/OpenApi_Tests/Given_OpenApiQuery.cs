@@ -16,7 +16,7 @@ using Snapper.Attributes;
 
 namespace Blueprint.Tests.Api.OpenApi_Tests
 {
-    [UpdateSnapshots]
+    // [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]

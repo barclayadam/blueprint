@@ -352,6 +352,14 @@ namespace Blueprint.OpenApi
             {
                 jsonSchema = generator.Generate(type, jsonSchemaResolver);
 
+                // Having a separate referenced schema for an Array type seems unnecessary, so in this
+                // case we will directly return the array schema, with the items having been placed into
+                // the component dictionary during the generation process.
+                if (jsonSchema.Type == JsonObjectType.Array)
+                {
+                    return jsonSchema;
+                }
+
                 if (jsonSchema.Properties.Any() == false && jsonSchema.Type == JsonObjectType.Object)
                 {
                     return null;

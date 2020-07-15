@@ -24,7 +24,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IEnumerableOfOpen"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Open"
+                  }
                 }
               }
             }
@@ -98,13 +101,6 @@
           "type": {
             "type": "string"
           }
-        }
-      },
-      "IEnumerableOfOpen": {
-        "id": "IEnumerableOfOpen",
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/Open"
         }
       },
       "ProblemDetails": {
