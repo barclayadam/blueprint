@@ -10,6 +10,6 @@ namespace Blueprint
     [UsedImplicitly(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
     public interface IApiOperationHandler<in T> where T : IApiOperation
     {
-        Task<object> Invoke(T operation, ApiOperationContext apiOperationContext);
+        ValueTask<object> Invoke(T operation, ApiOperationContext apiOperationContext);
     }
 }

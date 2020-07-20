@@ -46,9 +46,9 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
 
         public class ScanOperationHandler : IApiOperationHandler<ScanOperation>
         {
-            public Task<object> Invoke(ScanOperation operation, ApiOperationContext apiOperationContext)
+            public ValueTask<object> Invoke(ScanOperation operation, ApiOperationContext apiOperationContext)
             {
-                return Task.FromResult((object)"6789");
+                return new ValueTask<object>("6789");
             }
         }
     }

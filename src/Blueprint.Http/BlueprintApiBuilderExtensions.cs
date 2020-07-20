@@ -14,14 +14,14 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to register HTTP-specific features.
+    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> to register HTTP-specific features.
     /// </summary>
     public static class BlueprintApiBuilderExtensions
     {
         /// <summary>
         /// Registers HTTP-specific functionality and handling to this API instance.
         /// </summary>
-        /// <param name="apiBuilder">The API builder to register with.</param>
+        /// <param name="hostBuilder">The host builder to register with.</param>
         /// <returns>This builder.</returns>
         public static BlueprintApiBuilder<HttpHost> Http(this BlueprintApiHostBuilder hostBuilder)
         {
@@ -69,7 +69,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddConvention(new HttpOperationScannerConvention()));
 
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
-
 
             return apiBuilder;
         }

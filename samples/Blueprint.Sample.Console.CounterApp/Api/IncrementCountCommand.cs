@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Sample.Console.CounterApp.Api
 {
@@ -8,7 +9,7 @@ namespace Blueprint.Sample.Console.CounterApp.Api
         public int Max { get; set; }
     }
 
-    public class IncrementCountCommandHandler : SyncApiOperationHandler<IncrementCountCommand>
+    public class IncrementCountCommandHandler : IApiOperationHandler<IncrementCountCommand>
     {
         private readonly ILogger logger;
 
@@ -20,20 +21,20 @@ namespace Blueprint.Sample.Console.CounterApp.Api
             this.logger = logger;
         }
 
-        public override object InvokeSync(IncrementCountCommand operation, ApiOperationContext apiOperationContext)
+        public ValueTask<object> Invoke(IncrementCountCommand operation, ApiOperationContext apiOperationContext)
         {
             if (operation.Max != -1 && Counter >= operation.Max)
             {
                 logger.LogWarning("Reached max count");
 
-                return null;
+                return default;
             }
 
             Counter++;
 
             logger.LogInformation("Counter is {0}", Counter);
 
-            return null;
+            return default;
         }
     }
 }

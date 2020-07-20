@@ -25,7 +25,7 @@ namespace Blueprint.Tests.Api
 
         public ApiOperationContext ContextPassed { get; private set; }
 
-        public Task<object> Invoke(T operation, ApiOperationContext apiOperationContext)
+        public ValueTask<object> Invoke(T operation, ApiOperationContext apiOperationContext)
         {
             WasCalled = true;
             OperationPassed = operation;
@@ -36,7 +36,7 @@ namespace Blueprint.Tests.Api
                 throw ToThrow;
             }
 
-            return Task.FromResult(ResultToReturn);
+            return new ValueTask<object>(ResultToReturn);
         }
     }
 }
