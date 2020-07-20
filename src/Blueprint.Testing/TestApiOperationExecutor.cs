@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Configuration;
+using Blueprint.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,13 +35,44 @@ namespace Blueprint.Testing
         /// for operations and configuring the middleware pipeline.
         /// </summary>
         /// <param name="configure">An action that will configure the pipeline for the given test.</param>
+        /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
-        public static TestApiOperationExecutor Create(Action<TestApiOperationExecutorBuilder> configure)
+        public static TestApiOperationExecutor CreateHttp(
+            Action<BlueprintApiBuilder<HttpHost>> configure,
+            Action<IServiceCollection> configureServices = null)
+        {
+            return Create(b => b.Http(), configure, configureServices);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TestApiOperationExecutor" /> with the specified configuration which allows adding static handlers
+        /// for operations and configuring the middleware pipeline.
+        /// </summary>
+        /// <param name="configure">An action that will configure the pipeline for the given test.</param>
+        /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
+        /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
+        public static TestApiOperationExecutor CreateStandalone(
+            Action<BlueprintApiBuilder<StandaloneHost>> configure,
+            Action<IServiceCollection> configureServices = null)
+        {
+            return Create(b => b.Standalone(), configure, configureServices);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TestApiOperationExecutor" /> with the specified configuration which allows adding static handlers
+        /// for operations and configuring the middleware pipeline.
+        /// </summary>
+        /// <param name="createHost">A delegate to create the host that will be used.</param>
+        /// <param name="configure">An action that will configure the pipeline for the given test.</param>
+        /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
+        /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
+        /// <typeparam name="THost">The type of host that will be used (should be inferred).</typeparam>
+        public static TestApiOperationExecutor Create<THost>(
+            Func<BlueprintApiHostBuilder, BlueprintApiBuilder<THost>> createHost,
+            Action<BlueprintApiBuilder<THost>> configure,
+            Action<IServiceCollection> configureServices = null)
         {
             var collection = new ServiceCollection();
-
-            var builder = new TestApiOperationExecutorBuilder(collection);
-            configure(builder);
 
             collection.AddLogging(b => b
                 .AddConsole()
@@ -49,26 +80,21 @@ namespace Blueprint.Testing
 
             collection.AddBlueprintApi(b =>
             {
-                b
+                var builder = createHost(b);
+
+                builder
                     .SetApplicationName("Blueprint.Tests")
                     .Compilation(r => r
                         // We want a unique DLL name every time, avoids clashes and ensures we always do
                         // an actual build and compilation so we can get the generated code
                         .AssemblyName("Blueprint.Tests." + Guid.NewGuid().ToString("N"))
                         .UseOptimizationLevel(OptimizationLevel.Debug)
-                        .UseInMemoryCompileStrategy())
-                    .Pipeline(builder.PipelineBuilder)
-                    .Operations(o => o.AddOperations(builder.OperationTypes, "TestApiOperationExecutor"));
+                        .UseInMemoryCompileStrategy());
 
-                builder.ApiBuilder(b);
-
-                // If test configuration has not set an explicit host default to TestBlueprintApiHost, otherwise
-                // _every_ test requires it.
-                if (b.Options.Host == null)
-                {
-                    b.UseHost(new TestBlueprintApiHost());
-                }
+                configure(builder);
             });
+
+            configureServices?.Invoke(collection);
 
             var serviceProvider = collection.BuildServiceProvider();
             var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();
@@ -170,91 +196,6 @@ namespace Blueprint.Testing
         public Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation
         {
             return executor.ExecuteWithNewScopeAsync(operation, token);
-        }
-
-        public class TestApiOperationExecutorBuilder
-        {
-            private readonly ServiceCollection collection;
-            private Action<BlueprintPipelineBuilder> pipelineBuilder = c => {};
-            private Action<BlueprintApiBuilder> apiBuilder = c => {};
-
-            internal TestApiOperationExecutorBuilder(ServiceCollection collection)
-            {
-                this.collection = collection;
-            }
-
-            internal List<Type> OperationTypes { get; } = new List<Type>();
-
-            internal Action<BlueprintPipelineBuilder> PipelineBuilder => pipelineBuilder;
-
-            internal Action<BlueprintApiBuilder> ApiBuilder => apiBuilder;
-
-            /// <summary>
-            /// Called back with the <see cref="ServiceCollection" /> that is to be used by the operator that is being
-            /// built, allowing customisation and further registrations of the DI container to be built.
-            /// </summary>
-            /// <param name="action">The action to be immediately called to configure the <see cref="ServiceCollection"/>.</param>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithServices(Action<ServiceCollection> action)
-            {
-                action(collection);
-
-                return this;
-            }
-
-            /// <summary>
-            /// Configures a new handler, which will also implicitly register the operation of type <typeparamref name="T"/>
-            /// with the <see cref="ApiDataModel" /> of the executor.
-            /// </summary>
-            /// <param name="handler">The handler to register.</param>
-            /// <typeparam name="T">The (usually inferred) type of operation for this handler.</typeparam>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithHandler<T>(IApiOperationHandler<T> handler) where T : IApiOperation
-            {
-                collection.AddSingleton(handler);
-
-                OperationTypes.Add(typeof(T));
-
-                return this;
-            }
-
-            /// <summary>
-            /// Configures a new operation with no specific registered handler, meaning the default scanning logic for handlers
-            /// will be used.
-            /// </summary>
-            /// <typeparam name="T">The type of operation for this handler.</typeparam>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder WithOperation<T>() where T : IApiOperation
-            {
-                OperationTypes.Add(typeof(T));
-
-                return this;
-            }
-
-            /// <summary>
-            /// Configures this API instance to use the <see cref="TestBlueprintApiHost" />.
-            /// </summary>
-            /// <returns>This instance.</returns>
-            public TestApiOperationExecutorBuilder UseTestHost()
-            {
-                Configure(c => c.UseHost(new TestBlueprintApiHost()));
-
-                return this;
-            }
-
-            public TestApiOperationExecutorBuilder Configure(Action<BlueprintApiBuilder> builderAction)
-            {
-                apiBuilder = builderAction;
-
-                return this;
-            }
-
-            public TestApiOperationExecutorBuilder Pipeline(Action<BlueprintPipelineBuilder> builderAction)
-            {
-                pipelineBuilder = builderAction;
-
-                return this;
-            }
         }
     }
 }

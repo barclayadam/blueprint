@@ -26,9 +26,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<EmptyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
-                .Configure(p => p.AddValidation()));
+                .AddValidation());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new EmptyOperation());
@@ -46,9 +46,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
-                .Configure(p => p.AddValidation()));
+                .AddValidation());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
@@ -68,9 +68,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
-                .Configure(p => p.AddValidation()));
+                .AddValidation());
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
@@ -87,9 +87,9 @@ namespace Blueprint.Tests.Api.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
-                .Configure(p => p.AddValidation()));
+                .AddValidation());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation

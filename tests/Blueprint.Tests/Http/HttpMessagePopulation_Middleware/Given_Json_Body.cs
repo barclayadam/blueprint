@@ -88,7 +88,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             };
 
             var handler = new TestApiOperationHandler<JsonOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
             var context = GetContext(executor, expected);
 
             // Act
@@ -123,7 +123,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             var expectedRouteValue = "theRouteValue";
 
             var handler = new TestApiOperationHandler<JsonWithRouteOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
             var context = GetContext(executor, expected);
             context.GetRouteData().Values[nameof(JsonWithRouteOperation.RouteProperty)] = expectedRouteValue;
 
@@ -148,7 +148,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             };
 
             var handler = new TestApiOperationHandler<MultipleRouteOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
             var context = GetContext(executor, expected);
 
             // Act

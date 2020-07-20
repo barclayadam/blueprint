@@ -25,9 +25,10 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
         public async Task When_User_Does_Not_Have_Required_Claim_Then_Exception()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithOperation<ClaimRequiredOperation>()
-                .Configure(p => p.AddAuth<TestUserAuthorisationContextFactory>()));
+                .AddAuthentication(a => a.UseContextLoader<TestUserAuthorisationContextFactory>())
+                .AddAuthorisation());
 
             // Act
             var result = await executor.ExecuteWithAuth(new ClaimRequiredOperation());
@@ -45,10 +46,10 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
         public async Task When_User_Does_Have_Required_Claim_Then_Exception()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithOperation<ClaimRequiredOperation>()
-                .Configure(p => p
-                    .AddAuth<TestUserAuthorisationContextFactory>()));
+                .AddAuthentication(a => a.UseContextLoader<TestUserAuthorisationContextFactory>())
+                .AddAuthorisation());
 
             // Act
             var result = await executor.ExecuteWithAuth(

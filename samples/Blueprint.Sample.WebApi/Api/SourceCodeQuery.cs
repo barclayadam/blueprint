@@ -1,25 +1,13 @@
-﻿using System.Threading.Tasks;
-using Blueprint.Http;
+﻿using Blueprint.Http;
 
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("source")]
-    public class SourceCodeQuery : IQuery
+    public class SourceCodeQuery : IQuery<PlainTextResult>
     {
-    }
-
-    public class SourceCodeQueryHandler : IApiOperationHandler<SourceCodeQuery>
-    {
-        private readonly CodeGennedExecutor executor;
-
-        public SourceCodeQueryHandler(IApiOperationExecutor executor)
+        public PlainTextResult Invoke(IApiOperationExecutor executor)
         {
-            this.executor = (CodeGennedExecutor)executor;
-        }
-
-        public Task<object> Invoke(SourceCodeQuery operation, ApiOperationContext apiOperationContext)
-        {
-            var codeDidIGenerate = executor.WhatCodeDidIGenerate()
+            var codeDidIGenerate = ((CodeGennedExecutor)executor).WhatCodeDidIGenerate()
                 .Replace("<", "&lt;")
                 .Replace(">", "&gt;");
 
@@ -35,12 +23,10 @@ namespace Blueprint.Sample.WebApi.Api
 </body>
 </html>";
 
-            var result = new PlainTextResult(template)
+            return new PlainTextResult(template)
             {
                 ContentType = "text/html"
             };
-
-            return Task.FromResult((object)result);
         }
     }
 }

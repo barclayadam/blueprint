@@ -23,8 +23,8 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_no_operations_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
-                .Configure(p => p.AddHttp().AddOpenApi()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -45,9 +45,9 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_GET_operation_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<OpenApiGetQuery>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -65,9 +65,9 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_enumerable_result_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<EnumerableOpenApiGetQuery>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -85,9 +85,9 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_PagedApiResponse_result_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<PagedOpenApiGetQuery>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -105,9 +105,9 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_POST_operation_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<OpenApiPostCommand>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -126,10 +126,10 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         {
             // Arrange
             // Add 'BasicOpenApiGetQuery' so that we output x-links to a PlaintextResult operation
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<BasicOpenApiGetQuery>()
                 .WithOperation<OpenApiPlaintextResponseCommand>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -147,10 +147,10 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_operations_same_url_then_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<OpenApiGetQuery>()
                 .WithOperation<OpenApiPutCommand>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();
@@ -170,11 +170,11 @@ namespace Blueprint.Tests.Api.OpenApi_Tests
         public async Task When_operation_link_exists_with_query_only_properties_renders_correctly()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<OpenApiGetQuery>()
                 .WithOperation<LinkedQueryWithQueryOnlyProperties>()
                 .WithOperation<LinkedCommandWithNoBody>()
-                .Configure(p => p.AddHttp().AddOpenApi()));
+                .AddOpenApi());
 
             // Act
             var context = executor.HttpContextFor<OpenApiQuery>();

@@ -1,5 +1,6 @@
 using System;
 using Blueprint.Configuration;
+using Blueprint.Http;
 using Blueprint.OpenApi;
 using NSwag;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder)
+        public static BlueprintApiBuilder<HttpHost> AddOpenApi(this BlueprintApiBuilder<HttpHost> pipelineBuilder)
         {
             pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
             {
@@ -43,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
         /// <param name="configure">An action to configure the <see cref="OpenApiOptions"/>.</param>
         /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder, Action<OpenApiOptions> configure)
+        public static BlueprintApiBuilder<HttpHost> AddOpenApi(this BlueprintApiBuilder<HttpHost> pipelineBuilder, Action<OpenApiOptions> configure)
         {
             pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
             {

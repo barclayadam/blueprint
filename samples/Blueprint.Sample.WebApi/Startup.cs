@@ -28,9 +28,9 @@ namespace Blueprint.Sample.WebApi
             });
 
             services.AddBlueprintApi(b => b
+                .Http()
                 .SetApplicationName("SampleWebApi")
                 .Operations(o => o.Scan(typeof(Startup).Assembly))
-                .AddHttp()
                 .AddTasksClient(t => t.UseHangfire())
                 .AddApplicationInsights()
                 .AddOpenApi()

@@ -17,9 +17,9 @@ namespace Blueprint.Tests.Tasks
             var inMemoryProvider = new InMemoryBackgroundTaskScheduleProvider();
             var testBackgroundTask = new TestBackgroundTask();
 
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithOperation<TestBackgroundTask>()
-                .Configure(c => c.AddTasksServer(p => p.UseInMemory(inMemoryProvider))));
+            var executor = TestApiOperationExecutor.Create(
+                o => o.BackgroundTasks(p => p.UseInMemory(inMemoryProvider)),
+                o => o.WithOperation<TestBackgroundTask>());
 
             // Act
             var context = executor.ContextFor(testBackgroundTask);

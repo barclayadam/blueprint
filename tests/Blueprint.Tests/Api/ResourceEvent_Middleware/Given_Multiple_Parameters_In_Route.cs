@@ -62,12 +62,10 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         public async Task When_HttpMessagePopulation_Operation_Then_Properties_Are_Populated()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
-                .Configure(a => a
-                    .AddHttp()
-                    .AddResourceEvents<NullResourceEventRepository>()));
+                .AddResourceEvents<NullResourceEventRepository>());
 
             // Act
             var context = executor.HttpContextFor(new CreationOperation

@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Blueprint.Configuration
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> for installing StructureMap.
+    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> for using StructureMap as a dependency container, matching
+    /// the rules of SM when determining what can be loaded from the DI container.
     /// </summary>
     public static class BlueprintApiBuilderExtensions
     {
@@ -14,8 +15,9 @@ namespace Blueprint.Configuration
         /// the implicit registration nature of StructureMap.
         /// </summary>
         /// <param name="blueprintApiBuilder">The builder.</param>
+        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>The builder for further customisation.</returns>
-        public static BlueprintApiBuilder AddStructureMap(this BlueprintApiBuilder blueprintApiBuilder)
+        public static BlueprintApiBuilder<THost> AddStructureMap<THost>(this BlueprintApiBuilder<THost> blueprintApiBuilder)
         {
             blueprintApiBuilder.Services.AddTransient<InstanceFrameProvider, StructureMapInstanceFrameProvider>();
 

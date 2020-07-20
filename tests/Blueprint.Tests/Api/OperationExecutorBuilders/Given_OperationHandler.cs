@@ -12,7 +12,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         {
             // Arrange
             var handler = new TestApiOperationHandler<TestApiCommand>("1234");
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new TestApiCommand
@@ -30,7 +30,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         public async Task When_Specific_Handler_Exists_Then_Finds_In_Scan()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o.WithOperation<ScanOperation>());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<ScanOperation>());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new ScanOperation());

@@ -10,7 +10,7 @@ namespace Blueprint.Configuration
 {
     public static class BlueprintApiBuilderExtensions
     {
-        public static BlueprintApiBuilder AddNotifications(this BlueprintApiBuilder blueprintApiBuilder, params Assembly[] embeddedResourceAssemblies)
+        public static BlueprintApiBuilder<THost> AddNotifications<THost>(this BlueprintApiBuilder<THost> blueprintApiBuilder, params Assembly[] embeddedResourceAssemblies)
         {
             if (embeddedResourceAssemblies.Length == 0)
             {

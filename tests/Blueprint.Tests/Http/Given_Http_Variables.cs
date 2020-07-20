@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http
@@ -31,9 +29,9 @@ namespace Blueprint.Tests.Http
         public async Task When_Operation_with_inline_handler_then_populates_variables()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithOperation<HttpOperation>()
-                .Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor
+                .CreateHttp(o => o.WithOperation<HttpOperation>());
+
             var context = executor.HttpContextFor<HttpOperation>();
 
             // Act

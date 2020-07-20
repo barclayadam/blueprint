@@ -13,8 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Configures Blueprint to use SQL Server to store audit information, using the tables specified to store data.
         /// </summary>
-        public static void StoreInSqlServer(
-            this BlueprintAuditBuilder builder,
+        public static void StoreInSqlServer<THost>(
+            this BlueprintAuditBuilder<THost> builder,
             string connectionString,
             string tableName)
         {
@@ -37,8 +37,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// and <see cref="SqlServerAuditorConfiguration" />, but relies on a <see cref="IDatabaseConnectionFactory" /> registration being made
         /// elsewhere.
         /// </summary>
-        public static void StoreInSqlServer(
-            this BlueprintAuditBuilder builder,
+        /// <typeparam name="THost">The type of host.</typeparam>
+        public static void StoreInSqlServer<THost>(
+            this BlueprintAuditBuilder<THost> builder,
             string tableName)
         {
             Guard.NotNullOrEmpty(nameof(tableName), tableName);

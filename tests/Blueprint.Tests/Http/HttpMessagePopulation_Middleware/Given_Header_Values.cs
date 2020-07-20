@@ -103,7 +103,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
 
             var context = GetContext<TOperation>(executor, headers);
 

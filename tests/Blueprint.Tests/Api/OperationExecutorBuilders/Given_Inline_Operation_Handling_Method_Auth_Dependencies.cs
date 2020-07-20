@@ -16,16 +16,16 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         {
             // Arrange
             var operation = new InlineHandle();
-            var executor = TestApiOperationExecutor.Create(o =>
-            {
-                o.WithServices(s =>
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithOperation<InlineHandle>()
+                    .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+                    .AddAuthorisation(),
+                s =>
                 {
                     s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
                     s.AddTransient<IDependency, Dependency>();
                 });
-                o.WithOperation<InlineHandle>();
-                o.Configure(p => p.AddAuth<AnonymousUserAuthorisationContextFactory>());
-            });
 
             // Act
             await executor.ExecuteWithNewScopeAsync(operation);

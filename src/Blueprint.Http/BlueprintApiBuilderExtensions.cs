@@ -23,8 +23,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="apiBuilder">The API builder to register with.</param>
         /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder AddHttp(this BlueprintApiBuilder apiBuilder)
+        public static BlueprintApiBuilder<HttpHost> Http(this BlueprintApiHostBuilder hostBuilder)
         {
+            var apiBuilder = hostBuilder.UseHost<HttpHost>();
+
             apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
@@ -68,15 +70,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
 
-            apiBuilder.UseHost(new HttpBlueprintApiHost());
 
             return apiBuilder;
         }
 
-        public static BlueprintApiBuilder AddHateoasLinks(this BlueprintApiBuilder apiBuilder)
+        public static BlueprintApiBuilder<HttpHost> AddHateoasLinks(this BlueprintApiBuilder<HttpHost> apiBuilder)
         {
             // Resource events needs authoriser services to be registered
-            BuiltinBlueprintMiddlewares.TryAddAuthServices(apiBuilder);
+            BuiltinBlueprintMiddlewares.TryAddAuthorisationServices(apiBuilder.Services);
 
             apiBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
@@ -85,7 +86,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return apiBuilder;
         }
 
-        public static BlueprintApiBuilder AddResourceEvents<T>(this BlueprintApiBuilder pipelineBuilder) where T : class, IResourceEventRepository
+        public static BlueprintApiBuilder<HttpHost> AddResourceEvents<T>(this BlueprintApiBuilder<HttpHost> pipelineBuilder) where T : class, IResourceEventRepository
         {
             pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
 

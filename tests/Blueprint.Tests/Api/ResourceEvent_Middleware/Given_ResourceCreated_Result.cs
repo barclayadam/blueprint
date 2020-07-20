@@ -54,12 +54,10 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         public async Task When_ResourceCreated_And_Self_Query_Exists_Populates_Data()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<CreationOperation>()
                 .WithOperation<SelfQuery>()
-                .Configure(a => a
-                    .AddHttp()
-                    .AddResourceEvents<NullResourceEventRepository>()));
+                .AddResourceEvents<NullResourceEventRepository>());
 
             // Act
             // Note, do 2 executions to ensure correct parameters and being passed around
@@ -80,13 +78,12 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
             using (var t = SystemTime.PauseForThread())
             {
                 // Arrange
-                var executor = TestApiOperationExecutor.Create(o => o
+                var executor = TestApiOperationExecutor.CreateHttp(o => o
                     .WithOperation<CreationOperation>()
                     .WithOperation<SelfQuery>()
-                    .Configure(a => a
-                        .AddHttp()
-                        .AddResourceEvents<NullResourceEventRepository>()
-                        .AddAuth<TestUserAuthorisationContextFactory>()));
+                    .AddResourceEvents<NullResourceEventRepository>()
+                    .AddAuthentication(a => a.UseContextLoader<TestUserAuthorisationContextFactory>())
+                    .AddAuthorisation());
 
                 // Act
                 var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" })

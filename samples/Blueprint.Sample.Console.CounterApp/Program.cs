@@ -48,6 +48,7 @@ namespace Blueprint.Sample.Console.CounterApp
 
                     // Configure Blueprint API
                     services.AddBlueprintApi(b => b
+                        .Standalone()
                         .SetApplicationName(AppName)
                         .Operations(o => o.Scan(typeof(Program).Assembly))
                         .AddLogging()

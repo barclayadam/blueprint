@@ -16,7 +16,7 @@ namespace Blueprint.Tests.Api.Builder
             var cancellationToken = new CancellationTokenSource();
             cancellationToken.Cancel();
 
-            var executor = TestApiOperationExecutor.Create(o => o.WithOperation<CancellableOperation>());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<CancellableOperation>());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new CancellableOperation(), cancellationToken.Token);
@@ -32,7 +32,7 @@ namespace Blueprint.Tests.Api.Builder
             // Arrange
             var cancellationToken = new CancellationTokenSource();
 
-            var executor = TestApiOperationExecutor.Create(o => o.WithOperation<CancellableOperation>());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<CancellableOperation>());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new CancellableOperation(), cancellationToken.Token);

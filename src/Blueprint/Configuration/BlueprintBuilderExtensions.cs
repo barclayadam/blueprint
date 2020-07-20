@@ -3,7 +3,7 @@ using System;
 namespace Blueprint.Configuration
 {
     /// <summary>
-    /// Provides extensions to <see cref="BlueprintPipelineBuilder" /> that can be useful in
+    /// Provides extensions to <see cref="BlueprintApiBuilder{THost}" /> that can be useful in
     /// building up the pipeline used for an API.
     /// </summary>
     public static class BlueprintBuilderExtensions
@@ -15,11 +15,12 @@ namespace Blueprint.Configuration
         /// <param name="apiBuilder">The Api builder.</param>
         /// <param name="include">Whether to include/execute the child action.</param>
         /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/>.</returns>
-        public static BlueprintApiBuilder Conditionally(
-            this BlueprintApiBuilder apiBuilder,
+        /// <typeparam name="THost">The type of host.</typeparam>
+        /// <returns>This builder.</returns>
+        public static BlueprintApiBuilder<THost> Conditionally<THost>(
+            this BlueprintApiBuilder<THost> apiBuilder,
             bool include,
-            Action<BlueprintApiBuilder> action)
+            Action<BlueprintApiBuilder<THost>> action)
         {
             if (include)
             {
@@ -36,11 +37,12 @@ namespace Blueprint.Configuration
         /// <param name="pipelineBuilder">The middleware builder.</param>
         /// <param name="include">Whether to include/execute the child action.</param>
         /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
+        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This middleware builder.</returns>
-        public static BlueprintPipelineBuilder Conditionally(
-            this BlueprintPipelineBuilder pipelineBuilder,
+        public static BlueprintPipelineBuilder<THost> Conditionally<THost>(
+            this BlueprintPipelineBuilder<THost> pipelineBuilder,
             bool include,
-            Action<BlueprintPipelineBuilder> action)
+            Action<BlueprintPipelineBuilder<THost>> action)
         {
             if (include)
             {

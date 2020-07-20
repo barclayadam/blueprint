@@ -157,7 +157,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler).Configure(p => p.AddHttp()));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
 
             // These tests are checking whether a conversion happens, so we will always put the route data as the ToString() value of the object
             var context = GetContext<TOperation>(executor, routeDataKeyOverride ?? nameof(expected.RouteProperty), expected.RouteProperty.ToString());

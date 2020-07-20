@@ -7,7 +7,7 @@ using Blueprint.Configuration;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to add OpenTracing APM integration.
+    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> to add OpenTracing APM integration.
     /// </summary>
     public static class BlueprintBuilderExtensions
     {
@@ -16,8 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// tracking dependencies using the OpenTracing library.
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddOpenTracing(this BlueprintApiBuilder pipelineBuilder)
+        /// <typeparam name="THost">The type of host.</typeparam>
+        /// <returns>This builder for further configuration.</returns>
+        public static BlueprintApiBuilder<THost> AddOpenTracing<THost>(this BlueprintApiBuilder<THost> pipelineBuilder)
         {
             pipelineBuilder.Services.AddSingleton<IApmTool, OpenTracingApmTool>();
 

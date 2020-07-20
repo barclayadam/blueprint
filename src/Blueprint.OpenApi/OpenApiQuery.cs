@@ -21,7 +21,7 @@ using NSwag;
 namespace Blueprint.OpenApi
 {
     /// <summary>
-    /// An <see cref="IQuery" /> that can will return an OpenAPI representation of the
+    /// An <see cref="IQuery{PlainTextResult}" /> that can will return an OpenAPI representation of the
     /// <see cref="ApiDataModel" /> of the current API.
     /// </summary>
     [AllowAnonymous]

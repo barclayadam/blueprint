@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Http.Features;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
+    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> to add Application Insights integration.
     /// </summary>
     public static class BlueprintBuilderExtensions
     {
@@ -23,8 +23,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <see cref="RequestTelemetry" /> of the current HTTP context (if it exists).
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddApplicationInsights(this BlueprintApiBuilder pipelineBuilder)
+        /// <typeparam name="THost">The type of host.</typeparam>
+        /// <returns>This builder for further configuration.</returns>
+        public static BlueprintApiBuilder<THost> AddApplicationInsights<THost>(this BlueprintApiBuilder<THost> pipelineBuilder)
         {
             pipelineBuilder.Services.AddSingleton<IApmTool, ApplicationInsightsApmTool>();
 

@@ -220,6 +220,13 @@ namespace Blueprint.Configuration
             }
         }
 
+        private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
+        {
+            var allExportedTypes = assembly.GetExportedTypes();
+
+            return allExportedTypes.Where(t => !t.IsAbstract && t.GetInterface(interfaceType.Name) != null);
+        }
+
         private static void RegisterResponses(ApiOperationDescriptor descriptor)
         {
             var typedOperation = descriptor.OperationType
@@ -237,13 +244,6 @@ namespace Blueprint.Configuration
 
             descriptor.AddResponse(
                 new ResponseDescriptor(typeof(ValidationFailedOperationResult), 422, "Validation failure"));
-        }
-
-        private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
-        {
-            var allExportedTypes = assembly.GetExportedTypes();
-
-            return allExportedTypes.Where(t => !t.IsAbstract && t.GetInterface(interfaceType.Name) != null);
         }
 
         private void DoScan(Assembly assembly, Func<Type, bool> filter, RegisterOperation register)
@@ -287,11 +287,6 @@ namespace Blueprint.Configuration
                 RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true),
             };
 
-            foreach (var c in conventions)
-            {
-                c.Apply(descriptor);
-            }
-
             foreach (var linkAttribute in type.GetCustomAttributes<LinkAttribute>())
             {
                 descriptor.AddLink(
@@ -302,6 +297,11 @@ namespace Blueprint.Configuration
             }
 
             RegisterResponses(descriptor);
+
+            foreach (var c in conventions)
+            {
+                c.Apply(descriptor);
+            }
 
             return descriptor;
         }

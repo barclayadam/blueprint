@@ -17,11 +17,10 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
             var inMemoryProvider = new InMemoryBackgroundTaskScheduleProvider();
             var toReturn = 12345;
 
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithOperation<TaskOperation>()
-                .Configure(c => c
-                    .AddTasksClient(p => p.UseInMemory(inMemoryProvider))
-                    .AddLogging()));
+                .AddTasksClient(p => p.UseInMemory(inMemoryProvider))
+                .AddLogging());
 
             // Act
             var context = executor.ContextFor(new TaskOperation { ToReturn = toReturn });

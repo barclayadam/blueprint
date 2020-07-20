@@ -22,13 +22,11 @@ namespace Blueprint.Tests.Api.Builder
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddSingleton(typeof(IInjectable), typeof(Injectable));
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithHandler(handler)
+                    .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)),
+                s=> s.AddSingleton(typeof(IInjectable), typeof(Injectable)));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -44,13 +42,11 @@ namespace Blueprint.Tests.Api.Builder
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddOptions<MyOptions>();
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IOptions<MyOptions>>>(MiddlewareStage.Execution)));
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithHandler(handler)
+                    .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IOptions<MyOptions>>>(MiddlewareStage.Execution)),
+                s => s.AddOptions<MyOptions>());
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -66,15 +62,15 @@ namespace Blueprint.Tests.Api.Builder
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
+                .WithHandler(handler)
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IOptions<MyOptions>, IOptions<MyOtherOptions>>>(MiddlewareStage.Execution)),
+                s =>
                 {
+
                     s.AddOptions<MyOptions>();
                     s.AddOptions<MyOtherOptions>();
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p
-                    .AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IOptions<MyOptions>, IOptions<MyOtherOptions>>>(MiddlewareStage.Execution)));
+                });
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -90,13 +86,11 @@ namespace Blueprint.Tests.Api.Builder
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<OperationWithInjectable>(toReturn);
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddSingleton(typeof(IInjectable), typeof(Injectable));
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IEnumerable<IInjectable>>>(MiddlewareStage.Execution)));
+            var executor = TestApiOperationExecutor.CreateStandalone(o =>
+                o
+                    .WithHandler(handler)
+                    .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IEnumerable<IInjectable>>>(MiddlewareStage.Execution)),
+                s => s.AddSingleton(typeof(IInjectable), typeof(Injectable)));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new OperationWithInjectable());
@@ -115,13 +109,11 @@ namespace Blueprint.Tests.Api.Builder
             var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
 
             // Act
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddSingleton(typeof(IInjectable), typeof(Injectable));
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithHandler(handler)
+                    .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)),
+                s => s.AddSingleton(typeof(IInjectable), typeof(Injectable)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -137,13 +129,11 @@ namespace Blueprint.Tests.Api.Builder
             var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
 
             // Act
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddTransient(typeof(IInjectable), typeof(Injectable));
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithHandler(handler)
+                    .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)),
+                s => s.AddTransient(typeof(IInjectable), typeof(Injectable)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -158,13 +148,10 @@ namespace Blueprint.Tests.Api.Builder
             var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
 
             // Act
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
-                {
-                    s.AddScoped(typeof(IInjectable), typeof(Injectable));
-                })
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
-                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)));
+                .Pipeline(p => p.AddMiddlewareBefore<MiddlewareWithDependencyInjectionVariable<IInjectable>>(MiddlewareStage.Execution)),
+                s => s.AddScoped(typeof(IInjectable), typeof(Injectable)));
 
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
@@ -178,15 +165,16 @@ namespace Blueprint.Tests.Api.Builder
             // Arrange
             var handler = new TestApiOperationHandler<OperationWithInjectable>(12345);
 
-            Action buildExecutor = () => TestApiOperationExecutor.Create(o => o
-                .WithServices(s =>
+            Action buildExecutor = () => TestApiOperationExecutor.CreateStandalone(
+                o => o
+                    .WithHandler(handler)
+                    .Pipeline(p => p
+                        .AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IInjectable, Injectable>>(MiddlewareStage.Execution)),
+                s =>
                 {
                     s.AddSingleton(typeof(IInjectable), typeof(Injectable));
                     s.AddSingleton(typeof(Injectable), typeof(Injectable));
-                })
-                .WithHandler(handler)
-                .Pipeline(p => p
-                    .AddMiddlewareBefore<MiddlewareWithMultipleDependencyInjectionVariable<IInjectable, Injectable>>(MiddlewareStage.Execution)));
+                });
 
             // Assert
             buildExecutor.Should().Throw<InvalidOperationException>()

@@ -4,7 +4,6 @@ using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Samples.TaskProcessor
@@ -31,20 +30,19 @@ namespace Blueprint.Samples.TaskProcessor
             services.AddHangfireServer();
 
             services.AddBlueprintApi(a => a
+                .BackgroundTasks(b => b.UseHangfire())
                 .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
                     .Scan(typeof(Startup).Assembly)
                     .Scan(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
-                .AddTasksServer(b => b.UseHangfire())
                 // .AddApplicationInsights()
                 .AddLogging()
                 .AddValidation());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            // NOTE: This will only be available locally, use admin website when deployed
             app.UseHangfireDashboard("");
             app.UseHangfireServer();
         }

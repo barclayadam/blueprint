@@ -19,7 +19,7 @@ namespace Blueprint.Tests.Api.Builder
         {
             // Arrange
             var handler = new TestApiOperationHandler<TestApiCommand>(new Exception("Oops"));
-            var executor = TestApiOperationExecutor.Create(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new TestApiCommand
@@ -56,7 +56,7 @@ namespace Blueprint.Tests.Api.Builder
                     };
                 });
 
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
                 .Pipeline(p => p.AddMiddleware(middleware, MiddlewareStage.Execution)));
 
@@ -82,7 +82,7 @@ namespace Blueprint.Tests.Api.Builder
                     };
                 });
 
-            var executor = TestApiOperationExecutor.Create(o => o
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o
                 .WithHandler(handler)
                 .Pipeline(p => p.AddMiddleware(middleware, MiddlewareStage.Execution)));
 

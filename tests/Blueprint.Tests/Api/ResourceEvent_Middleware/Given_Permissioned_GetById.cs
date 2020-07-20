@@ -57,14 +57,14 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
         public async Task When_Child_Operation_Has_Authorisation_Then_Skips_And_Allows()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o
-                .WithOperation<CreationOperation>()
-                .WithOperation<SelfQuery>()
-                .WithServices(s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>())
-                .Configure(a => a
-                    .AddHttp()
-                    .AddAuth<AnonymousUserAuthorisationContextFactory>()
-                    .AddResourceEvents<NullResourceEventRepository>()));
+            var executor = TestApiOperationExecutor.CreateHttp(
+                o => o
+                    .WithOperation<CreationOperation>()
+                    .WithOperation<SelfQuery>()
+                    .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+                    .AddAuthorisation()
+                    .AddResourceEvents<NullResourceEventRepository>(),
+                s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>());
 
             // Act
             var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });

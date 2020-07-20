@@ -44,10 +44,5 @@ namespace Blueprint.Configuration
         /// executors.
         /// </summary>
         public string ApplicationName { get; set; }
-
-        /// <summary>
-        /// The "host" of the API, i.e. a HTTP host or a background task processor.
-        /// </summary>
-        public IBlueprintApiHost Host { get; set; }
     }
 }

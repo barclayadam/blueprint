@@ -63,7 +63,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             // Arrange
             var okResult = new OkResult("theReturn");
             var operation = new RuntimeSpecificReturnAsync(okResult);
-            var executor = TestApiOperationExecutor.Create(o => o.WithOperation<RuntimeSpecificReturnAsync>());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<RuntimeSpecificReturnAsync>());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(operation);
@@ -81,7 +81,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         private async Task ShouldCallInlineMethod<T>(Action<object> assertContent) where T : IApiOperation, new()
         {
             // Arrange
-            var executor = TestApiOperationExecutor.Create(o => o.WithOperation<T>());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<T>());
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new T());

@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Middleware;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Configuration
 {
-    public class BlueprintPipelineBuilder
+    public class BlueprintPipelineBuilder<THost>
     {
         private readonly List<MiddlewareRegistration> middlewareStages = new List<MiddlewareRegistration>();
 
-        private readonly BlueprintApiBuilder blueprintApiBuilder;
+        private readonly BlueprintApiBuilder<THost> blueprintApiBuilder;
 
-        internal BlueprintPipelineBuilder(BlueprintApiBuilder blueprintApiBuilder)
+        internal BlueprintPipelineBuilder(BlueprintApiBuilder<THost> blueprintApiBuilder)
         {
             this.blueprintApiBuilder = blueprintApiBuilder;
 
@@ -23,28 +22,28 @@ namespace Blueprint.Configuration
             Add(new ReturnFrameMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
         }
 
-        public BlueprintPipelineBuilder AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
+        public BlueprintPipelineBuilder<THost> AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
             Add(new T(), middlewareStage, -1);
 
             return this;
         }
 
-        public BlueprintPipelineBuilder AddMiddlewareBefore(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
+        public BlueprintPipelineBuilder<THost> AddMiddlewareBefore(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
             Add(builder, middlewareStage, -1);
 
             return this;
         }
 
-        public BlueprintPipelineBuilder AddMiddleware<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
+        public BlueprintPipelineBuilder<THost> AddMiddleware<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
             Add(new T(), middlewareStage, 0);
 
             return this;
         }
 
-        public BlueprintPipelineBuilder AddMiddleware(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
+        public BlueprintPipelineBuilder<THost> AddMiddleware(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
             Add(builder, middlewareStage, 0);
 

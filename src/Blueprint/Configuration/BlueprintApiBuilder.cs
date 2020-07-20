@@ -20,14 +20,15 @@ namespace Blueprint.Configuration
     /// A builder that allows fluent configuration, driven by Intellisense, of a <see cref="BlueprintApiOptions" />
     /// instance.
     /// </summary>
-    public class BlueprintApiBuilder
+    /// <typeparam name="THost">The type of host.</typeparam>
+    public class BlueprintApiBuilder<THost> : IHostBuilder
     {
         private readonly BlueprintApiOptions options;
-        private readonly BlueprintPipelineBuilder pipelineBuilder;
+        private readonly BlueprintPipelineBuilder<THost> pipelineBuilder;
         private readonly BlueprintApiOperationScanner operationScanner;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="BlueprintApiBuilder" /> class with the given
+        /// Initialises a new instance of the <see cref="BlueprintApiBuilder{THost}" /> class with the given
         /// <see cref="IServiceCollection" /> in to which all DI registrations will be made.
         /// </summary>
         /// <param name="services">The service collection to configure.</param>
@@ -36,7 +37,7 @@ namespace Blueprint.Configuration
             Services = services;
 
             options = new BlueprintApiOptions();
-            pipelineBuilder = new BlueprintPipelineBuilder(this);
+            pipelineBuilder = new BlueprintPipelineBuilder<THost>(this);
             operationScanner = new BlueprintApiOperationScanner();
 
             // The default strategy is to build to a DLL to the temp folder
@@ -55,8 +56,8 @@ namespace Blueprint.Configuration
         /// any clashes if multiple APIs exist within a single domain.
         /// </summary>
         /// <param name="applicationName">The name of the application.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder SetApplicationName(string applicationName)
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> SetApplicationName(string applicationName)
         {
             Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
@@ -66,31 +67,12 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Registers an <see cref="IBlueprintApiHost" />, such as a background task processor or HTTP.
-        /// </summary>
-        /// <param name="host">The host to set.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        /// <exception cref="InvalidOperationException">If this method has already been called.</exception>
-        public BlueprintApiBuilder UseHost(IBlueprintApiHost host)
-        {
-            if (options.Host != null)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot set host {host.GetType().Name} as host {options.Host.GetType().Name} has already been registered");
-            }
-
-            options.Host = host;
-
-            return this;
-        }
-
-        /// <summary>
         /// Configures the <see cref="IApiOperation"/>s of the <see cref="ApiDataModel" /> that will be constructed, allowing
         /// for manual registration as well as scanning operations.
         /// </summary>
         /// <param name="scannerAction">The action that performs the necessary configuration calls.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Operations(Action<BlueprintApiOperationScanner> scannerAction)
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> Operations(Action<BlueprintApiOperationScanner> scannerAction)
         {
             Guard.NotNull(nameof(scannerAction), scannerAction);
 
@@ -100,11 +82,37 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
+        /// Adds a single operation to this builder, a shorthand for using the method <see cref="BlueprintApiOperationScanner.AddOperation{T}" /> through
+        /// the <see cref="Operations"/> method.
+        /// </summary>
+        /// <typeparam name="T">The operation type to register.</typeparam>
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> WithOperation<T>() where T : IApiOperation
+        {
+            return this.Operations(o => o.AddOperation<T>());
+        }
+
+        /// <summary>
+        /// Adds a configured handler, plus the associated operation type.
+        /// </summary>
+        /// <param name="handler">The configured handler to register (as a singleton).</param>
+        /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
+        /// <typeparam name="T">The operation type.</typeparam>
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> WithHandler<T>(IApiOperationHandler<T> handler, string source = null) where T : IApiOperation
+        {
+            this.Operations(o => o.AddOperation(typeof(T), source ?? $"WithHandler({handler.GetType().Name})"));
+            this.Services.AddSingleton(handler);
+
+            return this;
+        }
+
+        /// <summary>
         /// Configures the pipeline of this API instance.
         /// </summary>
         /// <param name="pipelineAction">The action that performs the necessary configuration calls.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Pipeline(Action<BlueprintPipelineBuilder> pipelineAction)
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> Pipeline(Action<BlueprintPipelineBuilder<THost>> pipelineAction)
         {
             Guard.NotNull(nameof(pipelineAction), pipelineAction);
 
@@ -117,12 +125,12 @@ namespace Blueprint.Configuration
         /// Configures the compilation (using Roslyn) of this API instance.
         /// </summary>
         /// <param name="compilationAction">The action that performs the necessary configuration calls.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
-        public BlueprintApiBuilder Compilation(Action<BlueprintCompilationBuilder> compilationAction)
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> Compilation(Action<BlueprintCompilationBuilder<THost>> compilationAction)
         {
             Guard.NotNull(nameof(compilationAction), compilationAction);
 
-            compilationAction(new BlueprintCompilationBuilder(this));
+            compilationAction(new BlueprintCompilationBuilder<THost>(this));
 
             return this;
         }
@@ -132,10 +140,10 @@ namespace Blueprint.Configuration
         /// for properties of an operation and mark some as "owned".
         /// </summary>
         /// <typeparam name="T">The type of the source to add.</typeparam>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        /// <returns>This builder.</returns>
         /// <seealso cref="IMessagePopulationSource" />
         /// <seealso cref="MessagePopulationMiddlewareBuilder" />
-        public BlueprintApiBuilder AddMessageSource<T>() where T : class, IMessagePopulationSource
+        public BlueprintApiBuilder<THost> AddMessageSource<T>() where T : class, IMessagePopulationSource
         {
             this.Services.AddSingleton<IMessagePopulationSource, T>();
 
@@ -147,26 +155,21 @@ namespace Blueprint.Configuration
         /// for properties of an operation and mark some as "owned".
         /// </summary>
         /// <param name="source">The source to add.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder"/> for further configuration.</returns>
+        /// <returns>This builder.</returns>
         /// <seealso cref="IMessagePopulationSource" />
         /// <seealso cref="MessagePopulationMiddlewareBuilder" />
-        public BlueprintApiBuilder AddMessageSource(IMessagePopulationSource source)
+        public BlueprintApiBuilder<THost> AddMessageSource(IMessagePopulationSource source)
         {
             this.Services.AddSingleton(source);
 
             return this;
         }
 
-        internal void Build()
+        void IHostBuilder.Build()
         {
             if (string.IsNullOrEmpty(options.ApplicationName))
             {
                 throw new InvalidOperationException("An app name MUST be set");
-            }
-
-            if (options.Host == null)
-            {
-                throw new InvalidOperationException("A host MUST be set");
             }
 
             pipelineBuilder.Register();

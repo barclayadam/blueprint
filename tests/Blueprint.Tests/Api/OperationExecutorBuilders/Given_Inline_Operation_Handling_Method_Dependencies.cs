@@ -13,11 +13,9 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         {
             // Arrange
             var operation = new InlineHandle();
-            var executor = TestApiOperationExecutor.Create(o =>
-            {
-                o.WithServices(s => s.AddTransient<IDependency, Dependency>());
-                o.WithOperation<InlineHandle>();
-            });
+            var executor = TestApiOperationExecutor.CreateStandalone(
+                o => o.WithOperation<InlineHandle>(),
+                s => s.AddTransient<IDependency, Dependency>());
 
             // Act
             await executor.ExecuteWithNewScopeAsync(operation);
