@@ -12,7 +12,8 @@ namespace Blueprint.Http
     /// </summary>
     /// <remarks>
     /// Commands within an API can return a new <see cref="ResourceEvent" /> that represents a change, specifying
-    /// the type of the change and how to load the associated resource (through another <see cref="IApiOperation" />)
+    /// the type of the change and how to load the associated resource (through another operation that <b>MUST</b> be of
+    /// type <see cref="IQuery" />)
     /// to present a common schema for indicating changes have occurred within a system and providing clients
     /// both internal and external to the API a way of reacting to events (i.e. by removing from cache if a
     /// <see cref="ResourceEventChangeType.Deleted" /> event is returned.
@@ -24,7 +25,7 @@ namespace Blueprint.Http
         private readonly ResourceEventChangeType changeType;
         private readonly string eventId;
         private readonly Type resourceType;
-        private readonly IApiOperation selfQuery;
+        private readonly IQuery selfQuery;
 
         private readonly Dictionary<string, object> metadata = new Dictionary<string, object>();
         private readonly Dictionary<string, object> secureData = new Dictionary<string, object>();
@@ -36,7 +37,7 @@ namespace Blueprint.Http
         /// <param name="eventId">The id of this specific event.</param>
         /// <param name="resourceType">The type of resource that has been modified.</param>
         /// <param name="selfQuery">An operation that, when executed, will load the associated resource.</param>
-        public ResourceEvent(ResourceEventChangeType changeType, string eventId, Type resourceType, IApiOperation selfQuery)
+        public ResourceEvent(ResourceEventChangeType changeType, string eventId, Type resourceType, IQuery selfQuery)
         {
             Guard.EnumDefined(nameof(changeType), changeType);
             Guard.NotNull(nameof(resourceType), resourceType);
@@ -83,7 +84,7 @@ namespace Blueprint.Http
         /// </summary>
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
-        public IApiOperation SelfQuery => selfQuery;
+        public IQuery SelfQuery => selfQuery;
 
         /// <summary>
         /// Gets the type of resource represented.
@@ -141,7 +142,7 @@ namespace Blueprint.Http
         /// </summary>
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
-        public IApiOperation Operation { get; set; }
+        public object Operation { get; set; }
 
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be
@@ -191,7 +192,7 @@ namespace Blueprint.Http
         public ResourceEvent(
             ResourceEventChangeType changeType,
             string eventId,
-            IApiOperation<TResource> selfQuery)
+            IQuery<TResource> selfQuery)
             : base(changeType, eventId, typeof(TResource), selfQuery)
         {
         }
@@ -228,7 +229,7 @@ namespace Blueprint.Http
         /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
         /// </summary>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        public ResourceCreated(IApiOperation<TResource> selfQuery)
+        public ResourceCreated(IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Created, CreateId("created"), selfQuery)
         {
         }
@@ -241,7 +242,7 @@ namespace Blueprint.Http
         /// should represent the action taken (for example 'timer.started' for a time entry would result in a full
         /// event name of `timeEntry.timer.started`).</param>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        public ResourceCreated(string eventSubId, IApiOperation<TResource> selfQuery)
+        public ResourceCreated(string eventSubId, IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Created,  CreateId(eventSubId), selfQuery)
         {
         }
@@ -258,7 +259,7 @@ namespace Blueprint.Http
         /// event type of '`resourceTypeName`.updated' with a ChangeType of 'updated'.
         /// </summary>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        public ResourceUpdated(IApiOperation<TResource> selfQuery)
+        public ResourceUpdated(IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Updated, CreateId("updated"), selfQuery)
         {
         }
@@ -270,7 +271,7 @@ namespace Blueprint.Http
         /// <param name="eventSubId">The name of this event, which is what gets put after `resourceTypeName.`, and
         /// should represent the action taken (for example 'approved', or 'rate.updated').</param>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        protected ResourceUpdated(string eventSubId, IApiOperation<TResource> selfQuery)
+        protected ResourceUpdated(string eventSubId, IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Updated,  CreateId(eventSubId), selfQuery)
         {
         }
@@ -287,7 +288,7 @@ namespace Blueprint.Http
         /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
         /// </summary>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        public ResourceDeleted(IApiOperation<TResource> selfQuery)
+        public ResourceDeleted(IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Deleted, CreateId("deleted"), selfQuery)
         {
         }
@@ -298,7 +299,7 @@ namespace Blueprint.Http
         /// </summary>
         /// <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
         /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
-        public ResourceDeleted(string eventName, IApiOperation<TResource> selfQuery)
+        public ResourceDeleted(string eventName, IQuery<TResource> selfQuery)
             : base(ResourceEventChangeType.Deleted, CreateId(eventName), selfQuery)
         {
         }

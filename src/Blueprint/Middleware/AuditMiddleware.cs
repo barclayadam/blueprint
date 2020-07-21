@@ -10,9 +10,8 @@ namespace Blueprint.Middleware
 {
     /// <summary>
     /// A middleware that performs auditing, recording the details of each execution of an API
-    /// operation by delegating work to an <see cref="IAuditor"/> to store details of request
-    /// parameters (constructed <see cref="IApiOperation"/>), who actioned the request, correlation
-    /// IDs, error messages and more.
+    /// operation by delegating work to an <see cref="IAuditor"/> to store details of executed
+    /// operations, who actioned the request, correlation IDs, error messages and more.
     /// </summary>
     public class AuditMiddleware : IMiddlewareBuilder
     {

@@ -21,7 +21,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [RootLink("/query-values")]
-        public class QueryTestOperation : IApiOperation
+        public class QueryTestOperation
         {
             public int IntegerProperty { get; set; }
 
@@ -110,7 +110,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                 $"{AsQuery(nameof(expected.StringList))}");
         }
 
-        private static async Task AssertPopulatedFromQueryString<TOperation>(TOperation expected, string queryString = null) where TOperation : IApiOperation
+        private static async Task AssertPopulatedFromQueryString<TOperation>(TOperation expected, string queryString = null)
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
@@ -130,7 +130,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             handler.OperationPassed.Should().BeEquivalentTo(expected);
         }
 
-        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string queryString) where T : IApiOperation
+        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string queryString)
         {
             var context = executor.HttpContextFor<T>();
             context.GetHttpContext().Request.QueryString = new QueryString(queryString);

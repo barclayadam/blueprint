@@ -67,8 +67,8 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Configures the <see cref="IApiOperation"/>s of the <see cref="ApiDataModel" /> that will be constructed, allowing
-        /// for manual registration as well as scanning operations.
+        /// Configures the scanner that will search for operations and handlers that make the <see cref="ApiDataModel" />
+        /// of this Blueprint instance.
         /// </summary>
         /// <param name="scannerAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This builder.</returns>
@@ -85,11 +85,12 @@ namespace Blueprint.Configuration
         /// Adds a single operation to this builder, a shorthand for using the method <see cref="BlueprintApiOperationScanner.AddOperation{T}" /> through
         /// the <see cref="Operations"/> method.
         /// </summary>
+        /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
         /// <typeparam name="T">The operation type to register.</typeparam>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder<THost> WithOperation<T>() where T : IApiOperation
+        public BlueprintApiBuilder<THost> WithOperation<T>(string source = null)
         {
-            return this.Operations(o => o.AddOperation<T>());
+            return this.Operations(o => o.AddOperation<T>(source ?? $"WithOperation<{typeof(T).Name}>()"));
         }
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace Blueprint.Configuration
         /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
         /// <typeparam name="T">The operation type.</typeparam>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder<THost> WithHandler<T>(IApiOperationHandler<T> handler, string source = null) where T : IApiOperation
+        public BlueprintApiBuilder<THost> WithHandler<T>(IApiOperationHandler<T> handler, string source = null)
         {
             this.Operations(o => o.AddOperation(typeof(T), source ?? $"WithHandler({handler.GetType().Name})"));
             this.Services.AddSingleton(handler);

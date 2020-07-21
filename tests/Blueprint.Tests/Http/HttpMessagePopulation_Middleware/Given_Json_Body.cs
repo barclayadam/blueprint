@@ -22,7 +22,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [HttpPost]
-        public class JsonOperation : IApiOperation
+        public class JsonOperation
         {
             public int IntegerProperty { get; set; }
 
@@ -61,7 +61,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         [HttpPost]
         [RootLink("/route/{RouteProperty}")]
         [RootLink("/route-without-property")]
-        public class MultipleRouteOperation : IApiOperation
+        public class MultipleRouteOperation
         {
             public string RouteProperty { get; set; }
         }
@@ -161,7 +161,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             handler.OperationPassed.RouteProperty.Should().Be(expected.RouteProperty);
         }
 
-        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, T body) where T : IApiOperation
+        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, T body)
         {
             var jsonBody = JsonConvert.SerializeObject(body);
 

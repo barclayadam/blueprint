@@ -5,7 +5,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
 {
     public class ApiOperationLinkTests
     {
-        private class LinkGeneratorTestsOperation : IApiOperation
+        private class LinkGeneratorTestsOperation
         {
             public int ClientId { get; set; }
 

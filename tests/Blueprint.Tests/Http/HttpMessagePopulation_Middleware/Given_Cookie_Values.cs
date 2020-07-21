@@ -21,7 +21,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [RootLink("/cookie-values")]
-        public class CookieTestOperation : IApiOperation
+        public class CookieTestOperation
         {
             [FromCookie]
             public int IntegerProperty { get; set; }
@@ -75,7 +75,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static async Task AssertCookies<TOperation>(
             TOperation expected,
-            Dictionary<string, string> headers = null) where TOperation : IApiOperation
+            Dictionary<string, string> headers = null)
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
@@ -97,7 +97,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static ApiOperationContext GetContext<T>(
             TestApiOperationExecutor executor,
-            Dictionary<string, string> cookies) where T : IApiOperation
+            Dictionary<string, string> cookies)
         {
             var context = executor.HttpContextFor<T>();
             var cookiesAsHeader = cookies.Select(c => $"{c.Key}={c.Value}").ToArray();

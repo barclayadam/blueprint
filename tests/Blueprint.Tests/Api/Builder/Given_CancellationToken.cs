@@ -41,7 +41,7 @@ namespace Blueprint.Tests.Api.Builder
             result.Should().BeOfType<NoResultOperationResult>();
         }
 
-        public class CancellableOperation : IApiOperation
+        public class CancellableOperation
         {
             public void InvokeAsync(CancellationToken token)
             {

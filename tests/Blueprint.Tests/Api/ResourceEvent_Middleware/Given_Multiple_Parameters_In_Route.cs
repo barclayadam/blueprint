@@ -46,7 +46,7 @@ namespace Blueprint.Tests.Api.ResourceEvent_Middleware
 
         public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
         {
-            public CreatedResourceEvent(IApiOperation<AwesomeApiResource> selfQuery) : base(selfQuery)
+            public CreatedResourceEvent(IQuery<AwesomeApiResource> selfQuery) : base(selfQuery)
             {
             }
         }

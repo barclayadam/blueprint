@@ -31,7 +31,7 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
             okResult.Content.Should().Be(toReturn);
         }
 
-        public class TaskOperation : IApiOperation
+        public class TaskOperation
         {
             public object ToReturn { get; set; }
 

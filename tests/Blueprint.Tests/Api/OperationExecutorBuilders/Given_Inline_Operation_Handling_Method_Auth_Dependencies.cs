@@ -42,7 +42,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
 
         public class Dependency : IDependency {}
 
-        public class InlineHandle : IApiOperation
+        public class InlineHandle
         {
             public ApiOperationContext Context { get; set; }
 

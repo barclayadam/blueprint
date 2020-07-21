@@ -33,7 +33,7 @@ namespace Blueprint.Http
         }
 
         /// <inheritdoc />
-        public bool ShouldInclude(Type operationType)
+        public bool IsSupported(Type operationType)
         {
             return operationType.GetCustomAttributes<LinkAttribute>().Any();
         }

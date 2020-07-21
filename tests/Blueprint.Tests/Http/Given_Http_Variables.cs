@@ -10,7 +10,7 @@ namespace Blueprint.Tests.Http
     public class Given_Http_Variables
     {
         [HttpPost]
-        public class HttpOperation : IApiOperation
+        public class HttpOperation
         {
             public void Invoke(
                 HttpFeatureContext featureContext,

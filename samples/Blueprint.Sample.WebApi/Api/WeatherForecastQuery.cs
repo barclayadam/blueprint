@@ -18,7 +18,7 @@ namespace Blueprint.Sample.WebApi.Api
             this.weatherDataSource = weatherDataSource;
         }
 
-        public ValueTask<object> Invoke(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
+        public ValueTask<object> Handle(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
         {
             return new ValueTask<object>(weatherDataSource.Get(operation.City));
         }

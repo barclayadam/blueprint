@@ -40,13 +40,13 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             okResult.Content.Should().Be("6789");
         }
 
-        public class ScanOperation : IApiOperation
+        public class ScanOperation
         {
         }
 
         public class ScanOperationHandler : IApiOperationHandler<ScanOperation>
         {
-            public ValueTask<object> Invoke(ScanOperation operation, ApiOperationContext apiOperationContext)
+            public ValueTask<object> Handle(ScanOperation operation, ApiOperationContext apiOperationContext)
             {
                 return new ValueTask<object>("6789");
             }

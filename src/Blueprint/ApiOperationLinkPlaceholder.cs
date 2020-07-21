@@ -47,13 +47,13 @@ namespace Blueprint
 
         /// <summary>
         /// The <see cref="PropertyInfo" /> this represents, the property that would be filled by routing
-        /// when populating an <see cref="IApiOperation" />.
+        /// when populating an operation.
         /// </summary>
         public PropertyInfo Property { get; }
 
         /// <summary>
         /// The name of a property that can be used when creating links from resources that may have a different
-        /// property name to the <see cref="IApiOperation" />.
+        /// property name to the operation.
         /// </summary>
         public string AlternatePropertyName { get; }
 

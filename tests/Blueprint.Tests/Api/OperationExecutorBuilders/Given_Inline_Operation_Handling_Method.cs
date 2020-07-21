@@ -73,12 +73,12 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             actualOkResult.Should().BeSameAs(okResult);
         }
 
-        private Task ShouldCallInlineMethod<T>() where T : IApiOperation, new()
+        private Task ShouldCallInlineMethod<T>() where T : new()
         {
             return ShouldCallInlineMethod<T>(okContent => okContent.Should().Be(typeof(T).Name));
         }
 
-        private async Task ShouldCallInlineMethod<T>(Action<object> assertContent) where T : IApiOperation, new()
+        private async Task ShouldCallInlineMethod<T>(Action<object> assertContent) where T : new()
         {
             // Arrange
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<T>());
@@ -91,7 +91,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             assertContent(okResult.Content);
         }
 
-        public class InlineHandle : IApiOperation
+        public class InlineHandle
         {
             public OkResult Handle()
             {
@@ -99,7 +99,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class InlineHandleAsync : IApiOperation
+        public class InlineHandleAsync
         {
             public Task<OkResult> HandleAsync()
             {
@@ -107,7 +107,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class InlineInvoke : IApiOperation
+        public class InlineInvoke
         {
             public OkResult Invoke()
             {
@@ -115,7 +115,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class InlineInvokeAsync : IApiOperation
+        public class InlineInvokeAsync
         {
             public Task<OkResult> InvokeAsync()
             {
@@ -123,7 +123,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class InlineExecute : IApiOperation
+        public class InlineExecute
         {
             public OkResult Execute()
             {
@@ -131,7 +131,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class InlineExecuteAsync : IApiOperation
+        public class InlineExecuteAsync
         {
             public Task<OkResult> ExecuteAsync()
             {
@@ -139,7 +139,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class SpecificReturnNonAsync : IApiOperation
+        public class SpecificReturnNonAsync
         {
             public AnApiResource Execute()
             {
@@ -147,7 +147,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class SpecificReturnAsync : IApiOperation
+        public class SpecificReturnAsync
         {
             public Task<AnApiResource> ExecuteAsync()
             {
@@ -155,7 +155,7 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
-        public class RuntimeSpecificReturnAsync : IApiOperation
+        public class RuntimeSpecificReturnAsync
         {
             private readonly object toReturn;
 

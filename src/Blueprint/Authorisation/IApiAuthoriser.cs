@@ -20,7 +20,7 @@ namespace Blueprint.Authorisation
         /// <param name="descriptor">The descriptor of the operation.</param>
         /// <param name="operation">The populated operation.</param>
         /// <returns>Whether the operation link is available based on the current state of the resource.</returns>
-        Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, IApiOperation operation);
+        Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object operation);
 
         /// <summary>
         /// Indicates whether a link is available for the operation given the specified resource and

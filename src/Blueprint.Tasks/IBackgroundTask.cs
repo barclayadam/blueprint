@@ -5,7 +5,7 @@ namespace Blueprint.Tasks
     /// that immediate execution is not required.
     /// </summary>
     /// <seealso cref="IBackgroundTaskScheduler" />
-    public interface IBackgroundTask : IApiOperation
+    public interface IBackgroundTask
     {
     }
 }

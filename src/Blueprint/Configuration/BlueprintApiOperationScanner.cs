@@ -40,7 +40,7 @@ namespace Blueprint.Configuration
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
-        /// <see cref="IApiOperation" /> that has been registered with this scanner to enable it to contribute and / or
+        /// operation that has been registered with this scanner to enable it to contribute and / or
         /// change details of the <see cref="ApiOperationDescriptor" />s, in addition to providing global filtering
         /// capabilities.
         /// </summary>
@@ -164,7 +164,7 @@ namespace Blueprint.Configuration
         /// diagnostics.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
         /// <see cref="AddOperation" />
-        public BlueprintApiOperationScanner AddOperations(IEnumerable<Type> types, string source = "AddOperations()")
+        public BlueprintApiOperationScanner AddOperations(IEnumerable<Type> types, string source = "AddOperations(Type[])")
         {
             foreach (var type in types)
             {
@@ -179,11 +179,11 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
         /// diagnostics.</param>
-        /// <typeparam name="T">The type of <see cref="IApiOperation"/> to register.</typeparam>
+        /// <typeparam name="T">The type of operation to register.</typeparam>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner AddOperation<T>(string source = "AddOperation<T>") where T : IApiOperation
+        public BlueprintApiOperationScanner AddOperation<T>(string source = null)
         {
-            AddOperation(typeof(T), source);
+            AddOperation(typeof(T), source ?? $"AddOperation<{typeof(T).Name}>()");
 
             return this;
         }
@@ -191,18 +191,13 @@ namespace Blueprint.Configuration
         /// <summary>
         /// Adds the operation identified by <paramref name="type" />.
         /// </summary>
-        /// <param name="type">The <see cref="Type"/> representing the <see cref="IApiOperation"/> to register.</param>
+        /// <param name="type">The <see cref="Type"/> representing the operation to register.</param>
         /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
         /// diagnostics.</param>
         /// <returns>This <see cref="BlueprintApiOperationScanner"/> for further configuration.</returns>
-        public BlueprintApiOperationScanner AddOperation(Type type, string source = "AddOperation(type)")
+        public BlueprintApiOperationScanner AddOperation(Type type, string source = null)
         {
-            if (!typeof(IApiOperation).IsAssignableFrom(type))
-            {
-                throw new ArgumentException($"Type {type.FullName} does not implement {nameof(IApiOperation)}, cannot register.");
-            }
-
-            scanOperations.Add(a => a(type, source));
+            scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
 
             return this;
         }
@@ -231,7 +226,7 @@ namespace Blueprint.Configuration
         {
             var typedOperation = descriptor.OperationType
                 .GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IApiOperation<>));
+                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReturn<>));
 
             if (typedOperation != null)
             {
@@ -250,22 +245,32 @@ namespace Blueprint.Configuration
         {
             var source = $"Scan {assembly.FullName}";
 
-            foreach (var type in GetExportedTypesOfInterface(assembly, typeof(IApiOperation)))
+            foreach (var type in assembly.GetExportedTypes())
             {
-                var canInclude = filter is null || filter(type);
-
-                foreach (var globalFilters in conventions)
+                // We only care about actual classes, and those that are NOT abstract.
+                if (type.IsAbstract)
                 {
-                    if (!globalFilters.ShouldInclude(type))
-                    {
-                        canInclude = false;
-                        break;
-                    }
+                    continue;
                 }
 
-                if (canInclude)
+                // The filter passed in to an assembly scan can _remove_ any types that should
+                // NOT be included
+                if (filter?.Invoke(type) == false)
                 {
-                    register(type, source);
+                    continue;
+                }
+
+                // By default types are NOT included. It's only if a convention is positive
+                // that a type will be included (note that only ONE convention needs to include the
+                // message).
+                foreach (var globalFilters in conventions)
+                {
+                    if (globalFilters.IsSupported(type))
+                    {
+                        register(type, source);
+
+                        break;
+                    }
                 }
             }
         }

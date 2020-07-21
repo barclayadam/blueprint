@@ -18,7 +18,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             EnumTwo
         }
 
-        public interface RouteableOperation<T> : IApiOperation
+        public interface RouteableOperation<T>
         {
             T RouteProperty { get; set; }
         }
@@ -169,7 +169,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             handler.OperationPassed.Should().BeEquivalentTo(expected);
         }
 
-        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string routeKey, string routeValue) where T : IApiOperation
+        private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string routeKey, string routeValue)
         {
             var context = executor.HttpContextFor<T>();
             context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";

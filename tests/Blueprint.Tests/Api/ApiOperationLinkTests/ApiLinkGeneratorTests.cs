@@ -12,7 +12,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
     public class ApiLinkGeneratorTests
     {
         [RootLink("/aUrl/{clientId}/{category}/some-more")]
-        private class LinkGeneratorTestsOperation : IApiOperation
+        private class LinkGeneratorTestsOperation
         {
             public int ClientId { get; set; }
 

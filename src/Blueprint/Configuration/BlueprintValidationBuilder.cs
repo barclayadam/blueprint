@@ -17,7 +17,7 @@ namespace Blueprint.Configuration
 
         /// <summary>
         /// Adds the <see cref="BlueprintValidationSourceBuilder"/> validation builder which will use any <see cref="BlueprintValidationAttribute"/>s applied
-        /// to the properties of an <see cref="IApiOperation"/>.
+        /// to the properties of an operation.
         /// </summary>
         /// <remarks>
         /// Blueprint validation attributes are similar to DataAnnotations but have access to <see cref="ApiOperationContext" /> in addition to being
@@ -34,7 +34,7 @@ namespace Blueprint.Configuration
 
         /// <summary>
         /// Adds a DataAnnotation validation builder which will use the standard DataAnnotations attributes, applied
-        /// to the properties of an <see cref="IApiOperation"/>.
+        /// to the properties of an operation.
         /// </summary>
         /// <returns>This builder.</returns>
         public BlueprintValidationBuilder<THost> UseDataAnnotationSource()

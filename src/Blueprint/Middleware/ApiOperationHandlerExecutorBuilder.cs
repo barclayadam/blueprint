@@ -7,7 +7,7 @@ namespace Blueprint.Middleware
 {
     /// <summary>
     /// An <see cref="IOperationExecutorBuilder" /> that will use an IoC registered <see cref="IApiOperationHandler{T}" /> to perform the execution,
-    /// creating an instance from the IoC container of the pipeline and calling the <see cref="IApiOperationHandler{T}.Invoke"/> method.
+    /// creating an instance from the IoC container of the pipeline and calling the <see cref="IApiOperationHandler{T}.Handle"/> method.
     /// </summary>
     public class ApiOperationHandlerExecutorBuilder : IOperationExecutorBuilder
     {
@@ -31,7 +31,7 @@ namespace Blueprint.Middleware
         public Variable Build(MiddlewareBuilderContext context)
         {
             var getInstanceFrame = context.VariableFromContainer(apiOperationHandlerType);
-            var handlerInvokeCall = new MethodCall(apiOperationHandlerType, nameof(IApiOperationHandler<IApiOperation>.Invoke));
+            var handlerInvokeCall = new MethodCall(apiOperationHandlerType, nameof(IApiOperationHandler<object>.Handle));
 
             context.AppendFrames(
                 getInstanceFrame,

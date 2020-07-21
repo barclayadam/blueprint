@@ -24,7 +24,7 @@ namespace Blueprint.Authorisation
             return descriptor.TypeAttributes.OfType<ClaimRequiredAttribute>().SingleOrDefault() != null;
         }
 
-        public Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, IApiOperation operation)
+        public Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object operation)
         {
             return IsAuthorisedAsync(operationContext, descriptor, operation);
         }

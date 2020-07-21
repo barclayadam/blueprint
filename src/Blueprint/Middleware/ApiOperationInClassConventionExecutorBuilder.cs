@@ -8,7 +8,7 @@ using Blueprint.Compiler.Model;
 namespace Blueprint.Middleware
 {
     /// <summary>
-    /// An <see cref="IOperationExecutorBuilder" /> that will use a public method that exists on the <see cref="IApiOperation" /> class
+    /// An <see cref="IOperationExecutorBuilder" /> that will use a public method that exists on the operation class
     /// itself.
     /// </summary>
     public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBuilder

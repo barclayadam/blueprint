@@ -126,7 +126,7 @@ namespace Blueprint.Testing
         /// </summary>
         /// <typeparam name="T">The operation type to get source code for.</typeparam>
         /// <returns>The executor's source code.</returns>
-        public string WhatCodeDidIGenerateFor<T>() where T : IApiOperation
+        public string WhatCodeDidIGenerateFor<T>()
         {
             return executor.WhatCodeDidIGenerateFor<T>();
         }
@@ -138,7 +138,7 @@ namespace Blueprint.Testing
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext HttpContextFor<T>(CancellationToken token = default) where T : IApiOperation
+        public ApiOperationContext HttpContextFor<T>(CancellationToken token = default)
         {
             var context = DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
             context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
@@ -154,7 +154,7 @@ namespace Blueprint.Testing
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext HttpContextFor<T>(T operation, CancellationToken token = default) where T : IApiOperation
+        public ApiOperationContext HttpContextFor<T>(T operation, CancellationToken token = default)
         {
             var context = DataModel.CreateOperationContext(serviceProvider, operation, token);
             context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
@@ -169,7 +169,7 @@ namespace Blueprint.Testing
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext ContextFor<T>(CancellationToken token = default) where T : IApiOperation
+        public ApiOperationContext ContextFor<T>(CancellationToken token = default)
         {
             return DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
         }
@@ -178,12 +178,12 @@ namespace Blueprint.Testing
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type.
         /// </summary>
-        /// <param name="apiOperation">The API operation to create a context for.</param>
+        /// <param name="operation">The API operation to create a context for.</param>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext ContextFor(IApiOperation apiOperation, CancellationToken token = default)
+        public ApiOperationContext ContextFor(object operation, CancellationToken token = default)
         {
-            return DataModel.CreateOperationContext(serviceProvider, apiOperation, token);
+            return DataModel.CreateOperationContext(serviceProvider, operation, token);
         }
 
         /// <inheritdoc />
@@ -193,7 +193,7 @@ namespace Blueprint.Testing
         }
 
         /// <inheritdoc />
-        public Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation
+        public Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
             return executor.ExecuteWithNewScopeAsync(operation, token);
         }

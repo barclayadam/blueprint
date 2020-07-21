@@ -13,6 +13,6 @@ namespace Blueprint
 
         Task<OperationResult> ExecuteAsync(ApiOperationContext context);
 
-        Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation;
+        Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default);
     }
 }

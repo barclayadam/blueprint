@@ -4,7 +4,7 @@ namespace Blueprint.Configuration
 {
     /// <summary>
     /// A convention that can be added to <see cref="BlueprintApiOperationScanner" /> to contribute to the scanning
-    /// process of finding and registering <see cref="IApiOperation" />s with an <see cref="ApiDataModel" />.
+    /// process of finding and registering operations with an <see cref="ApiDataModel" />.
     /// </summary>
     public interface IOperationScannerConvention
     {
@@ -17,22 +17,23 @@ namespace Blueprint.Configuration
         void Apply(ApiOperationDescriptor descriptor);
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="Type" /> should be included in the list of
-        /// operations that get scanned.
+        /// Gets a value indicating whether the <see cref="Type" /> is a supported operation and should therefore
+        /// be included in the <see cref="ApiDataModel" /> that is being built.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is useful for hosts to register a convention that excludes types that it is not interested in, that
-        /// it does not / cannot handle (i.e. a background task processor would only care about marked operations, or
-        /// HTTP only cares about operations with a route / link attached).
+        /// Hosts are responsible for registering a convention that indicates what types of operations it supports
+        /// and should be included when scanning assemblies (i.e. a background task processor would only care
+        /// operations marked with an IBackgroundTask interface, or a HTTP host may only care about operations with a
+        /// route / link attached).
         /// </para>
         /// <para>
-        /// If multiple conventions are registered, it only takes a single convention to return <c>false</c> to exclude
+        /// If multiple conventions are registered, it only takes a single convention to return <c>true</c> to include
         /// that operation.
         /// </para>
         /// </remarks>
         /// <param name="operationType">The type of operation to check.</param>
-        /// <returns>Whether to register the given operation type.</returns>
-        bool ShouldInclude(Type operationType);
+        /// <returns>Whether the operation type is supported.</returns>
+        bool IsSupported(Type operationType);
     }
 }

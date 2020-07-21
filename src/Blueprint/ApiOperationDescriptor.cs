@@ -9,7 +9,7 @@ using Blueprint.Utilities;
 namespace Blueprint
 {
     /// <summary>
-    /// A descriptor of an <see cref="IApiOperation" />, containing details such as the URL from
+    /// A descriptor of an operation, containing details such as the URL from
     /// which the operation can be executed, and the type that represents the actual operation.
     /// </summary>
     [DebuggerVisualizer(nameof(Name))]
@@ -22,7 +22,7 @@ namespace Blueprint
         /// <summary>
         /// Initialises a new instance of the <see cref="ApiOperationDescriptor" /> class.
         /// </summary>
-        /// <param name="apiOperationType">The operation type (must implement <see cref="IApiOperation"/>).</param>
+        /// <param name="apiOperationType">The operation type.</param>
         /// <param name="source">The source of this operation descriptor. Useful for determining _how_ an operation
         /// has found (i.e. scan vs explicit).</param>
         public ApiOperationDescriptor(Type apiOperationType, string source)
@@ -194,9 +194,9 @@ namespace Blueprint
         /// constructor.
         /// </summary>
         /// <returns>A new instance of operation this descriptor describes.</returns>
-        public IApiOperation CreateInstance()
+        public object CreateInstance()
         {
-            return (IApiOperation)Activator.CreateInstance(OperationType);
+            return Activator.CreateInstance(OperationType);
         }
 
         /// <inheritdoc />

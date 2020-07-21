@@ -15,7 +15,7 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         }
 
         [SelfLink(typeof(LinkGeneratorResource), "/linkGenerators/{id}")]
-        private class SelfLinkGeneratorTestsOperation : IApiOperation
+        private class SelfLinkGeneratorTestsOperation
         {
             public string Id { get; set; }
 

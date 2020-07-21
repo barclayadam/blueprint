@@ -56,7 +56,7 @@ namespace Blueprint.CodeGen
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
                 writer.Write($"{exceptionVariable}.Data[\"{context.Descriptor.OperationType.Name}.{prop.Name}\"] = " +
-                             $"{variables.FindVariable(typeof(IApiOperation))}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
+                             $"{variables.FindVariable(context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks

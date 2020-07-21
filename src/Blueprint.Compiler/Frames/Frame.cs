@@ -62,9 +62,12 @@ namespace Blueprint.Compiler.Frames
         public void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer)
         {
             BlockLevel = writer.IndentationLevel;
+
             this.variables = variables;
             this.method = method;
             this.writer = writer;
+
+            method.RegisterFrame(this);
 
             Generate(new MethodVariableUsageRecorder(variables, uses), method, writer, Next);
         }

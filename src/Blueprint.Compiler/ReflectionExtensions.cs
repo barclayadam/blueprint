@@ -24,7 +24,8 @@ namespace Blueprint.Compiler
 
         public static bool IsAsync(this MethodInfo method)
         {
-            return method.ReturnType == typeof(Task) || method.ReturnType.Closes(typeof(Task<>));
+            return method.ReturnType == typeof(Task) || method.ReturnType.Closes(typeof(Task<>)) ||
+                   method.ReturnType == typeof(ValueTask) || method.ReturnType.Closes(typeof(ValueTask<>));
         }
 
         public static bool CanBeOverridden(this MethodInfo method)

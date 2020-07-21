@@ -152,7 +152,7 @@ namespace Blueprint.Http.MessagePopulation
         }
 
         private static void WriteStringValues(
-            IApiOperation operation,
+            object operation,
             IEnumerable<PropertyInfo> properties,
             string key,
             StringValues value,
@@ -170,7 +170,7 @@ namespace Blueprint.Http.MessagePopulation
         }
 
         private static void WriteValue(
-            IApiOperation operation,
+            object operation,
             IEnumerable<PropertyInfo> properties,
             string key,
             object value,

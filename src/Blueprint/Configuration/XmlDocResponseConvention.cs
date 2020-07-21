@@ -49,10 +49,10 @@ namespace Blueprint.Configuration
         }
 
         /// <inheritdoc />
-        /// <returns><c>true</c></returns>
-        public bool ShouldInclude(Type operationType)
+        /// <returns><c>false</c>.</returns>
+        public bool IsSupported(Type operationType)
         {
-            return true;
+            return false;
         }
 
         private static int ToHttpStatus(Type exceptionType)

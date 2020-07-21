@@ -13,7 +13,7 @@ namespace Blueprint.Tests.Api.Authorisation_Middleware
     public class Given_Permission_Attribute
     {
         [Permission("ExecuteThisOperation")]
-        public class ClaimRequiredOperation : IApiOperation
+        public class ClaimRequiredOperation
         {
             public object Invoke()
             {

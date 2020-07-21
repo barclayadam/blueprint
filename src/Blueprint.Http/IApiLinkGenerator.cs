@@ -67,7 +67,7 @@ namespace Blueprint.Http
         string CreateUrl(ApiOperationLink link, object result = null);
 
         /// <summary>
-        /// Given a populated <see cref="IApiOperation" /> will generate a fully-qualified URL that, when hit, would execute the operation
+        /// Given an operation will generate a fully-qualified URL that, when hit, would execute the operation
         /// with the specified values.
         /// </summary>
         /// <remarks>
@@ -76,6 +76,6 @@ namespace Blueprint.Http
         /// <param name="operation">The operation to generate a URL for.</param>
         /// <returns>A fully-qualified URL that, if hit, would execute the passed in operation with the same values.</returns>
         /// <exception cref="InvalidOperationException">If no links / routes have been specified for the given operation.</exception>
-        string CreateUrl(IApiOperation operation);
+        string CreateUrl(object operation);
     }
 }

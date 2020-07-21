@@ -17,7 +17,7 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public bool ShouldInclude(Type operationType)
+        public bool IsSupported(Type operationType)
         {
             return typeof(IBackgroundTask).IsAssignableFrom(operationType);
         }

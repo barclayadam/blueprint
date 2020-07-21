@@ -4,7 +4,7 @@ namespace Blueprint
     /// Identifies a query that can be executed within the system to read data from it, the
     /// read side of a CQRS system.
     /// </summary>
-    public interface IQuery : IApiOperation
+    public interface IQuery
     {
     }
 
@@ -13,7 +13,7 @@ namespace Blueprint
     /// the operation.
     /// </summary>
     /// <typeparam name="TResponse">The type of response that will be generated.</typeparam>
-    public interface IQuery<TResponse> : IQuery, IApiOperation<TResponse>
+    public interface IQuery<TResponse> : IQuery, IReturn<TResponse>
     {
     }
 }

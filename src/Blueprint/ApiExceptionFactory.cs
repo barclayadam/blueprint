@@ -7,7 +7,7 @@ namespace Blueprint
     /// </summary>
     /// <remarks>
     /// By using exception factories it is possible to for the API to be more self-describing as the
-    /// factories can be public within an <see cref="IApiOperation" /> class and therefore can be
+    /// factories can be public within an operation handler class and therefore can be
     /// read on API creation to populate <see cref="ResponseDescriptor" />s of the operation.
     /// </remarks>
     public class ApiExceptionFactory
@@ -51,8 +51,8 @@ namespace Blueprint
         /// Creates a new <see cref="ApiException" /> using the details this factory was created with, in addition
         /// to the specified detail string.
         /// </summary>
-        /// <param name="detail"></param>
-        /// <returns></returns>
+        /// <param name="detail">The instance-specific error message.</param>
+        /// <returns>A new <see cref="ApiException" />.</returns>
         public ApiException Create(string detail)
         {
             return new ApiException(this.Title, this.Type, detail, this.HttpStatus);

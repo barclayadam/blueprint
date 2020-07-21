@@ -68,7 +68,7 @@ namespace Blueprint
         /// </summary>
         /// <typeparam name="T">The operation type to get source code for.</typeparam>
         /// <returns>The executor's source code.</returns>
-        public string WhatCodeDidIGenerateFor<T>() where T : IApiOperation
+        public string WhatCodeDidIGenerateFor<T>()
         {
             return WhatCodeDidIGenerateFor(typeof(T));
         }
@@ -85,7 +85,7 @@ namespace Blueprint
         }
 
         /// <inheritdoc />
-        public async Task<OperationResult> ExecuteWithNewScopeAsync<T>(T operation, CancellationToken token = default) where T : IApiOperation
+        public async Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
             using (var serviceScope = serviceProvider.CreateScope())
             {

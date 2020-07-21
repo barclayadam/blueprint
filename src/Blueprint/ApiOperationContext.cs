@@ -49,19 +49,19 @@ namespace Blueprint
         /// </summary>
         /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
         /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
-        /// <param name="instance">The operation instance.</param>
+        /// <param name="operation">The operation instance.</param>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         public ApiOperationContext(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
-            IApiOperation instance,
+            object operation,
             CancellationToken token)
         {
             Guard.NotNull(nameof(serviceProvider), serviceProvider);
             Guard.NotNull(nameof(dataModel), dataModel);
-            Guard.NotNull(nameof(instance), instance);
+            Guard.NotNull(nameof(operation), operation);
 
-            var operationType = instance.GetType();
+            var operationType = operation.GetType();
 
             Descriptor = dataModel.Operations.SingleOrDefault(d => d.OperationType == operationType);
 
@@ -69,13 +69,13 @@ namespace Blueprint
             {
                 throw new ArgumentException(
                     $"Could not find descriptor for operation of type {operationType}",
-                    nameof(instance));
+                    nameof(operation));
             }
 
             OperationCancelled = token;
             DataModel = dataModel;
             ServiceProvider = serviceProvider;
-            Operation = instance;
+            Operation = operation;
 
             Data = new Dictionary<string, object>();
         }
@@ -98,7 +98,7 @@ namespace Blueprint
         /// <summary>
         /// Gets the operation that is currently being executed.
         /// </summary>
-        public IApiOperation Operation { get; }
+        public object Operation { get; }
 
         /// <summary>
         /// The <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
@@ -154,7 +154,7 @@ namespace Blueprint
             return context;
         }
 
-        public ApiOperationContext CreateNested(IApiOperation operation)
+        public ApiOperationContext CreateNested(object operation)
         {
             Guard.NotNull(nameof(operation), operation);
 

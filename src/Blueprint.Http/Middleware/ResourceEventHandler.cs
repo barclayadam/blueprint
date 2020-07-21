@@ -92,7 +92,7 @@ namespace Blueprint.Http.Middleware
             }
         }
 
-        private static async Task<object> GetByIdAsync(ApiOperationContext context, IApiOperation operation)
+        private static async Task<object> GetByIdAsync(ApiOperationContext context, object operation)
         {
             var operationType = operation.GetType();
             var nestedContext = context.CreateNested(operation);

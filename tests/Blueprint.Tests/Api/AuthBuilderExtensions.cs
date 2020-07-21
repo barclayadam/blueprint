@@ -6,7 +6,7 @@ namespace Blueprint.Tests.Api
 {
     public static class AuthBuilderExtensions
     {
-        public static Task<OperationResult> ExecuteWithAuth(this TestApiOperationExecutor executor, IApiOperation operation, params Claim[] claims)
+        public static Task<OperationResult> ExecuteWithAuth(this TestApiOperationExecutor executor, object operation, params Claim[] claims)
         {
             var context = executor.ContextFor(operation);
 

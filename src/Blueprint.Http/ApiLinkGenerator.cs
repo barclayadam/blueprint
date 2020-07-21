@@ -103,7 +103,7 @@ namespace Blueprint.Http
         }
 
         /// <inheritdoc />
-        public string CreateUrl(IApiOperation operation)
+        public string CreateUrl(object operation)
         {
             var operationType = operation.GetType();
             var operationDescriptor = apiDataModel.Operations.Single(o => o.OperationType == operationType);

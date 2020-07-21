@@ -21,7 +21,7 @@ namespace Blueprint.Sample.Console.CounterApp.Api
             this.logger = logger;
         }
 
-        public ValueTask<object> Invoke(IncrementCountCommand operation, ApiOperationContext apiOperationContext)
+        public ValueTask<object> Handle(IncrementCountCommand operation, ApiOperationContext apiOperationContext)
         {
             if (operation.Max != -1 && Counter >= operation.Max)
             {

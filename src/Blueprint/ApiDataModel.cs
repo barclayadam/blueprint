@@ -51,13 +51,16 @@ namespace Blueprint
         }
 
         /// <summary>
-        /// Given a configured <see cref="IApiOperation"/> instance will create a new <see cref="ApiOperationContext" />.
+        /// Given a configured operation instance will create a new <see cref="ApiOperationContext" />.
         /// </summary>
         /// <param name="serviceProvider">The service provider under which the operation will execute.</param>
         /// <param name="operation">The configured operation instance.</param>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given operation.</returns>
-        public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, IApiOperation operation, CancellationToken token)
+        public ApiOperationContext CreateOperationContext(
+            IServiceProvider serviceProvider,
+            object operation,
+            CancellationToken token)
         {
             return new ApiOperationContext(serviceProvider, this, operation, token);
         }

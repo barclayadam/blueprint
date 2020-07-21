@@ -8,8 +8,7 @@ namespace Blueprint.Validation
     /// </summary>
     /// <remarks>
     /// Typically DataAnnotations will be used to specify the validation rules for an object (e.g.
-    /// a <see cref="IApiOperation "/>, using the concrete of implementation
-    /// of this interface of <see cref="BlueprintValidator"/>.
+    /// an operation), using the concrete of implementation of this interface of <see cref="BlueprintValidator"/>.
     /// </remarks>
     public interface IValidator
     {

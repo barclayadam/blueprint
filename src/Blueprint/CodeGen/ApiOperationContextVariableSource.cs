@@ -16,7 +16,6 @@ namespace Blueprint.CodeGen
     ///
     ///  * <see cref="ApiDataModel" /> from <see cref="ApiOperationContext.DataModel" />.
     ///  * <see cref="ApiOperationDescriptor" /> from <see cref="ApiOperationContext.Descriptor" />.
-    ///  * <see cref="IApiOperation" /> from <see cref="ApiOperationContext.Operation" />.
     ///  * The specific type of IApiOperation for the context. Casted from from <see cref="ApiOperationContext.Operation" />.
     ///  * <see cref="IServiceProvider" /> from <see cref="ApiOperationContext.ServiceProvider" />.
     ///  * <see cref="IUserAuthorisationContext" /> from <see cref="ApiOperationContext.UserAuthorisationContext" />.
@@ -31,7 +30,7 @@ namespace Blueprint.CodeGen
         /// Initializes a new instance of the <see cref="ApiOperationContextVariableSource" /> class.
         /// </summary>
         /// <param name="operationContextVariable">The <see cref="ApiOperationContext"/> variable of the method.</param>
-        /// <param name="castFrameCastOperationVariable">The variable representing the <see cref="IApiOperation"/> as it's actual
+        /// <param name="castFrameCastOperationVariable">The variable representing the operation as it's actual
         /// type.</param>
         public ApiOperationContextVariableSource(Argument operationContextVariable, Variable castFrameCastOperationVariable)
         {
@@ -41,8 +40,7 @@ namespace Blueprint.CodeGen
         }
 
         /// <summary>
-        /// Gets the variable that represents the actual property for this context, casted from the <see cref="IApiOperation" /> property
-        /// of the <see cref="ApiOperationContext" />.
+        /// Gets the variable that represents the actual property for this context, casted from the <see cref="ApiOperationContext.Operation"/> property.
         /// </summary>
         public Variable OperationVariable
         {
@@ -83,7 +81,7 @@ namespace Blueprint.CodeGen
                 return operationContextVariable;
             }
 
-            if (type == typeof(IApiOperation) || type == OperationVariable.VariableType)
+            if (type == OperationVariable.VariableType)
             {
                 return OperationVariable;
             }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Blueprint.Tests.Api
 {
-    public class TestApiOperationHandler<T> : IApiOperationHandler<T> where T : IApiOperation
+    public class TestApiOperationHandler<T> : IApiOperationHandler<T>
     {
         public TestApiOperationHandler(object toReturn)
         {
@@ -25,7 +25,7 @@ namespace Blueprint.Tests.Api
 
         public ApiOperationContext ContextPassed { get; private set; }
 
-        public ValueTask<object> Invoke(T operation, ApiOperationContext apiOperationContext)
+        public ValueTask<object> Handle(T operation, ApiOperationContext apiOperationContext)
         {
             WasCalled = true;
             OperationPassed = operation;

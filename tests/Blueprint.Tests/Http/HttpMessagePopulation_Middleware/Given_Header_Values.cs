@@ -20,7 +20,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [RootLink("/header-values")]
-        public class HeaderTestOperation : IApiOperation
+        public class HeaderTestOperation
         {
             [FromHeader]
             public int IntegerProperty { get; set; }
@@ -99,7 +99,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static async Task AssertHeaders<TOperation>(
             TOperation expected,
-            Dictionary<string, string> headers = null) where TOperation : IApiOperation
+            Dictionary<string, string> headers = null)
         {
             // Arrange
             var handler = new TestApiOperationHandler<TOperation>(null);
@@ -121,7 +121,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static ApiOperationContext GetContext<T>(
             TestApiOperationExecutor executor,
-            Dictionary<string, string> headers) where T : IApiOperation
+            Dictionary<string, string> headers)
         {
             var context = executor.HttpContextFor<T>();
 

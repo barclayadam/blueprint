@@ -41,7 +41,7 @@ namespace Blueprint.Configuration
 
         /// <summary>
         /// Adds validation middleware, which will use "validation sources" to handle different types of validation that can be
-        /// registered against <see cref="IApiOperation" /> classes.
+        /// registered against operations.
         /// </summary>
         /// <seealso cref="BlueprintValidationBuilder{THost}.UseBlueprintSource" />
         /// <seealso cref="BlueprintValidationBuilder{THost}.UseDataAnnotationSource" />

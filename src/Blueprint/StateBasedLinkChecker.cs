@@ -10,7 +10,7 @@ namespace Blueprint
     /// </summary>
     /// <typeparam name="TOperation">The type of operation this checker is for.</typeparam>
     /// <typeparam name="TResource">The resource that is represented by the operation.</typeparam>
-    public abstract class StateBasedLinkChecker<TOperation, TResource> : IApiAuthoriser where TOperation : IApiOperation
+    public abstract class StateBasedLinkChecker<TOperation, TResource> : IApiAuthoriser
     {
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Task<ExecutionAllowed> StateCheckFailed = Task.FromResult(ExecutionAllowed.No("Resource in incorrect state", "Cannot perform operation at this time.", ExecutionAllowedFailureType.Authorisation));
@@ -20,7 +20,15 @@ namespace Blueprint
             return descriptor.OperationType == typeof(TOperation);
         }
 
-        public Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, IApiOperation operation)
+        /// <summary>
+        /// Always returns <see cref="ExecutionAllowed.YesTask" /> as state-based checks do not apply to the execution of
+        /// the operations, only link generation.
+        /// </summary>
+        /// <param name="operationContext">The operation context.</param>
+        /// <param name="descriptor">The operation description.</param>
+        /// <param name="operation">The operation.</param>
+        /// <returns><see cref="ExecutionAllowed.YesTask" />.</returns>
+        public Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object operation)
         {
             return ExecutionAllowed.YesTask;
         }

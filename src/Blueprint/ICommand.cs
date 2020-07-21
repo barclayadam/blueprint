@@ -5,7 +5,7 @@ namespace Blueprint
     /// or delete). Usually represented as a POST, PATCH or DELETE HTTP operation and, unless explicitly coded
     /// for not typically safe to re-execute.
     /// </summary>
-    public interface ICommand : IApiOperation
+    public interface ICommand
     {
     }
 
@@ -14,7 +14,7 @@ namespace Blueprint
     /// the operation.
     /// </summary>
     /// <typeparam name="TResponse">The type of response that will be generated.</typeparam>
-    public interface ICommand<TResponse> : ICommand, IApiOperation<TResponse>
+    public interface ICommand<TResponse> : ICommand, IReturn<TResponse>
     {
     }
 }

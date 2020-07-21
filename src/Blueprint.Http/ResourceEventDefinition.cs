@@ -12,7 +12,7 @@ namespace Blueprint.Http
         /// used by client applications to then construct the individual <see cref="ResourceEventDefinition{TResource, TDomain}" />
         /// instances without specifying the mapper multiple times.
         /// </summary>
-        /// <param name="mapper">The mapper use dto construct self query <see cref="IApiOperation"/> instances.</param>
+        /// <param name="mapper">The mapper used to construct self query operation instances.</param>
         /// <typeparam name="TResource">The resource type contained within the created resource events.</typeparam>
         /// <typeparam name="TDomain">A "domain" type that will be passed in to a mapper when creating an instance from
         /// this definition.</typeparam>
@@ -27,7 +27,7 @@ namespace Blueprint.Http
         /// used by client applications to then construct the individual <see cref="ResourceEventDefinition{TResource, TDomain}" />
         /// instances without specifying the mapper multiple times.
         /// </summary>
-        /// <param name="mapper">The mapper use dto construct self query <see cref="IApiOperation"/> instances.</param>
+        /// <param name="mapper">The mapper used to construct self query operation instances.</param>
         /// <typeparam name="TResource">The resource type contained within the created resource events.</typeparam>
         /// <returns>A new factory.</returns>
         public static ResourceEventDefinitionFactory<TResource> For<TResource>(Func<IQuery<TResource>> mapper)

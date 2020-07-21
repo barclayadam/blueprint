@@ -16,6 +16,10 @@ namespace Blueprint.Compiler
         // of a given type it should resolve to that same variable instance when it can)
         private readonly Dictionary<Type, Variable> variables = new Dictionary<Type, Variable>();
 
+        // A list of every frame that has contributed to the code of this method. This is built up during
+        // code generation (see WriteMethod) by each Frame calling RegisterFrame
+        private readonly List<Frame> allRegisteredFrames = new List<Frame>();
+
         internal GeneratedMethod(GeneratedType generatedType, MethodInfo method)
         {
             GeneratedType = generatedType;
@@ -142,61 +146,44 @@ namespace Blueprint.Compiler
             // 1. Chain all existing frames together (setting their NextFrame property).
             var topFrame = ChainFrames(Frames);
 
-            // 2. The first time around is used for discovering the variables, ensuring frames
+            // 2. Clear out "all registered frames" to enable this method to be called multiple times.
+            this.allRegisteredFrames.Clear();
+
+            // 3. The first time around is used for discovering the variables, ensuring frames
             // are fully created etc. No actual writing will occur
             var trackingWriter = new TrackingVariableWriter(this);
             topFrame.GenerateCode(trackingWriter, this, new MethodSourceWriter(trackingWriter, this, trackingWriter));
 
-            // 3. Determine the async mode of this method, which determines the result type and how
+            // 4. Determine the async mode of this method, which determines the result type and how
             // the actual return value is generated. Only do this is asyncMode is not set to
             // something else to allow overriding externally
             if (AsyncMode == AsyncMode.None)
             {
                 AsyncMode = AsyncMode.AsyncTask;
 
-                if (Frames.All(x => !x.IsAsync))
+                if (this.allRegisteredFrames.All(x => !x.IsAsync))
                 {
                     AsyncMode = AsyncMode.None;
                 }
-                else if (Frames.Count(x => x.IsAsync) == 1 && Frames.Last().IsAsync && Frames.Last().CanReturnTask())
+                else
                 {
-                    AsyncMode = AsyncMode.ReturnFromLastNode;
-                }
-            }
+                    var lastFrame = this.allRegisteredFrames.Last();
 
-            // 4. Now find various types of variables to push to the GeneratedType, in addition to also
-            // adding the creation frames to this method's collection if they do not already exist
-
-            // Find _every_ frame that is used within this method, including "inner" frames from
-            // CompositeFrames (recursively). We do this so that we do not duplicate the creation of a
-            // variable Frame below (i.e. a variable has a creation frame within an if statement, if that
-            // was not found we would add a duplicate creation frame to the start of this method)
-            static void GetAllFrames(Frame frame, List<Frame> found)
-            {
-                found.Add(frame);
-
-                if (frame is CompositeFrame c)
-                {
-                    foreach (var f in c.Inner)
+                    if (this.allRegisteredFrames.Count(x => x.IsAsync) == 1 && lastFrame.IsAsync && lastFrame.CanReturnTask())
                     {
-                        GetAllFrames(f, found);
+                        AsyncMode = AsyncMode.ReturnFromLastNode;
                     }
                 }
             }
 
-            var everyFrame = new List<Frame>();
-
-            foreach (var f in Frames)
-            {
-                GetAllFrames(f, everyFrame);
-            }
-
+            // 5. Now find various types of variables to push to the GeneratedType, in addition to also
+            // adding the creation frames to this method's collection if they do not already exist
             foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies))
             {
-                if (variable.Creator != null && !everyFrame.Contains(variable.Creator))
+                if (variable.Creator != null && !this.allRegisteredFrames.Contains(variable.Creator))
                 {
                     // Find the first usage of this variable and place the frame before that.
-                    var firstUsage = everyFrame.FirstOrDefault(f => f.Uses.Contains(variable));
+                    var firstUsage = this.allRegisteredFrames.FirstOrDefault(f => f.Uses.Contains(variable));
 
                     if (firstUsage == null)
                     {
@@ -210,6 +197,8 @@ namespace Blueprint.Compiler
                     {
                         Frames.Insert(Frames.IndexOf(firstUsage), variable.Creator);
                     }
+
+                    allRegisteredFrames.Add(variable.Creator);
                 }
 
                 switch (variable)
@@ -228,10 +217,10 @@ namespace Blueprint.Compiler
                 }
             }
 
-            // 5. Rechain all existing frames as we may have pushed new ones
+            // 6. Rechain all existing frames as we may have pushed new ones
             topFrame = ChainFrames(Frames);
 
-            // 6. We now have all frames & variables collected, lets do the final generation of code
+            // 7. We now have all frames & variables collected, lets do the final generation of code
             var returnValue = DetermineReturnExpression();
 
             if (Overrides)
@@ -242,6 +231,9 @@ namespace Blueprint.Compiler
             var arguments = Arguments.Select(x => x.Declaration).Join(", ");
 
             writer.Block($"public {returnValue} {MethodName}({arguments})");
+
+            // 7.1. Clear out "all registered frames" so we do not end up with large duplicated List
+            this.allRegisteredFrames.Clear();
 
             topFrame.GenerateCode(trackingWriter, this, new MethodSourceWriter(trackingWriter, this, writer));
 
@@ -528,6 +520,11 @@ namespace Blueprint.Compiler
 
                 return variable;
             }
+        }
+
+        internal void RegisterFrame(Frame frame)
+        {
+            this.allRegisteredFrames.Add(frame);
         }
     }
 }

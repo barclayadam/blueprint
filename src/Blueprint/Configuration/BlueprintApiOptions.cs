@@ -23,8 +23,7 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// The data model that describes the structure of the API (i.e. the <see cref="IApiOperation" />s, the
-        /// <see cref="ApiResource" />s and associated <see cref="Link"/>s).
+        /// The data model that describes the structure of the API.
         /// </summary>
         public ApiDataModel Model { get; } = new ApiDataModel();
 
