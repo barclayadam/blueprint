@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Blueprint.Http;
+using Blueprint.Middleware;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -71,6 +72,28 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             // Assert
             var actualOkResult = result.ShouldBeOperationResultType<OkResult>();
             actualOkResult.Should().BeSameAs(okResult);
+        }
+
+        [Test]
+        public void When_Return_Is_Not_Compatible_With_Async_Declared_Then_Exception_Thrown()
+        {
+            // Arrange
+            Action create = () => TestApiOperationExecutor.CreateStandalone(o => o
+                .WithOperation<WrongDeclaredAsyncReturnType>());
+
+            // Assert
+            create.Should().ThrowExactly<InvalidReturnTypeException>();
+        }
+
+        [Test]
+        public void When_Return_Is_Not_Compatible_With_Declared_Then_Exception_Thrown()
+        {
+            // Arrange
+            Action create = () => TestApiOperationExecutor.CreateStandalone(o => o
+                .WithOperation<WrongDeclaredReturnType>());
+
+            // Assert
+            create.Should().ThrowExactly<InvalidReturnTypeException>();
         }
 
         private Task ShouldCallInlineMethod<T>() where T : new()
@@ -155,6 +178,22 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
             }
         }
 
+        public class WrongDeclaredAsyncReturnType : IReturn<AnotherApiResource>
+        {
+            public Task<AnApiResource> ExecuteAsync()
+            {
+                return Task.FromResult(new AnApiResource());
+            }
+        }
+
+        public class WrongDeclaredReturnType : IReturn<AnotherApiResource>
+        {
+            public AnApiResource Execute()
+            {
+                return new AnApiResource();
+            }
+        }
+
         public class RuntimeSpecificReturnAsync
         {
             private readonly object toReturn;
@@ -171,6 +210,10 @@ namespace Blueprint.Tests.Api.OperationExecutorBuilders
         }
 
         public class AnApiResource : ApiResource
+        {
+        }
+
+        public class AnotherApiResource : ApiResource
         {
         }
     }

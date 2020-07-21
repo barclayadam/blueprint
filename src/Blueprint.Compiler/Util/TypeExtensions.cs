@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Blueprint.Compiler.Util
 {
-    internal static class TypeExtensions
+    public static class TypeExtensions
     {
         private static readonly Type[] TupleTypes =
         {
