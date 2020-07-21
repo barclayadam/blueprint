@@ -139,6 +139,20 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
+        /// Configures how Blueprint scans for executors of registered operations.
+        /// </summary>
+        /// <param name="executorScanner">The action that performs the necessary configuration calls.</param>
+        /// <returns>This builder.</returns>
+        public BlueprintApiBuilder<THost> Executors(Action<ExecutorScanner> executorScanner)
+        {
+            Guard.NotNull(nameof(executorScanner), executorScanner);
+
+            executorScanner(this.executionScanner);
+
+            return this;
+        }
+
+        /// <summary>
         /// Adds an <see cref="IMessagePopulationSource" /> that can be used to populate the data
         /// for properties of an operation and mark some as "owned".
         /// </summary>
