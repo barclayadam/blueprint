@@ -39,10 +39,10 @@ namespace Blueprint.Configuration
         /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
         /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This middleware builder.</returns>
-        public static BlueprintPipelineBuilder<THost> Conditionally<THost>(
-            this BlueprintPipelineBuilder<THost> pipelineBuilder,
+        public static PipelineBuilder<THost> Conditionally<THost>(
+            this PipelineBuilder<THost> pipelineBuilder,
             bool include,
-            Action<BlueprintPipelineBuilder<THost>> action)
+            Action<PipelineBuilder<THost>> action)
         {
             if (include)
             {

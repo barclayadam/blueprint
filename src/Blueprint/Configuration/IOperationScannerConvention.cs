@@ -3,7 +3,7 @@ using System;
 namespace Blueprint.Configuration
 {
     /// <summary>
-    /// A convention that can be added to <see cref="BlueprintApiOperationScanner" /> to contribute to the scanning
+    /// A convention that can be added to <see cref="OperationScanner" /> to contribute to the scanning
     /// process of finding and registering operations with an <see cref="ApiDataModel" />.
     /// </summary>
     public interface IOperationScannerConvention

@@ -24,8 +24,9 @@ namespace Blueprint.Configuration
     public class BlueprintApiBuilder<THost> : IHostBuilder
     {
         private readonly BlueprintApiOptions options;
-        private readonly BlueprintPipelineBuilder<THost> pipelineBuilder;
-        private readonly BlueprintApiOperationScanner operationScanner;
+        private readonly PipelineBuilder<THost> pipelineBuilder;
+        private readonly OperationScanner operationScanner;
+        private readonly ExecutorScanner executionScanner;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintApiBuilder{THost}" /> class with the given
@@ -37,8 +38,9 @@ namespace Blueprint.Configuration
             Services = services;
 
             options = new BlueprintApiOptions();
-            pipelineBuilder = new BlueprintPipelineBuilder<THost>(this);
-            operationScanner = new BlueprintApiOperationScanner();
+            pipelineBuilder = new PipelineBuilder<THost>(this);
+            operationScanner = new OperationScanner();
+            executionScanner = new ExecutorScanner();
 
             // The default strategy is to build to a DLL to the temp folder
             Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
@@ -72,7 +74,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="scannerAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder<THost> Operations(Action<BlueprintApiOperationScanner> scannerAction)
+        public BlueprintApiBuilder<THost> Operations(Action<OperationScanner> scannerAction)
         {
             Guard.NotNull(nameof(scannerAction), scannerAction);
 
@@ -82,7 +84,7 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Adds a single operation to this builder, a shorthand for using the method <see cref="BlueprintApiOperationScanner.AddOperation{T}" /> through
+        /// Adds a single operation to this builder, a shorthand for using the method <see cref="OperationScanner.AddOperation{T}" /> through
         /// the <see cref="Operations"/> method.
         /// </summary>
         /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
@@ -113,7 +115,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="pipelineAction">The action that performs the necessary configuration calls.</param>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder<THost> Pipeline(Action<BlueprintPipelineBuilder<THost>> pipelineAction)
+        public BlueprintApiBuilder<THost> Pipeline(Action<PipelineBuilder<THost>> pipelineAction)
         {
             Guard.NotNull(nameof(pipelineAction), pipelineAction);
 
@@ -174,7 +176,7 @@ namespace Blueprint.Configuration
             }
 
             pipelineBuilder.Register();
-            operationScanner.Register(options.Model);
+            operationScanner.FindOperations(options.Model);
 
             options.GenerationRules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty) + ".Pipelines";
 
@@ -210,52 +212,10 @@ namespace Blueprint.Configuration
             Services.TryAddSingleton(ArrayPool<byte>.Shared);
             Services.TryAddSingleton(ArrayPool<char>.Shared);
 
-            this.AddApiOperationHandlers(Services, options.Model.Operations.ToList());
-        }
-
-        private void AddApiOperationHandlers(
-            IServiceCollection services,
-            List<ApiOperationDescriptor> operations)
-        {
-            var allFound = new List<IOperationExecutorBuilder>();
-            var scanners = new IOperationExecutorBuilderScanner[]
-            {
-                new ApiOperationHandlerExecutorBuilderScanner(),
-                new ApiOperationInClassConventionExecutorBuilderScanner(),
-            };
-
-            var problems = new List<string>();
-
-            foreach (var scanner in scanners)
-            {
-                foreach (var found in scanner.FindHandlers(services, operations, this.operationScanner.ScannedAssemblies))
-                {
-                    var existing = allFound.Where(e => e.Operation == found.Operation).ToList();
-
-                    if (existing.Any())
-                    {
-                        var all = string.Join(", ", existing.Select(e => e.ToString()));
-
-                        problems.Add($"Multiple handlers have been found for the operation {found}: {all} ");
-                    }
-
-                    allFound.Add(found);
-                }
-            }
-
-            var missing = operations.Where(o => allFound.All(f => f.Operation != o)).ToList();
-
-            if (missing.Any())
-            {
-                throw new MissingApiOperationHandlerException(missing.ToArray());
-            }
-
-            if (problems.Any())
-            {
-                throw new InvalidOperationException(string.Join("\n", problems));
-            }
-
-            services.AddSingleton(allFound);
+            executionScanner.FindAndRegister(
+                this.operationScanner,
+                Services,
+                options.Model.Operations.ToList());
         }
     }
 }

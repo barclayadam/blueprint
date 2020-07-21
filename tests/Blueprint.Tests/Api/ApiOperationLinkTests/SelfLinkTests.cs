@@ -30,9 +30,9 @@ namespace Blueprint.Tests.Api.ApiOperationLinkTests
         {
             options = new BlueprintApiOptions();
 
-            new BlueprintApiOperationScanner()
+            new OperationScanner()
                 .AddOperation<SelfLinkGeneratorTestsOperation>()
-                .Register(options.Model);
+                .FindOperations(options.Model);
 
             var httpContext = new DefaultHttpContext();
             httpContext.SetRequestUri("http://api.example.com/api/");
