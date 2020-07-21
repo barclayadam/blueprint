@@ -59,7 +59,8 @@ namespace Blueprint.Tasks
 
             using var span = this.apmTool.StartOperation(
                 apiContext.Descriptor,
-                SpanKinds.Consumer);
+                SpanKinds.Consumer,
+                taskEnvelope.ApmContext);
 
             configureSpan(span);
 
