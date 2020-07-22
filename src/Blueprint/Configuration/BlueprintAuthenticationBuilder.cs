@@ -7,12 +7,11 @@ namespace Blueprint.Configuration
     /// <summary>
     /// A builder for configuring services and options for the authentication pipeline.
     /// </summary>
-    /// <typeparam name="THost">The host-type of the API builder.</typeparam>
-    public class BlueprintAuthenticationBuilder<THost>
+    public class BlueprintAuthenticationBuilder
     {
-        private readonly BlueprintApiBuilder<THost> apiBuilder;
+        private readonly BlueprintApiBuilder apiBuilder;
 
-        internal BlueprintAuthenticationBuilder(BlueprintApiBuilder<THost> apiBuilder)
+        internal BlueprintAuthenticationBuilder(BlueprintApiBuilder apiBuilder)
         {
             this.apiBuilder = apiBuilder;
         }
@@ -23,7 +22,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <returns>This builder.</returns>
         /// <typeparam name="T">The type of factory to register.</typeparam>
-        public BlueprintAuthenticationBuilder<THost> UseContextLoader<T>() where T : class, IUserAuthorisationContextFactory
+        public BlueprintAuthenticationBuilder UseContextLoader<T>() where T : class, IUserAuthorisationContextFactory
         {
             apiBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();
 

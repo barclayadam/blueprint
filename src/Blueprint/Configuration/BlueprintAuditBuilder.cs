@@ -3,11 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Configuration
 {
-    public class BlueprintAuditBuilder<THost>
+    public class BlueprintAuditBuilder
     {
-        private readonly BlueprintApiBuilder<THost> apiBuilder;
+        private readonly BlueprintApiBuilder apiBuilder;
 
-        public BlueprintAuditBuilder(BlueprintApiBuilder<THost> apiBuilder)
+        public BlueprintAuditBuilder(BlueprintApiBuilder apiBuilder)
         {
             this.apiBuilder = apiBuilder;
         }

@@ -3,13 +3,13 @@ using Blueprint.Middleware;
 
 namespace Blueprint.Configuration
 {
-    public class PipelineBuilder<THost>
+    public class PipelineBuilder
     {
         private readonly List<MiddlewareRegistration> middlewareStages = new List<MiddlewareRegistration>();
 
-        private readonly BlueprintApiBuilder<THost> blueprintApiBuilder;
+        private readonly BlueprintApiBuilder blueprintApiBuilder;
 
-        internal PipelineBuilder(BlueprintApiBuilder<THost> blueprintApiBuilder)
+        internal PipelineBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
             this.blueprintApiBuilder = blueprintApiBuilder;
 
@@ -22,28 +22,28 @@ namespace Blueprint.Configuration
             Add(new ReturnFrameMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
         }
 
-        public PipelineBuilder<THost> AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
+        public PipelineBuilder AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
             Add(new T(), middlewareStage, -1);
 
             return this;
         }
 
-        public PipelineBuilder<THost> AddMiddlewareBefore(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
+        public PipelineBuilder AddMiddlewareBefore(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
             Add(builder, middlewareStage, -1);
 
             return this;
         }
 
-        public PipelineBuilder<THost> AddMiddleware<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
+        public PipelineBuilder AddMiddleware<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
             Add(new T(), middlewareStage, 0);
 
             return this;
         }
 
-        public PipelineBuilder<THost> AddMiddleware(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
+        public PipelineBuilder AddMiddleware(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
             Add(builder, middlewareStage, 0);
 

@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blueprint.Configuration
 {
-    public class BlueprintValidationBuilder<THost>
+    public class BlueprintValidationBuilder
     {
-        private readonly BlueprintApiBuilder<THost> apiBuilder;
+        private readonly BlueprintApiBuilder apiBuilder;
 
-        internal BlueprintValidationBuilder(BlueprintApiBuilder<THost> apiBuilder)
+        internal BlueprintValidationBuilder(BlueprintApiBuilder apiBuilder)
         {
             this.apiBuilder = apiBuilder;
 
@@ -24,7 +24,7 @@ namespace Blueprint.Configuration
         /// async when validating.
         /// </remarks>
         /// <returns>This builder.</returns>
-        public BlueprintValidationBuilder<THost> UseBlueprintSource()
+        public BlueprintValidationBuilder UseBlueprintSource()
         {
             apiBuilder.Services.AddSingleton<IValidationSource, BlueprintValidationSource>();
             apiBuilder.Services.AddSingleton<IValidationSourceBuilder, BlueprintValidationSourceBuilder>();
@@ -37,7 +37,7 @@ namespace Blueprint.Configuration
         /// to the properties of an operation.
         /// </summary>
         /// <returns>This builder.</returns>
-        public BlueprintValidationBuilder<THost> UseDataAnnotationSource()
+        public BlueprintValidationBuilder UseDataAnnotationSource()
         {
             apiBuilder.Services.AddSingleton<IValidationSource, DataAnnotationsValidationSource>();
             apiBuilder.Services.AddSingleton<IValidationSourceBuilder, DataAnnotationsValidationSourceBuilder>();

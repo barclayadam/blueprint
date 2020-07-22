@@ -30,7 +30,7 @@ namespace Blueprint.Samples.TaskProcessor
             services.AddHangfireServer();
 
             services.AddBlueprintApi(a => a
-                .BackgroundTasks(b => b.UseHangfire())
+                .AddBackgroundTasks(b => b.UseHangfire())
                 .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
                     .Scan(typeof(Startup).Assembly)

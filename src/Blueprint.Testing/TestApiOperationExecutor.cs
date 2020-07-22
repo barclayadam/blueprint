@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Configuration;
-using Blueprint.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -38,7 +37,7 @@ namespace Blueprint.Testing
         /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
         public static TestApiOperationExecutor CreateHttp(
-            Action<BlueprintApiBuilder<HttpHost>> configure,
+            Action<BlueprintApiBuilder> configure,
             Action<IServiceCollection> configureServices = null)
         {
             return Create(b => b.Http(), configure, configureServices);
@@ -52,10 +51,10 @@ namespace Blueprint.Testing
         /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
         public static TestApiOperationExecutor CreateStandalone(
-            Action<BlueprintApiBuilder<StandaloneHost>> configure,
+            Action<BlueprintApiBuilder> configure,
             Action<IServiceCollection> configureServices = null)
         {
-            return Create(b => b.Standalone(), configure, configureServices);
+            return Create(b => b, configure, configureServices);
         }
 
         /// <summary>
@@ -66,10 +65,9 @@ namespace Blueprint.Testing
         /// <param name="configure">An action that will configure the pipeline for the given test.</param>
         /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
-        /// <typeparam name="THost">The type of host that will be used (should be inferred).</typeparam>
-        public static TestApiOperationExecutor Create<THost>(
-            Func<BlueprintApiHostBuilder, BlueprintApiBuilder<THost>> createHost,
-            Action<BlueprintApiBuilder<THost>> configure,
+        public static TestApiOperationExecutor Create(
+            Func<BlueprintApiBuilder, BlueprintApiBuilder> createHost,
+            Action<BlueprintApiBuilder> configure,
             Action<IServiceCollection> configureServices = null)
         {
             var collection = new ServiceCollection();

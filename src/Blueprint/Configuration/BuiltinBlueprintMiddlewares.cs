@@ -12,11 +12,11 @@ namespace Blueprint.Configuration
 {
     public static class BuiltinBlueprintMiddlewares
     {
-        public static BlueprintApiBuilder<THost> AddAuditing<THost>(this BlueprintApiBuilder<THost> apiBuilder, Action<BlueprintAuditBuilder<THost>> configure)
+        public static BlueprintApiBuilder AddAuditing(this BlueprintApiBuilder apiBuilder, Action<BlueprintAuditBuilder> configure)
         {
             apiBuilder.Pipeline(p => p.AddMiddleware<AuditMiddleware>(MiddlewareStage.Setup));
 
-            configure(new BlueprintAuditBuilder<THost>(apiBuilder));
+            configure(new BlueprintAuditBuilder(apiBuilder));
 
             if (apiBuilder.Services.All(s => s.ServiceType != typeof(IAuditor)))
             {
@@ -29,12 +29,11 @@ namespace Blueprint.Configuration
         /// <summary>
         /// Adds validation middleware, by default adding both Blueprint and DataAnnotations sources.
         /// </summary>
-        /// <seealso cref="BlueprintValidationBuilder{THost}.UseBlueprintSource" />
-        /// <seealso cref="BlueprintValidationBuilder{THost}.UseDataAnnotationSource" />
+        /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource" />
+        /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource" />
         /// <param name="apiBuilder">The builder to add validation to.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>The builder.</returns>
-        public static BlueprintApiBuilder<THost> AddValidation<THost>(this BlueprintApiBuilder<THost> apiBuilder)
+        public static BlueprintApiBuilder AddValidation(this BlueprintApiBuilder apiBuilder)
         {
             return AddValidation(apiBuilder, o => o.UseBlueprintSource().UseDataAnnotationSource());
         }
@@ -43,18 +42,17 @@ namespace Blueprint.Configuration
         /// Adds validation middleware, which will use "validation sources" to handle different types of validation that can be
         /// registered against operations.
         /// </summary>
-        /// <seealso cref="BlueprintValidationBuilder{THost}.UseBlueprintSource" />
-        /// <seealso cref="BlueprintValidationBuilder{THost}.UseDataAnnotationSource" />
+        /// <seealso cref="BlueprintValidationBuilder.UseBlueprintSource" />
+        /// <seealso cref="BlueprintValidationBuilder.UseDataAnnotationSource" />
         /// <param name="apiBuilder">The builder to add validation to.</param>
-        /// <param name="configure">An action that will be given an instance of <see cref="BlueprintValidationBuilder{THost}" /> to configure the validation
+        /// <param name="configure">An action that will be given an instance of <see cref="BlueprintValidationBuilder" /> to configure the validation
         /// middleware.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>The builder.</returns>
-        public static BlueprintApiBuilder<THost> AddValidation<THost>(this BlueprintApiBuilder<THost> apiBuilder, Action<BlueprintValidationBuilder<THost>> configure)
+        public static BlueprintApiBuilder AddValidation(this BlueprintApiBuilder apiBuilder, Action<BlueprintValidationBuilder> configure)
         {
             apiBuilder.Pipeline(p => p.AddMiddleware<ValidationMiddlewareBuilder>(MiddlewareStage.Validation));
 
-            configure(new BlueprintValidationBuilder<THost>(apiBuilder));
+            configure(new BlueprintValidationBuilder(apiBuilder));
 
             if (apiBuilder.Services.All(s => s.ServiceType != typeof(IValidationSource)))
             {
@@ -64,7 +62,7 @@ namespace Blueprint.Configuration
             return apiBuilder;
         }
 
-        public static BlueprintApiBuilder<THost> AddLogging<THost>(this BlueprintApiBuilder<THost> apiBuilder)
+        public static BlueprintApiBuilder AddLogging(this BlueprintApiBuilder apiBuilder)
         {
             apiBuilder.Pipeline(p => p.AddMiddleware<LoggingMiddlewareBuilder>(MiddlewareStage.Setup));
 
@@ -87,7 +85,7 @@ namespace Blueprint.Configuration
         /// <param name="configure">An action to configure authentication pipeline.</param>
         /// <typeparam name="THost">The host type of the builder.</typeparam>
         /// <returns>The builder.</returns>
-        public static BlueprintApiBuilder<THost> AddAuthentication<THost>(this BlueprintApiBuilder<THost> apiBuilder, Action<BlueprintAuthenticationBuilder<THost>> configure)
+        public static BlueprintApiBuilder AddAuthentication(this BlueprintApiBuilder apiBuilder, Action<BlueprintAuthenticationBuilder> configure)
         {
             TryAddAuthenticationServices(apiBuilder);
 
@@ -97,7 +95,7 @@ namespace Blueprint.Configuration
                 p.AddMiddleware<UserContextLoaderMiddlewareBuilder>(MiddlewareStage.Authentication);
             });
 
-            configure(new BlueprintAuthenticationBuilder<THost>(apiBuilder));
+            configure(new BlueprintAuthenticationBuilder(apiBuilder));
 
             if (apiBuilder.Services.All(s => s.ServiceType != typeof(IUserAuthorisationContextFactory)))
             {
@@ -118,9 +116,8 @@ namespace Blueprint.Configuration
         /// </list>
         /// </remarks>
         /// <param name="apiBuilder">The builder to add auth to.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>The builder.</returns>
-        public static BlueprintApiBuilder<THost> AddAuthorisation<THost>(this BlueprintApiBuilder<THost> apiBuilder)
+        public static BlueprintApiBuilder AddAuthorisation(this BlueprintApiBuilder apiBuilder)
         {
             TryAddAuthorisationServices(apiBuilder.Services);
 
@@ -152,7 +149,7 @@ namespace Blueprint.Configuration
             AddAuthoriser<MustBeAuthenticatedApiAuthoriser>();
         }
 
-        private static void TryAddAuthenticationServices<THost>(BlueprintApiBuilder<THost> apiBuilder)
+        private static void TryAddAuthenticationServices(BlueprintApiBuilder apiBuilder)
         {
             // It is expected that this is overriden, for example by AddHttp
             apiBuilder.Services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();

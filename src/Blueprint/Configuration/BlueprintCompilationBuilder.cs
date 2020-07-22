@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Configuration
 {
-    public class BlueprintCompilationBuilder<THost>
+    public class BlueprintCompilationBuilder
     {
-        private readonly BlueprintApiBuilder<THost> blueprintApiBuilder;
+        private readonly BlueprintApiBuilder blueprintApiBuilder;
 
-        internal BlueprintCompilationBuilder(BlueprintApiBuilder<THost> blueprintApiBuilder)
+        internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
             this.blueprintApiBuilder = blueprintApiBuilder;
         }
@@ -21,7 +21,7 @@ namespace Blueprint.Configuration
         /// to use.
         /// </summary>
         /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder<THost> UseInMemoryCompileStrategy()
+        public BlueprintCompilationBuilder UseInMemoryCompileStrategy()
         {
             blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
 
@@ -35,7 +35,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="path">The output folder to store the compiled DLL in.</param>
         /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder<THost> UseFileCompileStrategy(string path)
+        public BlueprintCompilationBuilder UseFileCompileStrategy(string path)
         {
             blueprintApiBuilder.Services.AddSingleton<ICompileStrategy>(
                 c => new ToFileCompileStrategy(c.GetRequiredService<ILogger<ToFileCompileStrategy>>(), path));
@@ -48,7 +48,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="optimizationLevel">Optimization level to use.</param>
         /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder<THost> UseOptimizationLevel(OptimizationLevel optimizationLevel)
+        public BlueprintCompilationBuilder UseOptimizationLevel(OptimizationLevel optimizationLevel)
         {
             blueprintApiBuilder.Options.GenerationRules.OptimizationLevel = optimizationLevel;
 
@@ -60,7 +60,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="assemblyName">The name of the assembly to use.</param>
         /// <returns>This builder</returns>
-        public BlueprintCompilationBuilder<THost> AssemblyName(string assemblyName)
+        public BlueprintCompilationBuilder AssemblyName(string assemblyName)
         {
             Guard.NotNullOrEmpty(nameof(assemblyName), assemblyName);
 
@@ -75,7 +75,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="editor">The action to run with the <see cref="GenerationRules"/> to modify.</param>
         /// <returns>This builder</returns>
-        public BlueprintCompilationBuilder<THost> ConfigureRules(Action<GenerationRules> editor)
+        public BlueprintCompilationBuilder ConfigureRules(Action<GenerationRules> editor)
         {
             editor(blueprintApiBuilder.Options.GenerationRules);
 
@@ -87,7 +87,7 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="variableSource">The variable source to add.</param>
         /// <returns>This compilation builder.</returns>
-        public BlueprintCompilationBuilder<THost> AddVariableSource(IVariableSource variableSource)
+        public BlueprintCompilationBuilder AddVariableSource(IVariableSource variableSource)
         {
             Guard.NotNull(nameof(variableSource), variableSource);
 
@@ -96,7 +96,7 @@ namespace Blueprint.Configuration
             return this;
         }
 
-        private BlueprintCompilationBuilder<THost> UseCompileStrategy<T>() where T : class, ICompileStrategy
+        private BlueprintCompilationBuilder UseCompileStrategy<T>() where T : class, ICompileStrategy
         {
             blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, T>();
 

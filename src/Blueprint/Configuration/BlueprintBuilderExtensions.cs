@@ -3,7 +3,7 @@ using System;
 namespace Blueprint.Configuration
 {
     /// <summary>
-    /// Provides extensions to <see cref="BlueprintApiBuilder{THost}" /> that can be useful in
+    /// Provides extensions to <see cref="BlueprintApiBuilder" /> that can be useful in
     /// building up the pipeline used for an API.
     /// </summary>
     public static class BlueprintBuilderExtensions
@@ -15,12 +15,11 @@ namespace Blueprint.Configuration
         /// <param name="apiBuilder">The Api builder.</param>
         /// <param name="include">Whether to include/execute the child action.</param>
         /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder<THost> Conditionally<THost>(
-            this BlueprintApiBuilder<THost> apiBuilder,
+        public static BlueprintApiBuilder Conditionally(
+            this BlueprintApiBuilder apiBuilder,
             bool include,
-            Action<BlueprintApiBuilder<THost>> action)
+            Action<BlueprintApiBuilder> action)
         {
             if (include)
             {
@@ -37,12 +36,11 @@ namespace Blueprint.Configuration
         /// <param name="pipelineBuilder">The middleware builder.</param>
         /// <param name="include">Whether to include/execute the child action.</param>
         /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This middleware builder.</returns>
-        public static PipelineBuilder<THost> Conditionally<THost>(
-            this PipelineBuilder<THost> pipelineBuilder,
+        public static PipelineBuilder Conditionally(
+            this PipelineBuilder pipelineBuilder,
             bool include,
-            Action<PipelineBuilder<THost>> action)
+            Action<PipelineBuilder> action)
         {
             if (include)
             {

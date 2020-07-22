@@ -7,7 +7,7 @@ using Blueprint.Tasks;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Adds background task processing entry points to <see cref="BlueprintApiBuilder{THost}" />.
+    /// Adds background task processing entry points to <see cref="BlueprintApiBuilder" />.
     /// </summary>
     public static class TasksConfigurationExtensions
     {
@@ -17,11 +17,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The builder to add the task client to.</param>
         /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This builder for further configuration.</returns>
         /// <seealso cref="BackgroundTasks" />
-        public static BlueprintApiBuilder<THost> AddTasksClient<THost>(
-            this BlueprintApiBuilder<THost> builder,
+        public static BlueprintApiBuilder AddTasksClient(
+            this BlueprintApiBuilder builder,
             Action<BlueprintTasksClientBuilder> configureTasks)
         {
             RegisterClient(builder);
@@ -41,15 +40,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </remarks>
         /// <param name="builder">The builder to add the task server to.</param>
         /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
-        /// <returns>A <see cref="BlueprintApiBuilder{BackgroundTasksHost}" /> for configuration.</returns>
-        /// <seealso cref="AddTasksClient{THost}" />
+        /// <returns>A <see cref="BlueprintApiBuilder" /> for configuration.</returns>
+        /// <seealso cref="AddTasksClient" />
         /// <seealso cref="BlueprintTasksServerBuilder.AddRecurringTasks" />
-        public static BlueprintApiBuilder<BackgroundTasksHost> BackgroundTasks(
-            this BlueprintApiHostBuilder builder,
+        public static BlueprintApiBuilder AddBackgroundTasks(
+            this BlueprintApiBuilder apiBuilder,
             Action<BlueprintTasksServerBuilder> configureTasks)
         {
-            var apiBuilder = builder.UseHost<BackgroundTasksHost>();
-
             RegisterClient(apiBuilder);
 
             apiBuilder.Operations(o => o.AddConvention(new TasksOperationScannerConvention()));
@@ -61,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return apiBuilder;
         }
 
-        private static void RegisterClient<THost>(BlueprintApiBuilder<THost> builder)
+        private static void RegisterClient(BlueprintApiBuilder builder)
         {
             // We will always add this to the pipeline. It is safe to do so as if no tasks are enqueued
             // this is in affect a no-op.

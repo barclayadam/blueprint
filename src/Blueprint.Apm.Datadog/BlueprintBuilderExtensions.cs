@@ -7,7 +7,7 @@ using Blueprint.Configuration;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> to add DataDog APM integration.
+    /// Extensions to <see cref="BlueprintApiBuilder" /> to add DataDog APM integration.
     /// </summary>
     public static class BlueprintBuilderExtensions
     {
@@ -16,9 +16,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// tracking dependencies, and middleware that will manage spans.
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
-        /// <typeparam name="THost">The type of host.</typeparam>
         /// <returns>This builder for further configuration.</returns>
-        public static BlueprintApiBuilder<THost> AddDataDog<THost>(this BlueprintApiBuilder<THost> pipelineBuilder)
+        public static BlueprintApiBuilder AddDataDog(this BlueprintApiBuilder pipelineBuilder)
         {
             pipelineBuilder.Services.AddSingleton<IApmTool, DataDogApmTool>();
 

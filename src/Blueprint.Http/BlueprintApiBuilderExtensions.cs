@@ -14,19 +14,17 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder{THost}" /> to register HTTP-specific features.
+    /// Extensions to <see cref="BlueprintApiBuilder" /> to register HTTP-specific features.
     /// </summary>
     public static class BlueprintApiBuilderExtensions
     {
         /// <summary>
         /// Registers HTTP-specific functionality and handling to this API instance.
         /// </summary>
-        /// <param name="hostBuilder">The host builder to register with.</param>
+        /// <param name="apiBuilder">The builder to register with.</param>
         /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder<HttpHost> Http(this BlueprintApiHostBuilder hostBuilder)
+        public static BlueprintApiBuilder Http(this BlueprintApiBuilder apiBuilder)
         {
-            var apiBuilder = hostBuilder.UseHost<HttpHost>();
-
             apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
@@ -73,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return apiBuilder;
         }
 
-        public static BlueprintApiBuilder<HttpHost> AddHateoasLinks(this BlueprintApiBuilder<HttpHost> apiBuilder)
+        public static BlueprintApiBuilder AddHateoasLinks(this BlueprintApiBuilder apiBuilder)
         {
             // Resource events needs authoriser services to be registered
             BuiltinBlueprintMiddlewares.TryAddAuthorisationServices(apiBuilder.Services);
@@ -85,7 +83,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return apiBuilder;
         }
 
-        public static BlueprintApiBuilder<HttpHost> AddResourceEvents<T>(this BlueprintApiBuilder<HttpHost> pipelineBuilder) where T : class, IResourceEventRepository
+        public static BlueprintApiBuilder AddResourceEvents<T>(this BlueprintApiBuilder pipelineBuilder) where T : class, IResourceEventRepository
         {
             pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
 
