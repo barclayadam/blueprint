@@ -12,6 +12,12 @@ namespace Blueprint.Utilities
     /// </summary>
     public static class ReflectionUtilities
     {
+        /// <summary>
+        /// If the given type is <see cref="Nullable" /> that gets the "inner" type, otherwise
+        /// returns the input.
+        /// </summary>
+        /// <param name="type">The type to potentially unwrap.</param>
+        /// <returns>The unwrapped type.</returns>
         public static Type GetUnderlyingTypeIfNullable(Type type)
         {
             if (type == null)
@@ -20,6 +26,30 @@ namespace Blueprint.Utilities
             }
 
             return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
+        /// <summary>
+        /// Converts the given <see cref="Type" /> in to a "pretty" name, one that has the actual generic
+        /// arguments output instead of the usual arity-named base (i.e. <c>IGeneric`1</c>).
+        /// </summary>
+        /// <param name="t">The type to print.</param>
+        /// <returns>A nice name of the given type.</returns>
+        public static string PrettyTypeName(Type t)
+        {
+            if (t.IsArray)
+            {
+                return PrettyTypeName(t.GetElementType()) + "[]";
+            }
+
+            if (t.IsGenericType)
+            {
+                var baseGenericName = t.Name.Substring(0, t.Name.LastIndexOf("`", StringComparison.InvariantCulture));
+                var arguments = string.Join(", ", t.GetGenericArguments().Select(PrettyTypeName));
+
+                return $"{baseGenericName}<{arguments}>";
+            }
+
+            return t.Name;
         }
 
         /// <summary>

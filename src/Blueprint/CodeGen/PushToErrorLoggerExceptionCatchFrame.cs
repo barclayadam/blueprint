@@ -5,6 +5,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Errors;
+using Blueprint.Utilities;
 
 namespace Blueprint.CodeGen
 {
@@ -43,6 +44,8 @@ namespace Blueprint.CodeGen
             // 1. Allow user context to populate metadata to the error data dictionary if it exists
             writer.Write($"userAuthorisationContext?.PopulateMetadata((k, v) => {exceptionVariable}.Data[k] = v?.ToString());");
 
+            var operationTypeKey = ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType);
+
             // 2. For every property of the operation output a value to the exception.Data dictionary. ALl properties that are
             // not considered sensitive
             foreach (var prop in context.Descriptor.Properties)
@@ -55,7 +58,7 @@ namespace Blueprint.CodeGen
                 // If the type is primitive we need to leave off the '?' null-coalesce method call operator
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
-                writer.Write($"{exceptionVariable}.Data[\"{context.Descriptor.OperationType.Name}.{prop.Name}\"] = " +
+                writer.Write($"{exceptionVariable}.Data[\"{operationTypeKey}.{prop.Name}\"] = " +
                              $"{variables.FindVariable(context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 

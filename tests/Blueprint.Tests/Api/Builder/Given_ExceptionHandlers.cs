@@ -40,6 +40,31 @@ namespace Blueprint.Tests.Api.Builder
         }
 
         [Test]
+        public async Task When_Unhandled_Exception_Then_Populates_Exception_Data_With_Operation_Properties_When_Generic_Message()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<OperationWrapperImpl<TestApiCommand>>(new Exception("Oops"));
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
+
+            // Act
+            var result = await executor.ExecuteWithNewScopeAsync(new OperationWrapperImpl<TestApiCommand>
+            {
+                Operation = new TestApiCommand
+                {
+                    AStringProperty = "the string value",
+                    ASensitiveStringProperty = "the sensitive value"
+                }
+            });
+
+            // Assert
+            var exceptionResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
+            var exceptionData = exceptionResult.Exception.Data;
+
+            var commandName = $"OperationWrapperImpl<{nameof(TestApiCommand)}>";
+            exceptionData.Keys.Should().Contain($"{commandName}.{nameof(OperationWrapperImpl<TestApiCommand>.Operation)}");
+        }
+
+        [Test]
         public void When_Single_Custom_Exception_Handler_Registered_Then_Compiles()
         {
             // Arrange
@@ -113,6 +138,16 @@ namespace Blueprint.Tests.Api.Builder
             {
                 context.RegisterUnhandledExceptionHandler(exceptionType, create);
             }
+        }
+
+        public interface IOperationWrapper<T>
+        {
+            T Operation { get; set; }
+        }
+
+        public class OperationWrapperImpl<T> : IOperationWrapper<T>
+        {
+            public T Operation { get; set; }
         }
     }
 }

@@ -7,6 +7,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Configuration;
+using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -160,7 +161,16 @@ namespace Blueprint
         private static string NormaliseTypeName(ApiOperationDescriptor operation)
         {
             // Replace + with _ to enable nested operation classes to compile successfully
-            return operation.OperationType.Name.Replace("+", "_") + "ExecutorPipeline";
+            // Replace , with _ to separate generic arguments
+            // Replace < with Of at start of generic arguments (i.e. IWrapperOfT for IWrapper<T>)
+            // Replace > with "" at end of generic argument list
+            return ReflectionUtilities
+                       .PrettyTypeName(operation.OperationType)
+                       .Replace("+", "_")
+                       .Replace(",", "_")
+                       .Replace("<", "Of")
+                       .Replace(">", string.Empty)
+                   + "ExecutorPipeline";
         }
 
         private void Generate(
