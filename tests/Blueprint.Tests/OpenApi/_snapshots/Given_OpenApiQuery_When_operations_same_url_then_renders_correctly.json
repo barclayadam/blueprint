@@ -13,7 +13,7 @@
     "/resources/{AnId}": {
       "get": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The OpenApiGetQuery summary",
         "description": "Some more remarks about this query.",
@@ -163,7 +163,7 @@
       },
       "put": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The OpenApiPutCommand summary",
         "description": "",

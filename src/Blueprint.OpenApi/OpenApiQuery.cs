@@ -438,9 +438,7 @@ namespace Blueprint.OpenApi
 
             protected override List<MemberInfo> GetSerializableMembers(Type objectType)
             {
-                var descriptor = apiDataModel.Operations.SingleOrDefault(o => o.OperationType == objectType);
-
-                if (descriptor == null)
+                if (apiDataModel.TryFindOperation(objectType, out var descriptor) == false)
                 {
                     return base.GetSerializableMembers(objectType);
                 }

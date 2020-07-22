@@ -24,19 +24,26 @@ namespace Blueprint.Middleware
 
                 // First, check if there has already been a handler registered for this operation in the service
                 // collection
-                if (services.Any(d => apiOperationHandlerType.IsAssignableFrom(d.ServiceType)))
+                var diRegistered = services.SingleOrDefault(d => apiOperationHandlerType.IsAssignableFrom(d.ServiceType));
+
+                if (diRegistered != null)
                 {
-                    yield return new ApiOperationHandlerExecutorBuilder(operation, apiOperationHandlerType);
+                    yield return new ApiOperationHandlerExecutorBuilder(
+                        operation,
+                        diRegistered.ServiceType,
+                        "IoC as " + (diRegistered.ImplementationType ?? diRegistered.ImplementationInstance?.GetType() ?? diRegistered.ServiceType));
                 }
-
-                // If not, we try to manually find and register the handler, looking for an implementation of
-                // IApiOperationHandler<{OperationType}> alongside the operation (i.e. in the same assembly)
-                var apiOperationHandler = FindApiOperationHandler(operation, apiOperationHandlerType, scannedAssemblies);
-
-                if (apiOperationHandler != null)
+                else
                 {
-                    services.AddScoped(apiOperationHandlerType, apiOperationHandler);
-                    yield return new ApiOperationHandlerExecutorBuilder(operation, apiOperationHandlerType);
+                    // If not, we try to manually find and register the handler, looking for an implementation of
+                    // IApiOperationHandler<{OperationType}> alongside the operation (i.e. in the same assembly)
+                    var foundType = FindApiOperationHandler(operation, apiOperationHandlerType, scannedAssemblies);
+
+                    if (foundType != null)
+                    {
+                        services.AddScoped(foundType, foundType);
+                        yield return new ApiOperationHandlerExecutorBuilder(operation, foundType, $"Scanned {foundType}");
+                    }
                 }
             }
         }

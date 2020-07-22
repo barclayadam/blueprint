@@ -13,7 +13,7 @@
     "/resources/enumerable": {
       "get": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "",
         "description": "",

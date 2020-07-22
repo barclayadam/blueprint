@@ -12,16 +12,23 @@ namespace Blueprint.Middleware
     public class ApiOperationHandlerExecutorBuilder : IOperationExecutorBuilder
     {
         private readonly Type apiOperationHandlerType;
+        private readonly string foundAt;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ApiOperationHandlerExecutorBuilder" /> that represents the given <see cref="ApiOperationDescriptor"/>.
         /// </summary>
         /// <param name="operation">The operation this builder handles.</param>
         /// <param name="apiOperationHandlerType">The type of the <see cref="IApiOperationHandler{T}"/> to be used in the pipeline.</param>
-        public ApiOperationHandlerExecutorBuilder(ApiOperationDescriptor operation, Type apiOperationHandlerType)
+        /// <param name="foundAt">Where this builder was found, for diagnostics purposes.</param>
+        public ApiOperationHandlerExecutorBuilder(ApiOperationDescriptor operation, Type apiOperationHandlerType, string foundAt)
         {
+            Guard.NotNull(nameof(operation), operation);
+            Guard.NotNull(nameof(apiOperationHandlerType), apiOperationHandlerType);
+            Guard.NotNull(nameof(foundAt), foundAt);
+
             Operation = operation;
             this.apiOperationHandlerType = apiOperationHandlerType;
+            this.foundAt = foundAt;
         }
 
         /// <inheritdoc />
@@ -46,7 +53,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{apiOperationHandlerType} handles {Operation}";
+            return foundAt;
         }
     }
 }

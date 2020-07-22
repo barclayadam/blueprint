@@ -208,5 +208,47 @@ namespace Blueprint
         {
             return allLinks.Where(l => l.IsRootLink);
         }
+
+        /// <summary>
+        /// Finds the <see cref="ApiOperationDescriptor" /> for an operation of the given type, which may be a concrete
+        /// implementation of a registered interface-based operation.
+        /// </summary>
+        /// <param name="operationType">The type of operation to search for.</param>
+        /// <returns>The <see cref="ApiOperationDescriptor" />.</returns>
+        /// <exception cref="InvalidOperationException">If no operation descriptor exists.</exception>
+        public ApiOperationDescriptor FindOperation(Type operationType)
+        {
+            if (!TryFindOperation(operationType, out var found))
+            {
+                throw new InvalidOperationException(@$"Could not find an operation of the type {operationType.FullName}.
+
+Make sure that it has been correctly registered through the use of the .Operations(...) configuration method at startup.
+
+Operations will be found polymorphically, meaning an operation could be registered as an interface with the model but found as a concrete implementation type at runtime");
+            }
+
+            return found;
+        }
+
+        /// <summary>
+        /// Finds the <see cref="ApiOperationDescriptor" /> for an operation of the given type, which may be a concrete
+        /// implementation of a registered interface-based operation.
+        /// </summary>
+        /// <param name="operationType">The type of operation to search for.</param>
+        /// <param name="descriptor">The <see cref="ApiOperationDescriptor" />, or <c>null</c> if no such operation exists.</param>
+        /// <returns>Whether an operation was found.</returns>
+        public bool TryFindOperation(Type operationType, out ApiOperationDescriptor descriptor)
+        {
+            var found = Operations.SingleOrDefault(d => d.OperationType.IsAssignableFrom(operationType));
+
+            if (found == null)
+            {
+                descriptor = default;
+                return false;
+            }
+
+            descriptor = found;
+            return true;
+        }
     }
 }

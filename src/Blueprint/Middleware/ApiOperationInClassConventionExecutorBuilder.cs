@@ -63,7 +63,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{method.DeclaringType.Name}.{method.Name} handles {Operation}";
+            return $"{method.DeclaringType.Name}.{method.Name}";
         }
     }
 }

@@ -13,7 +13,7 @@
     "/resources/{AnId}": {
       "post": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The OpenApiPostCommand summary",
         "description": "",

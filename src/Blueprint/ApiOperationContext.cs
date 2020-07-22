@@ -63,7 +63,7 @@ namespace Blueprint
 
             var operationType = operation.GetType();
 
-            Descriptor = dataModel.Operations.SingleOrDefault(d => d.OperationType == operationType);
+            Descriptor = dataModel.FindOperation(operationType);
 
             if (Descriptor == null)
             {

@@ -64,9 +64,9 @@ namespace Blueprint.Configuration
 
                     if (existing.Any())
                     {
-                        var all = string.Join(", ", existing.Select(e => e.ToString()));
+                        var all = string.Join("\n", existing.Concat(new[] { found }).Select(e => e.ToString()));
 
-                        problems.Add($"Multiple handlers have been found for the operation {found}: {all} ");
+                        problems.Add($"Multiple handlers have been found for the operation {found.Operation.Name}:\n\n{all} ");
                     }
 
                     allFound.Add(found);

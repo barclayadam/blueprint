@@ -13,7 +13,7 @@
     "/resources/basic": {
       "get": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "",
         "description": "",
@@ -55,7 +55,7 @@
     "/resources/{AnId}/as-plaintext": {
       "put": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The OpenApiPlaintextResponse summary",
         "description": "",

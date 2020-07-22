@@ -138,7 +138,7 @@ namespace Blueprint.Tests.IoC
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
 
-            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.IoC.Given_DependencyInjection_Container.IInjectable>();");
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace Blueprint.Tests.IoC
             // Assert
             var code = executor.WhatCodeDidIGenerateFor<OperationWithInjectable>();
 
-            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container.IInjectable>();");
+            code.Should().Contain("context.ServiceProvider.GetRequiredService<Blueprint.Tests.IoC.Given_DependencyInjection_Container.IInjectable>();");
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace Blueprint.Tests.IoC
             // Assert
             buildExecutor.Should().Throw<InvalidOperationException>()
                 .And.Message.Should()
-                .Contain("An attempt has been made to request a service (Blueprint.Tests.Api.Builder.Given_DependencyInjection_Container+Injectable) " +
+                .Contain("An attempt has been made to request a service (Blueprint.Tests.IoC.Given_DependencyInjection_Container+Injectable) " +
                          "from the DI container that will lead to a duplicate constructor argument");
         }
 

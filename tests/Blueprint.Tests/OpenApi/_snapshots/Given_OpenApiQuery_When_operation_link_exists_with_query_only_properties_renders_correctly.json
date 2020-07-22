@@ -13,7 +13,7 @@
     "/resources/{AnId}": {
       "get": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The OpenApiGetQuery summary",
         "description": "Some more remarks about this query.",
@@ -165,7 +165,7 @@
     "/resources/a-static-query-url": {
       "get": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The LinkedQueryWithQueryOnlyProperties summary",
         "description": "",
@@ -219,7 +219,7 @@
     "/resources/a-static-command-url": {
       "post": {
         "tags": [
-          "OpenApi_Tests"
+          "OpenApi"
         ],
         "summary": "The LinkedCommandWithNoBody summary",
         "description": "",
