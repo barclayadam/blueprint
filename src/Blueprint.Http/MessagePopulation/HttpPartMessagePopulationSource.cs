@@ -56,6 +56,20 @@ namespace Blueprint.Http.MessagePopulation
         }
 
         /// <summary>
+        /// Given a <see cref="Variable" /> that represents the <see cref="HttpContext" /> gets
+        /// the <see cref="Variable" /> that is the source of this source (i.e. Cookies, Headers,
+        /// Query)
+        /// </summary>
+        /// <param name="httpContextVariable">The HTTP context variable.</param>
+        /// <returns>A variable representing the source for this message part.</returns>
+        public delegate Variable GetSourceVariable(Variable httpContextVariable);
+
+        /// <summary>
+        /// Returns <c>0</c>.
+        /// </summary>
+        public int Priority => 0;
+
+        /// <summary>
         /// Creates a new <see cref="HttpPartMessagePopulationSource" /> that will look for properties
         /// that have an applied attribute.
         /// </summary>
@@ -84,20 +98,6 @@ namespace Blueprint.Http.MessagePopulation
         {
             return new HttpPartMessagePopulationSource(partName, sourceCodeExpression, applies);
         }
-
-        /// <summary>
-        /// Given a <see cref="Variable" /> that represents the <see cref="HttpContext" /> gets
-        /// the <see cref="Variable" /> that is the source of this source (i.e. Cookies, Headers,
-        /// Query)
-        /// </summary>
-        /// <param name="httpContextVariable">The HTTP context variable.</param>
-        /// <returns>A variable representing the source for this message part.</returns>
-        public delegate Variable GetSourceVariable(Variable httpContextVariable);
-
-        /// <summary>
-        /// Returns <c>0</c>.
-        /// </summary>
-        public int Priority => 0;
 
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,7 +184,8 @@ namespace Blueprint.Http.MessagePopulation
         }
 
         /// <inheritdoc />
-        public void Build(IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties,
+        public void Build(
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties,
             IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
             MiddlewareBuilderContext context)
         {
@@ -199,6 +200,11 @@ namespace Blueprint.Http.MessagePopulation
 
             foreach (var prop in isCatchAll ? context.Descriptor.Properties : ownedBySource.Select(s => s.Property))
             {
+                if (prop.CanWrite == false)
+                {
+                    continue;
+                }
+
                 // If this is a catch-all instance we DO NOT want to generate any code for a property
                 // that is owned by a different source.
                 if (isCatchAll && ownedProperties.Any(p => p.Property == prop))

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
@@ -37,6 +35,8 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             public string[] StringArray { get; set; }
 
             public List<string> StringList { get; set; }
+
+            public string AReadOnlyProperty => "Something read only";
         }
 
         [Test]
