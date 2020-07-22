@@ -19,7 +19,7 @@ namespace Blueprint.Middleware
         public IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
             IEnumerable<ApiOperationDescriptor> operations,
-            List<Assembly> scannedAssemblies)
+            IEnumerable<Assembly> scannedAssemblies)
         {
             foreach (var operation in operations)
             {

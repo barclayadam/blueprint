@@ -16,7 +16,7 @@ namespace Blueprint.Middleware
         public IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
             IEnumerable<ApiOperationDescriptor> operations,
-            List<Assembly> scannedAssemblies)
+            IEnumerable<Assembly> scannedAssemblies)
         {
             foreach (var operation in operations)
             {
@@ -44,7 +44,7 @@ namespace Blueprint.Middleware
         private static Type FindApiOperationHandler(
             ApiOperationDescriptor apiOperationDescriptor,
             Type apiOperationHandlerType,
-            List<Assembly> scannedAssemblies)
+            IEnumerable<Assembly> scannedAssemblies)
         {
             // Most likely is the handler lives beside the operation, check that assembly first.
             foreach (var t in apiOperationDescriptor.OperationType.Assembly.GetExportedTypes())

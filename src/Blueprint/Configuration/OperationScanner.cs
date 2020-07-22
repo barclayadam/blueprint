@@ -21,22 +21,26 @@ namespace Blueprint.Configuration
         // time to perform the actual scanning. This is done to allow the global conventions to be applied to
         // the scans, even if they are registered after the scan calls
         // i.e. scanOperations.Add(addType => addType(theTypeToRegisterFromMethodCall).
-        private readonly List<Action<RegisterOperation>> scanOperations = new List<Action<RegisterOperation>>();
+        private readonly List<Action<RegisterOperation>> _scanOperations = new List<Action<RegisterOperation>>();
 
-        private readonly List<IOperationScannerConvention> conventions = new List<IOperationScannerConvention>();
+        private readonly List<IOperationScannerConvention> _conventions = new List<IOperationScannerConvention>();
+        private readonly List<Assembly> _scannedAssemblies = new List<Assembly>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OperationScanner" /> class.
         /// </summary>
         public OperationScanner()
         {
-            conventions.Add(new XmlDocResponseConvention());
-            conventions.Add(new ApiExceptionFactoryResponseConvention());
+            _conventions.Add(new XmlDocResponseConvention());
+            _conventions.Add(new ApiExceptionFactoryResponseConvention());
         }
 
         private delegate void RegisterOperation(Type operationType, string source);
 
-        internal List<Assembly> ScannedAssemblies { get; } = new List<Assembly>();
+        /// <summary>
+        /// The assemblies that have been registered to be scanned for operations.
+        /// </summary>
+        public IReadOnlyList<Assembly> ScannedAssemblies => _scannedAssemblies;
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
@@ -50,7 +54,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(contributor), contributor);
 
-            conventions.Add(contributor);
+            _conventions.Add(contributor);
 
             return this;
         }
@@ -146,9 +150,9 @@ namespace Blueprint.Configuration
                 return this;
             }
 
-            ScannedAssemblies.Add(assembly);
+            this._scannedAssemblies.Add(assembly);
 
-            scanOperations.Add((add) =>
+            _scanOperations.Add((add) =>
             {
                 DoScan(assembly, filter, add);
             });
@@ -197,7 +201,7 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         public OperationScanner AddOperation(Type type, string source = null)
         {
-            scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
+            _scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
 
             return this;
         }
@@ -209,7 +213,7 @@ namespace Blueprint.Configuration
         /// <param name="dataModel">The data model to register the operations to.</param>
         public void FindOperations(ApiDataModel dataModel)
         {
-            foreach (var scanOperation in scanOperations)
+            foreach (var scanOperation in _scanOperations)
             {
                 scanOperation((t, source) => Register(dataModel, t, source));
             }
@@ -263,7 +267,7 @@ namespace Blueprint.Configuration
                 // By default types are NOT included. It's only if a convention is positive
                 // that a type will be included (note that only ONE convention needs to include the
                 // message).
-                foreach (var globalFilters in conventions)
+                foreach (var globalFilters in _conventions)
                 {
                     if (globalFilters.IsSupported(type))
                     {
@@ -303,7 +307,7 @@ namespace Blueprint.Configuration
 
             RegisterResponses(descriptor);
 
-            foreach (var c in conventions)
+            foreach (var c in _conventions)
             {
                 c.Apply(descriptor);
             }

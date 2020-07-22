@@ -23,6 +23,6 @@ namespace Blueprint.Middleware
         IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
             IEnumerable<ApiOperationDescriptor> operations,
-            List<Assembly> scannedAssemblies);
+            IEnumerable<Assembly> scannedAssemblies);
     }
 }
