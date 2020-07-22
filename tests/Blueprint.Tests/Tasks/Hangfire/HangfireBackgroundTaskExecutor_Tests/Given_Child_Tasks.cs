@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Blueprint.Apm;
-using Blueprint.Tasks.Hangfire;
 using Blueprint.Tasks;
+using Blueprint.Tasks.Hangfire;
 using FluentAssertions;
 using Hangfire;
 using Hangfire.Common;
@@ -13,7 +13,7 @@ using Moq;
 using NUnit.Framework;
 using JobContinuationOptions = Hangfire.JobContinuationOptions;
 
-namespace Blueprint.Tests.Hangfire.HangfireBackgroundTaskExecutor_Tests
+namespace Blueprint.Tests.Tasks.Hangfire.HangfireBackgroundTaskExecutor_Tests
 {
     public class Given_Child_Tasks
     {

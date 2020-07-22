@@ -5,7 +5,6 @@ using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Utilities;
 using Blueprint.Testing;
-using Blueprint.Tests.Api;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;

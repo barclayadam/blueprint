@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
-using Blueprint.Tests.Api;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
