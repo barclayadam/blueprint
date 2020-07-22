@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -19,9 +20,9 @@ namespace Blueprint.CodeGen
     {
         private readonly LogLevel level;
         private readonly string message;
-        private readonly string[] parameters;
+        private readonly object[] parameters;
 
-        private LogFrame(LogLevel level, string message, string[] parameters)
+        private LogFrame(LogLevel level, string message, object[] parameters)
         {
             this.level = level;
             this.message = message;
@@ -35,7 +36,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Trace(string message, params string[] parameters)
+        public static LogFrame Trace(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Trace, message, parameters);
         }
@@ -47,7 +48,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Debug(string message, params string[] parameters)
+        public static LogFrame Debug(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Debug, message, parameters);
         }
@@ -59,7 +60,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Information(string message, params string[] parameters)
+        public static LogFrame Information(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Information, message, parameters);
         }
@@ -71,7 +72,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Warning(string message, params string[] parameters)
+        public static LogFrame Warning(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Warning, message, parameters);
         }
@@ -83,7 +84,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Error(string message, params string[] parameters)
+        public static LogFrame Error(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Error, message, parameters);
         }
@@ -95,7 +96,7 @@ namespace Blueprint.CodeGen
         /// <param name="message">The message to output.</param>
         /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
         /// <returns>A new <see cref="LogFrame"/>.</returns>
-        public static LogFrame Critical(string message, params string[] parameters)
+        public static LogFrame Critical(string message, params object[] parameters)
         {
             return new LogFrame(LogLevel.Critical, message, parameters);
         }
@@ -110,16 +111,36 @@ namespace Blueprint.CodeGen
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var loggerVariable = variables.FindVariable(typeof(ILogger));
-            var safeMessage = message.Replace("\"", "\\\"");
+            var safeMessage = SafeValue(message);
 
             var methodCall = $"{loggerVariable}.{nameof(ILogger.Log)}";
             var logLevel = Variable.StaticFrom<LogLevel>(level.ToString());
 
+            var safeParameters = parameters.Select(SafeValue);
+
             writer.WriteLine(parameters.Length == 0
-                ? $"{methodCall}({logLevel}, \"{safeMessage}\");"
-                : $"{methodCall}({logLevel}, \"{safeMessage}\", {string.Join(", ", parameters)});");
+                ? $"{methodCall}({logLevel}, {safeMessage});"
+                : $"{methodCall}({logLevel}, {safeMessage}, {string.Join(", ", safeParameters)});");
 
             next();
+        }
+
+        private static string SafeValue(object value)
+        {
+            while (true)
+            {
+                if (value is string s)
+                {
+                    return $"\"{s.Replace("\"", "\\\"")}\"";
+                }
+
+                if (value is Variable v)
+                {
+                    return v.Usage;
+                }
+
+                value = value.ToString();
+            }
         }
     }
 }

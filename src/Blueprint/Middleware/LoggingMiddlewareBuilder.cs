@@ -4,6 +4,7 @@ using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Utilities;
 
 namespace Blueprint.Middleware
 {
@@ -68,8 +69,8 @@ namespace Blueprint.Middleware
                 writer.Write(
                     LogFrame.Information(
                         "Operation {OperationName} finished in {TotalMilliseconds}ms",
-                        $"\"{operationType}\"",
-                        $"{stopwatchVariable}.{nameof(Stopwatch.Elapsed)}.{nameof(TimeSpan.TotalMilliseconds)}"));
+                        ReflectionUtilities.PrettyTypeName(operationType),
+                        stopwatchVariable.GetProperty(nameof(Stopwatch.Elapsed)).GetProperty(nameof(TimeSpan.TotalMilliseconds))));
             }
         }
     }

@@ -41,8 +41,6 @@ namespace Blueprint.Compiler
 
             text.ReadLines(line =>
             {
-                line = line.Replace('`', '"');
-
                 if (string.IsNullOrEmpty(line))
                 {
                     BlankLine();
