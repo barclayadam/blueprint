@@ -33,6 +33,7 @@ namespace Blueprint.Configuration
         {
             _conventions.Add(new XmlDocResponseConvention());
             _conventions.Add(new ApiExceptionFactoryResponseConvention());
+            _conventions.Add(new CommandOrQueryIsSupportedConvention());
         }
 
         private delegate void RegisterOperation(Type operationType, string source);
