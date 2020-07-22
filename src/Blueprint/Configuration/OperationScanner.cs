@@ -211,7 +211,7 @@ namespace Blueprint.Configuration
         /// registers them with the given <see cref="ApiDataModel" />.
         /// </summary>
         /// <param name="dataModel">The data model to register the operations to.</param>
-        public void FindOperations(ApiDataModel dataModel)
+        internal void FindOperations(ApiDataModel dataModel)
         {
             foreach (var scanOperation in _scanOperations)
             {

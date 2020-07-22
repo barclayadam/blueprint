@@ -21,6 +21,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [HttpPost]
+        [RootLink("/a-static-route")]
         public class JsonOperation
         {
             public int IntegerProperty { get; set; }

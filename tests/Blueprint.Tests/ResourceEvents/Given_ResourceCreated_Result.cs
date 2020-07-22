@@ -12,6 +12,7 @@ namespace Blueprint.Tests.ResourceEvents
 {
     public class Given_ResourceCreated_Result
     {
+        [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
         {
             [Required]

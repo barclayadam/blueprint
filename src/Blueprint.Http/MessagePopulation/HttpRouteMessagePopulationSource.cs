@@ -45,9 +45,16 @@ namespace Blueprint.Http.MessagePopulation
         }
 
         /// <inheritdoc />
-        public void Build(IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties, IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
+        public void Build(
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedProperties,
+            IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
             MiddlewareBuilderContext context)
         {
+            if (context.Descriptor.TryGetFeatureData<HttpOperationFeatureData>(out var _) == false)
+            {
+                return;
+            }
+
             var allLinks = context.Model.GetLinksForOperation(context.Descriptor.OperationType).ToList();
 
             var placeholderProperties = allLinks

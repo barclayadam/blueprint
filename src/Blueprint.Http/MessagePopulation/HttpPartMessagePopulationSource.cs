@@ -189,6 +189,12 @@ namespace Blueprint.Http.MessagePopulation
             IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
             MiddlewareBuilderContext context)
         {
+            // Never apply if we are not in a HTTP-supported operation
+            if (context.Descriptor.TryGetFeatureData<HttpOperationFeatureData>(out var _) == false)
+            {
+                return;
+            }
+
             if (applies?.Invoke(context) == false)
             {
                 return;

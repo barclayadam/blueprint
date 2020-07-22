@@ -13,6 +13,7 @@ namespace Blueprint.Tests.ResourceEvents
     public class Given_Permissioned_GetById
     {
         [AllowAnonymous]
+        [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
         {
             [Required]

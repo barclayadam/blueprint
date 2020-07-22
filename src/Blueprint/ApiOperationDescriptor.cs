@@ -164,15 +164,34 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no such feature data exists.</exception>
         public T GetFeatureData<T>()
         {
+            if (TryGetFeatureData<T>(out var featureData) == false)
+            {
+                throw new InvalidOperationException($"Could not find feature data of type {typeof(T).FullName}");
+            }
+
+            return featureData;
+        }
+
+        /// <summary>
+        /// Tries to get the feature data of the specified type, which provides a pluggable mechanism to add additional
+        /// structured data to <see cref="ApiOperationDescriptor" />s, such as HTTP-related data.
+        /// </summary>
+        /// <param name="feature">The feature data of the specified type.</param>
+        /// <typeparam name="T">The feature data type to load.</typeparam>
+        /// <returns>Whether the feature data exists.</returns>
+        public bool TryGetFeatureData<T>(out T feature)
+        {
             var key = typeof(T).FullName;
 
             if (featureData.TryGetValue(key, out var data))
             {
-                return (T)data;
+                feature = (T)data;
+
+                return true;
             }
 
-            throw new InvalidOperationException(
-                $"Could not find feature data {key}");
+            feature = default;
+            return false;
         }
 
         /// <summary>

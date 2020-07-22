@@ -10,6 +10,7 @@ namespace Blueprint.Tests.ResourceEvents
 {
     public class Given_HttpMessagePopulation
     {
+        [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
         {
             [Required] public string IdToCreate { get; set; }

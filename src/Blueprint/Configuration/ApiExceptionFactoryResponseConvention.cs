@@ -5,9 +5,9 @@ using System.Reflection;
 namespace Blueprint.Configuration
 {
     /// <summary>
-    /// An <see cref="IOperationScannerConvention" /> that uses XML documentation for the operation
-    /// to add <see cref="ResponseDescriptor" />s, in particular handling the exception tag to
-    /// add more details failure descriptions.
+    /// An <see cref="IOperationScannerConvention" /> that looks for public static instances of
+    /// <see cref="ApiExceptionFactory" /> on the operation type to add equivalent
+    /// <see cref="ResponseDescriptor" /> instances to the <see cref="ApiOperationDescriptor" />.
     /// </summary>
     public class ApiExceptionFactoryResponseConvention : IOperationScannerConvention
     {

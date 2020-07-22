@@ -10,6 +10,7 @@ namespace Blueprint.Tests.Http
     public class Given_Http_Variables
     {
         [HttpPost]
+        [RootLink("/some-static-value")]
         public class HttpOperation
         {
             public void Invoke(

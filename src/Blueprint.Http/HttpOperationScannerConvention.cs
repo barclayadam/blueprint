@@ -15,21 +15,24 @@ namespace Blueprint.Http
         /// <inheritdoc />
         public void Apply(ApiOperationDescriptor descriptor)
         {
-            string supportedMethod;
-
-            var httpMethodAttribute = descriptor.OperationType.GetCustomAttribute<HttpMethodAttribute>(true);
-
-            if (httpMethodAttribute != null)
+            if (IsSupported(descriptor.OperationType))
             {
-                supportedMethod = httpMethodAttribute.HttpMethod;
-            }
-            else
-            {
-                // By default, command are POST and everything else GET
-                supportedMethod = typeof(ICommand).IsAssignableFrom(descriptor.OperationType) ? "POST" : "GET";
-            }
+                string supportedMethod;
 
-            descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
+                var httpMethodAttribute = descriptor.OperationType.GetCustomAttribute<HttpMethodAttribute>(true);
+
+                if (httpMethodAttribute != null)
+                {
+                    supportedMethod = httpMethodAttribute.HttpMethod;
+                }
+                else
+                {
+                    // By default, command are POST and everything else GET
+                    supportedMethod = typeof(ICommand).IsAssignableFrom(descriptor.OperationType) ? "POST" : "GET";
+                }
+
+                descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
+            }
         }
 
         /// <inheritdoc />
