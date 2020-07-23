@@ -78,7 +78,7 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
         [Test]
         public void When_DateTime_Is_String_In_Past_Then_Invalid()
         {
-            // Arrange 
+            // Arrange
             var inFutureAttribute = new InFutureAttribute(TemporalCheck.DateTime);
             var dateTime = DateTime.Now.AddDays(-1).Date.ToString();
 
@@ -97,6 +97,19 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
 
             // Act
             var isValid = inFutureAttribute.IsValid(SystemTime.UtcNow.AddDays(1));
+
+            // Assert
+            Assert.IsTrue(isValid);
+        }
+
+        [Test]
+        public void When_DateTimeOffset_Is_In_Future_Then_Valid()
+        {
+            // Arrange
+            var inFutureAttribute = new InFutureAttribute(TemporalCheck.Date);
+
+            // Act
+            var isValid = inFutureAttribute.IsValid(DateTimeOffset.Now.AddDays(1));
 
             // Assert
             Assert.IsTrue(isValid);

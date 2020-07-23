@@ -64,11 +64,19 @@ namespace Blueprint.Validation
                 return true;
             }
 
-            if (value is string || value is DateTime)
+            if (value is DateTimeOffset o)
             {
-                DateTime valueAsDateTime;
+                return o.IsInFuture(temporalCheckType);
+            }
 
-                return DateTime.TryParse(value.ToString(), out valueAsDateTime) && valueAsDateTime.IsInFuture(temporalCheckType);
+            if (value is DateTime d)
+            {
+                return d.IsInFuture(temporalCheckType);
+            }
+
+            if (value is string s)
+            {
+                return DateTime.TryParse(s, out var valueAsDateTime) && valueAsDateTime.IsInFuture(temporalCheckType);
             }
 
             throw new InvalidOperationException(Resources.InFutureAttribute_IsValid_NotDateTime_Message);

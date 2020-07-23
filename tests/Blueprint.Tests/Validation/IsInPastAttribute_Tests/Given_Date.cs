@@ -21,6 +21,19 @@ namespace Blueprint.Tests.Validation.IsInPastAttribute_Tests
         }
 
         [Test]
+        public void When_DateTimeOffset_Is_In_Future_Then_Invalid()
+        {
+            // Arrange
+            var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
+
+            // Act
+            var isValid = inPastAttribute.IsValid(DateTimeOffset.Now.AddDays(1));
+
+            // Assert
+            Assert.IsFalse(isValid);
+        }
+
+        [Test]
         public void When_DateTime_Is_In_Past_Then_Valid()
         {
             // Arrange
@@ -28,6 +41,19 @@ namespace Blueprint.Tests.Validation.IsInPastAttribute_Tests
 
             // Act
             var isValid = inPastAttribute.IsValid(SystemTime.UtcNow.AddDays(-1));
+
+            // Assert
+            Assert.IsTrue(isValid);
+        }
+
+        [Test]
+        public void When_DateTimeOffset_Is_In_Past_Then_Valid()
+        {
+            // Arrange
+            var inPastAttribute = new InPastAttribute(TemporalCheck.DateTime);
+
+            // Act
+            var isValid = inPastAttribute.IsValid(DateTimeOffset.Now.AddDays(-1));
 
             // Assert
             Assert.IsTrue(isValid);

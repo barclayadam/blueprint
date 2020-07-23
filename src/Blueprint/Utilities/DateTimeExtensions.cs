@@ -41,6 +41,26 @@ namespace Blueprint.Utilities
             return date.Date > SystemTime.UtcNow.Date;
         }
 
+
+        /// <summary>
+        /// Returns a value indicating whether of not this date is in the future, based on the
+        /// value of <see cref="SystemTime.UtcNow"/>.
+        /// </summary>
+        /// <param name="date">
+        /// The date to check.
+        /// </param>
+        /// <param name="temporalCheckType">The type of check to perform.</param>
+        /// <returns>Whether the given date is in the future.</returns>
+        public static bool IsInFuture(this DateTimeOffset date, TemporalCheck temporalCheckType)
+        {
+            if (temporalCheckType == TemporalCheck.DateTime)
+            {
+                return date > SystemTime.UtcNow;
+            }
+
+            return date.Date > SystemTime.UtcNow.Date;
+        }
+
         /// <summary>
         /// Returns a value indicating whether of not this date is in the past, based on the
         /// value of <see cref="SystemTime.UtcNow"/>.
@@ -51,6 +71,25 @@ namespace Blueprint.Utilities
         /// <param name="temporalCheckType">The type of check to perform.</param>
         /// <returns>Whether the given date is in the past.</returns>
         public static bool IsInPast(this DateTime date, TemporalCheck temporalCheckType)
+        {
+            if (temporalCheckType == TemporalCheck.DateTime)
+            {
+                return date < SystemTime.UtcNow;
+            }
+
+            return date.Date < SystemTime.UtcNow.Date;
+        }
+
+        /// <summary>
+        /// Returns a value indicating whether of not this date is in the past, based on the
+        /// value of <see cref="SystemTime.UtcNow"/>.
+        /// </summary>
+        /// <param name="date">
+        /// The date to check.
+        /// </param>
+        /// <param name="temporalCheckType">The type of check to perform.</param>
+        /// <returns>Whether the given date is in the past.</returns>
+        public static bool IsInPast(this DateTimeOffset date, TemporalCheck temporalCheckType)
         {
             if (temporalCheckType == TemporalCheck.DateTime)
             {
