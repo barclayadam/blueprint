@@ -6,7 +6,7 @@
     <PackageTags>Elasic APM;APM;$(PackageBaseTags)</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Elastic.Apm" Version="1.5.1" />
+    <PackageReference Include="Elastic.Apm" Version="1.6.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
