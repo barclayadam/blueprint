@@ -76,9 +76,14 @@ namespace Blueprint
 
                         if (operationType == null)
                         {
+                            var assemblyLocation = assembly.IsDynamic ? "in-memory" : $"at {assembly.Location}";
+
                             throw new InvalidOperationException(
-                                $"The assembly {options.GenerationRules.AssemblyName} loaded in the current domain is NOT valid as it is " +
-                                $"missing executor pipeline {typeName} for operation {operation.Name}");
+                                @$"An existing assembly '{options.GenerationRules.AssemblyName}' (found {assemblyLocation}), but is not valid for this builder because it is missing some pipelines. This can happen because:
+
+ * A prebuilt assembly created in a previous run has been placed in to a folder that .NET has automatically loaded in to this AppDomain. Ensure that if you are including an assembly built by Blueprint that is the correct version for the set of operations and configuration.
+
+ * More than one in-memory DLL pipeline (UseInMemoryCompileStrategy) is being created with separate options and operations but the same application and / or assembly name. Ensure that when configuring Blueprint you either call SetApplicationName(...), or Compilation(c => c.AssemblyName(...)) with a unique name.");
                         }
 
                         typeToCreationMappings.Add(operation.OperationType, () => operationType);
