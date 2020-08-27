@@ -1,4 +1,5 @@
-﻿using Blueprint;
+﻿using System;
+using Blueprint;
 using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Http.Formatters;
@@ -22,16 +23,25 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Registers HTTP-specific functionality and handling to this API instance.
         /// </summary>
         /// <param name="apiBuilder">The builder to register with.</param>
+        /// <param name="configureOptions">An optional action that can configure <see cref="BlueprintHttpOptions" />, executed
+        /// <c>after</c> the default configuration has been run.</param>
         /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder Http(this BlueprintApiBuilder apiBuilder)
+        public static BlueprintApiBuilder Http(this BlueprintApiBuilder apiBuilder, Action<BlueprintHttpOptions> configureOptions = null)
         {
             apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
             apiBuilder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            apiBuilder.Services.TryAddSingleton<JsonOperationResultOutputFormatter>();
-            apiBuilder.Services.TryAddSingleton<IOperationResultOutputFormatter, JsonOperationResultOutputFormatter>();
+            apiBuilder.Services.AddOptions<BlueprintHttpOptions>()
+                .Configure(o =>
+                {
+                    o.OutputFormatters.Add(new SystemTextJsonResultOutputFormatter(SystemTextJsonResultOutputFormatter.CreateOptions()));
+
+                    configureOptions?.Invoke(o);
+                });
+
+            apiBuilder.Services.AddSingleton<IOutputFormatterSelector, DefaultOutputFormatterSelector>();
 
             apiBuilder.Services.AddScoped<IApiLinkGenerator, ApiLinkGenerator>();
 

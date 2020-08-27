@@ -1,9 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Blueprint.Http.Formatters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Http
 {
@@ -14,18 +13,18 @@ namespace Blueprint.Http
     /// </summary>
     public class OkResultOperationExecutor : IOperationResultExecutor<OkResult>
     {
-        private readonly IEnumerable<IOperationResultOutputFormatter> formatters;
-        private readonly IOperationResultOutputFormatter defaultFormatter;
+        private readonly IOutputFormatterSelector outputFormatterSelector;
+        private readonly ILogger<OkResultOperationExecutor> logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OkResultOperationExecutor" /> class.
         /// </summary>
-        /// <param name="formatters">A list of registered <see cref="IOperationResultOutputFormatter"/>s.</param>
-        public OkResultOperationExecutor(IEnumerable<IOperationResultOutputFormatter> formatters)
+        /// <param name="outputFormatterSelector">A output formatter selector.</param>
+        /// <param name="logger">A logger.</param>
+        public OkResultOperationExecutor(IOutputFormatterSelector outputFormatterSelector, ILogger<OkResultOperationExecutor> logger)
         {
-            this.formatters = formatters.ToList();
-
-            defaultFormatter = this.formatters.Single(f => f is JsonOperationResultOutputFormatter);
+            this.outputFormatterSelector = outputFormatterSelector;
+            this.logger = logger;
         }
 
         /// <inheritdoc />
@@ -43,54 +42,25 @@ namespace Blueprint.Http
         /// <param name="statusCode">The status code to set.</param>
         /// <param name="result">The result to render.</param>
         /// <returns>A <see cref="Task"/> representing this async operation.</returns>
-        public async Task WriteContentAsync(HttpContext httpContext, int statusCode, object result)
+        public Task WriteContentAsync(HttpContext httpContext, int statusCode, object result)
         {
-            var httpRequest = httpContext.Request;
-
-            var requestedFormat = GetRequestedFormat(httpRequest);
-            var formatter = requestedFormat != null ?
-                GetFormatter(httpRequest, requestedFormat) :
-                defaultFormatter;
-
             var httpResponse = httpContext.Response;
 
+            var context = new OutputFormatterCanWriteContext(httpContext, result);
+            var formatter = outputFormatterSelector.SelectFormatter(context);
+
+            if (formatter == null)
+            {
+                logger.LogDebug("Could not determine output formatter to use. Returning 406 Not Acceptable");
+
+                httpResponse.StatusCode = StatusCodes.Status406NotAcceptable;
+
+                return Task.CompletedTask;
+            }
+
             httpResponse.StatusCode = statusCode;
-            await formatter.WriteAsync(httpResponse, requestedFormat, result);
-        }
 
-        private static string GetRequestedFormat(HttpRequest request)
-        {
-            // Bail early if no query string to avoid allocations on getting the query string
-            // values (GetQueryNameValuePairs)
-            if (request == null || request.QueryString.HasValue == false)
-            {
-                return null;
-            }
-
-            if (request.Query.TryGetValue("format", out var format))
-            {
-                return format[0];
-            }
-
-            return null;
-        }
-
-        private IOperationResultOutputFormatter GetFormatter(HttpRequest request, string requestedFormat)
-        {
-            // PERF: Do not use LINQ to avoid allocating closure
-            foreach (var formatter in formatters)
-            {
-                if (formatter.IsSupported(request, requestedFormat))
-                {
-                    return formatter;
-                }
-            }
-
-            throw new ApiException(
-                "The requested format is not supported",
-                "unsupported_format",
-                $"{requestedFormat} is not supported",
-                (int)HttpStatusCode.UnsupportedMediaType);
+            return formatter.WriteAsync(context);
         }
     }
 }

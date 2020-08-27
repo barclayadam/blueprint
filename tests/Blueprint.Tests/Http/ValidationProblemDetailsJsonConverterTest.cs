@@ -12,7 +12,7 @@ namespace Blueprint.Tests.Http
 {
     public class ValidationProblemDetailsJsonConverterTest
     {
-        private static JsonSerializerOptions JsonSerializerOptions => JsonOperationResultOutputFormatter.JsonSerializerOptions;
+        private static JsonSerializerOptions JsonSerializerOptions => SystemTextJsonResultOutputFormatter.CreateOptions();
 
         [Test]
         public void Read_Works()
