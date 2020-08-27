@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -38,7 +39,14 @@ namespace Blueprint.Middleware
         public Variable Build(MiddlewareBuilderContext context)
         {
             var getInstanceFrame = context.VariableFromContainer(apiOperationHandlerType);
-            var handlerInvokeCall = new MethodCall(apiOperationHandlerType, nameof(IApiOperationHandler<object>.Handle));
+            var handlerInvokeCall = new MethodCall(
+                apiOperationHandlerType,
+                apiOperationHandlerType.GetMethod(
+                    nameof(IApiOperationHandler<object>.Handle),
+                    new [] {
+                        Operation.OperationType,
+                        typeof(ApiOperationContext)
+                    }));
 
             context.AppendFrames(
                 getInstanceFrame,
