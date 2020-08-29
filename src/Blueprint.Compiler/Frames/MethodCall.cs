@@ -218,12 +218,12 @@ namespace Blueprint.Compiler.Frames
 
         private static Type CorrectedReturnType(Type type)
         {
-            if (type == typeof(Task) || type == typeof(void))
+            if (type == typeof(Task) || type == typeof(ValueTask) || type == typeof(void))
             {
                 return null;
             }
 
-            if (type.CanBeCastTo<Task>())
+            if (type.CanBeCastTo<Task>() || type.CanBeCastTo<ValueTask>())
             {
                 return type.GetGenericArguments().First();
             }
