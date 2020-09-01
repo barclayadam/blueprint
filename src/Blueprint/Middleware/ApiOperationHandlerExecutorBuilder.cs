@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -39,14 +38,14 @@ namespace Blueprint.Middleware
         public Variable Build(MiddlewareBuilderContext context)
         {
             var getInstanceFrame = context.VariableFromContainer(apiOperationHandlerType);
+
+            // We must look for the _exact_ method call that corresponds to the operation type as
+            // we support handlers that implement multiple IApiOperationHandler<T> interfaces
             var handlerInvokeCall = new MethodCall(
                 apiOperationHandlerType,
                 apiOperationHandlerType.GetMethod(
                     nameof(IApiOperationHandler<object>.Handle),
-                    new [] {
-                        Operation.OperationType,
-                        typeof(ApiOperationContext)
-                    }));
+                    new [] { Operation.OperationType, typeof(ApiOperationContext) }));
 
             context.AppendFrames(
                 getInstanceFrame,
