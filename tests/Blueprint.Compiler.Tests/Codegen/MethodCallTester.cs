@@ -50,6 +50,17 @@ namespace Blueprint.Compiler.Tests.Codegen
         }
 
         [Test]
+        public void determine_return_value_of_ValueTask_of_T_simple()
+        {
+            var @call = MethodCall.For<MethodCallTarget>(x => x.GetStringValue());
+            @call.ReturnVariable.Should().NotBeNull();
+
+            @call.ReturnVariable.VariableType.Should().Be(typeof(string));
+            @call.ReturnVariable.Usage.Should().Be("result_of_GetStringValue");
+            @call.ReturnVariable.Creator.Should().BeSameAs(@call);
+        }
+
+        [Test]
         public void determine_return_value_of_not_simple_type_in_a_task()
         {
             var @call = MethodCall.For<MethodCallTarget>(x => x.GetAsyncError());
@@ -188,6 +199,11 @@ namespace Blueprint.Compiler.Tests.Codegen
         public Task<string> GetString()
         {
             return Task.FromResult("foo");
+        }
+
+        public ValueTask<string> GetStringValue()
+        {
+            return new ValueTask<string>("foo");
         }
     }
 
