@@ -223,7 +223,13 @@ namespace Blueprint.Compiler.Frames
                 return null;
             }
 
-            if (type.CanBeCastTo<Task>() || type.CanBeCastTo<ValueTask>())
+            if (type.CanBeCastTo<Task>())
+            {
+                return type.GetGenericArguments().First();
+            }
+
+            // have to do a manual check for ValueTask<T> as it doesn't inherit from ValueTask
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueTask<>))
             {
                 return type.GetGenericArguments().First();
             }
