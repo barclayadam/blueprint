@@ -25,7 +25,7 @@ namespace Blueprint.Http
         public UnhandledExceptionOperationResultExecutor(IConfiguration configuration, OkResultOperationExecutor okResultOperationExecutor)
         {
             this.okResultOperationExecutor = okResultOperationExecutor;
-            shouldExposeErrorMessage = Convert.ToBoolean(configuration["Api.ExposeErrorMessage"] ?? "false");
+            shouldExposeErrorMessage = Convert.ToBoolean(configuration["Api:ExposeErrorMessage"] ?? "false");
         }
 
         /// <inheritdoc />
