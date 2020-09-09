@@ -1,19 +1,14 @@
-﻿using System;
-using Microsoft.Extensions.Hosting;
+﻿using Blueprint;
 
-namespace Blueprint
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.Hosting
 {
     /// <summary>
-    /// Supporting class for handling Blueprint pre-compilation.
+    /// Extensions to <see cref="IHost" /> that provide better integration
+    /// for running Blueprint API hosts, including precompilation support.
     /// </summary>
-    public static class BlueprintPrecompilation
+    public static class BlueprintHostExtensions
     {
-        /// <summary>
-        /// Indicates whether we are precompiling the Blueprint Pipeline DLL for the currently
-        /// executing application, set via the BUILD_BLUEPRINT_API environment variable.
-        /// </summary>
-        public static readonly bool IsPrecompiling = Environment.GetEnvironmentVariable("BUILD_BLUEPRINT_API") == "true";
-
         /// <summary>
         /// Runs a Blueprint API and handles precompiling requests.
         /// </summary>
@@ -27,7 +22,7 @@ namespace Blueprint
         {
             // If we are precompiling then we just need to grab an instance of IApiOperationExecutor
             // which will force the compilation of the DLL and then exit the application.
-            if (IsPrecompiling)
+            if (BlueprintEnvironment.IsPrecompiling)
             {
                 host.Services.GetService(typeof(IApiOperationExecutor));
             }
