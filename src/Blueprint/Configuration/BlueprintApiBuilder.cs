@@ -43,7 +43,7 @@ namespace Blueprint.Configuration
             if (BlueprintEnvironment.IsPrecompiling)
             {
                 // The default strategy is to build to a DLL to the temp folder
-                Compilation(c => c.UseFileCompileStrategy(typeof(BlueprintApiBuilder).Assembly.Location));
+                Compilation(c => c.UseFileCompileStrategy(Path.GetDirectoryName(typeof(BlueprintApiBuilder).Assembly.Location)));
             }
             else
             {
