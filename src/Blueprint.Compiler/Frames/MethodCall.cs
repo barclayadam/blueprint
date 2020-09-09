@@ -218,12 +218,18 @@ namespace Blueprint.Compiler.Frames
 
         private static Type CorrectedReturnType(Type type)
         {
-            if (type == typeof(Task) || type == typeof(void))
+            if (type == typeof(Task) || type == typeof(ValueTask) || type == typeof(void))
             {
                 return null;
             }
 
             if (type.CanBeCastTo<Task>())
+            {
+                return type.GetGenericArguments().First();
+            }
+
+            // have to do a manual check for ValueTask<T> as it doesn't inherit from ValueTask
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueTask<>))
             {
                 return type.GetGenericArguments().First();
             }
