@@ -40,8 +40,16 @@ namespace Blueprint.Configuration
             operationScanner = new OperationScanner();
             executionScanner = new ExecutorScanner();
 
-            // The default strategy is to build to a DLL to the temp folder
-            Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
+            if (BlueprintPrecompilation.IsPrecompiling)
+            {
+                // The default strategy is to build to a DLL to the temp folder
+                Compilation(c => c.UseFileCompileStrategy(typeof(BlueprintApiBuilder).Assembly.Location));
+            }
+            else
+            {
+                // The default strategy is to build to a DLL to the temp folder
+                Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
+            }
         }
 
         /// <summary>
