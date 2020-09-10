@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Blueprint.CodeGen;
@@ -10,6 +11,10 @@ using Blueprint.Configuration;
 using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+#if !NET472
+using System.Runtime.Loader;
+#endif
 
 namespace Blueprint
 {
@@ -64,43 +69,32 @@ namespace Blueprint
 
                     logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.GenerationRules.AssemblyName);
 
-                    var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
-                    var exportedTypes = assembly.GetExportedTypes();
-
-                    foreach (var operation in options.Model.Operations)
-                    {
-                        var typeName = NormaliseTypeName(operation);
-
-                        var operationType = exportedTypes.SingleOrDefault(
-                            t => t.Namespace == operation.OperationType.Namespace && t.Name == typeName);
-
-                        if (operationType == null)
-                        {
-                            var assemblyLocation = assembly.IsDynamic ? "in-memory" : $"at {assembly.Location}";
-
-                            throw new InvalidOperationException(
-                                @$"An existing assembly '{options.GenerationRules.AssemblyName}' (found {assemblyLocation}), but is not valid for this builder because it is missing some pipelines. This can happen because:
-
- * A prebuilt assembly created in a previous run has been placed in to a folder that .NET has automatically loaded in to this AppDomain. Ensure that if you are including an assembly built by Blueprint that is the correct version for the set of operations and configuration.
-
- * More than one in-memory DLL pipeline (UseInMemoryCompileStrategy) is being created with separate options and operations but the same application and / or assembly name. Ensure that when configuring Blueprint you either call SetApplicationName(...), or Compilation(c => c.AssemblyName(...)) with a unique name.");
-                        }
-
-                        typeToCreationMappings.Add(operation.OperationType, () => operationType);
-                    }
-
-                    return new CodeGennedExecutor(
-                        serviceProvider,
-                        model,
-                        null,
-                        typeToCreationMappings);
+                    return CreateFromAssembly(options, serviceProvider, model, assembly);
                 }
             }
+
+#if !NET472
+            // 2. Do we have the DLL stored alongside this application but NOT loaded?
+            var directory = Path.GetDirectoryName(typeof(ApiOperationExecutorBuilder).Assembly.Location);
+            var assemblyPath = Path.Combine(directory, options.GenerationRules.AssemblyName) + ".dll";
+
+            if (File.Exists(assemblyPath))
+            {
+                logger.LogInformation(
+                    "Assembly {AssemblyName} found at {AssemblyLocation}. Loading and using to create executor.",
+                    options.GenerationRules.AssemblyName,
+                    assemblyPath);
+
+                var loadedPipelineDll = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+
+                return CreateFromAssembly(options, serviceProvider, model, loadedPipelineDll);
+            }
+#endif
 
             // 2. We DO NOT have any existing DLLs. In that case we are going to generate the source code using our configured
             // middlewares and then hand off to AssemblyGenerator to compile and load the assembly (which may be in-memory, stored
             // to a temp folder or stored to the project output folder)
-            logger.LogInformation("Building CodeGennedExecutor for {0} operations", options.Model.Operations.Count());
+            logger.LogInformation("Building Blueprint API operation executor for {0} operations", options.Model.Operations.Count());
 
             using (var serviceScope = serviceProvider.CreateScope())
             {
@@ -161,6 +155,42 @@ namespace Blueprint
                     assembly,
                     typeToCreationMappings);
             }
+        }
+
+        private static CodeGennedExecutor CreateFromAssembly(BlueprintApiOptions options, IServiceProvider serviceProvider, ApiDataModel model, Assembly assembly)
+        {
+            var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
+            var exportedTypes = assembly.GetExportedTypes();
+
+            foreach (var operation in options.Model.Operations)
+            {
+                var typeName = NormaliseTypeName(operation);
+
+                var operationType = exportedTypes.SingleOrDefault(
+                    t => t.Namespace == operation.OperationType.Namespace && t.Name == typeName);
+
+                if (operationType == null)
+                {
+                    var assemblyLocation = assembly.IsDynamic ? "in-memory" : $"at {assembly.Location}";
+
+                    throw new InvalidOperationException(
+                        @$"An existing assembly '{options.GenerationRules.AssemblyName}' (found {assemblyLocation}), but is not valid for this builder because it is missing some pipelines. This can happen because:
+
+ * A prebuilt assembly created in a previous run has been placed in to a folder that .NET has automatically loaded in to this AppDomain. Ensure that if you are including an assembly built by Blueprint that is the correct version for the set of operations and configuration. Delete the file if it is out of date.
+
+ * A prebuilt assembly created in a previous run has been placed beside the running application and Blueprint automatically loaded it. Ensure that if you are including an assembly built by Blueprint that is the correct version for the set of operations and configuration. Delete the file if it is out of date.
+
+ * More than one in-memory DLL pipeline (UseInMemoryCompileStrategy) is being created with separate options and operations but the same application and / or assembly name. Ensure that when configuring Blueprint you either call SetApplicationName(...), or Compilation(c => c.AssemblyName(...)) with a unique name.");
+                }
+
+                typeToCreationMappings.Add(operation.OperationType, () => operationType);
+            }
+
+            return new CodeGennedExecutor(
+                serviceProvider,
+                model,
+                null,
+                typeToCreationMappings);
         }
 
         private static string NormaliseTypeName(ApiOperationDescriptor operation)
