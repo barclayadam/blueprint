@@ -15,6 +15,7 @@ namespace Blueprint.Http.Formatters
     {
         private static readonly StringSegment QualityParameter = new StringSegment("q");
 
+        private readonly string _asString;
         private readonly MediaTypeParameterParser _parameterParser;
 
         /// <summary>
@@ -67,43 +68,42 @@ namespace Blueprint.Http.Formatters
             }
 
             _parameterParser = default;
+            _asString = mediaType;
 
             var typeLength = GetTypeLength(mediaType, offset, out var type);
             if (typeLength == 0)
             {
-                Type = new StringSegment();
-                SubType = new StringSegment();
-                SubTypeWithoutSuffix = new StringSegment();
-                SubTypeSuffix = new StringSegment();
+                Type = default;
+                SubType = default;
+                SubTypeWithoutSuffix = default;
+                SubTypeSuffix = default;
+
                 return;
             }
-            else
-            {
-                Type = type;
-            }
+
+            Type = type;
 
             var subTypeLength = GetSubtypeLength(mediaType, offset + typeLength, out var subType);
             if (subTypeLength == 0)
             {
-                SubType = new StringSegment();
-                SubTypeWithoutSuffix = new StringSegment();
-                SubTypeSuffix = new StringSegment();
+                SubType = default;
+                SubTypeWithoutSuffix = default;
+                SubTypeSuffix = default;
+
                 return;
+            }
+
+            SubType = subType;
+
+            if (TryGetSuffixLength(subType, out var subtypeSuffixLength))
+            {
+                SubTypeWithoutSuffix = subType.Subsegment(0, subType.Length - subtypeSuffixLength - 1);
+                SubTypeSuffix = subType.Subsegment(subType.Length - subtypeSuffixLength, subtypeSuffixLength);
             }
             else
             {
-                SubType = subType;
-
-                if (TryGetSuffixLength(subType, out var subtypeSuffixLength))
-                {
-                    SubTypeWithoutSuffix = subType.Subsegment(0, subType.Length - subtypeSuffixLength - 1);
-                    SubTypeSuffix = subType.Subsegment(subType.Length - subtypeSuffixLength, subtypeSuffixLength);
-                }
-                else
-                {
-                    SubTypeWithoutSuffix = SubType;
-                    SubTypeSuffix = new StringSegment();
-                }
+                SubTypeWithoutSuffix = SubType;
+                SubTypeSuffix = default;
             }
 
             _parameterParser = new MediaTypeParameterParser(mediaType, offset + typeLength + subTypeLength, length);
@@ -322,7 +322,13 @@ namespace Blueprint.Http.Formatters
                 }
             }
 
-            return new StringSegment();
+            return default;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return this._asString;
         }
 
         /// <summary>

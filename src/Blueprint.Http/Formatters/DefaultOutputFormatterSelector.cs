@@ -136,16 +136,12 @@ namespace Blueprint.Http.Formatters
             OutputFormatterCanWriteContext formatterContext,
             IList<MediaTypeSegmentWithQuality> sortedAcceptHeaders)
         {
-            for (var i = 0; i < sortedAcceptHeaders.Count; i++)
+            foreach (var mediaType in sortedAcceptHeaders)
             {
-                var mediaType = sortedAcceptHeaders[i];
-
                 formatterContext.ContentType = new MediaType(mediaType.MediaType);
 
-                for (var j = 0; j < formatters.Count; j++)
+                foreach (var formatter in formatters)
                 {
-                    var formatter = formatters[j];
-
                     if (formatter.IsSupported(formatterContext))
                     {
                         return formatter;

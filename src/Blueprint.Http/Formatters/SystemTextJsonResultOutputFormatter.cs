@@ -36,6 +36,7 @@ namespace Blueprint.Http.Formatters
         {
             if (!context.ContentType.HasValue)
             {
+                // application/json
                 context.ContentType = supportedMediaTypes.First();
                 return true;
             }
@@ -51,6 +52,7 @@ namespace Blueprint.Http.Formatters
             return false;
         }
 
+        /// <inheritdoc />
         public async Task WriteAsync(OutputFormatterCanWriteContext context)
         {
             // We know ContentType has been set as we would have set to a default above in IsSupported
