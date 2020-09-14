@@ -37,7 +37,7 @@ namespace Blueprint.Apm.ApplicationInsights
                 request.Telemetry.Context.Operation.ParentId = parentId;
             }
 
-            return new ApplicationInsightsApmSpan<RequestTelemetry>(request);
+            return new ApplicationInsightsApmSpan<RequestTelemetry>(this, request);
         }
 
         /// <inheritdoc />
@@ -57,7 +57,7 @@ namespace Blueprint.Apm.ApplicationInsights
                     operation.Telemetry.Context.Operation.ParentId = parentId;
                 }
 
-                return new ApplicationInsightsApmSpan<DependencyTelemetry>(operation);
+                return new ApplicationInsightsApmSpan<DependencyTelemetry>(this, operation);
             }
             else
             {
@@ -73,22 +73,32 @@ namespace Blueprint.Apm.ApplicationInsights
                     operation.Telemetry.Context.Operation.ParentId = parentId;
                 }
 
-                return new ApplicationInsightsApmSpan<RequestTelemetry>(operation);
+                return new ApplicationInsightsApmSpan<RequestTelemetry>(this, operation);
             }
         }
 
         private class ApplicationInsightsApmSpan<T> : IApmSpan where T : OperationTelemetry
         {
+            private readonly ApplicationInsightsApmTool tool;
             private readonly IOperationHolder<T> operation;
 
-            public ApplicationInsightsApmSpan(IOperationHolder<T> operation)
+            public ApplicationInsightsApmSpan(ApplicationInsightsApmTool tool, IOperationHolder<T> operation)
             {
+                this.tool = tool;
                 this.operation = operation;
             }
 
             public void Dispose()
             {
                 this.operation.Dispose();
+            }
+
+            public IApmSpan StartSpan(
+                string spanKind,
+                string operationName,
+                string type)
+            {
+                return tool.Start(spanKind, operationName, type);
             }
 
             public void RecordException(Exception e)

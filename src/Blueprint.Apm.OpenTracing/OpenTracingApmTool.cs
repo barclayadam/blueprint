@@ -70,6 +70,20 @@ namespace Blueprint.Apm.OpenTracing
                 this.span = span;
             }
 
+            public IApmSpan StartSpan(
+                string spanKind,
+                string operationName,
+                string type)
+            {
+                return new OpenTracingSpan(
+                    tracer,
+                    tracer.BuildSpan(operationName)
+                        .AsChildOf(span)
+                        .WithTag("type", type)
+                        .WithTag(Tags.SpanKind.Key, spanKind)
+                        .Start());
+            }
+
             public void Dispose()
             {
                 this.span.Finish();

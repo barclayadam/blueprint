@@ -9,6 +9,24 @@ namespace Blueprint.Apm
     public interface IApmSpan : IDisposable
     {
         /// <summary>
+        /// Starts a new child span of this current one, with the specified name (which should be as specific as makes sense to track groups
+        /// of operations), the type (to help distinguish between for example "background" dependencies, or "sql" dependencies), plus
+        /// an optional existing context dictionary that is used for cross-process distributed tracing.
+        /// </summary>
+        /// <remarks>
+        /// The returned span <b>MUST</b> be disposed to be fully tracked, as it is the disposal that marks a span as
+        /// completed.
+        /// </remarks>
+        /// <param name="spanKind">The span kind (<see cref="SpanKinds" />).</param>
+        /// <param name="operationName">The name of the operation.</param>
+        /// <param name="type">The type of the operation.</param>
+        /// <returns>A new <see cref="IApmSpan" /> that can be further configured with tags and exception recordings.</returns>
+        IApmSpan StartSpan(
+            string spanKind,
+            string operationName,
+            string type);
+
+        /// <summary>
         /// Records an exception with this span, marking it as errored.
         /// </summary>
         /// <param name="e">The exception to record.</param>
@@ -36,6 +54,5 @@ namespace Blueprint.Apm
         /// </summary>
         /// <param name="resourceName">The resource name of this span.</param>
         void SetResource(string resourceName);
-
     }
 }

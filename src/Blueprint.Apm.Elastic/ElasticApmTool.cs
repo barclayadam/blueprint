@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Elastic.Apm.Api;
 
 namespace Blueprint.Apm.Elastic
@@ -86,9 +87,22 @@ namespace Blueprint.Apm.Elastic
                 this.segment.End();
             }
 
+            public IApmSpan StartSpan(
+                string spanKind,
+                string operationName,
+                string type)
+            {
+                return new ElasticSpan(this.segment.StartSpan(operationName, type));
+            }
+
             public void RecordException(Exception e)
             {
                 this.segment.CaptureException(e);
+
+                foreach (var kvp in e.Data.Keys.Cast<string>())
+                {
+                    this.segment.Labels[kvp] = e.Data[kvp]?.ToString();
+                }
             }
 
             public void SetTag(string key, string value)

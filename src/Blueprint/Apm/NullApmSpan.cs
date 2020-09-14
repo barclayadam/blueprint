@@ -24,6 +24,12 @@ namespace Blueprint.Apm
         }
 
         /// <inheritdoc />
+        public IApmSpan StartSpan(string spanKind, string operationName, string type)
+        {
+            return Instance;
+        }
+
+        /// <inheritdoc />
         public void RecordException(Exception e)
         {
         }

@@ -5,9 +5,9 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint;
-using Blueprint.Http;
-using Blueprint.Compiler;
 using Blueprint.Apm;
+using Blueprint.Compiler;
+using Blueprint.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
@@ -60,7 +60,7 @@ namespace Microsoft.AspNetCore.Builder
                 // message AND complete file source code to enable much better diagnostics of the compilation issue).
                 //
                 // The consequence of this is that the app is NOT prevented from starting up and only when hitting an API endpoint
-                // would be exception be known to HTTP clients (the error is logged regardless)
+                // would the exception be known to HTTP clients (the error is logged regardless)
                 routeHandler = new RouteHandler(context => throw new CompilationWrapperException(e));
             }
             catch (Exception e) when (e.InnerException is CompilationException ce)
@@ -74,7 +74,7 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             // Ordering by 'indexOf {' means we put those URLs which are not placeholders
-            // first (e.g. /users/{id} and /users/me will put /users/me first)
+            // first (e.g. /users/{id} and /users/me will put /users/me first) because those without would return -1
             foreach (var link in apiDataModel.Links.OrderBy(l => l.UrlFormat.IndexOf('{')))
             {
                 var httpFeatureData = link.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>();
@@ -222,16 +222,20 @@ namespace Microsoft.AspNetCore.Builder
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
                         await result.ExecuteAsync(apiContext);
-
-                        // We set the specific status code, but rely on the APM integration in the actual pipeline]
-                        // to have set the error correctly on the surrounding transaction.
-                        apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
                     }
                     catch (Exception e)
                     {
+                        // This is NOT an exception from the Pipeline as that is caught and pushed to the transaction
+                        // within PushExceptionToApmSpanFrame
                         apmTransaction.RecordException(e);
 
                         throw;
+                    }
+                    finally
+                    {
+                        // We set the specific status code, but rely on the APM integration in the actual pipeline]
+                        // to have set the error correctly on the surrounding transaction.
+                        apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
                     }
                 };
 

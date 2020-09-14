@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blueprint.Apm;
+using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -32,10 +34,16 @@ namespace Blueprint.Middleware
             var allHandlers = context.ServiceProvider.GetRequiredService<List<IOperationExecutorBuilder>>();
             var handler = allHandlers.Single(h => h.Operation == context.Descriptor);
 
+            var apmFrame = ApmSpanFrame.Start(SpanKinds.Internal, "Handler", "exec");
+
+            context.AppendFrames(apmFrame);
+
             var returnVariable = handler.Build(context);
             returnVariable.OverrideName("handlerResult");
 
             context.AppendFrames(new OperationResultCastFrame(returnVariable));
+
+            context.AppendFrames(apmFrame.Complete());
         }
 
         /// <summary>

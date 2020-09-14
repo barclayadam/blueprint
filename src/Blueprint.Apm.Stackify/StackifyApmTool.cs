@@ -22,7 +22,7 @@ namespace Blueprint.Apm.Stackify
 
             dependency.ExecAsync(async () => await tcs.Task);
 
-            return new StackifyApmSpan(tcs);
+            return new StackifyApmSpan(this, tcs);
         }
 
         /// <inheritdoc />
@@ -39,16 +39,27 @@ namespace Blueprint.Apm.Stackify
 
             dependency.ExecAsync(async () => await tcs.Task);
 
-            return new StackifyApmSpan(tcs);
+            return new StackifyApmSpan(this, tcs);
         }
 
         private class StackifyApmSpan : IApmSpan
         {
+            private readonly StackifyApmTool tool;
             private readonly TaskCompletionSource<bool> manualSlim;
 
-            public StackifyApmSpan(TaskCompletionSource<bool> manualSlim)
+            public StackifyApmSpan(StackifyApmTool tool, TaskCompletionSource<bool> manualSlim)
             {
+                this.tool = tool;
                 this.manualSlim = manualSlim;
+            }
+
+            /// <inheritdoc />
+            public IApmSpan StartSpan(
+                string spanKind,
+                string operationName,
+                string type)
+            {
+                return tool.Start(spanKind, operationName, type);
             }
 
             /// <inheritdoc />

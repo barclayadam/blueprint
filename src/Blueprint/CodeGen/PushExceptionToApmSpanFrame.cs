@@ -26,9 +26,10 @@ namespace Blueprint.CodeGen
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var spanVariable = variables.FindVariable(typeof(IApmSpan));
+            var context = variables.FindVariable(typeof(ApiOperationContext));
+            var currentSpan = context.GetProperty(nameof(ApiOperationContext.ApmSpan));
 
-            writer.Write($"{spanVariable}?.{nameof(IApmSpan.RecordException)}({exceptionVariable});");
+            writer.Write($"{currentSpan}?.{nameof(IApmSpan.RecordException)}({exceptionVariable});");
         }
     }
 }

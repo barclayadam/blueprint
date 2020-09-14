@@ -31,7 +31,7 @@ namespace Blueprint.Apm.DataDog
             scope.Span.ResourceName = operation.Name;
             scope.Span.SetTag(Tags.SpanKind, spanKind);
 
-            return new OpenTracingSpan(scope);
+            return new OpenTracingSpan(this, scope);
         }
 
         /// <inheritdoc />
@@ -56,16 +56,26 @@ namespace Blueprint.Apm.DataDog
             scope.Span.ResourceName = resourceName ?? scope.Span.ResourceName;
             scope.Span.SetTag(Tags.SpanKind, spanKind);
 
-            return new OpenTracingSpan(scope);
+            return new OpenTracingSpan(this, scope);
         }
 
         private class OpenTracingSpan : IApmSpan
         {
+            private readonly DataDogApmTool tool;
             private readonly Scope scope;
 
-            public OpenTracingSpan(Scope scope)
+            public OpenTracingSpan(DataDogApmTool tool, Scope scope)
             {
+                this.tool = tool;
                 this.scope = scope;
+            }
+
+            public IApmSpan StartSpan(
+                string spanKind,
+                string operationName,
+                string type)
+            {
+                return tool.Start(spanKind, operationName, type);
             }
 
             public void Dispose()
