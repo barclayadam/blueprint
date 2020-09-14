@@ -46,8 +46,7 @@ namespace Blueprint
                 return new ApiOperationContext(serviceProvider, this, operation, token);
             }
 
-            object[] args = new[] {type.Name};
-            throw new InvalidOperationException(string.Format("Cannot find a registered operation of the type '{0}'.", args));
+            throw new InvalidOperationException($"Cannot find a registered operation of the type '{type.Name}'.");
         }
 
         /// <summary>

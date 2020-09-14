@@ -105,9 +105,8 @@ namespace Blueprint.Authorisation
         {
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                var spanVariable = variables.FindVariable(typeof(IApmSpan));
-
                 var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
+                var spanVariable = apiOperationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
 
                 // It is possible that no span exists
                 writer.WriteIf($"{spanVariable} != null");

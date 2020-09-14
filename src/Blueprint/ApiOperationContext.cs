@@ -39,6 +39,7 @@ namespace Blueprint
             DataModel = dataModel;
             ServiceProvider = serviceProvider;
             Operation = operationDescriptor.CreateInstance();
+            ApmSpan = NullApmSpan.Instance;
 
             Data = new Dictionary<string, object>();
         }
@@ -76,6 +77,7 @@ namespace Blueprint
             DataModel = dataModel;
             ServiceProvider = serviceProvider;
             Operation = operation;
+            ApmSpan = NullApmSpan.Instance;
 
             Data = new Dictionary<string, object>();
         }
