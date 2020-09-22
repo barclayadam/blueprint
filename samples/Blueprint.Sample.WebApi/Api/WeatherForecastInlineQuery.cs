@@ -6,7 +6,7 @@ using Blueprint.Sample.WebApi.Data;
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("forecast-inline")]
-    public class WeatherForecastInlineQuery : IQuery
+    public class WeatherForecastInlineQuery : IQuery<IEnumerable<WeatherForecast>>
     {
         [Required]
         public string City { get; set; }
@@ -22,9 +22,9 @@ namespace Blueprint.Sample.WebApi.Api
         [FromCookie("a-different-cookie-name")]
         public int MyCookieNumber { get; set; }
 
-        public OkResult<IEnumerable<WeatherForecast>> Invoke(IWeatherDataSource weatherDataSource)
+        public IEnumerable<WeatherForecast> Invoke(IWeatherDataSource weatherDataSource)
         {
-            return new OkResult<IEnumerable<WeatherForecast>>(weatherDataSource.Get(City));
+            return weatherDataSource.Get(City);
         }
     }
 }
