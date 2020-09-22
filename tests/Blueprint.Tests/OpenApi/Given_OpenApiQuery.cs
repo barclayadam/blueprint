@@ -12,10 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NUnit.Framework;
 using Snapper;
+using Snapper.Attributes;
 
 namespace Blueprint.Tests.OpenApi
 {
-    // [UpdateSnapshots]
+    [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]

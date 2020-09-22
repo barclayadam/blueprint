@@ -67,15 +67,11 @@ namespace Blueprint.OpenApi
                     },
                 },
 
-                SchemaType = SchemaType.JsonSchema,
+                SchemaType = SchemaType.OpenApi3,
 
                 FlattenInheritanceHierarchy = true,
 
-                ReflectionService = new BlueprintReflectionService(),
-
                 SchemaNameGenerator = new BlueprintSchemaNameGenerator(),
-
-                DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull,
             };
 
             foreach (var processor in openApiOptions.SchemaProcessors)
@@ -512,14 +508,6 @@ namespace Blueprint.OpenApi
                 }
 
                 return baseProperty;
-            }
-        }
-
-        private class BlueprintReflectionService : DefaultReflectionService
-        {
-            public override bool IsNullable(ContextualType contextualType, ReferenceTypeNullHandling defaultReferenceTypeNullHandling)
-            {
-                return false;
             }
         }
 
