@@ -207,6 +207,36 @@ namespace Blueprint.Http
         }
 
         /// <summary>
+        /// Adds the given key value pair to this event's <see cref="ResourceEvent.Metadata" /> dictionary, which can be
+        /// used to store pieces of information that can be exposed to other parts of the system and API consumers
+        /// but <strong>MAY</strong> also be persisted (i.e. for auditing purposes).
+        /// </summary>
+        /// <param name="key">The key of the item to add.</param>
+        /// <param name="value">The value of the item to add.</param>
+        /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
+        public new ResourceEvent<TResource> WithMetadata(string key, object value)
+        {
+            base.WithMetadata(key, value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given key value pair to this event's <see cref="ResourceEvent.SecureData" /> dictionary, which can be
+        /// used to store pieces of information that can be exposed to other parts of the system and API consumers
+        /// but <strong>MUST NOT</strong> be persisted (i.e. for auditing purposes).
+        /// </summary>
+        /// <param name="key">The key of the item to add.</param>
+        /// <param name="value">The value of the item to add.</param>
+        /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
+        public new ResourceEvent<TResource> WithSecureData(string key, object value)
+        {
+            base.WithSecureData(key, value);
+
+            return this;
+        }
+
+        /// <summary>
         /// Creates a fully-qualified event id, one that has the type name of the <see cref="ApiResource" />
         /// represented by <typeparamref name="TResource" />.
         /// </summary>

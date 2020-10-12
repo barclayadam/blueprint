@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Blueprint.Http
 {
@@ -68,10 +70,21 @@ namespace Blueprint.Http
         /// <summary>
         /// Creates a new <see cref="ResourceEvent{TResource}" /> from this definition.
         /// </summary>
+        /// <param name="metadata">Optional metadata that will be attached to the created resource event.</param>
         /// <returns>A new resource event.</returns>
-        public ResourceEvent<TResource> New()
+        public ResourceEvent<TResource> New([CanBeNull] IDictionary<string, object> metadata = null)
         {
-            return new ResourceEvent<TResource>(changeType, eventId, mapper());
+            var resourceEvent = new ResourceEvent<TResource>(changeType, eventId, mapper());
+
+            if (metadata != null)
+            {
+                foreach (var kvp in metadata)
+                {
+                    resourceEvent.WithMetadata(kvp.Key, kvp.Value);
+                }
+            }
+
+            return resourceEvent;
         }
 
         /// <summary>
@@ -124,10 +137,21 @@ namespace Blueprint.Http
         /// by passing the given <paramref name="domainObject" /> to the mapper of this definition.
         /// </summary>
         /// <param name="domainObject">The "domain object" to pass to the self-query mapper.</param>
+        /// <param name="metadata">Optional metadata that will be attached to the created resource event.</param>
         /// <returns>A new resource event.</returns>
-        public ResourceEvent<TResource> New(TDomain domainObject)
+        public ResourceEvent<TResource> New(TDomain domainObject, [CanBeNull] IDictionary<string, object> metadata = null)
         {
-            return new ResourceEvent<TResource>(changeType, eventId, mapper(domainObject));
+            var resourceEvent = new ResourceEvent<TResource>(changeType, eventId, mapper(domainObject));
+
+            if (metadata != null)
+            {
+                foreach (var kvp in metadata)
+                {
+                    resourceEvent.WithMetadata(kvp.Key, kvp.Value);
+                }
+            }
+
+            return resourceEvent;
         }
 
         /// <summary>
