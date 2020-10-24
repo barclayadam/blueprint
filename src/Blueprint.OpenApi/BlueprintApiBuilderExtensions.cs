@@ -32,6 +32,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.AddSchemaProcessor<BlueprintLinkSchemaProcessor>();
             });
 
+            pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
+
             pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
 
             return pipelineBuilder;
@@ -51,6 +53,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 configure(o);
             });
+
+            pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
 
             pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
 

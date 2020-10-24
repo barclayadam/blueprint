@@ -39,7 +39,7 @@ namespace Blueprint.Testing
         /// </remarks>
         /// <param name="context">The context to configure.</param>
         /// <param name="url">The URL to set for this context's request.</param>
-        public static void ConfigureHttp(this ApiOperationContext context, string url)
+        public static HttpContext ConfigureHttp(this ApiOperationContext context, string url)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
@@ -56,6 +56,8 @@ namespace Blueprint.Testing
             httpContext.SetBaseUri("/");
 
             context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
+
+            return httpContext;
         }
     }
 }

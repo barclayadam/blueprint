@@ -54,6 +54,12 @@ namespace Blueprint.OpenApi
         public IReadOnlyList<Type> SchemaProcessors => schemaProcessors;
 
         /// <summary>
+        /// The version of Redoc (https://github.com/Redocly/redoc) to use for the OpenApi documentation
+        /// endpoint.
+        /// </summary>
+        public string RedocVersion { get; set; } = "latest";
+
+        /// <summary>
         /// Adds the given schema processor.
         /// </summary>
         /// <typeparam name="T">The schema processor type to add.</typeparam>

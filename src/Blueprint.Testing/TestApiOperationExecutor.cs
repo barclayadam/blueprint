@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -133,13 +134,16 @@ namespace Blueprint.Testing
         /// Creates and configures a new <see cref="ApiOperationContext" /> for an operation of the specified generic
         /// type, adding HTTP-specific properties to the context.
         /// </summary>
+        /// <param name="configureContext">An optional callback to further configure the HttpContext of the context.</param>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext HttpContextFor<T>(CancellationToken token = default)
+        public ApiOperationContext HttpContextFor<T>(Action<HttpContext> configureContext = null, CancellationToken token = default)
         {
             var context = DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
-            context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+            var httpContext = context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+
+            configureContext?.Invoke(httpContext);
 
             return context;
         }
@@ -149,13 +153,16 @@ namespace Blueprint.Testing
         /// type, adding HTTP-specific properties to the context.
         /// </summary>
         /// <param name="operation">The operation.</param>
+        /// <param name="configureContext">An optional callback to further configure the HttpContext of the context.</param>
         /// <param name="token">A cancellation token to indicate the operation should stop.</param>
         /// <typeparam name="T">The type of operation to create a context for.</typeparam>
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
-        public ApiOperationContext HttpContextFor<T>(T operation, CancellationToken token = default)
+        public ApiOperationContext HttpContextFor<T>(T operation, Action<HttpContext> configureContext = null, CancellationToken token = default)
         {
             var context = DataModel.CreateOperationContext(serviceProvider, operation, token);
-            context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+            var httpContext = context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
+
+            configureContext?.Invoke(httpContext);
 
             return context;
         }
