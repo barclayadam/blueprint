@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -105,8 +106,23 @@ namespace Blueprint.Compiler
         /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
         public Assembly Generate(GenerationRules rules)
         {
+            if (string.IsNullOrEmpty(rules.AssemblyName))
+            {
+                throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
+            }
+
             var encoding = Encoding.UTF8;
-            var assemblyName = rules.AssemblyName ?? throw new InvalidOperationException("AssemblyName must be set on GenerationRules");
+
+            var sourceTexts = files.Select(s => s.Code);
+            var sourceTextHash = GetSha256Hash(string.Join(string.Empty, sourceTexts));
+            var assemblyName = rules.AssemblyName + ".dll";
+
+            var existingAssembly = compileStrategy.TryLoadExisting(sourceTextHash, assemblyName);
+
+            if (existingAssembly != null)
+            {
+                return existingAssembly;
+            }
 
             var syntaxTrees = new List<SyntaxTree>();
             var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.None);
@@ -141,6 +157,7 @@ namespace Blueprint.Compiler
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
+                sourceTextHash,
                 compilation,
                 (result) =>
                 {
@@ -214,6 +231,23 @@ namespace Blueprint.Compiler
                         };
                     }
                 });
+        }
+
+        private static string GetSha256Hash(string input)
+        {
+            using (var shaHash = SHA256.Create())
+            {
+                var data = shaHash.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+                var sBuilder = new StringBuilder();
+
+                foreach (var t in data)
+                {
+                    sBuilder.Append(t.ToString("x2"));
+                }
+
+                return sBuilder.ToString();
+            }
         }
 
         private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)

@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -13,24 +11,35 @@ using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// An <see cref="ICompileStrategy" /> that will store generated DLLs and symbol files to disk
+    /// and use an associated manifest file to allow for the re-use of generated DLLs.
+    /// </summary>
     public class ToFileCompileStrategy : ICompileStrategy
     {
         private readonly ILogger<ToFileCompileStrategy> logger;
         private readonly string outputFolder;
 
+        /// <summary>
+        /// Initialises a new instanced of the <see cref="ToFileCompileStrategy" />.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="outputFolder">The folder that we should load / save generated DLLs.</param>
         public ToFileCompileStrategy(ILogger<ToFileCompileStrategy> logger, string outputFolder)
         {
             this.logger = logger;
             this.outputFolder = outputFolder;
         }
 
-        public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
+        /// <summary>
+        /// Tries to load an existing Assembly using the given source text hash and assembly name, used as an
+        /// optimisation to avoid any actual compilation if possible.
+        /// </summary>
+        /// <param name="sourceTextHash">A hash of the source that would be compiled to an assembly.</param>
+        /// <param name="assemblyName">The name of the assembly (including the .dll extension).</param>
+        /// <returns>A loaded <see cref="Assembly" /> if a matching one already exists, or <c>null</c> if not.</returns>
+        public Assembly TryLoadExisting(string sourceTextHash, string assemblyName)
         {
-            var sourceTexts = compilation.SyntaxTrees.Select(s => s.GetText());
-            var sourceTextHash = GetSha256Hash(string.Join("\n\n", sourceTexts));
-
-            var assemblyName = compilation.AssemblyName + ".dll";
-            var symbolsName = Path.ChangeExtension(assemblyName, "pdb");
             var manifestName = Path.ChangeExtension(assemblyName, "manifest");
 
             // Search through the potential paths for a candidate DLL to load. If we find one we load and return
@@ -78,6 +87,29 @@ namespace Blueprint.Compiler
                 logger.LogInformation("No previously generated DLL exists at '{AssemblyFile}'", assemblyFile);
             }
 
+            return null;
+        }
+
+        /// <summary>
+        /// Performs the actual compilation of the given <see cref="CSharpCompilation" /> and stores / loads the resulting
+        /// assembly, including potentially some form of manifest that can be used by <see cref="TryLoadExisting" /> to load
+        /// the DLL in subsequent runs without performing any compilation.
+        /// </summary>
+        /// <param name="sourceTextHash">A hash of the source that would be compiled to an assembly.</param>
+        /// <param name="compilation">The compilation model.</param>
+        /// <param name="check">A method that should be called with the <see cref="EmitResult" /> of compilation to check for errors.</param>
+        /// <returns>A loaded <see cref="Assembly" /> from the given compilation.</returns>
+        public Assembly Compile(string sourceTextHash, CSharpCompilation compilation, Action<EmitResult> check)
+        {
+            var assemblyName = compilation.AssemblyName;
+            var symbolsName = Path.ChangeExtension(assemblyName, "pdb");
+            var manifestName = Path.ChangeExtension(assemblyName, "manifest");
+
+            // Search through the potential paths for a candidate DLL to load. If we find one we load and return
+            // from the foreach, otherwise we know it need to be compiled (see below loop).
+            var assemblyFile = Path.Combine(outputFolder, assemblyName);
+            var manifestFile = Path.Combine(outputFolder, manifestName);
+
             // Search through the potential paths for a candidate DLL to load. If we find one we load and return
             // from the foreach, otherwise we know it need to be compiled (see below loop).
             var symbolsFile = Path.Combine(outputFolder, symbolsName);
@@ -100,23 +132,6 @@ namespace Blueprint.Compiler
             }
         }
 
-        private static string GetSha256Hash(string input)
-        {
-            using (var shaHash = SHA256.Create())
-            {
-                var data = shaHash.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-                var sBuilder = new StringBuilder();
-
-                foreach (var t in data)
-                {
-                    sBuilder.Append(t.ToString("x2"));
-                }
-
-                return sBuilder.ToString();
-            }
-        }
-
         private void Compile(
             CSharpCompilation compilation,
             Action<EmitResult> check,
@@ -129,26 +144,24 @@ namespace Blueprint.Compiler
                 Directory.CreateDirectory(outputFolder);
             }
 
-            using (var assemblyStream = File.OpenWrite(assemblyFile))
-            using (var symbolsStream = File.OpenWrite(symbolsFile))
-            {
-                var emitOptions = new EmitOptions(
-                    debugInformationFormat: DebugInformationFormat.PortablePdb);
+            using var assemblyStream = File.OpenWrite(assemblyFile);
+            using var symbolsStream = File.OpenWrite(symbolsFile);
 
-                var embeddedTexts = syntaxTrees.Select(s => EmbeddedText.FromSource(s.FilePath, s.GetText()));
+            var emitOptions = new EmitOptions(debugInformationFormat: DebugInformationFormat.PortablePdb);
 
-                var result = compilation.Emit(
-                    peStream: assemblyStream,
-                    pdbStream: symbolsStream,
-                    embeddedTexts: embeddedTexts,
-                    options: emitOptions);
+            var embeddedTexts = syntaxTrees.Select(s => EmbeddedText.FromSource(s.FilePath, s.GetText()));
 
-                check(result);
+            var result = compilation.Emit(
+                peStream: assemblyStream,
+                pdbStream: symbolsStream,
+                embeddedTexts: embeddedTexts,
+                options: emitOptions);
 
-                logger.LogInformation(
-                    $"Compiled assembly to \"{assemblyFile}\" ({new FileInfo(assemblyFile).Length} bytes) and " +
-                             $"symbols to \"{symbolsFile}\" ({new FileInfo(symbolsFile).Length} bytes)");
-            }
+            check(result);
+
+            logger.LogInformation(
+                $"Compiled assembly to \"{assemblyFile}\" ({new FileInfo(assemblyFile).Length} bytes) and " +
+                $"symbols to \"{symbolsFile}\" ({new FileInfo(symbolsFile).Length} bytes)");
         }
     }
 }

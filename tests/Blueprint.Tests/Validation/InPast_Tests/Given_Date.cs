@@ -61,6 +61,8 @@ namespace Blueprint.Tests.Validation.InPast_Tests
         [Test]
         public void When_DateTime_Is_Now_Then_Invalid()
         {
+            using var t = SystemTime.PauseForThread();
+
             // Arrange
             var dateTime = SystemTime.UtcNow;
 
