@@ -134,7 +134,8 @@ namespace Blueprint.Compiler.Frames
 
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var parameters = methodInfo.GetParameters().ToArray();
+            var parameters = methodInfo.GetParameters();
+
             for (var i = 0; i < parameters.Length; i++)
             {
                 if (Arguments[i] != null)
@@ -181,39 +182,16 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
-        /// <summary>
-        /// Code to invoke the method without any assignment to a variable.
-        /// </summary>
-        /// <returns></returns>
-        public string InvocationCode()
-        {
-            return IsAsync ? "await " + GetInvocationCode() : GetInvocationCode();
-        }
-
-        /// <summary>
-        /// Code to invoke the method and set a variable to the returned value.
-        /// </summary>
-        /// <returns></returns>
-        public string AssignmentCode()
-        {
-            if (ReturnVariable == null)
-            {
-                throw new InvalidOperationException($"Method {this} does not have a return value");
-            }
-
-            return IsAsync
-                ? $"var {ReturnVariable} = await {InvocationCode()}"
-                : $"var {ReturnVariable} = {InvocationCode()}";
-        }
-
+        /// <inheritdoc />
         public override bool CanReturnTask()
         {
             return IsAsync;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
-            return InvocationCode();
+            return IsAsync ? "await " + GetInvocationCode() : GetInvocationCode();
         }
 
         private static Type CorrectedReturnType(Type type)

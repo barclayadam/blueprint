@@ -11,10 +11,9 @@ namespace Blueprint.Compiler.Tests.Scenarios
     public static class CodegenScenario
     {
         public static CodegenResult<TObject> ForBaseOf<TObject>(
-            Action<GeneratedMethod> configuration,
-            GenerationRules rules = null)
+            Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<TObject>((t, m) => configuration(m), rules);
+            return ForBaseOf<TObject>((t, m) => configuration(m));
         }
 
         /// <summary>
@@ -25,14 +24,14 @@ namespace Blueprint.Compiler.Tests.Scenarios
         /// <param name="rules"></param>
         /// <typeparam name="TObject"></typeparam>
         /// <returns></returns>
-        public static CodegenResult<TObject> ForBaseOf<TObject>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<TObject> ForBaseOf<TObject>(Action<GeneratedType, GeneratedMethod> configuration)
         {
             if (typeof(TObject).GetMethods().Length != 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(TObject), "The supplied base type or interface can only have exactly one declared method");
             }
 
-            rules = rules ?? Builder.Rules("CodegenScenario.Tests");
+            var rules = Builder.Rules();
             var assembly = new GeneratedAssembly(rules);
 
             var generatedType = assembly.AddType("Tests", "GeneratedType", typeof(TObject));
@@ -56,54 +55,54 @@ namespace Blueprint.Compiler.Tests.Scenarios
             return new CodegenResult<TObject>(generatedType.CreateInstance<TObject>(), generatedType.SourceCode);
         }
 
-        public static CodegenResult<IBuilds<T>> ForBuilds<T>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IBuilds<T>> ForBuilds<T>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IBuilds<T>>(configuration, rules);
+            return ForBaseOf<IBuilds<T>>(configuration);
         }
 
-        public static CodegenResult<IBuilds<T>> ForBuilds<T>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IBuilds<T>> ForBuilds<T>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IBuilds<T>>((t, m) => configuration(m), rules);
+            return ForBaseOf<IBuilds<T>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<T>>(configuration, rules);
+            return ForBaseOf<IAction<T>>(configuration);
         }
 
-        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1>>(configuration, rules);
+            return ForBaseOf<IAction<TResult, T1>>(configuration);
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2>>(configuration, rules);
+            return ForBaseOf<IAction<TResult, T1, T2>>(configuration);
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedType, GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2, T3>>(configuration, rules);
+            return ForBaseOf<IAction<TResult, T1, T2, T3>>(configuration);
         }
 
-        public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<T>>((t, m) => configuration(m), rules);
+            return ForBaseOf<IAction<T>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1>>((t, m) => configuration(m), rules);
+            return ForBaseOf<IAction<TResult, T1>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2>>((t, m) => configuration(m), rules);
+            return ForBaseOf<IAction<TResult, T1, T2>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedMethod> configuration, GenerationRules rules = null)
+        public static CodegenResult<IAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2, T3>>((t, m) => configuration(m), rules);
+            return ForBaseOf<IAction<TResult, T1, T2, T3>>((t, m) => configuration(m));
         }
     }
 }

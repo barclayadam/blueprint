@@ -212,7 +212,12 @@ namespace Blueprint.Compiler
 
         internal void FindType(Type[] generated)
         {
-            CompiledType = generated.Single(x => x.Name == TypeName && x.Namespace == Namespace);
+            CompiledType = generated.SingleOrDefault(x => x.Name == TypeName && x.Namespace == Namespace);
+
+            if (CompiledType == null)
+            {
+                throw new InvalidOperationException($"Could not find compile typed {Namespace}.{TypeName} in {generated.Length} types");
+            }
         }
 
         Variable IVariableSource.TryFindVariable(IMethodVariables variables, Type variableType)

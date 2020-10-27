@@ -2,21 +2,23 @@
 {
     internal static class Builder
     {
-        public static GeneratedType NewType(string @namespace = "Blueprint.Compiler.Tests", string typeName = "Foo")
+        private static int scenarioCount = 1;
+
+        public static GeneratedType NewType(string assemblyName = null, string typeName = "Foo")
         {
-            return new GeneratedType(Assembly(@namespace), typeName, @namespace);
+            return new GeneratedType(Assembly(assemblyName), typeName, assemblyName);
         }
 
-        public static GeneratedAssembly Assembly(string @namespace = "Blueprint.Compiler.Tests")
+        public static GeneratedAssembly Assembly(string assemblyName = null)
         {
-            return new GeneratedAssembly(Rules(@namespace));
+            return new GeneratedAssembly(Rules(assemblyName));
         }
 
-        public static GenerationRules Rules(string @namespace = "Blueprint.Compiler.Tests")
+        public static GenerationRules Rules(string assemblyName = null)
         {
             return new GenerationRules
             {
-                AssemblyName = @namespace,
+                AssemblyName = assemblyName ?? "Blueprint.Compiler.Tests" + scenarioCount++,
             };
         }
     }

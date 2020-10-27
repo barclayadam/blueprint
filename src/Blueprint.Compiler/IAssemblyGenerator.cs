@@ -5,12 +5,6 @@ namespace Blueprint.Compiler
     public interface IAssemblyGenerator
     {
         /// <summary>
-        /// Reference the assembly containing the type "T".
-        /// </summary>
-        /// <typeparam name="T">A type that lives in the assembly to be referenced.</typeparam>
-        void ReferenceAssemblyContainingType<T>();
-
-        /// <summary>
         /// Tells Roslyn to reference the given assembly and any of its dependencies
         /// when compiling code.
         /// </summary>

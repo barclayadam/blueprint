@@ -1,17 +1,20 @@
 using System;
-using System.IO;
-
+using System.Text;
 using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// Default implementation of <see cref="ISourceWriter" /> that uses a backing <see cref="StringBuilder" />.
+    /// </summary>
     public class SourceWriter : ISourceWriter
     {
-        private readonly StringWriter writer = new StringWriter();
+        private readonly StringBuilder writer = new StringBuilder();
 
         private int level;
         private string leadingSpaces = string.Empty;
 
+        /// <inheritdoc />
         public int IndentationLevel
         {
             get
@@ -26,11 +29,13 @@ namespace Blueprint.Compiler
             }
         }
 
+        /// <inheritdoc />
         public void BlankLine()
         {
-            writer.WriteLine();
+            writer.Append("\r\n");
         }
 
+        /// <inheritdoc />
         public void Write(string text = null)
         {
             if (string.IsNullOrEmpty(text))
@@ -39,24 +44,30 @@ namespace Blueprint.Compiler
                 return;
             }
 
-            text.ReadLines(line =>
+            foreach (ReadOnlySpan<char> line in text.SplitLines())
             {
-                if (string.IsNullOrEmpty(line))
+                if (line.IsWhiteSpace())
                 {
                     BlankLine();
                 }
                 else
                 {
-                    WriteLine(line);
+                    writer.Append(leadingSpaces);
+                    writer.Append(line.ToString());
+                    writer.AppendLine();
                 }
-            });
+            }
         }
 
+        /// <inheritdoc />
         public void WriteLine(string text)
         {
-            writer.WriteLine(leadingSpaces + text);
+            writer.Append(leadingSpaces);
+            writer.Append(text);
+            writer.AppendLine();
         }
 
+        /// <inheritdoc />
         public void Block(string text)
         {
             WriteLine(text);
@@ -65,6 +76,7 @@ namespace Blueprint.Compiler
             IndentationLevel++;
         }
 
+        /// <inheritdoc />
         public void FinishBlock(string extra = null)
         {
             if (IndentationLevel == 0)
@@ -86,6 +98,7 @@ namespace Blueprint.Compiler
             BlankLine();
         }
 
+        /// <inheritdoc />
         public string Code()
         {
             return writer.ToString();
