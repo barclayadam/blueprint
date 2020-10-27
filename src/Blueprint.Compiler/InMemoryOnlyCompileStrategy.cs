@@ -6,10 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.Logging;
-
-#if !NET472
 using System.Runtime.Loader;
-#endif
 
 namespace Blueprint.Compiler
 {
@@ -43,11 +40,7 @@ namespace Blueprint.Compiler
                 assemblyStream.Seek(0, SeekOrigin.Begin);
                 symbolsStream.Seek(0, SeekOrigin.Begin);
 
-#if !NET472
                 return AssemblyLoadContext.Default.LoadFromStream(assemblyStream, symbolsStream);
-#else
-                return Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
-#endif
             }
         }
     }

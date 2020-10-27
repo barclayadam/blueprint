@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-#if !NET472
 using System.Runtime.Loader;
-#endif
 using Blueprint.Authorisation;
 using Blueprint.Middleware;
 using Blueprint.Utilities;
@@ -105,13 +103,7 @@ namespace Blueprint.Configuration
 
                 foreach (var referenced in a.GetReferencedAssemblies())
                 {
-#if !NET472
                     ScanRecursive(AssemblyLoadContext.Default.LoadFromAssemblyName(referenced), seen);
-#endif
-
-#if NET472
-                    ScanRecursive(Assembly.Load(referenced), seen);
-#endif
                 }
             }
 

@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.Logging;
-
-#if !NET472
-using System.Runtime.Loader;
-#endif
 
 namespace Blueprint.Compiler
 {
@@ -60,11 +57,7 @@ namespace Blueprint.Compiler
 
                     try
                     {
-#if !NET472
                         return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
-#else
-                        return Assembly.LoadFrom(assemblyFile);
-#endif
                     }
                     catch (Exception e)
                     {
@@ -97,11 +90,7 @@ namespace Blueprint.Compiler
 
                 File.WriteAllText(manifestFile, sourceTextHash);
 
-#if !NET472
                 return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
-#else
-                return Assembly.LoadFrom(assemblyFile);
-#endif
             }
             catch (IOException e)
             {

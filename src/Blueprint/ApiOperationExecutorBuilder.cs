@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
@@ -11,10 +12,6 @@ using Blueprint.Configuration;
 using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-#if !NET472
-using System.Runtime.Loader;
-#endif
 
 namespace Blueprint
 {
@@ -73,7 +70,6 @@ namespace Blueprint
                 }
             }
 
-#if !NET472
             // 2. Do we have the DLL stored alongside this application but NOT loaded?
             var directory = Path.GetDirectoryName(typeof(ApiOperationExecutorBuilder).Assembly.Location);
             var assemblyPath = Path.Combine(directory, options.GenerationRules.AssemblyName) + ".dll";
@@ -89,7 +85,6 @@ namespace Blueprint
 
                 return CreateFromAssembly(options, serviceProvider, model, loadedPipelineDll);
             }
-#endif
 
             // 2. We DO NOT have any existing DLLs. In that case we are going to generate the source code using our configured
             // middlewares and then hand off to AssemblyGenerator to compile and load the assembly (which may be in-memory, stored
