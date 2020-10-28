@@ -53,7 +53,7 @@ namespace Blueprint.Testing
                 RouteData = new RouteData(),
             });
 
-            httpContext.SetBaseUri("/");
+            httpContext.SetBaseUri("https://api.blueprint-testing.com/api/");
 
             context.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = httpContext;
 

@@ -65,17 +65,13 @@ namespace Blueprint.Http
         }
 
         /// <summary>
-        /// Sets the Blueprint HTTP API base URI, as configured in <see cref="ApplicationBuilderExtensions.UseBlueprintApi" />, in addition
-        /// to the origin as grabbed from the context itself.
+        /// Sets the Blueprint HTTP API base URI, as configured in <see cref="ApplicationBuilderExtensions.UseBlueprintApi" /> and potentially
+        /// configured in <see cref="BlueprintHttpOptions" />.
         /// </summary>
         /// <param name="httpContext">The context to set store the uri in.</param>
-        /// <param name="basePath">The base uri to set.</param>
-        public static void SetBaseUri(this HttpContext httpContext, string basePath)
+        /// <param name="baseUri">The base uri to set.</param>
+        public static void SetBaseUri(this HttpContext httpContext, string baseUri)
         {
-            var request = httpContext.Request;
-            var baseUri = $"{request.Scheme}://{request.Host}{request.PathBase}/{basePath}";
-
-            httpContext.Items["BlueprintHttpApiBasePath"] = basePath;
             httpContext.Items["BlueprintHttpApiBaseUri"] = baseUri;
         }
 
@@ -87,16 +83,6 @@ namespace Blueprint.Http
         public static string GetBlueprintBaseUri(this HttpContext httpContext)
         {
             return httpContext.Items["BlueprintHttpApiBaseUri"] as string;
-        }
-
-        /// <summary>
-        /// Gets the base path for the Blueprint API, as set in <see cref="SetBaseUri" />.
-        /// </summary>
-        /// <param name="httpContext">The context to grab the base path from.</param>
-        /// <returns>The Blueprint API base URI (note this <b>IS NOT</b> the full URL, but just the configured path).</returns>
-        public static string GetBlueprintBasePath(this HttpContext httpContext)
-        {
-            return httpContext.Items["BlueprintHttpApiBasePath"] as string;
         }
     }
 }

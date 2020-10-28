@@ -39,8 +39,7 @@ namespace Blueprint.Tests.ApiOperationLinkTests
                 .FindOperations(options.Model);
 
             var httpContext = new DefaultHttpContext();
-            httpContext.SetRequestUri("http://api.example.com/api/");
-            httpContext.SetBaseUri("api/");
+            httpContext.SetBaseUri("http://api.example.com/api/");
 
             linkGenerator = new ApiLinkGenerator(options.Model, new HttpContextAccessor { HttpContext = httpContext });
             descriptor = options.Model.FindOperation(typeof(LinkGeneratorTestsOperation));

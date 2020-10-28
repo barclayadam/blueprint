@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Dictionary>
+    <Words>
+        <Recognized>
+            <Word>Authorisation</Word>
+            <Word>Api</Word>
+            <Word>Behaviour</Word>
+            <Word>Behaviours</Word>
+            <Word>Cqrs</Word>
+            <Word>Petabytes</Word>
+            <Word>Prepended</Word>
+            <Word>Re</Word>
+            <Word>Validators</Word>
+        </Recognized>
+        
+        <DiscreteExceptions>
+            <Term>Username</Term>
+        </DiscreteExceptions>
+    </Words>
+</Dictionary>

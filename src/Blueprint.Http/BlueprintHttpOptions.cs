@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Http.Formatters;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Blueprint.Http
 {
@@ -25,5 +27,15 @@ namespace Blueprint.Http
         /// <see langword="false"/> by default.
         /// </summary>
         public bool ReturnHttpNotAcceptable { get; set; }
+
+        /// <summary>
+        /// An optional domain that should be used instead of the request URL when generating absolute
+        /// link URLs.
+        /// </summary>
+        /// <remarks>
+        /// By default this is <c>null</c> which means when generating URLs Blueprint will look at the
+        /// incoming HTTP request and use the <see cref="HttpRequest.Host" /> property.
+        /// </remarks>
+        [CanBeNull] public string PublicHost { get; set; }
     }
 }

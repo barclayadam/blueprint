@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 // This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
@@ -34,6 +35,7 @@ namespace Microsoft.AspNetCore.Builder
             var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
             var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
             var apmTool = applicationBuilder.ApplicationServices.GetRequiredService<IApmTool>();
+            var httpOptions = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BlueprintHttpOptions>>();
 
             IRouter routeHandler;
 
@@ -46,6 +48,7 @@ namespace Microsoft.AspNetCore.Builder
                     apmTool,
                     applicationBuilder.ApplicationServices,
                     applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>(),
+                    httpOptions,
                     basePath);
             }
             catch (CompilationException e)
@@ -145,6 +148,7 @@ namespace Microsoft.AspNetCore.Builder
             private readonly IApmTool apmTool;
             private readonly IServiceProvider rootServiceProvider;
             private readonly ILogger<BlueprintApiRouter> logger;
+            private readonly IOptions<BlueprintHttpOptions> httpOptions;
             private readonly string basePath;
 
             public BlueprintApiRouter(
@@ -152,12 +156,14 @@ namespace Microsoft.AspNetCore.Builder
                 IApmTool apmTool,
                 IServiceProvider rootServiceProvider,
                 ILogger<BlueprintApiRouter> logger,
+                IOptions<BlueprintHttpOptions> httpOptions,
                 string basePath)
             {
                 this.apiOperationExecutor = apiOperationExecutor;
                 this.apmTool = apmTool;
                 this.rootServiceProvider = rootServiceProvider;
                 this.logger = logger;
+                this.httpOptions = httpOptions;
                 this.basePath = basePath;
             }
 
@@ -214,7 +220,10 @@ namespace Microsoft.AspNetCore.Builder
                             RouteData = routeData,
                         });
 
-                        httpContext.SetBaseUri(basePath);
+                        var request = httpContext.Request;
+                        var baseUri = $"{request.Scheme}://{httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{basePath}";
+
+                        httpContext.SetBaseUri(baseUri);
 
                         apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
 

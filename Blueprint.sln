@@ -33,6 +33,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9500564D-5E23-471A-BE6E-EA9051177CE1}"
 ProjectSection(SolutionItems) = preProject
 	tests\Directory.Build.props = tests\Directory.Build.props
+	tests\CustomDictionary.xml = tests\CustomDictionary.xml
+	tests\Rules.ruleset = tests\Rules.ruleset
+	tests\Stylecop.json = tests\Stylecop.json
 EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.WebApi", "samples\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj", "{8C575F82-1372-485C-83C1-67C359CF9273}"

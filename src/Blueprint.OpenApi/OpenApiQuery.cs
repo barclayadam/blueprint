@@ -28,11 +28,9 @@ namespace Blueprint.OpenApi
             IOptions<OpenApiOptions> options)
         {
             var openApiOptions = options.Value;
-            var basePath = httpContext.GetBlueprintBasePath();
+            var baseUri = httpContext.GetBlueprintBaseUri();
 
-            // Special case a base path of just "/" to avoid "//". We prepend "/" to
-            // indicate this is relative to the URL the document was accessed at
-            openApiDocument.BasePath = basePath == "/" ? "/" : "/" + basePath;
+            openApiDocument.BasePath = baseUri;
 
             var httpRequest = httpContext.Request;
 
@@ -56,7 +54,7 @@ namespace Blueprint.OpenApi
     </style>
 </head>
 <body>
-<redoc spec-url='/{basePath.TrimStart('/')}openapi'></redoc>
+<redoc spec-url='{baseUri.TrimEnd('/')}/openapi'></redoc>
 <script src=""https://cdn.jsdelivr.net/npm/redoc@{openApiOptions.RedocVersion}/bundles/redoc.standalone.js""></script>
 </body>
 </html>";
