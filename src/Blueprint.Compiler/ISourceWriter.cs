@@ -16,11 +16,10 @@
 
         /// <summary>
         /// Writes one or more lines into the code that respects the current block depth
-        /// and handles text alignment for you. Also respects the "BLOCK" and
-        /// "END".
+        /// and handles text alignment for you.
         /// </summary>
         /// <param name="text">The text to write.</param>
-        void Write(string text = null);
+        void WriteLines(string text = null);
 
         /// <summary>
         /// Writes a single line with this content to the code

@@ -38,7 +38,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.Write(ToString());
+            writer.WriteLine(ToString());
 
             next();
         }

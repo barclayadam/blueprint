@@ -201,7 +201,7 @@ namespace Blueprint.Tests.IoC
                 var operationVariable = variables.FindVariable(typeof(OperationWithInjectable));
                 var diVariable = variables.FindVariable(typeof(T));
 
-                writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diVariable};");
+                writer.WriteLine($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diVariable};");
                 next();
             }
         }
@@ -225,8 +225,8 @@ namespace Blueprint.Tests.IoC
                 var diInterfaceVariable = variables.FindVariable(typeof(T1));
                 var diConcreteVariable = variables.FindVariable(typeof(T2));
 
-                writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diInterfaceVariable};");
-                writer.Write($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diConcreteVariable};");
+                writer.WriteLine($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diInterfaceVariable};");
+                writer.WriteLine($"{operationVariable}.{nameof(OperationWithInjectable.InjectableProperty)} = {diConcreteVariable};");
 
                 next();
             }

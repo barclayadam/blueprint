@@ -36,13 +36,13 @@ namespace Blueprint.CodeGen
         {
             var contextVariable = variables.FindVariable(typeof(ApiOperationContext));
 
-            writer.Write($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
-            writer.Write($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
+            writer.WriteLine($"var userAuthorisationContext = {contextVariable}.UserAuthorisationContext;");
+            writer.WriteLine($"var identifier = new {typeof(UserExceptionIdentifier).FullNameInCode()}(userAuthorisationContext);");
 
             writer.BlankLine();
 
             // 1. Allow user context to populate metadata to the error data dictionary if it exists
-            writer.Write($"userAuthorisationContext?.PopulateMetadata((k, v) => {exceptionVariable}.Data[k] = v?.ToString());");
+            writer.WriteLine($"userAuthorisationContext?.PopulateMetadata((k, v) => {exceptionVariable}.Data[k] = v?.ToString());");
 
             var operationTypeKey = ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType);
 
@@ -58,8 +58,8 @@ namespace Blueprint.CodeGen
                 // If the type is primitive we need to leave off the '?' null-coalesce method call operator
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
-                writer.Write($"{exceptionVariable}.Data[\"{operationTypeKey}.{prop.Name}\"] = " +
-                             $"{variables.FindVariable(context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
+                writer.WriteLine($"{exceptionVariable}.Data[\"{operationTypeKey}.{prop.Name}\"] = " +
+                                 $"{variables.FindVariable(context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks

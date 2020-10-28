@@ -161,7 +161,7 @@ namespace Blueprint.Compiler
                 WriteConstructorMethod(writer, AllInjectedFields);
             }
 
-            writer.Write(methodWriter.Code());
+            writer.WriteLines(methodWriter.Code());
 
             writer.FinishBlock();
         }

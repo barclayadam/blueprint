@@ -19,12 +19,12 @@ namespace Blueprint.Compiler.Model
 
         public void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Write($"private readonly {VariableType.FullNameInCode()} {Usage};");
+            writer.WriteLine($"private readonly {VariableType.FullNameInCode()} {Usage};");
         }
 
         public virtual void WriteAssignment(ISourceWriter writer)
         {
-            writer.Write($"{Usage} = {ArgumentName};");
+            writer.WriteLine($"{Usage} = {ArgumentName};");
         }
     }
 }

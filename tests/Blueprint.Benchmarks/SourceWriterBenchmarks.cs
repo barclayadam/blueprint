@@ -4,7 +4,7 @@ using Blueprint.Compiler;
 namespace Blueprint.Benchmarks
 {
     [MemoryDiagnoser]
-    public class Benchmarks
+    public class SourceWriterBenchmarks
     {
         private const string textToWrite = @"using System;
 using BenchmarkDotNet;
@@ -26,14 +26,14 @@ namespace Blueprint.Benchmarks
 }";
 
         [Benchmark]
-        public void Base()
+        public void BaseWithNewlines()
         {
             var sourceWriter = new SourceWriter
             {
                 IndentationLevel = 1,
             };
 
-            sourceWriter.Write(textToWrite);
+            sourceWriter.WriteLines(textToWrite);
         }
     }
 }

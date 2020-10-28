@@ -45,7 +45,7 @@ namespace Blueprint.Middleware
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
+                writer.WriteLine($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
 
                 next();
             }
@@ -64,7 +64,7 @@ namespace Blueprint.Middleware
             {
                 var stopwatchVariable = variables.FindVariable(typeof(Stopwatch));
 
-                writer.Write($"{stopwatchVariable}.Stop();");
+                writer.WriteLine($"{stopwatchVariable}.Stop();");
 
                 writer.Write(
                     LogFrame.Information(

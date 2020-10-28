@@ -33,7 +33,7 @@ namespace Blueprint.Compiler.Frames
 
             if (ReturnedVariable == null)
             {
-                writer.Write("return;");
+                writer.WriteLine("return;");
             }
             else
             {
@@ -47,12 +47,12 @@ namespace Blueprint.Compiler.Frames
                     // What type are we expecting to return?
                     var taskValueType = method.ReturnType.GenericTypeArguments[0];
 
-                    writer.Write(
+                    writer.WriteLine(
                         $"return {typeof(Task).FullNameInCode()}.{nameof(Task.FromResult)}(({taskValueType.FullNameInCode()}){ReturnedVariable});");
                 }
                 else
                 {
-                    writer.Write($"return {ReturnedVariable};");
+                    writer.WriteLine($"return {ReturnedVariable};");
                 }
             }
         }

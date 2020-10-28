@@ -22,7 +22,7 @@ namespace Blueprint.Compiler.Model
 
         public virtual void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Write(ToDeclaration());
+            writer.WriteLine(ToDeclaration());
         }
 
         public void SetInitialValue(object @object)

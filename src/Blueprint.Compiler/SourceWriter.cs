@@ -36,7 +36,7 @@ namespace Blueprint.Compiler
         }
 
         /// <inheritdoc />
-        public void Write(string text = null)
+        public void WriteLines(string text = null)
         {
             if (string.IsNullOrEmpty(text))
             {

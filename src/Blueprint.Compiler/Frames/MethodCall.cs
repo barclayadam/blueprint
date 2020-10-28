@@ -176,7 +176,7 @@ namespace Blueprint.Compiler.Frames
             }
             else
             {
-                writer.Write($"{returnValue}{invokeMethod};");
+                writer.WriteLine($"{returnValue}{invokeMethod};");
 
                 next();
             }

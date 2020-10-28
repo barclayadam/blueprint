@@ -113,11 +113,11 @@ namespace Blueprint.Authorisation
 
                 // We set user data as tags. Individual APM tools may wish to react accordingly to these tags if there is some specific
                 // location user details need to be stored.
-                writer.Write($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
+                writer.WriteLine($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
 
                 writer.WriteIf($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
-                writer.Write($"{spanVariable}.SetTag(\"user.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
-                writer.Write($"{spanVariable}.SetTag(\"user.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
+                writer.WriteLine($"{spanVariable}.SetTag(\"user.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
+                writer.WriteLine($"{spanVariable}.SetTag(\"user.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
                 writer.FinishBlock();
 
                 writer.FinishBlock();

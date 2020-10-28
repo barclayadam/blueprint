@@ -277,7 +277,7 @@ namespace Blueprint.Compiler
         {
             if ((AsyncMode == AsyncMode.ReturnCompletedTask || AsyncMode == AsyncMode.None) && ReturnType == typeof(Task))
             {
-                writer.Write("return Task.CompletedTask;");
+                writer.WriteLine("return Task.CompletedTask;");
             }
         }
 
@@ -422,9 +422,9 @@ namespace Blueprint.Compiler
                 inner.Block(text);
             }
 
-            public void Write(string text = null)
+            public void WriteLines(string text = null)
             {
-                inner.Write(text);
+                inner.WriteLines(text);
             }
 
             public void WriteLine(string text)
@@ -478,7 +478,7 @@ namespace Blueprint.Compiler
                 IndentationLevel--;
             }
 
-            public void Write(string text = null)
+            public void WriteLines(string text = null)
             {
             }
 

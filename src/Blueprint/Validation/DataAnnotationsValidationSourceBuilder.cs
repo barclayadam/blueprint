@@ -64,7 +64,7 @@ namespace Blueprint.Validation
                 var resultsVariable = variables.FindVariable(typeof(ValidationFailures));
 
                 writer.Block($"foreach (var classFailure in (({typeof(IValidatableObject).FullNameInCode()}){operationVariable}).{nameof(IValidatableObject.Validate)}({validationContextVariable}))");
-                writer.Write($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(classFailure);");
+                writer.WriteLine($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(classFailure);");
                 writer.FinishBlock();
 
                 next();
@@ -83,8 +83,8 @@ namespace Blueprint.Validation
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write($"{contextVariable}.MemberName = \"{Property.PropertyInfoVariable.Property.Name}\";");
-                writer.Write($"{contextVariable}.DisplayName = \"{Property.PropertyInfoVariable.Property.Name}\";");
+                writer.WriteLine($"{contextVariable}.MemberName = \"{Property.PropertyInfoVariable.Property.Name}\";");
+                writer.WriteLine($"{contextVariable}.DisplayName = \"{Property.PropertyInfoVariable.Property.Name}\";");
                 writer.BlankLine();
 
                 LoopAttributes(

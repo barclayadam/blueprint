@@ -33,7 +33,7 @@ namespace Blueprint.Compiler
         /// <typeparam name="T"></typeparam>
         public static void UsingNamespace<T>(this ISourceWriter writer)
         {
-            writer.Write($"using {typeof(T).Namespace};");
+            writer.WriteLine($"using {typeof(T).Namespace};");
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Blueprint.Compiler
         /// <param name="namespace"></param>
         public static void UsingNamespace(this ISourceWriter writer, string @namespace)
         {
-            writer.Write($"using {@namespace};");
+            writer.WriteLine($"using {@namespace};");
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Blueprint.Compiler
         /// <param name="comment"></param>
         public static void WriteComment(this ISourceWriter writer, string comment)
         {
-            writer.Write("// " + comment);
+            writer.WriteLine("// " + comment);
         }
 
         /// <summary>

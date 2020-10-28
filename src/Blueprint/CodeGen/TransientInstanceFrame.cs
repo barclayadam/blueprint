@@ -42,7 +42,7 @@ namespace Blueprint.CodeGen
             // generated code quite a bit for this use case.
             method.GeneratedType.Namespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
 
-            writer.Write(
+            writer.WriteLine(
                 $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>();");
 
             next();

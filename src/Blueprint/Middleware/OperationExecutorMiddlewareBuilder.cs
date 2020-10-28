@@ -70,7 +70,7 @@ namespace Blueprint.Middleware
                 {
                     // If the declared type is already a type of OperationResult we can eliminate the ternary operator check and
                     // immediately assign to the operationResult variable
-                    writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable};");
+                    writer.WriteLine($"{operationResultName} {operationResultVariable} = {resultVariable};");
                 }
                 else if (resultVariable.VariableType.IsAssignableFrom(typeof(OperationResult)))
                 {
@@ -78,16 +78,16 @@ namespace Blueprint.Middleware
                     // actually is, and either use it directly or wrap in an OkResult
                     var okResultName = typeof(OkResult).FullNameInCode();
 
-                    writer.Write($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
-                                 "r : " +
-                                 $"new {okResultName}({resultVariable});");
+                    writer.WriteLine($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
+                                     "r : " +
+                                     $"new {okResultName}({resultVariable});");
                 }
                 else
                 {
                     // The type is NOT related to OperationResult at all, so we always create a wrapping OkResult
                     var okResultName = typeof(OkResult).FullNameInCode();
 
-                    writer.Write($"{operationResultName} {operationResultVariable} = new {okResultName}({resultVariable});");
+                    writer.WriteLine($"{operationResultName} {operationResultVariable} = new {okResultName}({resultVariable});");
                 }
 
                 next();

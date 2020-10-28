@@ -26,9 +26,9 @@ namespace Blueprint.Validation
             writer.WriteComment($"{property.PropertyInfoVariable} == {property.PropertyInfoVariable.Property.DeclaringType.Name}.{property.PropertyInfoVariable.Property.Name}");
             writer.Block($"foreach (var attribute in {property.PropertyAttributesVariable})");
             writer.Block($"if (attribute is {attributeType} x)");
-            writer.Write($"var result = {awaitMethod} x.{methodCall};");
+            writer.WriteLine($"var result = {awaitMethod} x.{methodCall};");
             writer.Block($"if (result != {Variable.StaticFrom<ValidationResult>(nameof(ValidationResult.Success))})");
-            writer.Write($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(result);");
+            writer.WriteLine($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(result);");
             writer.FinishBlock();
             writer.FinishBlock();
             writer.FinishBlock();

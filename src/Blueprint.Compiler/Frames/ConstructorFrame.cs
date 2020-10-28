@@ -64,7 +64,7 @@ namespace Blueprint.Compiler.Frames
             switch (Mode)
             {
                 case ConstructorCallMode.Variable:
-                    writer.Write(Declaration() + ";");
+                    writer.WriteLine(Declaration() + ";");
                     ActivatorFrames.Write(variables, method, writer);
 
                     next();
@@ -73,15 +73,15 @@ namespace Blueprint.Compiler.Frames
                 case ConstructorCallMode.ReturnValue:
                     if (ActivatorFrames.Any())
                     {
-                        writer.Write(Declaration() + ";");
+                        writer.WriteLine(Declaration() + ";");
                         ActivatorFrames.Write(variables, method, writer);
 
-                        writer.Write($"return {Variable};");
+                        writer.WriteLine($"return {Variable};");
                         next();
                     }
                     else
                     {
-                        writer.Write($"return {Invocation()};");
+                        writer.WriteLine($"return {Invocation()};");
                         next();
                     }
 

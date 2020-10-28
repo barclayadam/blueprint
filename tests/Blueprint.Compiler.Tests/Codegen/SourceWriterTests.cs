@@ -11,7 +11,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var writer = new SourceWriter();
             writer.Block("public void Go()");
-            writer.Write("var x = 0;");
+            writer.WriteLine("var x = 0;");
             writer.FinishBlock();
 
             var lines = writer.Code().ReadLines().ToArray();
@@ -24,7 +24,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var writer = new SourceWriter();
             writer.Block("public void Go()");
-            writer.Write("var x = 0;");
+            writer.WriteLine("var x = 0;");
 
             var lines = writer.Code().ReadLines().ToArray();
 
@@ -37,7 +37,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var writer = new SourceWriter();
             writer.Block("public void Go()");
             writer.Block("try");
-            writer.Write("var x = 0;");
+            writer.WriteLine("var x = 0;");
             writer.FinishBlock();
             writer.FinishBlock();
 
@@ -55,7 +55,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var writer = new SourceWriter();
             writer.Block("public void Go()");
             writer.Block("try");
-            writer.Write("var x = 0;");
+            writer.WriteLine("var x = 0;");
 
             var lines = writer.Code().ReadLines().ToArray();
 

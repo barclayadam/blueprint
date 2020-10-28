@@ -37,7 +37,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Methods
 
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.Write("return Task.FromResult(5);");
+            writer.WriteLine("return Task.FromResult(5);");
         }
     }
 

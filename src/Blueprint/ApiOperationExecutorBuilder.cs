@@ -313,7 +313,7 @@ namespace Blueprint
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.Write(
+                writer.WriteLine(
                     $"var {operationVariable} = ({operationVariable.VariableType.FullNameInCode()}) {operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
 
                 next();

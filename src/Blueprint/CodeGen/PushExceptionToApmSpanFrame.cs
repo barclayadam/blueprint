@@ -29,7 +29,7 @@ namespace Blueprint.CodeGen
             var context = variables.FindVariable(typeof(ApiOperationContext));
             var currentSpan = context.GetProperty(nameof(ApiOperationContext.ApmSpan));
 
-            writer.Write($"{currentSpan}?.{nameof(IApmSpan.RecordException)}({exceptionVariable});");
+            writer.WriteLine($"{currentSpan}?.{nameof(IApmSpan.RecordException)}({exceptionVariable});");
         }
     }
 }

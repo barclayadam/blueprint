@@ -17,7 +17,7 @@ namespace Blueprint.Compiler.Model
 
         public void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Write($"private static readonly {VariableType.FullNameInCode()} {Usage} = {initializer};");
+            writer.WriteLine($"private static readonly {VariableType.FullNameInCode()} {Usage} = {initializer};");
         }
     }
 }

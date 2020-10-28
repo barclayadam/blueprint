@@ -95,7 +95,7 @@ namespace Blueprint.Compiler
 
                 writer.Namespace(generatedType.Namespace);
 
-                writer.Write(typeWriter.Code());
+                writer.WriteLines(typeWriter.Code());
 
                 writer.FinishBlock();
 

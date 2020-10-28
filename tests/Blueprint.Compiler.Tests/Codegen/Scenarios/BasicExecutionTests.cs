@@ -67,7 +67,7 @@ namespace Blueprint.Compiler.Tests.Codegen.Scenarios
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var number = variables.FindVariable(typeof(int));
-            writer.Write($"return {number.Usage} + 2;");
+            writer.WriteLine($"return {number.Usage} + 2;");
         }
     }
 }

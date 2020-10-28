@@ -18,7 +18,7 @@ namespace Blueprint.CodeGen
 
         public override void WriteAssignment(ISourceWriter writer)
         {
-            writer.Write($"{Usage} = {ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{name}\");");
+            writer.WriteLine($"{Usage} = {ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{name}\");");
         }
     }
 }
