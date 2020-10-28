@@ -20,8 +20,7 @@ namespace Blueprint.Compiler
         private readonly ILogger<AssemblyGenerator> logger;
         private readonly ICompileStrategy compileStrategy;
 
-        private readonly List<MetadataReference> references = new List<MetadataReference>();
-        private readonly List<Assembly> assemblies = new List<Assembly>();
+        private readonly List<Assembly> referencedAssemblies = new List<Assembly>();
 
         private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
         private readonly List<SourceFile> files = new List<SourceFile>();
@@ -49,42 +48,12 @@ namespace Blueprint.Compiler
                 return;
             }
 
-            if (assemblies.Contains(assembly))
+            if (referencedAssemblies.Contains(assembly))
             {
                 return;
             }
 
-            assemblies.Add(assembly);
-
-            try
-            {
-                var referencePath = CreateAssemblyReference(assembly);
-
-                if (referencePath == null)
-                {
-                    return;
-                }
-
-                var alreadyReferenced = references.Any(x => x.Display == referencePath);
-                if (alreadyReferenced)
-                {
-                    return;
-                }
-
-                var reference = MetadataReference.CreateFromFile(referencePath);
-
-                references.Add(reference);
-
-                foreach (var assemblyName in assembly.GetReferencedAssemblies())
-                {
-                    var referencedAssembly = Assembly.Load(assemblyName);
-                    ReferenceAssembly(referencedAssembly);
-                }
-            }
-            catch (Exception e)
-            {
-                referenceErrors.Add((assembly.FullName, e));
-            }
+            referencedAssemblies.Add(assembly);
         }
 
         /// <inheritdoc />
@@ -136,7 +105,7 @@ namespace Blueprint.Compiler
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: syntaxTrees,
-                references: references,
+                references: GetAllReferences(),
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithDeterministic(true)
                     .WithConcurrentBuild(false)
@@ -215,6 +184,52 @@ namespace Blueprint.Compiler
                 });
         }
 
+        private List<MetadataReference> GetAllReferences()
+        {
+            var references = new List<MetadataReference>();
+
+            void Traverse(Assembly assembly)
+            {
+                try
+                {
+                    var referencePath = AssemblyLocationOrNull(assembly);
+
+                    if (referencePath == null)
+                    {
+                        return;
+                    }
+
+                    var alreadyReferenced = references.Any(x => x.Display == referencePath);
+                    if (alreadyReferenced)
+                    {
+                        return;
+                    }
+
+                    var reference = MetadataReference.CreateFromFile(referencePath);
+
+                    references.Add(reference);
+
+                    foreach (var assemblyName in assembly.GetReferencedAssemblies())
+                    {
+                        var referencedAssembly = Assembly.Load(assemblyName);
+
+                        Traverse(referencedAssembly);
+                    }
+                }
+                catch (Exception e)
+                {
+                    referenceErrors.Add((assembly.FullName, e));
+                }
+            }
+
+            foreach (var assembly in referencedAssemblies)
+            {
+                Traverse(assembly);
+            }
+
+            return references;
+        }
+
         private string CreateSourceHash(Encoding encoding)
         {
             HashAlgorithm hasher = MD5.Create();
@@ -249,7 +264,7 @@ namespace Blueprint.Compiler
             exceptionMessage.AppendLine(lineToOutput);
         }
 
-        private static string CreateAssemblyReference(Assembly assembly)
+        private static string AssemblyLocationOrNull(Assembly assembly)
         {
             if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
             {

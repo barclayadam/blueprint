@@ -9,6 +9,16 @@ namespace Blueprint.Compiler
     /// </summary>
     public class SourceWriter : ISourceWriter
     {
+        private static readonly string[] indentationLevels =
+        {
+            string.Empty,
+            new string(' ', 1 * 4),
+            new string(' ', 2 * 4),
+            new string(' ', 3 * 4),
+            new string(' ', 4 * 4),
+            new string(' ', 5 * 4),
+        };
+
         private readonly StringBuilder writer;
 
         private int level;
@@ -34,7 +44,7 @@ namespace Blueprint.Compiler
             set
             {
                 level = value;
-                leadingSpaces = new string(' ', level * 4);
+                leadingSpaces = level < indentationLevels.Length ? indentationLevels[level] : new string(' ', level * 4);
             }
         }
 
