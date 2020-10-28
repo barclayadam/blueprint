@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,8 +11,8 @@ namespace Blueprint
     public class CodeGennedExecutor : IApiOperationExecutor
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly GeneratedAssembly assembly;
         private readonly Dictionary<Type, Func<Type>> operationTypeToPipelineType;
+        private readonly Dictionary<Type, string> sourceCodeMappings;
 
         internal CodeGennedExecutor(
             IServiceProvider serviceProvider,
@@ -24,8 +23,16 @@ namespace Blueprint
             DataModel = dataModel;
 
             this.serviceProvider = serviceProvider;
-            this.assembly = assembly;
             this.operationTypeToPipelineType = operationTypeToPipelineType;
+
+            // We only need to store the source code for each type. We need to discard the GeneratedAssembly otherwise
+            // it holds on to a lot of memory
+            this.sourceCodeMappings = new Dictionary<Type, string>();
+
+            foreach (var t in assembly.GeneratedTypes)
+            {
+                sourceCodeMappings[t.CompiledType] = t.SourceCode;
+            }
         }
 
         /// <summary>
@@ -42,9 +49,9 @@ namespace Blueprint
         {
             var builder = new StringBuilder();
 
-            foreach (var type in assembly.GeneratedTypes)
+            foreach (var type in sourceCodeMappings)
             {
-                builder.AppendLine(type.SourceCode);
+                builder.AppendLine(type.Value);
             }
 
             return builder.ToString();
@@ -58,9 +65,7 @@ namespace Blueprint
         public string WhatCodeDidIGenerateFor(Type operationType)
         {
             var generatedExecutorType = operationTypeToPipelineType[operationType]();
-            var assemblyGeneratedType = assembly.GeneratedTypes.Single(t => t.CompiledType == generatedExecutorType);
-
-            return assemblyGeneratedType.SourceCode;
+            return sourceCodeMappings[generatedExecutorType];
         }
 
         /// <summary>
@@ -87,12 +92,10 @@ namespace Blueprint
         /// <inheritdoc />
         public async Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
-            using (var serviceScope = serviceProvider.CreateScope())
-            {
-                var apiOperationContext = DataModel.CreateOperationContext(serviceScope.ServiceProvider, operation, token);
+            using var serviceScope = serviceProvider.CreateScope();
+            var apiOperationContext = DataModel.CreateOperationContext(serviceScope.ServiceProvider, operation, token);
 
-                return await ExecuteAsync(apiOperationContext);
-            }
+            return await ExecuteAsync(apiOperationContext);
         }
     }
 }

@@ -9,10 +9,19 @@ namespace Blueprint.Compiler
     /// </summary>
     public class SourceWriter : ISourceWriter
     {
-        private readonly StringBuilder writer = new StringBuilder();
+        private readonly StringBuilder writer;
 
         private int level;
         private string leadingSpaces = string.Empty;
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="SourceWriter" /> class.
+        /// </summary>
+        /// <param name="capacity">The suggested initial capacity of the underlying <see cref="StringBuilder" />.</param>
+        public SourceWriter(int capacity = 2048)
+        {
+            writer = new StringBuilder(capacity);
+        }
 
         /// <inheritdoc />
         public int IndentationLevel

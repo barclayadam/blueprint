@@ -69,7 +69,8 @@ namespace Blueprint.Compiler
 
                 // We generate the code for the type upfront as we allow adding namespaces etc. during the rendering of
                 // frames so we need to do those, and _then_ gather namespaces
-                var typeWriter = new SourceWriter();
+                // A rough estimate of 3000 characters per method with 2 being used, plus 1000 for ctor.
+                var typeWriter = new SourceWriter((3000 * 2) + 1000);
                 generatedType.Write(typeWriter);
 
                 var namespaces = generatedType
