@@ -25,13 +25,16 @@ namespace Blueprint
             this.serviceProvider = serviceProvider;
             this.operationTypeToPipelineType = operationTypeToPipelineType;
 
-            // We only need to store the source code for each type. We need to discard the GeneratedAssembly otherwise
-            // it holds on to a lot of memory
-            this.sourceCodeMappings = new Dictionary<Type, string>();
-
-            foreach (var t in assembly.GeneratedTypes)
+            if (assembly != null)
             {
-                sourceCodeMappings[t.CompiledType] = t.SourceCode;
+                // We only need to store the source code for each type. We need to discard the GeneratedAssembly otherwise
+                // it holds on to a lot of memory
+                this.sourceCodeMappings = new Dictionary<Type, string>();
+
+                foreach (var t in assembly.GeneratedTypes)
+                {
+                    sourceCodeMappings[t.CompiledType] = t.SourceCode;
+                }
             }
         }
 
@@ -47,6 +50,11 @@ namespace Blueprint
         /// <returns>The code used to create all executors.</returns>
         public string WhatCodeDidIGenerate()
         {
+            if (sourceCodeMappings == null)
+            {
+                throw new InvalidOperationException("Cannot get source code if the pipelines were precompiled");
+            }
+
             var builder = new StringBuilder();
 
             foreach (var type in sourceCodeMappings)
@@ -64,6 +72,11 @@ namespace Blueprint
         /// <returns>The executor's source code.</returns>
         public string WhatCodeDidIGenerateFor(Type operationType)
         {
+            if (sourceCodeMappings == null)
+            {
+                throw new InvalidOperationException("Cannot get source code if the pipelines were precompiled");
+            }
+
             var generatedExecutorType = operationTypeToPipelineType[operationType]();
             return sourceCodeMappings[generatedExecutorType];
         }
