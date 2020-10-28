@@ -42,12 +42,6 @@ namespace Blueprint.Compiler
         }
 
         /// <inheritdoc />
-        public void ReferenceAssemblyContainingType<T>()
-        {
-            ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
-        }
-
-        /// <inheritdoc />
         public void ReferenceAssembly(Assembly assembly)
         {
             if (assembly == null)
@@ -112,9 +106,7 @@ namespace Blueprint.Compiler
             }
 
             var encoding = Encoding.UTF8;
-
-            var sourceTexts = files.Select(s => s.Code);
-            var sourceTextHash = GetSha256Hash(string.Join(string.Empty, sourceTexts));
+            var sourceTextHash = CreateSourceHash(encoding);
             var assemblyName = rules.AssemblyName + ".dll";
 
             var existingAssembly = compileStrategy.TryLoadExisting(sourceTextHash, assemblyName);
@@ -131,18 +123,12 @@ namespace Blueprint.Compiler
             {
                 var sourceCodePath = f.FileName;
 
-                var buffer = encoding.GetBytes(f.Code);
-                var sourceText = SourceText.From(buffer, buffer.Length, encoding, canBeEmbedded: true);
-
                 var syntaxTree = CSharpSyntaxTree.ParseText(
-                    sourceText,
+                    SourceText.From(f.Code, encoding),
                     parseOptions,
                     path: sourceCodePath);
 
-                var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
-                var encodedSyntaxTree = CSharpSyntaxTree.Create(syntaxRootNode, null, sourceCodePath, encoding);
-
-                syntaxTrees.Add(encodedSyntaxTree);
+                syntaxTrees.Add(syntaxTree);
             }
 
             logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
@@ -153,7 +139,7 @@ namespace Blueprint.Compiler
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithDeterministic(true)
-                    .WithConcurrentBuild(true)
+                    .WithConcurrentBuild(false)
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
             return compileStrategy.Compile(
@@ -224,30 +210,32 @@ namespace Blueprint.Compiler
 
                         var allCode = string.Join("\n\n", files.Select(f => f.Code));
 
-                        throw new CompilationException(exceptionMessage.ToString())
-                        {
-                            Failures = failures,
-                            Code = allCode,
-                        };
+                        throw new CompilationException(exceptionMessage.ToString()) {Failures = failures, Code = allCode,};
                     }
                 });
         }
 
-        private static string GetSha256Hash(string input)
+        private string CreateSourceHash(Encoding encoding)
         {
-            using (var shaHash = SHA256.Create())
+            HashAlgorithm hasher = MD5.Create();
+            hasher.Initialize();
+
+            foreach (var f in files)
             {
-                var data = shaHash.ComputeHash(Encoding.UTF8.GetBytes(input));
+                var fileBytes = encoding.GetBytes(f.Code);
 
-                var sBuilder = new StringBuilder();
-
-                foreach (var t in data)
-                {
-                    sBuilder.Append(t.ToString("x2"));
-                }
-
-                return sBuilder.ToString();
+                hasher.TransformBlock(fileBytes, 0, fileBytes.Length, null, 0);
             }
+
+            hasher.TransformFinalBlock(new byte[0], 0, 0);
+            var hash = hasher.Hash;
+
+            return BitConverter.ToString(hash);
+        }
+
+        private void ReferenceAssemblyContainingType<T>()
+        {
+            ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
         }
 
         private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
