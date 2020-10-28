@@ -412,29 +412,53 @@ namespace Blueprint.Compiler
 
             public int IndentationLevel => inner.IndentationLevel;
 
-            public void BlankLine()
+            public ISourceWriter BlankLine()
             {
                 inner.BlankLine();
+
+                return this;
             }
 
-            public void Block(string text)
+            public ISourceWriter Block(string text)
             {
                 inner.Block(text);
+
+                return this;
             }
 
-            public void WriteLines(string text = null)
+            public ISourceWriter Append(string text)
+            {
+                inner.Append(text);
+
+                return this;
+            }
+
+            public ISourceWriter Append(char c)
+            {
+                inner.Append(c);
+
+                return this;
+            }
+
+            public ISourceWriter WriteLines(string text = null)
             {
                 inner.WriteLines(text);
+
+                return this;
             }
 
-            public void WriteLine(string text)
+            public ISourceWriter WriteLine(string text)
             {
                 inner.WriteLine(text);
+
+                return this;
             }
 
-            public void FinishBlock(string extra = null)
+            public ISourceWriter FinishBlock(string extra = null)
             {
                 inner.FinishBlock(extra);
+
+                return this;
             }
 
             public void Write(Frame frame)
@@ -464,26 +488,43 @@ namespace Blueprint.Compiler
 
             public int IndentationLevel { get; private set; }
 
-            public void BlankLine()
+            public ISourceWriter BlankLine()
             {
+                return this;
             }
 
-            public void Block(string extra = null)
+            public ISourceWriter Block(string extra = null)
             {
                 IndentationLevel++;
+
+                return this;
             }
 
-            public void FinishBlock(string extra = null)
+            public ISourceWriter FinishBlock(string extra = null)
             {
                 IndentationLevel--;
+
+                return this;
             }
 
-            public void WriteLines(string text = null)
+            public ISourceWriter Append(string text)
             {
+                return this;
             }
 
-            public void WriteLine(string text)
+            public ISourceWriter Append(char c)
             {
+                return this;
+            }
+
+            public ISourceWriter WriteLines(string text = null)
+            {
+                return this;
+            }
+
+            public ISourceWriter WriteLine(string text)
+            {
+                return this;
             }
 
             /// <inherit-doc />

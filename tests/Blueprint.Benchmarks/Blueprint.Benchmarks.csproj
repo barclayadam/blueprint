@@ -21,5 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint.Compiler\Blueprint.Compiler.csproj" />
+    <ProjectReference Include="..\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj" />
   </ItemGroup>
 </Project>

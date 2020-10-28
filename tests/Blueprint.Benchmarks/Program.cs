@@ -6,7 +6,7 @@ namespace Blueprint.Benchmarks
     {
         public static void Main(string[] args)
         {
-            BenchmarkRunner.Run<CompileBenchmarks>();
+            BenchmarkRunner.Run<MethodCallBenchmarks>();
         }
     }
 }

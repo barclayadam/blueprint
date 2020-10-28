@@ -3,16 +3,20 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Frames
 {
+    /// <summary>
+    /// A <see cref="Frame" /> that represents a method call, handling async vs non-async, disposable return values,
+    /// finding arguments and dealing with local vs static.
+    /// </summary>
     public class MethodCall : Frame
     {
         private readonly Type handlerType;
         private readonly MethodInfo methodInfo;
+        private readonly ParameterInfo[] parameters;
 
         private Variable target;
 
@@ -24,6 +28,7 @@ namespace Blueprint.Compiler.Frames
         {
             this.handlerType = handlerType;
             this.methodInfo = methodInfo;
+            this.parameters = methodInfo.GetParameters();
 
             var returnType = CorrectedReturnType(methodInfo.ReturnType);
             if (returnType != null)
@@ -44,7 +49,6 @@ namespace Blueprint.Compiler.Frames
                 }
             }
 
-            var parameters = methodInfo.GetParameters();
             Arguments = new Variable[parameters.Length];
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -102,14 +106,14 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(Variable variable)
         {
-            var parameters = methodInfo.GetParameters().Select(x => x.ParameterType).ToArray();
+            var parameterTypes = this.parameters.Select(x => x.ParameterType).ToArray();
 
-            if (parameters.Count(x => variable.VariableType.CanBeCastTo(x)) != 1)
+            if (parameterTypes.Count(x => variable.VariableType.CanBeCastTo(x)) != 1)
             {
                 return false;
             }
 
-            var index = Array.IndexOf(parameters, variable.VariableType);
+            var index = Array.IndexOf(parameterTypes, variable.VariableType);
             Arguments[index] = variable;
 
             return true;
@@ -117,7 +121,6 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(string parameterName, Variable variable)
         {
-            var parameters = methodInfo.GetParameters().ToArray();
             var matching = parameters.FirstOrDefault(x =>
                 variable.VariableType.CanBeCastTo(x.ParameterType) && x.Name == parameterName);
 
@@ -132,10 +135,24 @@ namespace Blueprint.Compiler.Frames
             return true;
         }
 
+        /// <inheritdoc />
+        public override bool CanReturnTask()
+        {
+            return IsAsync;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var writer = new SourceWriter();
+            AppendInvocationCode(writer);
+
+            return IsAsync ? "await " + writer.Code() : writer.Code();
+        }
+
+        /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var parameters = methodInfo.GetParameters();
-
             for (var i = 0; i < parameters.Length; i++)
             {
                 if (Arguments[i] != null)
@@ -154,44 +171,51 @@ namespace Blueprint.Compiler.Frames
                 Target = variables.FindVariable(handlerType);
             }
 
-            var invokeMethod = GetInvocationCode();
+            var shouldAssign = ShouldAssignVariableToReturnValue(method);
+            var isDisposable = shouldAssign && ReturnVariable.VariableType.CanBeCastTo<IDisposable>();
+            var requiresUsingBlock = isDisposable && DisposalMode == DisposalMode.UsingBlock;
 
-            var returnValue = string.Empty;
-
-            if (IsAsync)
+            if (requiresUsingBlock)
             {
-                returnValue = method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await ";
+                writer.Append("using (");
             }
 
-            var isDisposable = false;
-            if (ShouldAssignVariableToReturnValue(method))
-            {
-                returnValue = ReturnVariable.VariableType.IsValueTuple() ? $"{ReturnVariable} = {returnValue}" : $"var {ReturnVariable} = {returnValue}";
-                isDisposable = ReturnVariable.VariableType.CanBeCastTo<IDisposable>();
-            }
+            var callConvention = IsAsync ? method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await " : string.Empty;
 
-            if (isDisposable && DisposalMode == DisposalMode.UsingBlock)
+            if (shouldAssign)
             {
-                writer.UsingBlock($"{returnValue}{invokeMethod}", w => next());
+                if (ReturnVariable.VariableType.IsValueTuple())
+                {
+                    writer.Append(ReturnVariable.ToString()).Append(" = ").Append(callConvention);
+                }
+                else
+                {
+                    writer.Append("var ").Append(ReturnVariable.ToString()).Append(" = ").Append(callConvention);
+                }
             }
             else
             {
-                writer.WriteLine($"{returnValue}{invokeMethod};");
+                writer.Append(callConvention);
+            }
 
+            AppendInvocationCode(writer);
+
+            if (isDisposable && DisposalMode == DisposalMode.UsingBlock)
+            {
+                // We have already written the using statement out to the writer, we just need a block
+                // opener to increase indentation level with closing parenthesis
+                writer.Append(')');
+                writer.Block(string.Empty);
+                next();
+                writer.FinishBlock();
+            }
+            else
+            {
+                // Finish off the current line.
+                writer.Append(';');
+                writer.WriteLine(string.Empty);
                 next();
             }
-        }
-
-        /// <inheritdoc />
-        public override bool CanReturnTask()
-        {
-            return IsAsync;
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return IsAsync ? "await " + GetInvocationCode() : GetInvocationCode();
         }
 
         private static Type CorrectedReturnType(Type type)
@@ -203,13 +227,13 @@ namespace Blueprint.Compiler.Frames
 
             if (type.CanBeCastTo<Task>())
             {
-                return type.GetGenericArguments().First();
+                return type.GetGenericArguments()[0];
             }
 
             // have to do a manual check for ValueTask<T> as it doesn't inherit from ValueTask
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueTask<>))
             {
-                return type.GetGenericArguments().First();
+                return type.GetGenericArguments()[0];
             }
 
             return type;
@@ -230,33 +254,55 @@ namespace Blueprint.Compiler.Frames
             return true;
         }
 
-        private string GetInvocationCode()
+        private void AppendInvocationCode(ISourceWriter sourceWriter)
         {
-            var methodName = methodInfo.Name;
+            // If this is not a local call we need to output either "ClassName." for a static method
+            // invocation or "targetVar." otherwise
+            if (!IsLocal)
+            {
+                sourceWriter.Append(methodInfo.IsStatic
+                    ? handlerType.FullNameInCode()
+                    : Target.Usage);
+
+                sourceWriter.Append('.');
+            }
+
+            sourceWriter.Append(methodInfo.Name);
+
+            // Write generic arguments if necessary (i.e. <int, object, string>)
             if (methodInfo.IsGenericMethod)
             {
-                methodName += $"<{methodInfo.GetGenericArguments().Select(x => x.FullName).Join(", ")}>";
+                var genericArguments = methodInfo.GetGenericArguments();
+
+                sourceWriter.Append('<');
+
+                for (var i = 0; i < genericArguments.Length; i++)
+                {
+                    sourceWriter.Append(genericArguments[i].FullName);
+
+                    if (i != genericArguments.Length - 1)
+                    {
+                        sourceWriter.Append(", ");
+                    }
+                }
+
+                sourceWriter.Append('>');
             }
 
-            var callingCode = $"{methodName}({Arguments.Select(x => x.ArgumentDeclaration).Join(", ")})";
-            var target = DetermineTarget();
-            var invokeMethod = $"{target}{callingCode}";
+            // Write arguments
+            sourceWriter.Append('(');
 
-            return invokeMethod;
-        }
-
-        private string DetermineTarget()
-        {
-            if (IsLocal)
+            for (var i = 0; i < Arguments.Length; i++)
             {
-                return string.Empty;
+                sourceWriter.Append(Arguments[i].ArgumentDeclaration);
+
+                if (i != Arguments.Length - 1)
+                {
+                    sourceWriter.Append(", ");
+                }
             }
 
-            var target = methodInfo.IsStatic
-                ? handlerType.FullNameInCode()
-                : Target.Usage;
-
-            return target + ".";
+            sourceWriter.Append(')');
         }
     }
 }

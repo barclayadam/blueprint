@@ -30,18 +30,37 @@ namespace Blueprint.Compiler
         }
 
         /// <inheritdoc />
-        public void BlankLine()
+        public ISourceWriter BlankLine()
         {
             writer.Append("\r\n");
+
+            return this;
         }
 
         /// <inheritdoc />
-        public void WriteLines(string text = null)
+        public ISourceWriter Append(string text)
+        {
+            writer.Append(text);
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public ISourceWriter Append(char c)
+        {
+            writer.Append(c);
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public ISourceWriter WriteLines(string text = null)
         {
             if (string.IsNullOrEmpty(text))
             {
                 BlankLine();
-                return;
+
+                return this;
             }
 
             foreach (ReadOnlySpan<char> line in text.SplitLines())
@@ -57,27 +76,40 @@ namespace Blueprint.Compiler
                     writer.AppendLine();
                 }
             }
+
+            return this;
         }
 
         /// <inheritdoc />
-        public void WriteLine(string text)
+        public ISourceWriter WriteLine(string text)
         {
-            writer.Append(leadingSpaces);
-            writer.Append(text);
-            writer.AppendLine();
+            if (string.IsNullOrEmpty(text))
+            {
+                writer.AppendLine();
+            }
+            else
+            {
+                writer.Append(leadingSpaces);
+                writer.Append(text);
+                writer.AppendLine();
+            }
+
+            return this;
         }
 
         /// <inheritdoc />
-        public void Block(string text)
+        public ISourceWriter Block(string text)
         {
             WriteLine(text);
             WriteLine("{");
 
             IndentationLevel++;
+
+            return this;
         }
 
         /// <inheritdoc />
-        public void FinishBlock(string extra = null)
+        public ISourceWriter FinishBlock(string extra = null)
         {
             if (IndentationLevel == 0)
             {
@@ -96,6 +128,8 @@ namespace Blueprint.Compiler
             }
 
             BlankLine();
+
+            return this;
         }
 
         /// <inheritdoc />

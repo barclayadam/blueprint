@@ -127,33 +127,5 @@ namespace Blueprint.Compiler
             var args = genericParameterTypes.Select(x => x.FullNameInCode()).Join(", ");
             return $"{cleanName}<{args}>";
         }
-
-        public static string ShortNameInCode(this Type type)
-        {
-            if (Aliases.ContainsKey(type))
-            {
-                return Aliases[type];
-            }
-
-            if (type.IsGenericType && !type.IsGenericTypeDefinition)
-            {
-                var cleanName = type.Name.Split('`').First().Replace("+", ".");
-                if (type.IsNested)
-                {
-                    cleanName = $"{type.ReflectedType.NameInCode()}.{cleanName}";
-                }
-
-                var args = type.GetGenericArguments().Select(x => x.ShortNameInCode()).Join(", ");
-
-                return $"{cleanName}<{args}>";
-            }
-
-            if (type.MemberType == MemberTypes.NestedType)
-            {
-                return $"{type.ReflectedType.NameInCode()}.{type.Name}";
-            }
-
-            return type.Name.Replace("+", ".");
-        }
     }
 }
