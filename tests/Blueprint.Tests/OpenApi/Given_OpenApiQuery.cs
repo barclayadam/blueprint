@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Errors;
@@ -16,7 +17,7 @@ using Snapper.Attributes;
 
 namespace Blueprint.Tests.OpenApi
 {
-    [UpdateSnapshots]
+    // [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]
@@ -38,6 +39,26 @@ namespace Blueprint.Tests.OpenApi
             openApiDocument.Components.Schemas.Should().BeEmpty();
             openApiDocument.Paths.Should().BeEmpty();
 
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_resource_with_HttpStatusCode_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<HttpStatusCodeQuery>()
+                .AddOpenApi());
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
             plaintextResult.Content.ShouldMatchSnapshot();
         }
 
@@ -232,6 +253,20 @@ namespace Blueprint.Tests.OpenApi
             {
                 return new OpenApiResource();
             }
+        }
+
+        [RootLink("/resources/status-code")]
+        public class HttpStatusCodeQuery : IQuery<ResourceWithHttpStatusCode>
+        {
+            public ResourceWithHttpStatusCode Invoke()
+            {
+                return new ResourceWithHttpStatusCode();
+            }
+        }
+
+        public class ResourceWithHttpStatusCode : ApiResource
+        {
+            public HttpStatusCode Code { get; set; }
         }
 
         [RootLink("/resources/basic")]

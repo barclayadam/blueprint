@@ -78,7 +78,7 @@ namespace Blueprint.OpenApi
             openApiOptions.ConfigureSettings?.Invoke(jsonSchemaGeneratorSettings);
 
             var generator = openApiOptions.CreateGenerator == null ?
-                new JsonSchemaGenerator(jsonSchemaGeneratorSettings) :
+                new BlueprintJsonSchemaGenerator(jsonSchemaGeneratorSettings) :
                 openApiOptions.CreateGenerator(serviceProvider, apiDataModel, jsonSchemaGeneratorSettings);
 
             var openApiDocumentSchemaResolver = new OpenApiDocumentSchemaResolver(document, jsonSchemaGeneratorSettings);
