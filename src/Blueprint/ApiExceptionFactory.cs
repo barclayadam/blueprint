@@ -57,7 +57,7 @@ namespace Blueprint
         /// <param name="extensionData">Extension details that will be serialised to the consumer, useful for storing additional
         /// properties that a client can use to make decisions when handling this exception.</param>
         /// <returns>A new <see cref="ApiException" />.</returns>
-        public ApiException Create(string detail, IDictionary<string, object> extensionData)
+        public ApiException Create(string detail, IDictionary<string, object> extensionData = null)
         {
             return new ApiException(this.Title, this.Type, detail, this.HttpStatus)
             {
