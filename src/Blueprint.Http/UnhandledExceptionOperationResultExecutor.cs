@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
+using Blueprint.Apm;
 using Microsoft.Extensions.Configuration;
 
 namespace Blueprint.Http
@@ -34,11 +35,11 @@ namespace Blueprint.Http
             var httpContext = context.GetHttpContext();
             var problemDetails = ToProblemDetails(result.Exception);
 
-            var traceId = Activity.Current?.Id ?? httpContext?.TraceIdentifier;
+            var traceId = context.ApmSpan?.TraceId;
 
             if (traceId != null)
             {
-                problemDetails.Extensions["traceId"] = traceId;
+                problemDetails.AddExtension("traceId", traceId);
             }
 
             return okResultOperationExecutor.WriteContentAsync(

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Blueprint
 {
@@ -19,7 +20,7 @@ namespace Blueprint
         ///     occurrence, and is typically a URI that when followed gives more details of the problem.</param>
         /// <param name="detail">Detailed information about this exception, which is specific to this instance.</param>
         /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
-        public ApiException(string title, string type, string detail, int httpStatus)
+        public ApiException(string title, string type, string detail, int httpStatus, IDictionary<string, object> extensions = null)
             : base(detail)
         {
             Title = title;
@@ -37,7 +38,7 @@ namespace Blueprint
         /// <param name="detail">Detailed information about this exception, which is specific to this instance.</param>
         /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
         /// <param name="inner">The exception that triggered this one.</param>
-        public ApiException(string title, string type, string detail, int httpStatus, Exception inner)
+        public ApiException(string title, string type, string detail, int httpStatus, Exception inner, IDictionary<string, object> extensions = null)
             : base(detail, inner)
         {
             Title = title;
@@ -78,6 +79,7 @@ namespace Blueprint
         /// The round-tripping behavior for <see cref="Extensions"/> is determined by the implementation of the Input \ Output formatters.
         /// In particular, complex types or collection types may not round-trip to the original type when using the built-in JSON or XML formatters.
         /// </remarks>
+        [CanBeNull]
         public IDictionary<string, object> Extensions { get; set; }
     }
 }

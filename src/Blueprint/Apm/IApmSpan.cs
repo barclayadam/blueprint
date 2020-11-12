@@ -9,6 +9,12 @@ namespace Blueprint.Apm
     public interface IApmSpan : IDisposable
     {
         /// <summary>
+        /// Gets a "trace id", a value that can be used to tie back to the current trace this span is / belongs to. Used for example
+        /// in headers returned from HTTP requests for diagnostic purposes.
+        /// </summary>
+        public string TraceId { get; }
+
+        /// <summary>
         /// Starts a new child span of this current one, with the specified name (which should be as specific as makes sense to track groups
         /// of operations), the type (to help distinguish between for example "background" dependencies, or "sql" dependencies), plus
         /// an optional existing context dictionary that is used for cross-process distributed tracing.

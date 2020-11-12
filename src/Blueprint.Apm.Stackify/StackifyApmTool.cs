@@ -53,6 +53,8 @@ namespace Blueprint.Apm.Stackify
                 this.manualSlim = manualSlim;
             }
 
+            public string TraceId => "-";
+
             /// <inheritdoc />
             public IApmSpan StartSpan(
                 string spanKind,

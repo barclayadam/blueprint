@@ -93,6 +93,8 @@ namespace Blueprint.Apm.ApplicationInsights
                 this.operation.Dispose();
             }
 
+            public string TraceId => operation.Telemetry.Id;
+
             public IApmSpan StartSpan(
                 string spanKind,
                 string operationName,

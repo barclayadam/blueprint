@@ -70,6 +70,8 @@ namespace Blueprint.Apm.OpenTracing
                 this.span = span;
             }
 
+            public string TraceId => span.Context.TraceId;
+
             public IApmSpan StartSpan(
                 string spanKind,
                 string operationName,

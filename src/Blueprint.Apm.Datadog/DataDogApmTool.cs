@@ -70,6 +70,8 @@ namespace Blueprint.Apm.DataDog
                 this.scope = scope;
             }
 
+            public string TraceId => scope.Span.TraceId.ToString();
+
             public IApmSpan StartSpan(
                 string spanKind,
                 string operationName,

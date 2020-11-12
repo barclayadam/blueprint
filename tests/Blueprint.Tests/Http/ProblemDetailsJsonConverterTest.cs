@@ -1,5 +1,6 @@
 // Originally from https://github.com/dotnet/aspnetcore/blob/602cb1dea59751a1297d674cddf7f0729c23e6ca/src/Mvc/Mvc.Core/test/Infrastructure/ProblemDetailsJsonConverterTest.cs
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -116,7 +117,7 @@ namespace Blueprint.Tests.Http
                 Status = 404,
                 Detail = "Product not found",
                 Instance = "http://example.com/products/14",
-                Extensions =
+                Extensions = new Dictionary<string, object>()
                 {
                     { "traceId", traceId },
                     { "some-data", new[] { "value1", "value2" } }

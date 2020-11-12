@@ -82,6 +82,8 @@ namespace Blueprint.Apm.Elastic
                 this.segment = segment;
             }
 
+            public string TraceId => segment.TraceId;
+
             public void Dispose()
             {
                 this.segment.End();

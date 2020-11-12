@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -75,11 +76,12 @@ namespace Blueprint.Http
             {
                 var key = reader.GetString();
                 reader.Read();
+                value.Extensions ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
                 value.Extensions[key] = JsonSerializer.Deserialize(ref reader, typeof(object), options);
             }
         }
 
-        internal static bool TryReadStringProperty(ref Utf8JsonReader reader, JsonEncodedText propertyName, out string value)
+        private static bool TryReadStringProperty(ref Utf8JsonReader reader, JsonEncodedText propertyName, out string value)
         {
             if (!reader.ValueTextEquals(propertyName.EncodedUtf8Bytes))
             {

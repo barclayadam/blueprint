@@ -18,6 +18,8 @@ namespace Blueprint.Apm
         {
         }
 
+        public string TraceId => "none";
+
         /// <inheritdoc />
         public void Dispose()
         {

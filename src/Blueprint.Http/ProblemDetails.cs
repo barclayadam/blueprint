@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Blueprint.Http
 {
@@ -54,6 +55,19 @@ namespace Blueprint.Http
         /// In particular, complex types or collection types may not round-trip to the original type when using the built-in JSON or XML formatters.
         /// </remarks>
         [JsonExtensionData]
-        public IDictionary<string, object> Extensions { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
+        [CanBeNull]
+        public IDictionary<string, object> Extensions { get; set; }
+
+        /// <summary>
+        /// A safe method to add an extension, ensuring the <see cref="Extensions" /> property is initialised before
+        /// adding the value.
+        /// </summary>
+        /// <param name="key">The key of the extension.</param>
+        /// <param name="value">THe value.</param>
+        public void AddExtension(string key, object value)
+        {
+            Extensions ??= new Dictionary<string, object>(StringComparer.Ordinal);
+            Extensions[key] = value;
+        }
     }
 }
