@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Blueprint
 {
@@ -68,5 +69,15 @@ namespace Blueprint
         /// A human-readable explanation specific to this occurrence of the problem.
         /// </summary>
         public string Detail => Message;
+
+        /// <summary>
+        /// Extension data that MAY contain additional, problem type specific details. Extension members appear in the same
+        /// namespace as other members of a problem type.
+        /// </summary>
+        /// <remarks>
+        /// The round-tripping behavior for <see cref="Extensions"/> is determined by the implementation of the Input \ Output formatters.
+        /// In particular, complex types or collection types may not round-trip to the original type when using the built-in JSON or XML formatters.
+        /// </remarks>
+        public IDictionary<string, object> Extensions { get; set; }
     }
 }

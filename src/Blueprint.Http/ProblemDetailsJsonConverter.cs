@@ -119,10 +119,13 @@ namespace Blueprint.Http
                 writer.WriteString(Instance, value.Instance);
             }
 
-            foreach (var kvp in value.Extensions)
+            if (value.Extensions != null)
             {
-                writer.WritePropertyName(options.DictionaryKeyPolicy.ConvertName(kvp.Key));
-                JsonSerializer.Serialize(writer, kvp.Value, kvp.Value?.GetType() ?? typeof(object), options);
+                foreach (var kvp in value.Extensions)
+                {
+                    writer.WritePropertyName(options.DictionaryKeyPolicy.ConvertName(kvp.Key));
+                    JsonSerializer.Serialize(writer, kvp.Value, kvp.Value?.GetType() ?? typeof(object), options);
+                }
             }
         }
     }

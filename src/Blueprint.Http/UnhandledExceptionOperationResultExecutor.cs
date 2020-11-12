@@ -58,6 +58,7 @@ namespace Blueprint.Http
                         Title = apiException.Title,
                         Type = apiException.Type,
                         Detail = apiException.Detail,
+                        Extensions = apiException.Extensions,
                     };
 
                 case SecurityException _:
