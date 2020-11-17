@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,11 @@ namespace Blueprint.Http.MessagePopulation
     /// </summary>
     public class HttpBodyMessagePopulationSource : IMessagePopulationSource
     {
+        private static readonly ApiExceptionFactory InvalidJson = new ApiExceptionFactory(
+            "The JSON payload is invalid",
+            "invalid_json",
+            (int)HttpStatusCode.BadRequest);
+
         private static readonly JsonSerializer BodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
 
         /// <summary>
@@ -144,14 +150,14 @@ namespace Blueprint.Http.MessagePopulation
                 {
                     BodyJsonSerializer.Populate(jsonReader, operation);
                 }
-                catch (JsonSerializationException e)
+                catch (JsonException e)
                 {
-                    throw new InvalidOperationException("Could not parse JSON body", e);
+                    throw InvalidJson.Create(e.Message);
                 }
 
-                if (jsonReader.Read() && jsonReader.TokenType != JsonToken.Comment)
+                if (await jsonReader.ReadAsync() && jsonReader.TokenType != JsonToken.Comment)
                 {
-                    throw new InvalidOperationException("Additional text found in JSON string after finishing deserializing object.");
+                    throw InvalidJson.Create("Additional text found in JSON");
                 }
             }
         }
@@ -239,7 +245,7 @@ namespace Blueprint.Http.MessagePopulation
                     }
                     else
                     {
-                        throwException(new Exception($"Could not understand the value of querystring key '{key}'"));
+                        throwException(new Exception($"Could not understand the value of query string key '{key}'"));
                     }
                 }
             }

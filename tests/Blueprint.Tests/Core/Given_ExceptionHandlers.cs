@@ -22,7 +22,7 @@ namespace Blueprint.Tests.Core
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new TestApiCommand
+            var result = await executor.ExecuteWithNoUnwrapAsync(new TestApiCommand
             {
                 AStringProperty = "the string value",
                 ASensitiveStringProperty = "the sensitive value"
@@ -47,7 +47,7 @@ namespace Blueprint.Tests.Core
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new OperationWrapperImpl<TestApiCommand>
+            var result = await executor.ExecuteWithNoUnwrapAsync(new OperationWrapperImpl<TestApiCommand>
             {
                 Operation = new TestApiCommand
                 {

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Utilities;
 using Blueprint.Testing;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -96,6 +94,28 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
             // Assert
             handler.OperationPassed.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public async Task When_Malformed_JSON_Then_Throws_ApiException()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<JsonOperation>(null);
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+
+            var context = executor.HttpContextFor<JsonOperation>();
+            context.GetHttpContext().Request.Body = "{..}".AsUtf8Stream();
+            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
+
+            // Act
+            Func<Task> tryExecute = () => executor.ExecuteAsync(context);
+
+            // Assert
+            await tryExecute.Should()
+                .ThrowApiExceptionAsync()
+                .WithType("invalid_json")
+                .WithTitle("The JSON payload is invalid")
+                .WithDetail("Invalid property identifier character: .. Path '', line 1, position 1.");
         }
 
         [Test]

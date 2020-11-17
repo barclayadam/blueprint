@@ -19,11 +19,10 @@ namespace Blueprint.Tests.Core
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithOperation<CancellableOperation>());
 
             // Act
-            var result = await executor.ExecuteWithNewScopeAsync(new CancellableOperation(), cancellationToken.Token);
+            Func<Task> tryExecute = () => executor.ExecuteWithNewScopeAsync(new CancellableOperation(), cancellationToken.Token);
 
             // Assert
-            var exceptionResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
-            exceptionResult.Exception.Should().BeOfType<OperationCanceledException>();
+            await tryExecute.Should().ThrowExactlyAsync<OperationCanceledException>();
         }
 
         [Test]

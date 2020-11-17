@@ -192,15 +192,34 @@ namespace Blueprint.Testing
         }
 
         /// <inheritdoc />
-        public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
+        public async Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
-            return executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync(context);
+
+            if (result is UnhandledExceptionOperationResult e)
+            {
+                e.Rethrow();
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
-        public Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
+        public async Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
-            return executor.ExecuteWithNewScopeAsync(operation, token);
+            var result = await executor.ExecuteWithNewScopeAsync(operation, token);
+
+            if (result is UnhandledExceptionOperationResult e)
+            {
+                e.Rethrow();
+            }
+
+            return result;
+        }
+
+        public async Task<OperationResult> ExecuteWithNoUnwrapAsync(object operation, CancellationToken token = default)
+        {
+            return await executor.ExecuteWithNewScopeAsync(operation, token);
         }
     }
 }

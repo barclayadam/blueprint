@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Authorisation;
 using Blueprint.Configuration;
@@ -31,15 +32,14 @@ namespace Blueprint.Tests.Authorisation
                 .AddAuthorisation());
 
             // Act
-            var result = await executor.ExecuteWithAuth(new ClaimRequiredOperation());
+            Func<Task> tryExecute = () => executor.ExecuteWithAuth(new ClaimRequiredOperation());
 
             // Assert
-            var okResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
+            var okResult = tryExecute.Should().ThrowExactly<ForbiddenException>();
 
-            okResult.Exception.Should().BeOfType<ForbiddenException>();
-            ((ForbiddenException)okResult.Exception).Detail.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
-            ((ForbiddenException)okResult.Exception).Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
-            ((ForbiddenException)okResult.Exception).Title.Should().Be("You do not have enough permissions to perform this action");
+            okResult.And.Detail.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            okResult.And.Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            okResult.And.Title.Should().Be("You do not have enough permissions to perform this action");
         }
 
         [Test]

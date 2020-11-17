@@ -107,12 +107,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             var context = GetContext<TOperation>(executor, headers);
 
             // Act
-            var result = await executor.ExecuteAsync(context);
-
-            if (result is UnhandledExceptionOperationResult e)
-            {
-                e.Rethrow();
-            }
+            await executor.ExecuteAsync(context);
 
             // Assert
             handler.OperationPassed.Should().BeEquivalentTo(expected);
