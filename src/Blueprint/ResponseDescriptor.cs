@@ -56,5 +56,11 @@ namespace Blueprint
         /// </summary>
         [CanBeNull]
         public Dictionary<string, string> Metadata { get; }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Type}: {HttpStatus}";
+        }
     }
 }

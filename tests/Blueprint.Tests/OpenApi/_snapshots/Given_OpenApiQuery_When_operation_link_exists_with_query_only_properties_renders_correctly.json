@@ -78,7 +78,7 @@
             }
           },
           "500": {
-            "description": "Unexpected error",
+            "description": null,
             "content": {
               "application/json": {
                 "schema": {
@@ -98,7 +98,7 @@
             }
           },
           "404": {
-            "description": "When needed (will be 404).",
+            "description": null,
             "content": {
               "application/json": {
                 "schema": {
@@ -106,14 +106,16 @@
                 },
                 "example": {
                   "AnotherSpecificProblemDetail": {
-                    "summary": "Missing data (will be 404).",
                     "value": {
+                      "status": 404,
+                      "title": "Missing data (will be 404).",
                       "type": "another_specific_problem_detail"
                     }
                   },
                   "OtherMissingData": {
-                    "summary": "Missing data again (will be 404)",
                     "value": {
+                      "status": 404,
+                      "title": "Missing data again (will be 404)",
                       "type": "other_missing_data"
                     }
                   }
@@ -122,7 +124,7 @@
             }
           },
           "400": {
-            "description": "When needed (will be 400).",
+            "description": null,
             "content": {
               "application/json": {
                 "schema": {
@@ -130,8 +132,9 @@
                 },
                 "example": {
                   "SomeErrorType": {
-                    "summary": "Invalid op (will be 400).",
                     "value": {
+                      "status": 400,
+                      "title": "Invalid op (will be 400).",
                       "type": "some_error_type"
                     }
                   }

@@ -186,7 +186,7 @@ namespace Blueprint.OpenApi
 
                     foreach (var response in operation.Responses)
                     {
-                        var httpStatusCode = ToHttpStatusCode(response).ToString();
+                        var httpStatusCode = response.HttpStatus.ToString();
 
                         if (!openApiOperation.Responses.TryGetValue(httpStatusCode, out var oaResponse))
                         {
@@ -196,6 +196,15 @@ namespace Blueprint.OpenApi
                             };
 
                             openApiOperation.Responses[httpStatusCode] = oaResponse;
+                        }
+                        else
+                        {
+                            if (response.Description != null && oaResponse.Description != response.Description)
+                            {
+                                // If we have multiple responses for the same status code remove the description as
+                                // it would be misleading, given it would have been only the first instance
+                                oaResponse.Description = null;
+                            }
                         }
 
                         // Note below assignments are once-only. We always return a ProblemResult from HTTP,
@@ -244,10 +253,10 @@ namespace Blueprint.OpenApi
 
                                 examples[problemType.ToPascalCase()] = new
                                 {
-                                    summary = response.Description,
-
                                     value = new
                                     {
+                                        status = response.HttpStatus,
+                                        title = response.Description,
                                         type = problemType,
                                     },
                                 };
@@ -298,11 +307,6 @@ namespace Blueprint.OpenApi
                 422 => typeof(ValidationProblemDetails),
                 _ => typeof(ProblemDetails)
             };
-        }
-
-        private static int ToHttpStatusCode(ResponseDescriptor responseCategory)
-        {
-            return responseCategory.HttpStatus;
         }
 
         private static OpenApiParameterKind ToKind(PropertyInfo property)
