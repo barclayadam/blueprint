@@ -3,9 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Namotion.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using NJsonSchema;
 using NJsonSchema.Generation;
 

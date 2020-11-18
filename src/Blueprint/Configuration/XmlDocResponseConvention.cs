@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Security;
 using Blueprint.Errors;
-using Namotion.Reflection;
+using Blueprint.Utilities;
 
 namespace Blueprint.Configuration
 {

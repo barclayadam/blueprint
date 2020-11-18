@@ -15,6 +15,7 @@ using Newtonsoft.Json.Serialization;
 using NJsonSchema;
 using NJsonSchema.Generation;
 using NSwag;
+using XmlDocsExtensions = Blueprint.Utilities.XmlDocsExtensions;
 
 namespace Blueprint.OpenApi
 {
@@ -105,8 +106,8 @@ namespace Blueprint.OpenApi
                     var openApiOperation = new OpenApiOperation
                     {
                         OperationId = operation.Name,
-                        Summary = operation.OperationType.GetXmlDocsSummary(),
-                        Description = operation.OperationType.GetXmlDocsRemarks(),
+                        Summary = XmlDocsExtensions.GetXmlDocsSummary(operation.OperationType),
+                        Description = XmlDocsExtensions.GetXmlDocsRemarks(operation.OperationType),
                     };
 
                     // Use the last namespace segment as a tag of this operation, which provides a generally
@@ -157,7 +158,7 @@ namespace Blueprint.OpenApi
 
                             Schema = generator.Generate(property.PropertyType),
 
-                            Description = property.GetXmlDocsSummary(),
+                            Description = XmlDocsExtensions.GetXmlDocsSummary(property),
                         });
                     }
 
