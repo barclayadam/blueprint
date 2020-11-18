@@ -44,7 +44,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var handlerFromSource = variables.FindVariable(typeof(IHandler));
-                writer.WriteComment(nameof(CustomFrame));
+                writer.Comment(nameof(CustomFrame));
 
                 next();
             }
@@ -61,7 +61,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.WriteComment(nameof(SourceFrame));
+                writer.Comment(nameof(SourceFrame));
 
                 next();
             }

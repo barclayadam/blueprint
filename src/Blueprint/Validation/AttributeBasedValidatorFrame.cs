@@ -23,7 +23,7 @@ namespace Blueprint.Validation
             var attributeType = typeof(T).FullNameInCode();
             var awaitMethod = IsAsync ? "await" : string.Empty;
 
-            writer.WriteComment($"{property.PropertyInfoVariable} == {property.PropertyInfoVariable.Property.DeclaringType.Name}.{property.PropertyInfoVariable.Property.Name}");
+            writer.Comment($"{property.PropertyInfoVariable} == {property.PropertyInfoVariable.Property.DeclaringType.Name}.{property.PropertyInfoVariable.Property.Name}");
             writer.Block($"foreach (var attribute in {property.PropertyAttributesVariable})");
             writer.Block($"if (attribute is {attributeType} x)");
             writer.WriteLine($"var result = {awaitMethod} x.{methodCall};");

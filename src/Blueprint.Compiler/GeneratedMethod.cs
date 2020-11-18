@@ -204,15 +204,15 @@ namespace Blueprint.Compiler
                 switch (variable)
                 {
                     case InjectedField field:
-                        GeneratedType.AllInjectedFields.Fill(field);
+                        GeneratedType.AllInjectedFields.Add(field);
                         break;
 
                     case Setter setter:
-                        GeneratedType.Setters.Fill(setter);
+                        GeneratedType.Setters.Add(setter);
                         break;
 
                     case StaticField staticField:
-                        GeneratedType.AllStaticFields.Fill(staticField);
+                        GeneratedType.AllStaticFields.Add(staticField);
                         break;
                 }
             }
@@ -228,7 +228,8 @@ namespace Blueprint.Compiler
                 returnValue = "override " + returnValue;
             }
 
-            var arguments = Arguments.Select(x => x.Declaration).Join(", ");
+            IEnumerable<string> tempQualifier = Arguments.Select(x => x.Declaration);
+            var arguments = string.Join(", ", tempQualifier);
 
             writer.Block($"public {returnValue} {MethodName}({arguments})");
 
@@ -245,7 +246,8 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public override string ToString()
         {
-            var arguments = Arguments.Select(x => x.Declaration).Join(", ");
+            IEnumerable<string> tempQualifier = Arguments.Select(x => x.Declaration);
+            var arguments = string.Join(", ", tempQualifier);
 
             return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
         }
@@ -527,7 +529,7 @@ namespace Blueprint.Compiler
                 return this;
             }
 
-            /// <inherit-doc />
+            /// <inheritdoc />
             Variable IMethodVariables.FindVariable(Type variableType)
             {
                 var variable = ((IMethodVariables)this).TryFindVariable(variableType);
@@ -545,7 +547,7 @@ namespace Blueprint.Compiler
                 return variable;
             }
 
-            /// <inherit-doc />
+            /// <inheritdoc />
             Variable IMethodVariables.TryFindVariable(Type type)
             {
                 if (method.variables.ContainsKey(type))

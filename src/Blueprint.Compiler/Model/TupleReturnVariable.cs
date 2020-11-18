@@ -14,6 +14,12 @@ namespace Blueprint.Compiler.Model
             this.inner = inner;
         }
 
-        public override string Usage => "(" + inner.Select(x => $"var {x.Usage}").Join(", ") + ")";
+        public override string Usage
+        {
+            get
+            {
+                return "(" + string.Join(", ", inner.Select(x => $"var {x.Usage}")) + ")";
+            }
+        }
     }
 }

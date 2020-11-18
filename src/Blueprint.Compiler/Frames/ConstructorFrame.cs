@@ -88,7 +88,7 @@ namespace Blueprint.Compiler.Frames
                     break;
 
                 case ConstructorCallMode.UsingNestedVariable:
-                    writer.UsingBlock(Declaration(), w =>
+                    writer.Using(Declaration(), w =>
                     {
                         ActivatorFrames.Write(variables, method, writer);
 
@@ -107,10 +107,12 @@ namespace Blueprint.Compiler.Frames
 
         public string Invocation()
         {
-            var invocation = $"new {BuiltType.FullNameInCode()}({Parameters.Select(x => x.Usage).Join(", ")})";
+            IEnumerable<string> tempQualifier = Parameters.Select(x => x.Usage);
+            var invocation = $"new {BuiltType.FullNameInCode()}({string.Join(", ", tempQualifier)})";
             if (Setters.Any())
             {
-                invocation += $"{{{Setters.Select(x => x.Assignment()).Join(", ")}}}";
+                IEnumerable<string> tempQualifier1 = Setters.Select(x => x.Assignment());
+                invocation += $"{{{string.Join(", ", tempQualifier1)}}}";
             }
 
             return invocation;

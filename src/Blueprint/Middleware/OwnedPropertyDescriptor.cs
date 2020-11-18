@@ -40,7 +40,7 @@ namespace Blueprint.Middleware
         /// </summary>
         public bool IsInternal { get; set; }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         public bool Equals(OwnedPropertyDescriptor other)
         {
             if (ReferenceEquals(null, other))
@@ -56,7 +56,7 @@ namespace Blueprint.Middleware
             return Equals(Property, other.Property);
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -77,7 +77,7 @@ namespace Blueprint.Middleware
             return Equals((OwnedPropertyDescriptor) obj);
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return (Property != null ? Property.GetHashCode() : 0);

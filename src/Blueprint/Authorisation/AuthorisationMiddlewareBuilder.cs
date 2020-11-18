@@ -109,13 +109,13 @@ namespace Blueprint.Authorisation
                 var spanVariable = apiOperationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
 
                 // It is possible that no span exists
-                writer.WriteIf($"{spanVariable} != null");
+                writer.If($"{spanVariable} != null");
 
                 // We set user data as tags. Individual APM tools may wish to react accordingly to these tags if there is some specific
                 // location user details need to be stored.
                 writer.WriteLine($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
 
-                writer.WriteIf($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
+                writer.If($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
                 writer.WriteLine($"{spanVariable}.SetTag(\"user.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
                 writer.WriteLine($"{spanVariable}.SetTag(\"user.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
                 writer.FinishBlock();

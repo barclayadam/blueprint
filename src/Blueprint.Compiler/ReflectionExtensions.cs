@@ -69,7 +69,8 @@ namespace Blueprint.Compiler
                     cleanName = $"{type.ReflectedType.NameInCode()}.{cleanName}";
                 }
 
-                var args = type.GetGenericArguments().Select(x => x.FullNameInCode()).Join(", ");
+                IEnumerable<string> tempQualifier = type.GetGenericArguments().Select(x => x.FullNameInCode());
+                var args = string.Join(", ", tempQualifier);
 
                 return $"{type.Namespace}.{cleanName}<{args}>";
             }
@@ -102,7 +103,8 @@ namespace Blueprint.Compiler
                     cleanName = $"{type.ReflectedType.NameInCode()}.{cleanName}";
                 }
 
-                var args = type.GetGenericArguments().Select(x => x.FullNameInCode()).Join(", ");
+                var tempQualifier = type.GetGenericArguments().Select(x => x.FullNameInCode());
+                var args = string.Join(", ", tempQualifier);
 
                 return $"{cleanName}<{args}>";
             }
@@ -124,7 +126,9 @@ namespace Blueprint.Compiler
         public static string NameInCode(this Type type, Type[] genericParameterTypes)
         {
             var cleanName = type.Name.Split('`').First().Replace("+", ".");
-            var args = genericParameterTypes.Select(x => x.FullNameInCode()).Join(", ");
+            var tempQualifier = genericParameterTypes.Select(x => x.FullNameInCode());
+            var args = string.Join(", ", tempQualifier);
+
             return $"{cleanName}<{args}>";
         }
     }

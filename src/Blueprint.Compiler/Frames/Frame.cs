@@ -113,7 +113,7 @@ namespace Blueprint.Compiler.Frames
 
         internal void AddCreates(Variable variable)
         {
-            creates.Fill(variable);
+            creates.Add(variable);
         }
 
         internal void AddUses(Variable variable)

@@ -254,12 +254,14 @@ namespace Blueprint.Compiler
 
         private void WriteConstructorMethod(ISourceWriter writer, IList<InjectedField> args)
         {
-            var ctorArgs = args.Select(x => x.CtorArgDeclaration).Join(", ");
+            IEnumerable<string> tempQualifier = args.Select(x => x.CtorArgDeclaration);
+            var ctorArgs = string.Join(", ", tempQualifier);
             var declaration = $"public {TypeName}({ctorArgs})";
 
             if (BaseConstructorArguments.Any())
             {
-                declaration = $"{declaration} : base({BaseConstructorArguments.Select(x => x.ArgumentName).Join(", ")})";
+                IEnumerable<string> tempQualifier1 = BaseConstructorArguments.Select(x => x.ArgumentName);
+                declaration = $"{declaration} : base({string.Join(", ", tempQualifier1)})";
             }
 
             writer.Block(declaration);
@@ -303,7 +305,8 @@ namespace Blueprint.Compiler
 
             if (implemented.Any())
             {
-                return $"public class {TypeName} : {implemented.Select(x => x.FullNameInCode()).Join(", ")}";
+                IEnumerable<string> tempQualifier = implemented.Select(x => x.FullNameInCode());
+                return $"public class {TypeName} : {string.Join(", ", tempQualifier)}";
             }
 
             return $":public class {TypeName}";

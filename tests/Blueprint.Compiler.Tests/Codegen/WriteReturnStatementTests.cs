@@ -30,7 +30,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             ifTheAsyncMode = AsyncMode.AsyncTask;
 
-            theWriter.WriteReturnStatement(theMethod);
+            theWriter.Return(theMethod);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be("return;");
@@ -43,7 +43,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             ifTheAsyncMode = AsyncMode.ReturnCompletedTask;
 
-            theWriter.WriteReturnStatement(theMethod);
+            theWriter.Return(theMethod);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be(expected);
@@ -56,7 +56,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             ifTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
-            theWriter.WriteReturnStatement(theMethod);
+            theWriter.Return(theMethod);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be(expected);
@@ -68,7 +68,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             ifTheAsyncMode = AsyncMode.AsyncTask;
 
-            theWriter.WriteReturnStatement(theMethod, aVariable);
+            theWriter.Return(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be("return name;");
@@ -81,7 +81,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             ifTheAsyncMode = AsyncMode.ReturnCompletedTask;
 
-            theWriter.WriteReturnStatement(theMethod, aVariable);
+            theWriter.Return(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be(expected);
@@ -94,7 +94,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             ifTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
-            theWriter.WriteReturnStatement(theMethod, aVariable);
+            theWriter.Return(theMethod, aVariable);
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be(expected);

@@ -28,7 +28,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.WriteComment(commentText);
+            writer.Comment(commentText);
 
             next();
         }

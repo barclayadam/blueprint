@@ -197,7 +197,7 @@ namespace Blueprint.Http
         {
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         // System.Text.Json needs explicit ignore of this overriden property. It _will_ still serialise the base
         [System.Text.Json.Serialization.JsonIgnore]
         public new TResource Data

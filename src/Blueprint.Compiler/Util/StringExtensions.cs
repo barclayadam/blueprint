@@ -26,17 +26,25 @@ namespace Blueprint.Compiler.Util
                 Current = default;
             }
 
+            public LineSplitEntry Current { get; private set; }
+
             // Needed to be compatible with the foreach operator
             public LineSplitEnumerator GetEnumerator() => this;
 
             public bool MoveNext()
             {
                 var span = str;
-                if (span.Length == 0) // Reach the end of the string
+
+                // Reach the end of the string
+                if (span.Length == 0)
+                {
                     return false;
+                }
 
                 var index = span.IndexOfAny('\r', '\n');
-                if (index == -1) // The string is composed of only one line
+
+                // The string is composed of only one line
+                if (index == -1)
                 {
                     str = ReadOnlySpan<char>.Empty; // The remaining string is an empty string
                     Current = new LineSplitEntry(span, ReadOnlySpan<char>.Empty);
@@ -59,8 +67,6 @@ namespace Blueprint.Compiler.Util
                 str = span.Slice(index + 1);
                 return true;
             }
-
-            public LineSplitEntry Current { get; private set; }
         }
 
         public readonly ref struct LineSplitEntry
@@ -72,7 +78,12 @@ namespace Blueprint.Compiler.Util
             }
 
             public ReadOnlySpan<char> Line { get; }
+
             public ReadOnlySpan<char> Separator { get; }
+
+            // This method allow to implicitly cast the type into a ReadOnlySpan<char>, so you can write the following code
+            // foreach (ReadOnlySpan<char> entry in str.SplitLines())
+            public static implicit operator ReadOnlySpan<char>(LineSplitEntry entry) => entry.Line;
 
             // This method allow to deconstruct the type, so you can write any of the following code
             // foreach (var entry in str.SplitLines()) { _ = entry.Line; }
@@ -83,10 +94,6 @@ namespace Blueprint.Compiler.Util
                 line = Line;
                 separator = Separator;
             }
-
-            // This method allow to implicitly cast the type into a ReadOnlySpan<char>, so you can write the following code
-            // foreach (ReadOnlySpan<char> entry in str.SplitLines())
-            public static implicit operator ReadOnlySpan<char>(LineSplitEntry entry) => entry.Line;
         }
     }
 }

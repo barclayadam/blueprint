@@ -3,10 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Blueprint.Compiler.Model;
-using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A set of extensions to <see cref="ISourceWriter" /> that provides methods for common language
+    /// constructs.
+    /// </summary>
     public static class SourceWriterExtensions
     {
         private static readonly string ReturnCompletedTask = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
@@ -19,7 +22,7 @@ namespace Blueprint.Compiler
         /// code block with a leading '{' character.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="namespace"></param>
+        /// <param name="namespace">The namespace.</param>
         public static void Namespace(this ISourceWriter writer, string @namespace)
         {
             writer.Block($"namespace {@namespace}");
@@ -30,7 +33,7 @@ namespace Blueprint.Compiler
         /// that holds the type T.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type from which to grab the namespace.</typeparam>
         public static void UsingNamespace<T>(this ISourceWriter writer)
         {
             writer.WriteLine($"using {typeof(T).Namespace};");
@@ -40,7 +43,7 @@ namespace Blueprint.Compiler
         /// Adds a "using namespace;" declaration into the code for the namespace.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="namespace"></param>
+        /// <param name="namespace">The namespace.</param>
         public static void UsingNamespace(this ISourceWriter writer, string @namespace)
         {
             writer.WriteLine($"using {@namespace};");
@@ -53,12 +56,10 @@ namespace Blueprint.Compiler
         /// <param name="writer">Where to write to.</param>
         /// <param name="declaration">The code that goes within the parenthesis of this using block (i.e. the expression that generates and optionally sets, the disposable object).</param>
         /// <param name="inner">The action that writes the body of the using block, passed the same writer to avoid closure allocation.</param>
-        public static void UsingBlock(this ISourceWriter writer, string declaration, Action<ISourceWriter> inner)
+        public static void Using(this ISourceWriter writer, string declaration, Action<ISourceWriter> inner)
         {
             writer.Block($"using ({declaration})");
-
             inner(writer);
-
             writer.FinishBlock();
         }
 
@@ -68,7 +69,7 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <param name="writer">Where to write to.</param>
         /// <param name="inner">The action that writes the body of the try block, passed the same writer to avoid closure allocation.</param>
-        public static void TryBlock(
+        public static void Try(
             this ISourceWriter writer,
             Action<ISourceWriter> inner)
         {
@@ -84,7 +85,7 @@ namespace Blueprint.Compiler
         /// <param name="writer">Where to write to.</param>
         /// <param name="declaration">The code that goes within the parenthesis of this catch block (i.e. at a minimum the exception type).</param>
         /// <param name="inner">The action that writes the body of the catch block, passed the same writer to avoid closure allocation.</param>
-        public static void CatchBlock(
+        public static void Catch(
             this ISourceWriter writer,
             string declaration,
             Action<ISourceWriter> inner)
@@ -99,8 +100,8 @@ namespace Blueprint.Compiler
         /// for synchronous or asynchronous methods.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="method"></param>
-        public static void WriteReturnStatement(this ISourceWriter writer, GeneratedMethod method)
+        /// <param name="method">The method from which we are returning.</param>
+        public static void Return(this ISourceWriter writer, GeneratedMethod method)
         {
             if (method.AsyncMode == AsyncMode.AsyncTask)
             {
@@ -116,9 +117,9 @@ namespace Blueprint.Compiler
         /// Writes a "return [variable.Usage];" code snippet .
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="method"></param>
-        /// <param name="variable"></param>
-        public static void WriteReturnStatement(this ISourceWriter writer, GeneratedMethod method, Variable variable)
+        /// <param name="method">The method the return statement belongs to.</param>
+        /// <param name="variable">The variable to return.</param>
+        public static void Return(this ISourceWriter writer, GeneratedMethod method, Variable variable)
         {
             object[] args = { variable.Usage };
 
@@ -132,8 +133,8 @@ namespace Blueprint.Compiler
         /// block level.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="comment"></param>
-        public static void WriteComment(this ISourceWriter writer, string comment)
+        /// <param name="comment">The comment text (must not contain a newline).</param>
+        public static void Comment(this ISourceWriter writer, string comment)
         {
             writer.WriteLine("// " + comment);
         }
@@ -143,7 +144,7 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <param name="writer">Where to write to.</param>
         /// <param name="statement">The statement to put inside the if block.</param>
-        public static void WriteIf(this ISourceWriter writer, string statement)
+        public static void If(this ISourceWriter writer, string statement)
         {
             writer.Block($"if ({statement})");
         }
@@ -152,7 +153,7 @@ namespace Blueprint.Compiler
         /// Starts an else block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        public static void WriteElse(this ISourceWriter writer)
+        public static void Else(this ISourceWriter writer)
         {
             writer.Block("else");
         }
@@ -161,7 +162,7 @@ namespace Blueprint.Compiler
         /// Starts a try block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        public static void WriteTry(this ISourceWriter writer)
+        public static void Try(this ISourceWriter writer)
         {
             writer.Block("try");
         }
@@ -170,7 +171,7 @@ namespace Blueprint.Compiler
         /// Starts a finally block in code with the opening brace and indention for following lines.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        public static void WriteFinally(this ISourceWriter writer)
+        public static void Finally(this ISourceWriter writer)
         {
             writer.FinishBlock();
             writer.Block("finally");
@@ -180,8 +181,8 @@ namespace Blueprint.Compiler
         /// Writes the declaration of a new class to the source writer.
         /// </summary>
         /// <param name="writer">Where to write to.</param>
-        /// <param name="className"></param>
-        /// <param name="inheritsOrImplements"></param>
+        /// <param name="className">The name of the class.</param>
+        /// <param name="inheritsOrImplements">The set of <see cref="Type" />s that the class either inherits from, or implements.</param>
         public static void StartClass(this ISourceWriter writer, string className, params Type[] inheritsOrImplements)
         {
             if (inheritsOrImplements.Length == 0)
@@ -190,7 +191,8 @@ namespace Blueprint.Compiler
             }
             else
             {
-                writer.Block($"public class {className} : {inheritsOrImplements.Select(x => x.FullNameInCode()).Join(", ")}");
+                var tempQualifier = inheritsOrImplements.Select(x => x.FullNameInCode());
+                writer.Block($"public class {className} : {string.Join(", ", tempQualifier)}");
             }
         }
     }

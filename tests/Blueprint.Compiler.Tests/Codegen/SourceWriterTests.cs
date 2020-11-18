@@ -89,7 +89,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var writer = new SourceWriter();
             writer.Block("public void Go()");
-            writer.WriteComment("Some Comment");
+            writer.Comment("Some Comment");
 
             var lines = writer.Code().ReadLines().ToArray();
             lines.Last().Should().Be("    // Some Comment");

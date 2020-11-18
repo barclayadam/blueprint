@@ -174,22 +174,22 @@ namespace Blueprint.Compiler
             }
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
         {
             return frames.GetEnumerator();
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)frames).GetEnumerator();
         }
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         public int Count => frames.Count;
 
-        /// <inherit-doc />
+        /// <inheritdoc />
         public Frame this[int index] => frames[index];
     }
 }
