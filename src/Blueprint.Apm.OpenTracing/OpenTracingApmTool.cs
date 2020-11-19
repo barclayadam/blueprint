@@ -11,7 +11,7 @@ namespace Blueprint.Apm.OpenTracing
     /// </summary>
     public class OpenTracingApmTool : IApmTool
     {
-        private readonly ITracer tracer;
+        private readonly ITracer _tracer;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OpenTracingApmTool" />.
@@ -19,17 +19,17 @@ namespace Blueprint.Apm.OpenTracing
         /// <param name="tracer">The OpenTracing tracer to use.</param>
         public OpenTracingApmTool(ITracer tracer)
         {
-            this.tracer = tracer;
+            this._tracer = tracer;
         }
 
         /// <inheritdoc />
         public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
         {
-            var spanBuilder = tracer.BuildSpan("operation.execute");
+            var spanBuilder = this._tracer.BuildSpan("operation.execute");
 
             if (existingContext != null)
             {
-                spanBuilder.AsChildOf(this.tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(existingContext)));
+                spanBuilder.AsChildOf(this._tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(existingContext)));
             }
 
             var span = spanBuilder.Start();
@@ -37,17 +37,17 @@ namespace Blueprint.Apm.OpenTracing
             Tags.Component.Set(span, operation.Name);
             Tags.SpanKind.Set(span, spanKind);
 
-            return new OpenTracingSpan(tracer, span);
+            return new OpenTracingSpan(this._tracer, span);
         }
 
         /// <inheritdoc />
         public IApmSpan Start(string spanKind, string operationName, string type, IDictionary<string, string> existingContext = null, string resourceName = null)
         {
-            var spanBuilder = tracer.BuildSpan(operationName);
+            var spanBuilder = this._tracer.BuildSpan(operationName);
 
             if (existingContext != null)
             {
-                spanBuilder.AsChildOf(this.tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(existingContext)));
+                spanBuilder.AsChildOf(this._tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(existingContext)));
             }
 
             var span = spanBuilder.Start();
@@ -56,21 +56,21 @@ namespace Blueprint.Apm.OpenTracing
             Tags.SpanKind.Set(span, spanKind);
             span.SetTag("type", type);
 
-            return new OpenTracingSpan(tracer, span);
+            return new OpenTracingSpan(this._tracer, span);
         }
 
         private class OpenTracingSpan : IApmSpan
         {
-            private readonly ITracer tracer;
-            private readonly ISpan span;
+            private readonly ITracer _tracer;
+            private readonly ISpan _span;
 
             public OpenTracingSpan(ITracer tracer, ISpan span)
             {
-                this.tracer = tracer;
-                this.span = span;
+                this._tracer = tracer;
+                this._span = span;
             }
 
-            public string TraceId => span.Context.TraceId;
+            public string TraceId => this._span.Context.TraceId;
 
             public IApmSpan StartSpan(
                 string spanKind,
@@ -78,9 +78,9 @@ namespace Blueprint.Apm.OpenTracing
                 string type)
             {
                 return new OpenTracingSpan(
-                    tracer,
-                    tracer.BuildSpan(operationName)
-                        .AsChildOf(span)
+                    this._tracer,
+                    this._tracer.BuildSpan(operationName)
+                        .AsChildOf(this._span)
                         .WithTag("type", type)
                         .WithTag(Tags.SpanKind.Key, spanKind)
                         .Start());
@@ -88,14 +88,14 @@ namespace Blueprint.Apm.OpenTracing
 
             public void Dispose()
             {
-                this.span.Finish();
+                this._span.Finish();
             }
 
             public void RecordException(Exception e)
             {
-                Tags.Error.Set(this.span, true);
+                Tags.Error.Set(this._span, true);
 
-                this.span.Log(new Dictionary<string, object>
+                this._span.Log(new Dictionary<string, object>
                 {
                     [LogFields.Event] = "error",
                     [LogFields.ErrorObject] = e,
@@ -103,25 +103,25 @@ namespace Blueprint.Apm.OpenTracing
 
                 // We also set some additional tags directly on the span which some tools (i.e. Datadog)
                 // pick up instead of the log event from above.
-                this.span.SetTag("error.msg", e.Message);
-                this.span.SetTag("error.stack", e.ToString());
-                this.span.SetTag("error.type", e.GetType().ToString());
+                this._span.SetTag("error.msg", e.Message);
+                this._span.SetTag("error.stack", e.ToString());
+                this._span.SetTag("error.type", e.GetType().ToString());
             }
 
             public void SetTag(string key, string value)
             {
-                this.span.SetTag(key, value);
+                this._span.SetTag(key, value);
             }
 
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
-                this.tracer.Inject(this.tracer.ActiveSpan.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(context));
+                this._tracer.Inject(this._tracer.ActiveSpan.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(context));
             }
 
             public void SetResource(string resourceName)
             {
-                Tags.Component.Set(this.span, resourceName);
+                Tags.Component.Set(this._span, resourceName);
             }
         }
     }

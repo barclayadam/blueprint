@@ -17,8 +17,8 @@ namespace Blueprint.Benchmarks
             var generatedAssembly = new GeneratedAssembly(new GenerationRules {AssemblyName = "Blueprint.Benchmarks.MethodCallBenchmarks"});
             var generatedType = generatedAssembly.AddType("Blueprint.Benchmarks", "MethodTester", typeof(object));
 
-            this.generatedMethod = generatedType.AddVoidMethod("Test");
-            this.sourceWriter = new SourceWriter
+            generatedMethod = generatedType.AddVoidMethod("Test");
+            sourceWriter = new SourceWriter
             {
                 IndentationLevel = 1,
             };

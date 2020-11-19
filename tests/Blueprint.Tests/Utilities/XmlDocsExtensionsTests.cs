@@ -68,7 +68,7 @@ namespace Blueprint.Tests.Utilities
 
         public class WithSeeTagInXmlDoc
         {
-            /// <summary><see langword="null"/> for the default <see cref="Record"/>. See <see cref="Record">this</see> and <see href="https://github.com/rsuter/njsonschema">this</see> at <see href="https://github.com/rsuter/njsonschema"/>.</summary>
+            /// <summary><see langword="null"/> for the default <see cref="WithSeeTagInXmlDoc"/>. See <see cref="WithSeeTagInXmlDoc">this</see> and <see href="https://github.com/rsuter/njsonschema">this</see> at <see href="https://github.com/rsuter/njsonschema"/>.</summary>
             public string Foo { get; set; }
         }
 
@@ -79,7 +79,7 @@ namespace Blueprint.Tests.Utilities
             var summary = typeof(WithSeeTagInXmlDoc).GetProperty("Foo").GetXmlDocsSummary();
 
             // Assert
-            summary.Should().Be("null for the default Record. See this and this at https://github.com/rsuter/njsonschema.");
+            summary.Should().Be("null for the default WithSeeTagInXmlDoc. See this and this at https://github.com/rsuter/njsonschema.");
         }
 
         public class WithParamrefTagInXmlDoc

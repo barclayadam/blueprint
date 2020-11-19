@@ -14,7 +14,7 @@ namespace Blueprint.Notifications
         /// </summary>
         public NotificationOptions()
         {
-            Attachments = new List<NotificationAttachment>();
+            this.Attachments = new List<NotificationAttachment>();
         }
 
         /// <summary>

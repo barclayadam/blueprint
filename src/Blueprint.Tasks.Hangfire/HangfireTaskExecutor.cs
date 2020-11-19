@@ -14,8 +14,8 @@ namespace Blueprint.Tasks.Hangfire
     /// </summary>
     public class HangfireTaskExecutor
     {
-        private readonly TaskExecutor taskExecutor;
-        private readonly IErrorLogger errorLogger;
+        private readonly TaskExecutor _taskExecutor;
+        private readonly IErrorLogger _errorLogger;
 
         /// <summary>
         /// Instantiates a new instance of the TaskExecutor class.
@@ -29,8 +29,8 @@ namespace Blueprint.Tasks.Hangfire
             Guard.NotNull(nameof(taskExecutor), taskExecutor);
             Guard.NotNull(nameof(errorLogger), errorLogger);
 
-            this.taskExecutor = taskExecutor;
-            this.errorLogger = errorLogger;
+            this._taskExecutor = taskExecutor;
+            this._errorLogger = errorLogger;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Blueprint.Tasks.Hangfire
 
             try
             {
-                await taskExecutor.Execute(
+                await this._taskExecutor.Execute(
                     task.Envelope,
                     s =>
                     {
@@ -61,7 +61,7 @@ namespace Blueprint.Tasks.Hangfire
             }
             catch (Exception e)
             {
-                if (errorLogger.ShouldIgnore(e))
+                if (this._errorLogger.ShouldIgnore(e))
                 {
                     return;
                 }
@@ -77,7 +77,7 @@ namespace Blueprint.Tasks.Hangfire
                 e.Data["RetryCount"] = attempt?.ToString();
                 e.Data["HangfireJobId"] = context.BackgroundJob.Id;
 
-                await errorLogger.LogAsync(e);
+                await this._errorLogger.LogAsync(e);
 
                 throw;
             }

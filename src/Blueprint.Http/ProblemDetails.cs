@@ -66,8 +66,8 @@ namespace Blueprint.Http
         /// <param name="value">THe value.</param>
         public void AddExtension(string key, object value)
         {
-            Extensions ??= new Dictionary<string, object>(StringComparer.Ordinal);
-            Extensions[key] = value;
+            this.Extensions ??= new Dictionary<string, object>(StringComparer.Ordinal);
+            this.Extensions[key] = value;
         }
     }
 }

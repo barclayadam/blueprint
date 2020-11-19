@@ -5,9 +5,9 @@
     /// </summary>
     public abstract class Template
     {
-        private readonly string name;
+        private readonly string _name;
 
-        private readonly string text;
+        private readonly string _text;
 
         /// <summary>
         /// Initializes a new instance of the Template class.
@@ -16,22 +16,22 @@
         /// <param name="text">The text of this template.</param>
         protected Template(string name, string text)
         {
-            Guard.NotNullOrEmpty("name", name);
-            Guard.NotNullOrEmpty("text", text);
+            Guard.NotNullOrEmpty(nameof(name), name);
+            Guard.NotNullOrEmpty(nameof(text), text);
 
-            this.text = text;
-            this.name = name;
+            this._text = text;
+            this._name = name;
         }
 
         /// <summary>
         /// Gets the name of this template, which can be used if logging errors.
         /// </summary>
-        public string Name => name;
+        public string Name => this._name;
 
         /// <summary>
         /// Gets the text of this template.
         /// </summary>
-        public string Text => text;
+        public string Text => this._text;
 
         /// <summary>
         /// Transforms this template into a final string representation, having merged in any

@@ -5,7 +5,8 @@ namespace Blueprint.Compiler.Model
 {
     public class Value : Variable
     {
-        public Value(object value) : base(value.GetType(), RepresentationInCode(value))
+        public Value(object value)
+            : base(value.GetType(), RepresentationInCode(value))
         {
         }
 

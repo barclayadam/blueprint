@@ -11,7 +11,7 @@ namespace Blueprint
     [UsedImplicitly]
     public class MicrosoftDependencyInjectionInstanceFrameProvider : InstanceFrameProvider
     {
-        private readonly IServiceProvider provider;
+        private readonly IServiceProvider _provider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftDependencyInjectionInstanceFrameProvider" /> class.
@@ -19,7 +19,7 @@ namespace Blueprint
         /// <param name="provider">The service provider from which instances would be grabbed at runtime.</param>
         public MicrosoftDependencyInjectionInstanceFrameProvider(IServiceProvider provider)
         {
-            this.provider = provider;
+            this._provider = provider;
         }
 
         /// <inheritdoc />
@@ -35,7 +35,7 @@ namespace Blueprint
         protected override IEnumerable<IoCRegistration> GetRegistrations(Type type)
         {
             // NB: We rely on the service collection being registered when configuring Blueprint
-            var registrations = provider.GetRequiredService<IServiceCollection>();
+            var registrations = this._provider.GetRequiredService<IServiceCollection>();
             var registrationsForType = new List<IoCRegistration>();
 
             foreach (var r in registrations)

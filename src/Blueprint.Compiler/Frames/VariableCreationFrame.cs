@@ -8,8 +8,8 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class VariableCreationFrame : SyncFrame
     {
-        private readonly Variable lhs;
-        private readonly Variable rhs;
+        private readonly Variable _lhs;
+        private readonly Variable _rhs;
 
         /// <summary>
         /// Initialises a new instance of <see cref="VariableCreationFrame" /> that outputs code
@@ -31,19 +31,19 @@ namespace Blueprint.Compiler.Frames
         /// <param name="rhs">The right hand side of the statement.</param>
         public VariableCreationFrame(Type variableType, string variableName, string rhs)
         {
-            lhs = new Variable(variableType, variableName);
-            this.rhs = new Variable(variableType, rhs);
+            this._lhs = new Variable(variableType, variableName);
+            this._rhs = new Variable(variableType, rhs);
         }
 
         /// <summary>
         /// The variable that has been created by this <see cref="VariableCreationFrame" />.
         /// </summary>
-        public Variable CreatedVariable => lhs;
+        public Variable CreatedVariable => this._lhs;
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.WriteLine(ToString());
+            writer.WriteLine(this.ToString());
 
             next();
         }
@@ -51,7 +51,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"var {lhs} = {rhs};";
+            return $"var {this._lhs} = {this._rhs};";
         }
     }
 }

@@ -10,11 +10,11 @@ namespace Blueprint.Validation
     /// </summary>
     public class BlueprintValidator : IValidator
     {
-        private readonly IEnumerable<IValidationSource> validationSources;
+        private readonly IEnumerable<IValidationSource> _validationSources;
 
         public BlueprintValidator(IEnumerable<IValidationSource> validationSources)
         {
-            this.validationSources = validationSources;
+            this._validationSources = validationSources;
         }
 
         /// <inheritdoc />
@@ -23,7 +23,7 @@ namespace Blueprint.Validation
             var results = new ValidationFailures();
             PropertyInfo[] propertyInfos = null;
 
-            foreach (var validationSource in validationSources)
+            foreach (var validationSource in this._validationSources)
             {
                 if (validationSource is IAttributeValidationSource attributeValidationSource)
                 {

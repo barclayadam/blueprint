@@ -9,9 +9,9 @@ namespace Blueprint
 {
     public static class ObjectComparer
     {
-        private static readonly Dictionary<string, object> NoChangesDictionary = new Dictionary<string, object>();
+        private static readonly Dictionary<string, object> _noChangesDictionary = new Dictionary<string, object>();
 
-        private static readonly CompareLogic CompareLogic = new CompareLogic(new ComparisonConfig
+        private static readonly CompareLogic _compareLogic = new CompareLogic(new ComparisonConfig
         {
             MaxDifferences = int.MaxValue,
 
@@ -40,14 +40,14 @@ namespace Blueprint
         {
             if (oldObject == null || newObject == null)
             {
-                return NoChangesDictionary;
+                return _noChangesDictionary;
             }
 
-            var comparison = CompareLogic.Compare(oldObject, newObject);
+            var comparison = _compareLogic.Compare(oldObject, newObject);
 
             if (comparison.AreEqual)
             {
-                return NoChangesDictionary;
+                return _noChangesDictionary;
             }
 
             return comparison.Differences
@@ -84,7 +84,7 @@ namespace Blueprint
             {
                 if (!Equals(parms.Object1, parms.Object2))
                 {
-                    AddDifference(parms);
+                    this.AddDifference(parms);
                 }
             }
         }

@@ -7,37 +7,37 @@ namespace Blueprint.Compiler.Frames
 {
     public abstract class Frame
     {
-        private readonly List<Variable> creates = new List<Variable>();
-        private readonly HashSet<Variable> uses = new HashSet<Variable>();
+        private readonly List<Variable> _creates = new List<Variable>();
+        private readonly HashSet<Variable> _uses = new HashSet<Variable>();
 
-        private IMethodSourceWriter writer;
-        private GeneratedMethod method;
-        private IMethodVariables variables;
+        private IMethodSourceWriter _writer;
+        private GeneratedMethod _method;
+        private IMethodVariables _variables;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="Frame" /> class.
         /// </summary>
         /// <param name="isAsync">Whether this <see cref="Frame"/> is async.</param>
-        protected Frame(bool isAsync)
+        protected Frame(bool @is)
         {
-            IsAsync = isAsync;
+            this.Is = @is;
         }
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Frame" /> is async.
         /// </summary>
-        public virtual bool IsAsync { get; }
+        public virtual bool Is { get; }
 
         /// <summary>
         /// Gets the <see cref="Variable" />s used by this <see cref="Frame" />.
         /// </summary>
-        public IEnumerable<Variable> Uses => uses;
+        public IEnumerable<Variable> Uses => this._uses;
 
         /// <summary>
         /// Gets the variables that <b>this</b> <see cref="Frame" /> is responsible for creating, NOT
         /// returning any child variables if this is a <see cref="CompositeFrame" />.
         /// </summary>
-        public IEnumerable<Variable> Creates => creates;
+        public IEnumerable<Variable> Creates => this._creates;
 
         /// <summary>
         /// Gets the block level of the frame, indicating how many scopes/blocks 'deep' this
@@ -61,15 +61,15 @@ namespace Blueprint.Compiler.Frames
         /// <param name="writer">Where to write the code to.</param>
         public void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer)
         {
-            BlockLevel = writer.IndentationLevel;
+            this.BlockLevel = writer.IndentationLevel;
 
-            this.variables = variables;
-            this.method = method;
-            this.writer = writer;
+            this._variables = variables;
+            this._method = method;
+            this._writer = writer;
 
             method.RegisterFrame(this);
 
-            Generate(new MethodVariableUsageRecorder(variables, uses), method, writer, Next);
+            this.Generate(new MethodVariableUsageRecorder(variables, this._uses), method, writer, this.Next);
         }
 
         public virtual bool CanReturnTask()
@@ -83,11 +83,11 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The <see cref="GeneratedMethod" /> given is the same as <see cref="method" />, but is provided as
+        /// The <see cref="GeneratedMethod" /> given is the same as <see cref="_method" />, but is provided as
         /// a convenience parameter to make it more obvious it's available.
         /// </para>
         /// <para>
-        /// The <see cref="ISourceWriter" /> given is the same as <see cref="writer" />, but is provided as
+        /// The <see cref="ISourceWriter" /> given is the same as <see cref="_writer" />, but is provided as
         /// a convenience parameter to make it more obvious it's available.
         /// </para>
         /// <para>
@@ -108,49 +108,49 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         private void Next()
         {
-            NextFrame?.GenerateCode(variables, method, writer);
+            this.NextFrame?.GenerateCode(this._variables, this._method, this._writer);
         }
 
         internal void AddCreates(Variable variable)
         {
-            creates.Add(variable);
+            this._creates.Add(variable);
         }
 
         internal void AddUses(Variable variable)
         {
-            uses.Add(variable);
+            this._uses.Add(variable);
         }
 
         private class MethodVariableUsageRecorder : IMethodVariables
         {
-            private readonly IMethodVariables inner;
-            private readonly HashSet<Variable> uses;
+            private readonly IMethodVariables _inner;
+            private readonly HashSet<Variable> _uses;
 
             public MethodVariableUsageRecorder(IMethodVariables inner, HashSet<Variable> uses)
             {
-                this.inner = inner;
-                this.uses = uses;
+                this._inner = inner;
+                this._uses = uses;
             }
 
             public Variable FindVariable(Type type)
             {
-                return Record(inner.FindVariable(type));
+                return this.Record(this._inner.FindVariable(type));
             }
 
             public Variable TryFindVariable(Type type)
             {
-                return Record(inner.TryFindVariable(type));
+                return this.Record(this._inner.TryFindVariable(type));
             }
 
             private Variable Record(Variable v)
             {
                 if (v != null)
                 {
-                    uses.Add(v);
+                    this._uses.Add(v);
 
                     foreach (var dependency in v.Dependencies)
                     {
-                        Record(dependency);
+                        this.Record(dependency);
                     }
                 }
 

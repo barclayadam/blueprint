@@ -10,31 +10,31 @@ namespace Blueprint.Testing
     /// </summary>
     public class InMemoryCache : ICache
     {
-        private readonly ConcurrentDictionary<string, object> items = new ConcurrentDictionary<string, object>();
+        private readonly ConcurrentDictionary<string, object> _items = new ConcurrentDictionary<string, object>();
 
         /// <inheritdoc />
         public void Add<T>(string category, object key, T value)
         {
-            items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, __) => value);
+            this._items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, __) => value);
         }
 
         /// <inheritdoc />
         public bool ContainsKey<T>(object key)
         {
-            return items.ContainsKey(GenerateStorageKey<T>(key));
+            return this._items.ContainsKey(GenerateStorageKey<T>(key));
         }
 
         public IEnumerable<T> GetItems<T>()
         {
-            return items.Values.OfType<T>();
+            return this._items.Values.OfType<T>();
         }
 
         /// <inheritdoc />
         public T GetValue<T>(object key)
         {
-            if (ContainsKey<T>(key))
+            if (this.ContainsKey<T>(key))
             {
-                return (T)items[GenerateStorageKey<T>(key)];
+                return (T)this._items[GenerateStorageKey<T>(key)];
             }
 
             return default;
@@ -43,7 +43,7 @@ namespace Blueprint.Testing
         /// <inheritdoc />
         public void Remove<T>(object key)
         {
-            items.TryRemove(GenerateStorageKey<T>(key), out _);
+            this._items.TryRemove(GenerateStorageKey<T>(key), out _);
         }
 
         private static string GenerateStorageKey<T>(object key)

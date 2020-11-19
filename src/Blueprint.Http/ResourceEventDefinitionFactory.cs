@@ -19,7 +19,7 @@ namespace Blueprint.Http
     /// <typeparam name="TResource">The type of resource that has been modified.</typeparam>
     public class ResourceEventDefinitionFactory<TResource>
     {
-        private readonly Func<IQuery<TResource>> mapper;
+        private readonly Func<IQuery<TResource>> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinitionFactory{TResource,TDomain}" /> class.
@@ -27,7 +27,7 @@ namespace Blueprint.Http
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
         public ResourceEventDefinitionFactory(Func<IQuery<TResource>> mapper)
         {
-            this.mapper = mapper;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Created,
                 ResourceEvent<TResource>.CreateId("created"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Created,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Updated,
                 ResourceEvent<TResource>.CreateId("updated"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Updated,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Deleted,
                 ResourceEvent<TResource>.CreateId("deleted"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Deleted,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
     }
 
@@ -134,7 +134,7 @@ namespace Blueprint.Http
     /// this definition.</typeparam>
     public class ResourceEventDefinitionFactory<TResource, TDomain>
     {
-        private readonly Func<TDomain, IQuery<TResource>> mapper;
+        private readonly Func<TDomain, IQuery<TResource>> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinitionFactory{TResource,TDomain}" /> class.
@@ -142,7 +142,7 @@ namespace Blueprint.Http
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
         public ResourceEventDefinitionFactory(Func<TDomain, IQuery<TResource>> mapper)
         {
-            this.mapper = mapper;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Created,
                 ResourceEvent<TResource>.CreateId("created"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Created,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Updated,
                 ResourceEvent<TResource>.CreateId("updated"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Updated,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Deleted,
                 ResourceEvent<TResource>.CreateId("deleted"),
-                mapper);
+                this._mapper);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Blueprint.Http
             return new ResourceEventDefinition<TResource, TDomain>(
                 ResourceEventChangeType.Deleted,
                 ResourceEvent<TResource>.CreateId(eventSubId),
-                mapper);
+                this._mapper);
         }
     }
 }

@@ -42,18 +42,18 @@ namespace Blueprint.Compiler.Util
 
         private class FindMethodVisitor : ExpressionVisitorBase
         {
-            private MethodInfo method;
+            private MethodInfo _method;
 
             public FindMethodVisitor(Expression expression)
             {
-                Visit(expression);
+                this.Visit(expression);
             }
 
-            public MethodInfo Method => method;
+            public MethodInfo Method => this._method;
 
             protected override Expression VisitMethodCall(MethodCallExpression m)
             {
-                method = m.Method;
+                this._method = m.Method;
                 return m;
             }
         }

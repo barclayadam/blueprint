@@ -13,7 +13,7 @@ namespace Blueprint.Http.Formatters
     /// </summary>
     public readonly struct MediaType
     {
-        private static readonly StringSegment QualityParameter = new StringSegment("q");
+        private static readonly StringSegment _qualityParameter = new StringSegment("q");
 
         private readonly string _asString;
         private readonly MediaTypeParameterParser _parameterParser;
@@ -67,46 +67,46 @@ namespace Blueprint.Http.Formatters
                 }
             }
 
-            _parameterParser = default;
-            _asString = mediaType;
+            this._parameterParser = default;
+            this._asString = mediaType;
 
             var typeLength = GetTypeLength(mediaType, offset, out var type);
             if (typeLength == 0)
             {
-                Type = default;
-                SubType = default;
-                SubTypeWithoutSuffix = default;
-                SubTypeSuffix = default;
+                this.Type = default;
+                this.SubType = default;
+                this.SubTypeWithoutSuffix = default;
+                this.SubTypeSuffix = default;
 
                 return;
             }
 
-            Type = type;
+            this.Type = type;
 
             var subTypeLength = GetSubtypeLength(mediaType, offset + typeLength, out var subType);
             if (subTypeLength == 0)
             {
-                SubType = default;
-                SubTypeWithoutSuffix = default;
-                SubTypeSuffix = default;
+                this.SubType = default;
+                this.SubTypeWithoutSuffix = default;
+                this.SubTypeSuffix = default;
 
                 return;
             }
 
-            SubType = subType;
+            this.SubType = subType;
 
             if (TryGetSuffixLength(subType, out var subtypeSuffixLength))
             {
-                SubTypeWithoutSuffix = subType.Subsegment(0, subType.Length - subtypeSuffixLength - 1);
-                SubTypeSuffix = subType.Subsegment(subType.Length - subtypeSuffixLength, subtypeSuffixLength);
+                this.SubTypeWithoutSuffix = subType.Subsegment(0, subType.Length - subtypeSuffixLength - 1);
+                this.SubTypeSuffix = subType.Subsegment(subType.Length - subtypeSuffixLength, subtypeSuffixLength);
             }
             else
             {
-                SubTypeWithoutSuffix = SubType;
-                SubTypeSuffix = default;
+                this.SubTypeWithoutSuffix = this.SubType;
+                this.SubTypeSuffix = default;
             }
 
-            _parameterParser = new MediaTypeParameterParser(mediaType, offset + typeLength + subTypeLength, length);
+            this._parameterParser = new MediaTypeParameterParser(mediaType, offset + typeLength + subTypeLength, length);
         }
 
         // All GetXXXLength methods work in the same way. They expect to be on the right position for
@@ -197,7 +197,7 @@ namespace Blueprint.Http.Formatters
         /// <summary>
         /// Gets whether this <see cref="MediaType"/> matches all types.
         /// </summary>
-        public bool MatchesAllTypes => Type.Equals("*", StringComparison.OrdinalIgnoreCase);
+        public bool MatchesAllTypes => this.Type.Equals("*", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets the subtype of the <see cref="MediaType"/>.
@@ -235,7 +235,7 @@ namespace Blueprint.Http.Formatters
         /// <example>
         /// For the media type <c>"application/json"</c>, this property is <c>false</c>.
         /// </example>
-        public bool MatchesAllSubTypes => SubType.Equals("*", StringComparison.OrdinalIgnoreCase);
+        public bool MatchesAllSubTypes => this.SubType.Equals("*", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets whether this <see cref="MediaType"/> matches all subtypes, ignoring any structured syntax suffix.
@@ -246,17 +246,17 @@ namespace Blueprint.Http.Formatters
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, this property is <c>false</c>.
         /// </example>
-        public bool MatchesAllSubTypesWithoutSuffix => SubTypeWithoutSuffix.Equals("*", StringComparison.OrdinalIgnoreCase);
+        public bool MatchesAllSubTypesWithoutSuffix => this.SubTypeWithoutSuffix.Equals("*", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets the <see cref="System.Text.Encoding"/> of the <see cref="MediaType"/> if it has one.
         /// </summary>
-        public Encoding Encoding => GetEncodingFromCharset(GetParameter("charset"));
+        public Encoding Encoding => GetEncodingFromCharset(this.GetParameter("charset"));
 
         /// <summary>
         /// Gets the charset parameter of the <see cref="MediaType"/> if it has one.
         /// </summary>
-        public StringSegment Charset => GetParameter("charset");
+        public StringSegment Charset => this.GetParameter("charset");
 
         /// <summary>
         /// Determines whether the current <see cref="MediaType"/> contains a wildcard.
@@ -264,15 +264,7 @@ namespace Blueprint.Http.Formatters
         /// <returns>
         /// <c>true</c> if this <see cref="MediaType"/> contains a wildcard; otherwise <c>false</c>.
         /// </returns>
-        public bool HasWildcard
-        {
-            get
-            {
-                return MatchesAllTypes ||
-                       MatchesAllSubTypesWithoutSuffix ||
-                       GetParameter("*").Equals("*", StringComparison.OrdinalIgnoreCase);
-            }
-        }
+        public bool HasWildcard => this.MatchesAllTypes || this.MatchesAllSubTypesWithoutSuffix || this.GetParameter("*").Equals("*", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Determines whether the current <see cref="MediaType"/> is a subset of the <paramref name="set"/>
@@ -284,9 +276,7 @@ namespace Blueprint.Http.Formatters
         /// </returns>
         public bool IsSubsetOf(MediaType set)
         {
-            return MatchesType(set) &&
-                   MatchesSubtype(set) &&
-                   ContainsAllParameters(set._parameterParser);
+            return this.MatchesType(set) && this.MatchesSubtype(set) && this.ContainsAllParameters(set._parameterParser);
         }
 
         /// <summary>
@@ -299,7 +289,7 @@ namespace Blueprint.Http.Formatters
         /// </returns>
         public StringSegment GetParameter(string parameterName)
         {
-            return GetParameter(new StringSegment(parameterName));
+            return this.GetParameter(new StringSegment(parameterName));
         }
 
         /// <summary>
@@ -312,7 +302,7 @@ namespace Blueprint.Http.Formatters
         /// </returns>
         public StringSegment GetParameter(StringSegment parameterName)
         {
-            var parametersParser = _parameterParser;
+            var parametersParser = this._parameterParser;
 
             while (parametersParser.ParseNextParameter(out var parameter))
             {
@@ -414,7 +404,7 @@ namespace Blueprint.Http.Formatters
             var quality = 1.0d;
             while (parser.ParseNextParameter(out var parameter))
             {
-                if (parameter.HasName(QualityParameter))
+                if (parameter.HasName(_qualityParameter))
                 {
                     // If media type contains two `q` values i.e. it's invalid in an uncommon way, pick last value.
                     quality = double.Parse(
@@ -465,7 +455,7 @@ namespace Blueprint.Http.Formatters
         private bool MatchesType(MediaType set)
         {
             return set.MatchesAllTypes ||
-                   set.Type.Equals(Type, StringComparison.OrdinalIgnoreCase);
+                   set.Type.Equals(this.Type, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool MatchesSubtype(MediaType set)
@@ -477,10 +467,10 @@ namespace Blueprint.Http.Formatters
 
             if (set.SubTypeSuffix.HasValue)
             {
-                if (SubTypeSuffix.HasValue)
+                if (this.SubTypeSuffix.HasValue)
                 {
                     // Both the set and the media type being checked have suffixes, so both parts must match.
-                    return MatchesSubtypeWithoutSuffix(set) && MatchesSubtypeSuffix(set);
+                    return this.MatchesSubtypeWithoutSuffix(set) && this.MatchesSubtypeSuffix(set);
                 }
                 else
                 {
@@ -493,27 +483,27 @@ namespace Blueprint.Http.Formatters
                 // If this subtype or suffix matches the subtype of the set,
                 // it is considered a subtype.
                 // Ex: application/json > application/val+json
-                return MatchesEitherSubtypeOrSuffix(set);
+                return this.MatchesEitherSubtypeOrSuffix(set);
             }
         }
 
         private bool MatchesSubtypeWithoutSuffix(MediaType set)
         {
             return set.MatchesAllSubTypesWithoutSuffix ||
-                   set.SubTypeWithoutSuffix.Equals(SubTypeWithoutSuffix, StringComparison.OrdinalIgnoreCase);
+                   set.SubTypeWithoutSuffix.Equals(this.SubTypeWithoutSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool MatchesSubtypeSuffix(MediaType set)
         {
             // We don't have support for wildcards on suffixes alone (e.g., "application/entity+*")
             // because there's no clear use case for it.
-            return set.SubTypeSuffix.Equals(SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
+            return set.SubTypeSuffix.Equals(this.SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool MatchesEitherSubtypeOrSuffix(MediaType set)
         {
-            return set.SubType.Equals(SubType, StringComparison.OrdinalIgnoreCase) ||
-                   set.SubType.Equals(SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
+            return set.SubType.Equals(this.SubType, StringComparison.OrdinalIgnoreCase) ||
+                   set.SubType.Equals(this.SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool ContainsAllParameters(MediaTypeParameterParser setParameters)
@@ -537,7 +527,7 @@ namespace Blueprint.Http.Formatters
 
                 // Copy the parser as we need to iterate multiple times over it.
                 // We can do this because it's a struct
-                var subSetParameters = _parameterParser;
+                var subSetParameters = this._parameterParser;
                 parameterFound = false;
                 while (subSetParameters.ParseNextParameter(out var subSetParameter) && !parameterFound)
                 {
@@ -555,10 +545,10 @@ namespace Blueprint.Http.Formatters
 
             public MediaTypeParameterParser(string mediaTypeBuffer, int offset, int? length)
             {
-                _mediaTypeBuffer = mediaTypeBuffer;
-                _length = length;
-                CurrentOffset = offset;
-                ParsingFailed = false;
+                this._mediaTypeBuffer = mediaTypeBuffer;
+                this._length = length;
+                this.CurrentOffset = offset;
+                this.ParsingFailed = false;
             }
 
             public int CurrentOffset { get; private set; }
@@ -567,19 +557,19 @@ namespace Blueprint.Http.Formatters
 
             public bool ParseNextParameter(out MediaTypeParameter result)
             {
-                if (_mediaTypeBuffer == null)
+                if (this._mediaTypeBuffer == null)
                 {
-                    ParsingFailed = true;
+                    this.ParsingFailed = true;
                     result = default;
                     return false;
                 }
 
-                var parameterLength = GetParameterLength(_mediaTypeBuffer, CurrentOffset, out result);
-                CurrentOffset += parameterLength;
+                var parameterLength = GetParameterLength(this._mediaTypeBuffer, this.CurrentOffset, out result);
+                this.CurrentOffset += parameterLength;
 
                 if (parameterLength == 0)
                 {
-                    ParsingFailed = _length != null && CurrentOffset < _length;
+                    this.ParsingFailed = this._length != null && this.CurrentOffset < this._length;
                     return false;
                 }
 
@@ -689,8 +679,8 @@ namespace Blueprint.Http.Formatters
         {
             public MediaTypeParameter(StringSegment name, StringSegment value)
             {
-                Name = name;
-                Value = value;
+                this.Name = name;
+                this.Value = value;
             }
 
             public StringSegment Name { get; }
@@ -699,20 +689,23 @@ namespace Blueprint.Http.Formatters
 
             public bool HasName(string name)
             {
-                return HasName(new StringSegment(name));
+                return this.HasName(new StringSegment(name));
             }
 
             public bool HasName(StringSegment name)
             {
-                return Name.Equals(name, StringComparison.OrdinalIgnoreCase);
+                return this.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
             }
 
             public bool Equals(MediaTypeParameter other)
             {
-                return HasName(other.Name) && Value.Equals(other.Value, StringComparison.OrdinalIgnoreCase);
+                return this.HasName(other.Name) && this.Value.Equals(other.Value, StringComparison.OrdinalIgnoreCase);
             }
 
-            public override string ToString() => $"{Name}={Value}";
+            public override string ToString()
+            {
+                return $"{this.Name}={this.Value}";
+            }
         }
     }
 }

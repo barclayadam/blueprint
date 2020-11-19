@@ -14,11 +14,11 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class MethodCall : Frame
     {
-        private readonly Type handlerType;
-        private readonly MethodInfo methodInfo;
-        private readonly ParameterInfo[] parameters;
+        private readonly Type _handlerType;
+        private readonly MethodInfo _methodInfo;
+        private readonly ParameterInfo[] _parameters;
 
-        private Variable target;
+        private Variable _target;
 
         public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
         {
@@ -26,9 +26,9 @@ namespace Blueprint.Compiler.Frames
 
         public MethodCall(Type handlerType, MethodInfo methodInfo) : base(methodInfo.IsAsync())
         {
-            this.handlerType = handlerType;
-            this.methodInfo = methodInfo;
-            this.parameters = methodInfo.GetParameters();
+            this._handlerType = handlerType;
+            this._methodInfo = methodInfo;
+            this._parameters = methodInfo.GetParameters();
 
             var returnType = CorrectedReturnType(methodInfo.ReturnType);
             if (returnType != null)
@@ -37,7 +37,7 @@ namespace Blueprint.Compiler.Frames
                 {
                     var values = returnType.GetGenericArguments().Select(x => new Variable(x, this)).ToArray();
 
-                    ReturnVariable = new TupleReturnVariable(returnType, values);
+                    this.ReturnVariable = new TupleReturnVariable(returnType, values);
                 }
                 else
                 {
@@ -45,18 +45,18 @@ namespace Blueprint.Compiler.Frames
                         ? "result_of_" + methodInfo.Name
                         : Variable.DefaultArgName(returnType);
 
-                    ReturnVariable = new Variable(returnType, name, this);
+                    this.ReturnVariable = new Variable(returnType, name, this);
                 }
             }
 
-            Arguments = new Variable[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
+            this.Arguments = new Variable[this._parameters.Length];
+            for (var i = 0; i < this._parameters.Length; i++)
             {
-                var param = parameters[i];
+                var param = this._parameters[i];
                 if (param.IsOut)
                 {
                     var paramType = param.ParameterType.IsByRef ? param.ParameterType.GetElementType() : param.ParameterType;
-                    Arguments[i] = new OutArgument(paramType, this);
+                    this.Arguments[i] = new OutArgument(paramType, this);
                 }
             }
         }
@@ -78,18 +78,18 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         public Variable Target
         {
-            get => target;
+            get => this._target;
 
             set
             {
-                target = value;
+                this._target = value;
 
                 // Record this frame uses the target to propagate this association.
-                AddUses(value);
+                this.AddUses(value);
 
                 // Record the return variable, if one exists, has a dependency on the target
                 // variable. This is obvious, but makes relationships even more explicit
-                ReturnVariable?.Dependencies.Add(target);
+                this.ReturnVariable?.Dependencies.Add(this._target);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Blueprint.Compiler.Frames
 
         public bool TrySetArgument(Variable variable)
         {
-            var parameterTypes = this.parameters.Select(x => x.ParameterType).ToArray();
+            var parameterTypes = this._parameters.Select(x => x.ParameterType).ToArray();
 
             if (parameterTypes.Count(x => variable.VariableType.CanBeCastTo(x)) != 1)
             {
@@ -114,14 +114,14 @@ namespace Blueprint.Compiler.Frames
             }
 
             var index = Array.IndexOf(parameterTypes, variable.VariableType);
-            Arguments[index] = variable;
+            this.Arguments[index] = variable;
 
             return true;
         }
 
         public bool TrySetArgument(string parameterName, Variable variable)
         {
-            var matching = parameters.FirstOrDefault(x =>
+            var matching = this._parameters.FirstOrDefault(x =>
                 variable.VariableType.CanBeCastTo(x.ParameterType) && x.Name == parameterName);
 
             if (matching == null)
@@ -129,8 +129,8 @@ namespace Blueprint.Compiler.Frames
                 return false;
             }
 
-            var index = Array.IndexOf(parameters, matching);
-            Arguments[index] = variable;
+            var index = Array.IndexOf(this._parameters, matching);
+            this.Arguments[index] = variable;
 
             return true;
         }
@@ -138,59 +138,59 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override bool CanReturnTask()
         {
-            return IsAsync;
+            return this.Is;
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
             var writer = new SourceWriter();
-            AppendInvocationCode(writer);
+            this.AppendInvocationCode(writer);
 
-            return IsAsync ? "await " + writer.Code() : writer.Code();
+            return this.Is ? "await " + writer.Code() : writer.Code();
         }
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            for (var i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < this._parameters.Length; i++)
             {
-                if (Arguments[i] != null)
+                if (this.Arguments[i] != null)
                 {
-                    AddUses(Arguments[i]);
+                    this.AddUses(this.Arguments[i]);
 
                     continue;
                 }
 
-                Arguments[i] = variables.FindVariable(parameters[i].ParameterType);
+                this.Arguments[i] = variables.FindVariable(this._parameters[i].ParameterType);
             }
 
             // If we do not have an explicit Target variable already and we need one, try and find it
-            if (Target == null && !(methodInfo.IsStatic || IsLocal))
+            if (this.Target == null && !(this._methodInfo.IsStatic || this.IsLocal))
             {
-                Target = variables.FindVariable(handlerType);
+                this.Target = variables.FindVariable(this._handlerType);
             }
 
-            var shouldAssign = ShouldAssignVariableToReturnValue(method);
-            var isDisposable = shouldAssign && ReturnVariable.VariableType.CanBeCastTo<IDisposable>();
-            var requiresUsingBlock = isDisposable && DisposalMode == DisposalMode.UsingBlock;
+            var shouldAssign = this.ShouldAssignVariableToReturnValue(method);
+            var isDisposable = shouldAssign && this.ReturnVariable.VariableType.CanBeCastTo<IDisposable>();
+            var requiresUsingBlock = isDisposable && this.DisposalMode == DisposalMode.UsingBlock;
 
             if (requiresUsingBlock)
             {
                 writer.Append("using (");
             }
 
-            var callConvention = IsAsync ? method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await " : string.Empty;
+            var callConvention = this.Is ? method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await " : string.Empty;
 
             if (shouldAssign)
             {
-                if (ReturnVariable.VariableType.IsValueTuple())
+                if (this.ReturnVariable.VariableType.IsValueTuple())
                 {
-                    writer.Append(ReturnVariable.ToString()).Append(" = ").Append(callConvention);
+                    writer.Append(this.ReturnVariable.ToString()).Append(" = ").Append(callConvention);
                 }
                 else
                 {
-                    writer.Append("var ").Append(ReturnVariable.ToString()).Append(" = ").Append(callConvention);
+                    writer.Append("var ").Append(this.ReturnVariable.ToString()).Append(" = ").Append(callConvention);
                 }
             }
             else
@@ -198,9 +198,9 @@ namespace Blueprint.Compiler.Frames
                 writer.Append(callConvention);
             }
 
-            AppendInvocationCode(writer);
+            this.AppendInvocationCode(writer);
 
-            if (isDisposable && DisposalMode == DisposalMode.UsingBlock)
+            if (isDisposable && this.DisposalMode == DisposalMode.UsingBlock)
             {
                 // We have already written the using statement out to the writer, we just need a block
                 // opener to increase indentation level with closing parenthesis
@@ -241,12 +241,12 @@ namespace Blueprint.Compiler.Frames
 
         private bool ShouldAssignVariableToReturnValue(GeneratedMethod method)
         {
-            if (ReturnVariable == null)
+            if (this.ReturnVariable == null)
             {
                 return false;
             }
 
-            if (IsAsync && method.AsyncMode == AsyncMode.ReturnFromLastNode)
+            if (this.Is && method.AsyncMode == AsyncMode.ReturnFromLastNode)
             {
                 return false;
             }
@@ -258,21 +258,21 @@ namespace Blueprint.Compiler.Frames
         {
             // If this is not a local call we need to output either "ClassName." for a static method
             // invocation or "targetVar." otherwise
-            if (!IsLocal)
+            if (!this.IsLocal)
             {
-                sourceWriter.Append(methodInfo.IsStatic
-                    ? handlerType.FullNameInCode()
-                    : Target.Usage);
+                sourceWriter.Append(this._methodInfo.IsStatic
+                    ? this._handlerType.FullNameInCode()
+                    : this.Target.Usage);
 
                 sourceWriter.Append('.');
             }
 
-            sourceWriter.Append(methodInfo.Name);
+            sourceWriter.Append(this._methodInfo.Name);
 
             // Write generic arguments if necessary (i.e. <int, object, string>)
-            if (methodInfo.IsGenericMethod)
+            if (this._methodInfo.IsGenericMethod)
             {
-                var genericArguments = methodInfo.GetGenericArguments();
+                var genericArguments = this._methodInfo.GetGenericArguments();
 
                 sourceWriter.Append('<');
 
@@ -292,11 +292,11 @@ namespace Blueprint.Compiler.Frames
             // Write arguments
             sourceWriter.Append('(');
 
-            for (var i = 0; i < Arguments.Length; i++)
+            for (var i = 0; i < this.Arguments.Length; i++)
             {
-                sourceWriter.Append(Arguments[i].ArgumentDeclaration);
+                sourceWriter.Append(this.Arguments[i].ArgumentDeclaration);
 
-                if (i != Arguments.Length - 1)
+                if (i != this.Arguments.Length - 1)
                 {
                     sourceWriter.Append(", ");
                 }

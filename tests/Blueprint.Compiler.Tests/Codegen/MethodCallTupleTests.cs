@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Compiler.Tests.Codegen
 {
-    public class when_building_a_method_call_for_a_tuple
+    public class WhenBuildingAMethodCallForATuple
     {
         private MethodCall theCall;
 

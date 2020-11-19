@@ -17,10 +17,10 @@ namespace Blueprint.Caching
 
         private CacheOptions()
         {
-            Priority = CacheItemPriority.Medium;
+            this.Priority = CacheItemPriority.Medium;
 
-            AbsoluteExpiration = ObjectCache.InfiniteAbsoluteExpiration;
-            SlidingExpiration = ObjectCache.NoSlidingExpiration;
+            this.AbsoluteExpiration = ObjectCache.InfiniteAbsoluteExpiration;
+            this.SlidingExpiration = ObjectCache.NoSlidingExpiration;
         }
 
         /// <summary>
@@ -93,12 +93,12 @@ namespace Blueprint.Caching
         /// <returns>The string representation of this CacheOptions instance.</returns>
         public override string ToString()
         {
-            if (SlidingExpiration != ObjectCache.NoSlidingExpiration)
+            if (this.SlidingExpiration != ObjectCache.NoSlidingExpiration)
             {
-                return $"[Sliding] Expiration = {SlidingExpiration}; Priority = {Priority}";
+                return $"[Sliding] Expiration = {this.SlidingExpiration}; Priority = {this.Priority}";
             }
 
-            return $"[Absolute] Expiration = {AbsoluteExpiration}; Priority = {Priority}";
+            return $"[Absolute] Expiration = {this.AbsoluteExpiration}; Priority = {this.Priority}";
         }
     }
 }

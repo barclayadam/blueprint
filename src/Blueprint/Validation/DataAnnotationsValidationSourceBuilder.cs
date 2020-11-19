@@ -50,20 +50,20 @@ namespace Blueprint.Validation
 
         private class ValidatableObjectFrame : SyncFrame
         {
-            private readonly Variable validationContextVariable;
-            private readonly Variable operationVariable;
+            private readonly Variable _validationContextVariable;
+            private readonly Variable _operationVariable;
 
             public ValidatableObjectFrame(Variable validationContextVariable, Variable operationVariable)
             {
-                this.validationContextVariable = validationContextVariable;
-                this.operationVariable = operationVariable;
+                this._validationContextVariable = validationContextVariable;
+                this._operationVariable = operationVariable;
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var resultsVariable = variables.FindVariable(typeof(ValidationFailures));
 
-                writer.Block($"foreach (var classFailure in (({typeof(IValidatableObject).FullNameInCode()}){operationVariable}).{nameof(IValidatableObject.Validate)}({validationContextVariable}))");
+                writer.Block($"foreach (var classFailure in (({typeof(IValidatableObject).FullNameInCode()}){this._operationVariable}).{nameof(IValidatableObject.Validate)}({this._validationContextVariable}))");
                 writer.WriteLine($"{resultsVariable}.{nameof(ValidationFailures.AddFailure)}(classFailure);");
                 writer.FinishBlock();
 
@@ -73,31 +73,31 @@ namespace Blueprint.Validation
 
         private class DataAnnotationsValidatorFrame : AttributeBasedValidatorFrame<ValidationAttribute>
         {
-            private readonly Variable contextVariable;
+            private readonly Variable _contextVariable;
 
             public DataAnnotationsValidatorFrame(Variable contextVariable, OperationProperty operationProperty)
                 : base(false, operationProperty)
             {
-                this.contextVariable = contextVariable;
+                this._contextVariable = contextVariable;
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.WriteLine($"{contextVariable}.MemberName = \"{Property.PropertyInfoVariable.Property.Name}\";");
-                writer.WriteLine($"{contextVariable}.DisplayName = \"{Property.PropertyInfoVariable.Property.Name}\";");
+                writer.WriteLine($"{this._contextVariable}.MemberName = \"{this.Property.PropertyInfoVariable.Property.Name}\";");
+                writer.WriteLine($"{this._contextVariable}.DisplayName = \"{this.Property.PropertyInfoVariable.Property.Name}\";");
                 writer.BlankLine();
 
-                LoopAttributes(
+                this.LoopAttributes(
                     variables,
                     writer,
-                    $"{nameof(ValidationAttribute.GetValidationResult)}({Property.PropertyValueVariable}, {contextVariable})");
+                    $"{nameof(ValidationAttribute.GetValidationResult)}({this.Property.PropertyValueVariable}, {this._contextVariable})");
 
                 next();
             }
 
             public override string ToString()
             {
-                return $"[Validate property {Property.PropertyInfoVariable.Property.Name}]";
+                return $"[Validate property {this.Property.PropertyInfoVariable.Property.Name}]";
             }
         }
     }

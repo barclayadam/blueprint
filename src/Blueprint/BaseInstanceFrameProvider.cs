@@ -10,20 +10,18 @@ namespace Blueprint
 {
     public abstract class InstanceFrameProvider
     {
-        /// <inheritdoc />
         public GetInstanceFrame<T> GetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
-            var variable = TryGetVariableFromContainer<T>(generatedType, toLoad);
+            var variable = this.TryGetVariableFromContainer<T>(generatedType, toLoad);
 
             if (variable == null)
             {
-                throw new InvalidOperationException(GetNoRegistrationExistsExceptionMessage(toLoad));
+                throw new InvalidOperationException(this.GetNoRegistrationExistsExceptionMessage(toLoad));
             }
 
             return variable;
         }
 
-        /// <inheritdoc />
         public GetInstanceFrame<T> TryGetVariableFromContainer<T>(GeneratedType generatedType, Type toLoad)
         {
             // If the requested type is enumerable we will always return a transient frame as, even with nothing registered, we
@@ -34,7 +32,7 @@ namespace Blueprint
             }
 
             // NB: We rely on the service collection being registered when configuring Blueprint
-            var registrationsForType = GetRegistrations(toLoad).ToList();
+            var registrationsForType = this.GetRegistrations(toLoad).ToList();
 
             if (registrationsForType.Any() == false)
             {

@@ -11,7 +11,7 @@ namespace Blueprint.Http
         /// <param name="httpMethod">The HTTP method of this operation.</param>
         public HttpOperationFeatureData(string httpMethod)
         {
-            HttpMethod = httpMethod;
+            this.HttpMethod = httpMethod;
         }
 
         /// <summary>

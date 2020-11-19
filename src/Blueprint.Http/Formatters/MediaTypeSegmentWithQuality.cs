@@ -17,8 +17,8 @@ namespace Blueprint.Http.Formatters
         /// <param name="quality">The quality parameter of the media type or 1 in the case it does not exist.</param>
         public MediaTypeSegmentWithQuality(StringSegment mediaType, double quality)
         {
-            MediaType = mediaType;
-            Quality = quality;
+            this.MediaType = mediaType;
+            this.Quality = quality;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Blueprint.Http.Formatters
         public override string ToString()
         {
             // For logging purposes
-            return MediaType.ToString();
+            return this.MediaType.ToString();
         }
     }
 }

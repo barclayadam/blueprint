@@ -17,13 +17,13 @@ namespace Blueprint.Compiler
     /// </summary>
     public class AssemblyGenerator : IAssemblyGenerator
     {
-        private readonly ILogger<AssemblyGenerator> logger;
-        private readonly ICompileStrategy compileStrategy;
+        private readonly ILogger<AssemblyGenerator> _logger;
+        private readonly ICompileStrategy _compileStrategy;
 
-        private readonly List<Assembly> referencedAssemblies = new List<Assembly>();
+        private readonly List<Assembly> _referencedAssemblies = new List<Assembly>();
 
-        private readonly List<(string Reference, Exception Exception)> referenceErrors = new List<(string Reference, Exception Exception)>();
-        private readonly List<SourceFile> files = new List<SourceFile>();
+        private readonly List<(string Reference, Exception Exception)> _referenceErrors = new List<(string Reference, Exception Exception)>();
+        private readonly List<SourceFile> _files = new List<SourceFile>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyGenerator" /> class.
@@ -32,12 +32,12 @@ namespace Blueprint.Compiler
         /// <param name="compileStrategy">The compilation strategy to use to actually build and load the assemblies.</param>
         public AssemblyGenerator(ILogger<AssemblyGenerator> logger, ICompileStrategy compileStrategy)
         {
-            this.logger = logger;
-            this.compileStrategy = compileStrategy;
+            this._logger = logger;
+            this._compileStrategy = compileStrategy;
 
-            ReferenceAssemblyContainingType<object>();
-            ReferenceAssemblyContainingType<AssemblyGenerator>();
-            ReferenceAssemblyContainingType<Task>();
+            this.ReferenceAssemblyContainingType<object>();
+            this.ReferenceAssemblyContainingType<AssemblyGenerator>();
+            this.ReferenceAssemblyContainingType<Task>();
         }
 
         /// <inheritdoc />
@@ -48,18 +48,18 @@ namespace Blueprint.Compiler
                 return;
             }
 
-            if (referencedAssemblies.Contains(assembly))
+            if (this._referencedAssemblies.Contains(assembly))
             {
                 return;
             }
 
-            referencedAssemblies.Add(assembly);
+            this._referencedAssemblies.Add(assembly);
         }
 
         /// <inheritdoc />
         public void AddFile(string fileName, string code)
         {
-            files.Add(new SourceFile(fileName, code));
+            this._files.Add(new SourceFile(fileName, code));
         }
 
         /// <summary>
@@ -75,10 +75,10 @@ namespace Blueprint.Compiler
             }
 
             var encoding = Encoding.UTF8;
-            var sourceTextHash = CreateSourceHash(encoding);
+            var sourceTextHash = this.CreateSourceHash(encoding);
             var assemblyName = rules.AssemblyName + ".dll";
 
-            var existingAssembly = compileStrategy.TryLoadExisting(sourceTextHash, assemblyName);
+            var existingAssembly = this._compileStrategy.TryLoadExisting(sourceTextHash, assemblyName);
 
             if (existingAssembly != null)
             {
@@ -88,7 +88,7 @@ namespace Blueprint.Compiler
             var syntaxTrees = new List<SyntaxTree>();
             var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.None);
 
-            foreach (var f in files)
+            foreach (var f in this._files)
             {
                 var sourceCodePath = f.FileName;
 
@@ -100,18 +100,18 @@ namespace Blueprint.Compiler
                 syntaxTrees.Add(syntaxTree);
             }
 
-            logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
+            this._logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
 
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: syntaxTrees,
-                references: GetAllReferences(),
+                references: this.GetAllReferences(),
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithDeterministic(true)
                     .WithConcurrentBuild(false)
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
-            return compileStrategy.Compile(
+            return this._compileStrategy.Compile(
                 sourceTextHash,
                 compilation,
                 (result) =>
@@ -164,12 +164,12 @@ namespace Blueprint.Compiler
 
                         exceptionMessage.AppendLine();
 
-                        if (referenceErrors.Any())
+                        if (this._referenceErrors.Any())
                         {
                             exceptionMessage.AppendLine("Assembly reference errors (these may be the reason compilation fails)");
                             exceptionMessage.AppendLine();
 
-                            foreach (var (reference, exception) in referenceErrors)
+                            foreach (var (reference, exception) in this._referenceErrors)
                             {
                                 exceptionMessage.AppendLine($" {reference}: {exception.Message}");
                             }
@@ -177,7 +177,7 @@ namespace Blueprint.Compiler
                             exceptionMessage.AppendLine();
                         }
 
-                        var allCode = string.Join("\n\n", files.Select(f => f.Code));
+                        var allCode = string.Join("\n\n", this._files.Select(f => f.Code));
 
                         throw new CompilationException(exceptionMessage.ToString()) {Failures = failures, Code = allCode,};
                     }
@@ -218,11 +218,11 @@ namespace Blueprint.Compiler
                 }
                 catch (Exception e)
                 {
-                    referenceErrors.Add((assembly.FullName, e));
+                    this._referenceErrors.Add((assembly.FullName, e));
                 }
             }
 
-            foreach (var assembly in referencedAssemblies)
+            foreach (var assembly in this._referencedAssemblies)
             {
                 Traverse(assembly);
             }
@@ -235,7 +235,7 @@ namespace Blueprint.Compiler
             HashAlgorithm hasher = MD5.Create();
             hasher.Initialize();
 
-            foreach (var f in files)
+            foreach (var f in this._files)
             {
                 var fileBytes = encoding.GetBytes(f.Code);
 
@@ -250,7 +250,7 @@ namespace Blueprint.Compiler
 
         private void ReferenceAssemblyContainingType<T>()
         {
-            ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
+            this.ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
         }
 
         private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
@@ -278,8 +278,8 @@ namespace Blueprint.Compiler
         {
             public SourceFile(string fileName, string code)
             {
-                FileName = fileName;
-                Code = code;
+                this.FileName = fileName;
+                this.Code = code;
             }
 
             public string FileName { get; }
@@ -288,7 +288,7 @@ namespace Blueprint.Compiler
 
             public override string ToString()
             {
-                return FileName;
+                return this.FileName;
             }
         }
     }

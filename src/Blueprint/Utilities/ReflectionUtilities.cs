@@ -172,9 +172,8 @@ namespace Blueprint.Utilities
 
             if (!methodCallExpression.Method.IsGenericMethod)
             {
-                object[] args = new[] {methodCallExpression.Method.Name};
                 throw new InvalidOperationException(
-                        string.Format("The method the expression represents, '{0}', is not a generic method.", args));
+                    $"The method the expression represents, '{methodCallExpression.Method.Name}', is not a generic method.");
             }
 
             var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();

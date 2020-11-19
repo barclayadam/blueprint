@@ -15,7 +15,7 @@ namespace Blueprint.Validation
         /// <summary>
         /// Initializes a new instance of the UKPostcodeAttribute class.
         /// </summary>
-        public UkPostcodeAttribute() : base(CommonRegularExpressions.UKPostcodeOnly)
+        public UkPostcodeAttribute() : base(CommonRegularExpressions.UkPostcodeOnly)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Blueprint.Validation
         /// The error message to be shown on validation failure.
         /// </param>
         public UkPostcodeAttribute(string errorMessage)
-            : base(CommonRegularExpressions.UKPostcodeOnly, errorMessage)
+            : base(CommonRegularExpressions.UkPostcodeOnly, errorMessage)
         {
         }
 
@@ -37,7 +37,7 @@ namespace Blueprint.Validation
         /// A function which will return the error message to be shown on failure.
         /// </param>
         public UkPostcodeAttribute(Func<string> errorMessageAccessor)
-            : base(CommonRegularExpressions.UKPostcodeOnly, errorMessageAccessor)
+            : base(CommonRegularExpressions.UkPostcodeOnly, errorMessageAccessor)
         {
         }
     }

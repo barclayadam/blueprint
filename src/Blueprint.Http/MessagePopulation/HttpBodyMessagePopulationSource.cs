@@ -23,12 +23,12 @@ namespace Blueprint.Http.MessagePopulation
     /// </summary>
     public class HttpBodyMessagePopulationSource : IMessagePopulationSource
     {
-        private static readonly ApiExceptionFactory InvalidJson = new ApiExceptionFactory(
+        private static readonly ApiExceptionFactory _invalidJson = new ApiExceptionFactory(
             "The JSON payload is invalid",
             "invalid_json",
             (int)HttpStatusCode.BadRequest);
 
-        private static readonly JsonSerializer BodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
+        private static readonly JsonSerializer _bodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
 
         /// <summary>
         /// Returns <c>0</c>.
@@ -144,20 +144,20 @@ namespace Blueprint.Http.MessagePopulation
             // This is copied from JsonConvert.PopulateObject to avoid creating a new JsonSerializer on each
             // execution.
             using (var stringReader = readerFactory.CreateReader(request.Body, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(stringReader) {CloseInput = false})
+            using (var jsonReader = new JsonTextReader(stringReader) { CloseInput = false })
             {
                 try
                 {
-                    BodyJsonSerializer.Populate(jsonReader, operation);
+                    _bodyJsonSerializer.Populate(jsonReader, operation);
                 }
                 catch (JsonException e)
                 {
-                    throw InvalidJson.Create(e.Message);
+                    throw _invalidJson.Create(e.Message);
                 }
 
                 if (await jsonReader.ReadAsync() && jsonReader.TokenType != JsonToken.Comment)
                 {
-                    throw InvalidJson.Create("Additional text found in JSON");
+                    throw _invalidJson.Create("Additional text found in JSON");
                 }
             }
         }

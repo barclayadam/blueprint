@@ -16,7 +16,7 @@ namespace Blueprint.Configuration
         /// </summary>
         public BlueprintApiOptions()
         {
-            GenerationRules = new GenerationRules
+            this.GenerationRules = new GenerationRules
             {
                 OptimizationLevel = OptimizationLevel.Release,
             };

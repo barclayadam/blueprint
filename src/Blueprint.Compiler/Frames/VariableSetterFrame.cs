@@ -8,8 +8,8 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class VariableSetterFrame : SyncFrame
     {
-        private readonly Variable lhs;
-        private readonly Variable rhs;
+        private readonly Variable _lhs;
+        private readonly Variable _rhs;
 
         /// <summary>
         /// Initialises a new instance of <see cref="VariableSetterFrame" /> that outputs code
@@ -19,8 +19,8 @@ namespace Blueprint.Compiler.Frames
         /// <param name="rhs">The right hand side of the statement.</param>
         public VariableSetterFrame(Variable lhs, Variable rhs)
         {
-            this.lhs = lhs;
-            this.rhs = rhs;
+            this._lhs = lhs;
+            this._rhs = rhs;
         }
 
         /// <summary>
@@ -31,14 +31,14 @@ namespace Blueprint.Compiler.Frames
         /// <param name="rhs">The right hand side of the statement.</param>
         public VariableSetterFrame(Variable lhs, string rhs)
         {
-            this.lhs = lhs;
-            this.rhs = new Variable(lhs.VariableType, rhs);
+            this._lhs = lhs;
+            this._rhs = new Variable(lhs.VariableType, rhs);
         }
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.WriteLine(ToString());
+            writer.WriteLine(this.ToString());
 
             next();
         }
@@ -46,7 +46,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{lhs} = {rhs};";
+            return $"{this._lhs} = {this._rhs};";
         }
     }
 }

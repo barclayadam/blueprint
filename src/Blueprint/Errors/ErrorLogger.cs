@@ -14,13 +14,13 @@ namespace Blueprint.Errors
     /// </summary>
     public class ErrorLogger : IErrorLogger
     {
-        private static readonly List<Exception> TestLoggedExceptions = new List<Exception>();
-        private static bool isTestMode;
+        private static readonly List<Exception> _testLoggedExceptions = new List<Exception>();
+        private static bool _isTestMode;
 
-        private readonly IEnumerable<IErrorDataProvider> errorDataProviders;
-        private readonly IEnumerable<IExceptionSink> exceptionSinks;
-        private readonly IEnumerable<IExceptionFilter> exceptionFilters;
-        private readonly ILogger<ErrorLogger> logger;
+        private readonly IEnumerable<IErrorDataProvider> _errorDataProviders;
+        private readonly IEnumerable<IExceptionSink> _exceptionSinks;
+        private readonly IEnumerable<IExceptionFilter> _exceptionFilters;
+        private readonly ILogger<ErrorLogger> _logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ErrorLogger" /> class.
@@ -35,13 +35,13 @@ namespace Blueprint.Errors
             IEnumerable<IExceptionFilter> exceptionFilters,
             ILogger<ErrorLogger> logger)
         {
-            this.errorDataProviders = errorDataProviders;
-            this.exceptionSinks = exceptionSinks;
-            this.exceptionFilters = exceptionFilters;
-            this.logger = logger;
+            this._errorDataProviders = errorDataProviders;
+            this._exceptionSinks = exceptionSinks;
+            this._exceptionFilters = exceptionFilters;
+            this._logger = logger;
         }
 
-        public static IEnumerable<Exception> LoggedExceptions => TestLoggedExceptions;
+        public static IEnumerable<Exception> LoggedExceptions => _testLoggedExceptions;
 
         /// <summary>
         /// Enters 'test mode' for the error logger, which will allow collecting of exceptions that
@@ -50,8 +50,8 @@ namespace Blueprint.Errors
         /// </summary>
         public static void EnterTestMode()
         {
-            isTestMode = true;
-            TestLoggedExceptions.Clear();
+            _isTestMode = true;
+            _testLoggedExceptions.Clear();
         }
 
         /// <inheritdoc />
@@ -59,7 +59,7 @@ namespace Blueprint.Errors
         {
             var exceptionType = exception.GetType();
 
-            foreach (var filter in exceptionFilters)
+            foreach (var filter in this._exceptionFilters)
             {
                 if (filter.ShouldIgnore(exceptionType, exception))
                 {
@@ -73,13 +73,13 @@ namespace Blueprint.Errors
         /// <inheritdoc />
         public ValueTask<ErrorLogStatus> LogAsync(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
-            return LogAsync(new Exception(exceptionMessage), errorData, identifier);
+            return this.LogAsync(new Exception(exceptionMessage), errorData, identifier);
         }
 
         /// <inheritdoc />
         public async ValueTask<ErrorLogStatus> LogAsync(Exception exception, object errorData = default, UserExceptionIdentifier userExceptionIdentifier = null)
         {
-            if (ShouldIgnore(exception))
+            if (this.ShouldIgnore(exception))
             {
                 return ErrorLogStatus.Ignored;
             }
@@ -99,28 +99,28 @@ namespace Blueprint.Errors
             }
 
             // This is not a known and well-handled exception
-            logger.LogError(exception, "An unhandled exception has occurred");
+            this._logger.LogError(exception, "An unhandled exception has occurred");
 
-            if (isTestMode)
+            if (_isTestMode)
             {
-                TestLoggedExceptions.Add(exception);
+                _testLoggedExceptions.Add(exception);
 
                 return ErrorLogStatus.Recorded;
             }
 
             try
             {
-                Populate(exception);
+                this.Populate(exception);
 
-                foreach (var sink in exceptionSinks)
+                foreach (var sink in this._exceptionSinks)
                 {
                     await sink.RecordAsync(exception, userExceptionIdentifier);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error logging error");
-                logger.LogError(exception, "Original error");
+                this._logger.LogError(ex, "Error logging error");
+                this._logger.LogError(exception, "Original error");
             }
 
             return ErrorLogStatus.Recorded;
@@ -128,7 +128,7 @@ namespace Blueprint.Errors
 
         private void Populate(Exception exception)
         {
-            foreach (var provider in errorDataProviders)
+            foreach (var provider in this._errorDataProviders)
             {
                 provider.Populate(exception.Data);
             }

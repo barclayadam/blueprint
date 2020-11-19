@@ -75,18 +75,18 @@ namespace Blueprint.Apm.Elastic
 
         private class ElasticSpan : IApmSpan
         {
-            private readonly IExecutionSegment segment;
+            private readonly IExecutionSegment _segment;
 
             public ElasticSpan(IExecutionSegment segment)
             {
-                this.segment = segment;
+                this._segment = segment;
             }
 
-            public string TraceId => segment.TraceId;
+            public string TraceId => this._segment.TraceId;
 
             public void Dispose()
             {
-                this.segment.End();
+                this._segment.End();
             }
 
             public IApmSpan StartSpan(
@@ -94,22 +94,22 @@ namespace Blueprint.Apm.Elastic
                 string operationName,
                 string type)
             {
-                return new ElasticSpan(this.segment.StartSpan(operationName, type));
+                return new ElasticSpan(this._segment.StartSpan(operationName, type));
             }
 
             public void RecordException(Exception e)
             {
-                this.segment.CaptureException(e);
+                this._segment.CaptureException(e);
 
                 foreach (var kvp in e.Data.Keys.Cast<string>())
                 {
-                    this.segment.Labels[kvp] = e.Data[kvp]?.ToString();
+                    this._segment.Labels[kvp] = e.Data[kvp]?.ToString();
                 }
             }
 
             public void SetTag(string key, string value)
             {
-                if (this.segment is ISpan span)
+                if (this._segment is ISpan span)
                 {
                     switch (key)
                     {
@@ -135,25 +135,25 @@ namespace Blueprint.Apm.Elastic
                 }
                 else
                 {
-                    this.segment.Labels[key] = value;
+                    this._segment.Labels[key] = value;
                 }
             }
 
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
-                context["ElasticDTD"] = segment.OutgoingDistributedTracingData.SerializeToString();
+                context["ElasticDTD"] = this._segment.OutgoingDistributedTracingData.SerializeToString();
             }
 
             public void SetResource(string resourceName)
             {
-                if (this.segment is ISpan span)
+                if (this._segment is ISpan span)
                 {
                     span.Subtype = resourceName;
                 }
                 else
                 {
-                    this.segment.Labels["resource"] = resourceName;
+                    this._segment.Labels["resource"] = resourceName;
                 }
             }
         }

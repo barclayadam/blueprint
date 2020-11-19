@@ -10,26 +10,29 @@ namespace Blueprint.Compiler.Model
 {
     public class Variable
     {
-        public Variable(Type variableType) : this(variableType, DefaultArgName(variableType))
+        public Variable(Type variableType)
+            : this(variableType, DefaultArgName(variableType))
         {
         }
 
         public Variable(Type variableType, string usage)
         {
-            VariableType = variableType;
-            Usage = usage;
+            this.VariableType = variableType;
+            this.Usage = usage;
         }
 
-        public Variable(Type variableType, string usage, Frame creator) : this(variableType, usage)
+        public Variable(Type variableType, string usage, Frame creator)
+            : this(variableType, usage)
         {
             if (creator != null)
             {
-                Creator = creator;
+                this.Creator = creator;
                 creator.AddCreates(this);
             }
         }
 
-        public Variable(Type variableType, Frame creator) : this(variableType, DefaultArgName(variableType), creator)
+        public Variable(Type variableType, Frame creator)
+            : this(variableType, DefaultArgName(variableType), creator)
         {
         }
 
@@ -47,7 +50,7 @@ namespace Blueprint.Compiler.Model
 
         public virtual string Usage { get; protected set; }
 
-        public virtual string ArgumentDeclaration => Usage;
+        public virtual string ArgumentDeclaration => this.Usage;
 
         public static Variable[] VariablesForProperties<T>(string rootArgName)
         {
@@ -141,7 +144,7 @@ namespace Blueprint.Compiler.Model
         /// <param name="variableName"></param>
         public void OverrideName(string variableName)
         {
-            Usage = variableName;
+            this.Usage = variableName;
         }
 
         /// <summary>
@@ -157,14 +160,14 @@ namespace Blueprint.Compiler.Model
             BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public,
             Frame creator = null)
         {
-            var prop = VariableType.GetProperty(propertyName, bindingFlags);
+            var prop = this.VariableType.GetProperty(propertyName, bindingFlags);
 
             if (prop == null)
             {
-                throw new ArgumentException($"Property {propertyName} does not exist on type {VariableType.FullName}");
+                throw new ArgumentException($"Property {propertyName} does not exist on type {this.VariableType.FullName}");
             }
 
-            return new Variable(prop.PropertyType, $"{Usage}.{propertyName}", creator)
+            return new Variable(prop.PropertyType, $"{this.Usage}.{propertyName}", creator)
             {
                 Dependencies =
                 {
@@ -175,7 +178,7 @@ namespace Blueprint.Compiler.Model
 
         public override string ToString()
         {
-            return Usage;
+            return this.Usage;
         }
 
         public override bool Equals(object obj)
@@ -190,25 +193,25 @@ namespace Blueprint.Compiler.Model
                 return true;
             }
 
-            if (obj.GetType() != GetType())
+            if (obj.GetType() != this.GetType())
             {
                 return false;
             }
 
-            return Equals((Variable)obj);
+            return this.Equals((Variable)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((VariableType != null ? VariableType.GetHashCode() : 0) * 397) ^ (Usage != null ? Usage.GetHashCode() : 0);
+                return ((this.VariableType != null ? this.VariableType.GetHashCode() : 0) * 397) ^ (this.Usage != null ? this.Usage.GetHashCode() : 0);
             }
         }
 
         private bool Equals(Variable other)
         {
-            return VariableType == other.VariableType && string.Equals(Usage, other.Usage);
+            return this.VariableType == other.VariableType && string.Equals(this.Usage, other.Usage);
         }
     }
 

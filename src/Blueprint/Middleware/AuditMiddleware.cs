@@ -55,11 +55,11 @@ namespace Blueprint.Middleware
 
         public void Build(MiddlewareBuilderContext context)
         {
-            context.AppendFrames(new MethodCall(GetType(), nameof(WriteSuccess)));
+            context.AppendFrames(new MethodCall(this.GetType(), nameof(WriteSuccess)));
 
             context.RegisterUnhandledExceptionHandler(typeof(Exception), (e) =>
             {
-                var methodCall = new MethodCall(GetType(), nameof(WriteFailure));
+                var methodCall = new MethodCall(this.GetType(), nameof(WriteFailure));
                 methodCall.TrySetArgument(e);
 
                 return new[]

@@ -15,9 +15,9 @@ namespace Blueprint.CodeGen
     /// </summary>
     public class PushToErrorLoggerExceptionCatchFrame : SyncFrame
     {
-        private readonly MiddlewareBuilderContext context;
+        private readonly MiddlewareBuilderContext _context;
 
-        private readonly Variable exceptionVariable;
+        private readonly Variable _exceptionVariable;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="PushToErrorLoggerExceptionCatchFrame" /> class.
@@ -27,8 +27,8 @@ namespace Blueprint.CodeGen
         /// been raised.</param>
         public PushToErrorLoggerExceptionCatchFrame(MiddlewareBuilderContext context, Variable exceptionVariable)
         {
-            this.context = context;
-            this.exceptionVariable = exceptionVariable;
+            this._context = context;
+            this._exceptionVariable = exceptionVariable;
         }
 
         /// <inheritdoc />
@@ -42,13 +42,13 @@ namespace Blueprint.CodeGen
             writer.BlankLine();
 
             // 1. Allow user context to populate metadata to the error data dictionary if it exists
-            writer.WriteLine($"userAuthorisationContext?.PopulateMetadata((k, v) => {exceptionVariable}.Data[k] = v?.ToString());");
+            writer.WriteLine($"userAuthorisationContext?.PopulateMetadata((k, v) => {this._exceptionVariable}.Data[k] = v?.ToString());");
 
-            var operationTypeKey = ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType);
+            var operationTypeKey = ReflectionUtilities.PrettyTypeName(this._context.Descriptor.OperationType);
 
             // 2. For every property of the operation output a value to the exception.Data dictionary. ALl properties that are
             // not considered sensitive
-            foreach (var prop in context.Descriptor.Properties)
+            foreach (var prop in this._context.Descriptor.Properties)
             {
                 if (SensitiveProperties.IsSensitive(prop))
                 {
@@ -58,8 +58,8 @@ namespace Blueprint.CodeGen
                 // If the type is primitive we need to leave off the '?' null-coalesce method call operator
                 var shouldHandleNull = !prop.PropertyType.IsValueType;
 
-                writer.WriteLine($"{exceptionVariable}.Data[\"{operationTypeKey}.{prop.Name}\"] = " +
-                                 $"{variables.FindVariable(context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
+                writer.WriteLine($"{this._exceptionVariable}.Data[\"{operationTypeKey}.{prop.Name}\"] = " +
+                                 $"{variables.FindVariable(this._context.Descriptor.OperationType)}.{prop.Name}{(shouldHandleNull ? "?" : string.Empty)}.ToString();");
             }
 
             // 3. Use IErrorLogger to push all details to exception sinks
@@ -67,7 +67,7 @@ namespace Blueprint.CodeGen
 
             // We use an inline MethodCall here to enable it to ensure surrounding method is marked as async as necessary
             var methodCall = MethodCall.For<IErrorLogger>(e => e.LogAsync(default(Exception), default(object), default(UserExceptionIdentifier)));
-            methodCall.Arguments[0] = exceptionVariable;
+            methodCall.Arguments[0] = this._exceptionVariable;
             methodCall.Arguments[1] = new Variable(typeof(object), "null");
             methodCall.Arguments[2] = new Variable(typeof(UserExceptionIdentifier), "identifier");
 

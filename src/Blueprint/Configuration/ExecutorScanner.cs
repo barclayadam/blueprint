@@ -12,15 +12,15 @@ namespace Blueprint.Configuration
     /// </summary>
     public class ExecutorScanner
     {
-        private readonly List<IOperationExecutorBuilderScanner> scanners = new List<IOperationExecutorBuilderScanner>();
+        private readonly List<IOperationExecutorBuilderScanner> _scanners = new List<IOperationExecutorBuilderScanner>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OperationScanner" /> class.
         /// </summary>
         public ExecutorScanner()
         {
-            scanners.Add(new ApiOperationHandlerExecutorBuilderScanner());
-            scanners.Add(new ApiOperationInClassConventionExecutorBuilderScanner());
+            this._scanners.Add(new ApiOperationHandlerExecutorBuilderScanner());
+            this._scanners.Add(new ApiOperationInClassConventionExecutorBuilderScanner());
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Blueprint.Configuration
         /// <returns>This scanner.</returns>
         public ExecutorScanner AddScanner<T>() where T : IOperationExecutorBuilderScanner, new()
         {
-            scanners.Add(new T());
+            this._scanners.Add(new T());
 
             return this;
         }
@@ -42,7 +42,7 @@ namespace Blueprint.Configuration
         /// <returns>This scanner.</returns>
         public ExecutorScanner AddScanner(IOperationExecutorBuilderScanner scanner)
         {
-            scanners.Add(scanner);
+            this._scanners.Add(scanner);
 
             return this;
         }
@@ -56,7 +56,7 @@ namespace Blueprint.Configuration
 
             var problems = new List<string>();
 
-            foreach (var scanner in scanners)
+            foreach (var scanner in this._scanners)
             {
                 foreach (var found in scanner.FindHandlers(services, operations, operationScanner.ScannedAssemblies))
                 {

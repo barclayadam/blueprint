@@ -48,12 +48,12 @@ namespace Blueprint.Caching.Configuration
         /// </returns>
         public bool AppliesTo(string category, object value)
         {
-            if (TypeName.Equals("*"))
+            if (this.TypeName.Equals("*"))
             {
                 return true;
             }
 
-            return CategoryMatches(category) && TypeMatches(value);
+            return this.CategoryMatches(category) && this.TypeMatches(value);
         }
 
         /// <summary>
@@ -67,19 +67,19 @@ namespace Blueprint.Caching.Configuration
 
         private bool CategoryMatches(string category)
         {
-            return string.IsNullOrEmpty(Category) || Category.Equals(category, StringComparison.OrdinalIgnoreCase);
+            return string.IsNullOrEmpty(this.Category) || this.Category.Equals(category, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool TypeMatches(object value)
         {
-            if (string.IsNullOrEmpty(TypeName))
+            if (string.IsNullOrEmpty(this.TypeName))
             {
                 return true;
             }
 
             var valueType = value.GetType();
 
-            return valueType.FullName.EndsWith(TypeName, StringComparison.OrdinalIgnoreCase);
+            return valueType.FullName.EndsWith(this.TypeName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

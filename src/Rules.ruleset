@@ -1,46 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Blueprint Rules" Description="Based on Microsoft's All Rules ruleset, with specific rules disabled as desired." ToolsVersion="14.0">
+<RuleSet Name="Symprex Rules" ToolsVersion="14.0">
   <IncludeAll Action="Warning" />
+
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
-    <Rule Id="CA1006" Action="None" />
-    <Rule Id="CA1008" Action="None" />
-    <Rule Id="CA1010" Action="None" />
-    <Rule Id="CA1020" Action="None" />
-    <Rule Id="CA1026" Action="None" />
-    <Rule Id="CA1032" Action="None" />
-    <Rule Id="CA1034" Action="None" />
-    <Rule Id="CA1054" Action="None" />
-    <Rule Id="CA1055" Action="None" />
-    <Rule Id="CA1056" Action="None" />
-    <Rule Id="CA1062" Action="None" />
-    <Rule Id="CA1303" Action="None" />
-    <Rule Id="CA1305" Action="None" />
-    <Rule Id="CA1702" Action="None" />
-    <Rule Id="CA1711" Action="None" />
-    <Rule Id="CA1724" Action="None" />
-    <Rule Id="CA1801" Action="None" />
-    <Rule Id="CA1811" Action="None" />
-    <Rule Id="CA1822" Action="None" />
-    <Rule Id="CA2122" Action="None" />
-    <Rule Id="CA2204" Action="None" />
-    <Rule Id="CA2210" Action="None" />
-    <Rule Id="CA2214" Action="None" />
-    <Rule Id="CA2227" Action="None" />
-    <Rule Id="CA2234" Action="None" />
-    <Rule Id="CA2243" Action="None" />
+    <Rule Id="CS1591" Action="None" /> <!-- Remove the CS* for requiring documentation as we use StyleCop as more specific -->
 
     <!-- StyleCop rules below -->
-    <Rule Id="SA1009" Action="None" /> <!-- Closing parethesis should not be preceded by a space -->
-    <Rule Id="SA1012" Action="None" /> <!-- Opening brace should be followed by a space -->
-    <Rule Id="SA1013" Action="None" /> <!-- Closing brace should be preceded by a space -->
-    <Rule Id="SA1101" Action="None" /> <!-- Prefix with this. -->
-    <Rule Id="SA1127" Action="None" /> <!-- Generic constraints should be on their own line -->
-    <Rule Id="SA1128" Action="None" /> <!-- Put constructor initializers on their own line -->
-    <Rule Id="SA1402" Action="None" /> <!-- File may only contain a single type -->
-    <Rule Id="SA1512" Action="None" /> <!-- Single-line comments should not be followed by blank line -->
-    <Rule Id="SA1600" Action="None" /> <!-- Must be documented... Already handled by CS1591 -->
-    <Rule Id="SA1623" Action="None" /> <!-- "Standard text" for getters and setters -->
-    <Rule Id="SA1633" Action="None" /> <!-- File headers -->
-    <Rule Id="SA1642" Action="None" /> <!-- Constructor summary documentation should begin with standard text -->
+    <!-- We need to disable these because it fails to work when using C# 8 nullable annoations:
+         `string[]?` is invalid according to SA1011, but `string[] ?` is both odd and violates another rule -->
+    <Rule Id="SA1011" Action="None"/> <!-- Closing square brackets should be followed by a space -->
+    <Rule Id="SA1009" Action="None"/> <!-- Closing parenthesis should be followed by a space -->
+
+    <Rule Id="SA1127" Action="None"/> <!-- Generic constraints should be on their own line -->
+
+    <Rule Id="SA1202" Action="None" /> <!-- Scoped members need to be public, protected, internal, private ordering -->
+
+    <Rule Id="SA1402" Action="None"/> <!-- File may only contain a single type -->
+
+    <Rule Id="SA1309" Action="None"/> <!-- Member fields cannot start with an _ -->
+
+    <Rule Id="SA1512" Action="None"/> <!-- Single-line comments should not be followed by blank line -->
+
+    <Rule Id="SA1633" Action="None"/> <!-- File headers -->
+    <Rule Id="SA1629" Action="None"/> <!-- Documentation text should end with a period -->
+    <Rule Id="SA1623" Action="None"/> <!-- The property's documentation summary text should begin with 'Gets' / 'Gets a value indicating whether' -->
+    <Rule Id="SA1624" Action="None"/> <!-- Because the property only contains a visible get accessor, the documentation summary text should begin with 'Gets' -->
+    <Rule Id="SA1642" Action="None"/> <!-- Constructor summary documentation should begin with standard text -->
+    <Rule Id="SA1643" Action="None"/> <!-- Destructor summary documentation should begin with standard text -->
+
+    <Rule Id="SA1649" Action="None" /> <!-- TODO: Remove this when upgraded past beta 205 of StyleCop.Analyzers (record syntax breaks this) -->
   </Rules>
 </RuleSet>

@@ -19,7 +19,8 @@ namespace Blueprint.OpenApi
         /// Initialise a default instance of the <see cref="BlueprintJsonSchemaGenerator"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public BlueprintJsonSchemaGenerator(JsonSchemaGeneratorSettings settings) : base(settings)
+        public BlueprintJsonSchemaGenerator(JsonSchemaGeneratorSettings settings)
+            : base(settings)
         {
         }
 
@@ -62,7 +63,7 @@ namespace Blueprint.OpenApi
                 schema.EnumerationNames.Add(enumName);
             }
 
-            if (typeDescription.Type == JsonObjectType.Integer && Settings.GenerateEnumMappingDescription)
+            if (typeDescription.Type == JsonObjectType.Integer && this.Settings.GenerateEnumMappingDescription)
             {
                 schema.Description = (schema.Description + "\n\n" +
                     string.Join("\n", schema.Enumeration.Select((e, i) => e + " = " + schema.EnumerationNames[i]))).Trim();

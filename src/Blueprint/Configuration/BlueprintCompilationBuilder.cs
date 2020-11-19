@@ -9,11 +9,11 @@ namespace Blueprint.Configuration
 {
     public class BlueprintCompilationBuilder
     {
-        private readonly BlueprintApiBuilder blueprintApiBuilder;
+        private readonly BlueprintApiBuilder _blueprintApiBuilder;
 
         internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
-            this.blueprintApiBuilder = blueprintApiBuilder;
+            this._blueprintApiBuilder = blueprintApiBuilder;
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Blueprint.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseInMemoryCompileStrategy()
         {
-            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
+            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
 
             return this;
         }
@@ -37,7 +37,7 @@ namespace Blueprint.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseFileCompileStrategy(string path)
         {
-            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy>(
+            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy>(
                 c => new ToFileCompileStrategy(c.GetRequiredService<ILogger<ToFileCompileStrategy>>(), path));
 
             return this;
@@ -50,7 +50,7 @@ namespace Blueprint.Configuration
         /// <returns>This builder.</returns>
         public BlueprintCompilationBuilder UseOptimizationLevel(OptimizationLevel optimizationLevel)
         {
-            blueprintApiBuilder.Options.GenerationRules.OptimizationLevel = optimizationLevel;
+            this._blueprintApiBuilder.Options.GenerationRules.OptimizationLevel = optimizationLevel;
 
             return this;
         }
@@ -64,7 +64,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNullOrEmpty(nameof(assemblyName), assemblyName);
 
-            blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
+            this._blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
 
             return this;
         }
@@ -77,7 +77,7 @@ namespace Blueprint.Configuration
         /// <returns>This builder</returns>
         public BlueprintCompilationBuilder ConfigureRules(Action<GenerationRules> editor)
         {
-            editor(blueprintApiBuilder.Options.GenerationRules);
+            editor(this._blueprintApiBuilder.Options.GenerationRules);
 
             return this;
         }
@@ -91,14 +91,14 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(variableSource), variableSource);
 
-            blueprintApiBuilder.Options.GenerationRules.VariableSources.Add(variableSource);
+            this._blueprintApiBuilder.Options.GenerationRules.VariableSources.Add(variableSource);
 
             return this;
         }
 
         private BlueprintCompilationBuilder UseCompileStrategy<T>() where T : class, ICompileStrategy
         {
-            blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, T>();
+            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, T>();
 
             return this;
         }

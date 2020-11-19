@@ -7,28 +7,28 @@ namespace Blueprint.Http
     {
         public PagedApiResource(IEnumerable<T> values)
         {
-            Object = $"list.{GetTypeName(typeof(T))}";
+            this.Object = $"list.{GetTypeName(typeof(T))}";
 
             // NB: It's important to consume values which could be a LINQ query as otherwise modifications
             // in middleware could be lost if the values are enumerated multiple times
-            Values = values.ToList();
+            this.Values = values.ToList();
 
-            Total = Values.Count();
-            CurrentPage = 1;
-            PageSize = Total;
+            this.Total = this.Values.Count();
+            this.CurrentPage = 1;
+            this.PageSize = this.Total;
         }
 
         public PagedApiResource(IEnumerable<T> values, long total, int pageSize, int currentPage)
         {
-            Object = $"list.{GetTypeName(typeof(T))}";
+            this.Object = $"list.{GetTypeName(typeof(T))}";
 
             // NB: It's important to consume values which could be a LINQ query as otherwise modifications
             // in middleware could be lost if the values are enumerated multiple times
-            Values = values.ToList();
+            this.Values = values.ToList();
 
-            Total = total;
-            PageSize = pageSize;
-            CurrentPage = currentPage;
+            this.Total = total;
+            this.PageSize = pageSize;
+            this.CurrentPage = currentPage;
         }
 
         public IEnumerable<T> Values { get; }
@@ -41,7 +41,7 @@ namespace Blueprint.Http
 
         public IEnumerable<object> GetEnumerable()
         {
-            return Values as IEnumerable<object>;
+            return this.Values as IEnumerable<object>;
         }
     }
 }

@@ -21,13 +21,13 @@ namespace Blueprint
         /// "resource".</param>
         public ApiOperationLinkPlaceholder(string originalText, int index, PropertyInfo property, string alternatePropertyName, string format)
         {
-            OriginalText = originalText;
-            Index = index;
-            Length = originalText.Length;
-            Property = property;
-            AlternatePropertyName = alternatePropertyName;
-            Format = format;
-            FormatSpecifier = "{0:" + format + "}";
+            this.OriginalText = originalText;
+            this.Index = index;
+            this.Length = originalText.Length;
+            this.Property = property;
+            this.AlternatePropertyName = alternatePropertyName;
+            this.Format = format;
+            this.FormatSpecifier = "{0:" + format + "}";
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Blueprint
         /// <returns><see cref="OriginalText"/>.</returns>
         public override string ToString()
         {
-            return OriginalText;
+            return this.OriginalText;
         }
     }
 }

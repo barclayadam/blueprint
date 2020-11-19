@@ -8,15 +8,17 @@ namespace Blueprint.Compiler.Model
     /// </summary>
     public class Argument : Variable
     {
-        public Argument(Type variableType, string usage) : base(variableType, usage)
+        public Argument(Type variableType, string usage)
+            : base(variableType, usage)
         {
         }
 
-        public Argument(ParameterInfo parameter) : this(parameter.ParameterType, parameter.Name)
+        public Argument(ParameterInfo parameter)
+            : this(parameter.ParameterType, parameter.Name)
         {
         }
 
-        public string Declaration => $"{VariableType.FullNameInCode()} {Usage}";
+        public string Declaration => $"{this.VariableType.FullNameInCode()} {this.Usage}";
 
         public static new Argument For<T>(string argName = null)
         {
@@ -35,25 +37,25 @@ namespace Blueprint.Compiler.Model
                 return true;
             }
 
-            if (obj.GetType() != GetType())
+            if (obj.GetType() != this.GetType())
             {
                 return false;
             }
 
-            return Equals((Argument)obj);
+            return this.Equals((Argument)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((VariableType != null ? VariableType.GetHashCode() : 0) * 397) ^ (Usage != null ? Usage.GetHashCode() : 0);
+                return ((this.VariableType != null ? this.VariableType.GetHashCode() : 0) * 397) ^ (this.Usage != null ? this.Usage.GetHashCode() : 0);
             }
         }
 
         private bool Equals(Argument other)
         {
-            return VariableType == other.VariableType && string.Equals(Usage, other.Usage);
+            return this.VariableType == other.VariableType && string.Equals(this.Usage, other.Usage);
         }
     }
 }

@@ -21,10 +21,10 @@ namespace Blueprint.Configuration
     /// </summary>
     public class BlueprintApiBuilder
     {
-        private readonly BlueprintApiOptions options;
-        private readonly PipelineBuilder pipelineBuilder;
-        private readonly OperationScanner operationScanner;
-        private readonly ExecutorScanner executionScanner;
+        private readonly BlueprintApiOptions _options;
+        private readonly PipelineBuilder _pipelineBuilder;
+        private readonly OperationScanner _operationScanner;
+        private readonly ExecutorScanner _executionScanner;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintApiBuilder" /> class with the given
@@ -33,22 +33,22 @@ namespace Blueprint.Configuration
         /// <param name="services">The service collection to configure.</param>
         public BlueprintApiBuilder(IServiceCollection services)
         {
-            Services = services;
+            this.Services = services;
 
-            options = new BlueprintApiOptions();
-            pipelineBuilder = new PipelineBuilder(this);
-            operationScanner = new OperationScanner();
-            executionScanner = new ExecutorScanner();
+            this._options = new BlueprintApiOptions();
+            this._pipelineBuilder = new PipelineBuilder(this);
+            this._operationScanner = new OperationScanner();
+            this._executionScanner = new ExecutorScanner();
 
             if (BlueprintEnvironment.IsPrecompiling)
             {
                 // The default strategy is to build to a DLL to the temp folder
-                Compilation(c => c.UseFileCompileStrategy(Path.GetDirectoryName(typeof(BlueprintApiBuilder).Assembly.Location)));
+                this.Compilation(c => c.UseFileCompileStrategy(Path.GetDirectoryName(typeof(BlueprintApiBuilder).Assembly.Location)));
             }
             else
             {
                 // The default strategy is to build to a DLL to the temp folder
-                Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
+                this.Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
             }
         }
 
@@ -57,7 +57,7 @@ namespace Blueprint.Configuration
         /// </summary>
         public IServiceCollection Services { get; }
 
-        internal BlueprintApiOptions Options => options;
+        internal BlueprintApiOptions Options => this._options;
 
         /// <summary>
         /// Sets the name of this application, which can be used for naming of the output DLL to avoid
@@ -69,7 +69,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
 
-            options.ApplicationName = applicationName;
+            this._options.ApplicationName = applicationName;
 
             return this;
         }
@@ -84,7 +84,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(scannerAction), scannerAction);
 
-            scannerAction(operationScanner);
+            scannerAction(this._operationScanner);
 
             return this;
         }
@@ -125,7 +125,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(pipelineAction), pipelineAction);
 
-            pipelineAction(pipelineBuilder);
+            pipelineAction(this._pipelineBuilder);
 
             return this;
         }
@@ -153,7 +153,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(executorScanner), executorScanner);
 
-            executorScanner(this.executionScanner);
+            executorScanner(this._executionScanner);
 
             return this;
         }
@@ -190,52 +190,52 @@ namespace Blueprint.Configuration
 
         public void Build()
         {
-            if (string.IsNullOrEmpty(options.ApplicationName))
+            if (string.IsNullOrEmpty(this._options.ApplicationName))
             {
                 throw new InvalidOperationException("An app name MUST be set");
             }
 
-            pipelineBuilder.Register();
-            operationScanner.FindOperations(options.Model);
+            this._pipelineBuilder.Register();
+            this._operationScanner.FindOperations(this._options.Model);
 
-            options.GenerationRules.AssemblyName ??= options.ApplicationName.Replace(" ", string.Empty) + ".Pipelines";
+            this._options.GenerationRules.AssemblyName ??= this._options.ApplicationName.Replace(" ", string.Empty) + ".Pipelines";
 
-            Services.AddLogging();
+            this.Services.AddLogging();
 
             // Register the collection that built the service provider so that the code generation can inspect the registrations and
             // generate better code (i.e. inject singleton services in to the pipeline executor instead of getting them at operation execution time)
-            Services.AddSingleton(Services);
+            this.Services.AddSingleton(this.Services);
 
             // Compilation
-            Services.TryAddSingleton<IAssemblyGenerator, AssemblyGenerator>();
-            Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(options, s));
+            this.Services.TryAddSingleton<IAssemblyGenerator, AssemblyGenerator>();
+            this.Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(this._options, s));
 
             // Model / Links / Options
-            Services.AddSingleton(options);
-            Services.AddSingleton(options.Model);
+            this.Services.AddSingleton(this._options);
+            this.Services.AddSingleton(this._options.Model);
 
             // Logging
-            Services.TryAddSingleton<IErrorLogger, ErrorLogger>();
-            Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
+            this.Services.TryAddSingleton<IErrorLogger, ErrorLogger>();
+            this.Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
 
             // Cache
-            Services.TryAddSingleton<ICache, Cache>();
-            Services.TryAddSingleton(MemoryCache.Default);
+            this.Services.TryAddSingleton<ICache, Cache>();
+            this.Services.TryAddSingleton(MemoryCache.Default);
 
             // IoC
-            Services.TryAddTransient<InstanceFrameProvider, MicrosoftDependencyInjectionInstanceFrameProvider>();
+            this.Services.TryAddTransient<InstanceFrameProvider, MicrosoftDependencyInjectionInstanceFrameProvider>();
 
             // Random infrastructure
-            Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
-            Services.TryAddSingleton<IApmTool, NullApmTool>();
+            this.Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
+            this.Services.TryAddSingleton<IApmTool, NullApmTool>();
 
-            Services.TryAddSingleton(ArrayPool<byte>.Shared);
-            Services.TryAddSingleton(ArrayPool<char>.Shared);
+            this.Services.TryAddSingleton(ArrayPool<byte>.Shared);
+            this.Services.TryAddSingleton(ArrayPool<char>.Shared);
 
-            executionScanner.FindAndRegister(
-                this.operationScanner,
-                Services,
-                options.Model.Operations.ToList());
+            this._executionScanner.FindAndRegister(
+                this._operationScanner,
+                this.Services,
+                this._options.Model.Operations.ToList());
         }
     }
 }

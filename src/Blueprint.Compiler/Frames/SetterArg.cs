@@ -8,27 +8,27 @@ namespace Blueprint.Compiler.Frames
     {
         public SetterArg(string propertyName, Variable variable)
         {
-            PropertyName = propertyName;
-            Variable = variable;
+            this.PropertyName = propertyName;
+            this.Variable = variable;
         }
 
         public SetterArg(string propertyName, Type propertyType)
         {
-            PropertyName = propertyName;
-            PropertyType = propertyType;
+            this.PropertyName = propertyName;
+            this.PropertyType = propertyType;
         }
 
         public SetterArg(PropertyInfo property)
         {
-            PropertyName = property.Name;
-            PropertyType = property.PropertyType;
+            this.PropertyName = property.Name;
+            this.PropertyType = property.PropertyType;
         }
 
         public SetterArg(PropertyInfo property, Variable variable)
         {
-            PropertyName = property.Name;
-            PropertyType = property.PropertyType;
-            Variable = variable;
+            this.PropertyName = property.Name;
+            this.PropertyType = property.PropertyType;
+            this.Variable = variable;
         }
 
         public string PropertyName { get; }
@@ -39,14 +39,14 @@ namespace Blueprint.Compiler.Frames
 
         public string Assignment()
         {
-            return $"{PropertyName} = {Variable}";
+            return $"{this.PropertyName} = {this.Variable}";
         }
 
         internal void FindVariable(IMethodVariables chain)
         {
-            if (Variable == null)
+            if (this.Variable == null)
             {
-                Variable = chain.FindVariable(PropertyType);
+                this.Variable = chain.FindVariable(this.PropertyType);
             }
         }
     }

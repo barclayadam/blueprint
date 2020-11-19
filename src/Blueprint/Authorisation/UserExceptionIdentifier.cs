@@ -6,21 +6,21 @@
         {
             if (context == null)
             {
-                IsAnonymous = true;
+                this.IsAnonymous = true;
             }
             else
             {
-                IsAnonymous = context.IsAnonymous;
-                Id = context.Id;
-                Email = context.Email;
-                Name = context.Name;
+                this.IsAnonymous = context.IsAnonymous;
+                this.Id = context.Id;
+                this.Email = context.Email;
+                this.Name = context.Name;
             }
         }
 
         public UserExceptionIdentifier(string id)
         {
-            IsAnonymous = false;
-            Id = id;
+            this.IsAnonymous = false;
+            this.Id = id;
         }
 
         public string Id { get; }

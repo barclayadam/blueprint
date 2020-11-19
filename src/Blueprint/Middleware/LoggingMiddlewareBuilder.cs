@@ -36,16 +36,16 @@ namespace Blueprint.Middleware
 
         private class LoggingStartFrame : SyncFrame
         {
-            private readonly Variable stopwatchVariable;
+            private readonly Variable _stopwatchVariable;
 
             public LoggingStartFrame()
             {
-                stopwatchVariable = new Variable(typeof(Stopwatch), this);
+                this._stopwatchVariable = new Variable(typeof(Stopwatch), this);
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.WriteLine($"var {stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
+                writer.WriteLine($"var {this._stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
 
                 next();
             }
@@ -53,11 +53,11 @@ namespace Blueprint.Middleware
 
         private class LoggingEndFrame : SyncFrame
         {
-            private readonly Type operationType;
+            private readonly Type _operationType;
 
             public LoggingEndFrame(Type operationType)
             {
-                this.operationType = operationType;
+                this._operationType = operationType;
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
@@ -69,7 +69,7 @@ namespace Blueprint.Middleware
                 writer.Write(
                     LogFrame.Information(
                         "Operation {OperationName} finished in {TotalMilliseconds}ms",
-                        ReflectionUtilities.PrettyTypeName(operationType),
+                        ReflectionUtilities.PrettyTypeName(this._operationType),
                         stopwatchVariable.GetProperty(nameof(Stopwatch.Elapsed)).GetProperty(nameof(TimeSpan.TotalMilliseconds))));
             }
         }

@@ -19,16 +19,16 @@ namespace Blueprint.Notifications
     /// </remarks>
     public class LoggingOnlyEmailSender : IEmailSender
     {
-        private readonly ILogger<LoggingOnlyEmailSender> logger;
+        private readonly ILogger<LoggingOnlyEmailSender> _logger;
 
         public LoggingOnlyEmailSender(ILogger<LoggingOnlyEmailSender> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         public void Send(MailMessage message)
         {
-            logger.LogInformation(
+            this._logger.LogInformation(
                      "Sending mail to '{0}', from '{1}'. {2} attachments. Subject is '{3}'. Body is '{4}'.",
                      message.From,
                      message.To,

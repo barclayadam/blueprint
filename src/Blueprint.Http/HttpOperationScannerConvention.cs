@@ -15,7 +15,7 @@ namespace Blueprint.Http
         /// <inheritdoc />
         public void Apply(ApiOperationDescriptor descriptor)
         {
-            if (IsSupported(descriptor.OperationType))
+            if (this.IsSupported(descriptor.OperationType))
             {
                 string supportedMethod;
 

@@ -12,15 +12,13 @@ namespace Blueprint
         /// Initialises a new instance of the <see cref="CustomFrameMiddlewareBuilder" /> class.
         /// </summary>
         /// <param name="isAsync">Whether this frame has async code within (i.e. depends on await).</param>
-        protected CustomFrameMiddlewareBuilder(bool isAsync) : base(isAsync)
+        protected CustomFrameMiddlewareBuilder(bool isAsync)
+            : base(isAsync)
         {
         }
 
         /// <inheritdoc />
         public abstract bool SupportsNestedExecution { get; }
-
-        /// <inheritdoc />
-        public abstract bool Matches(ApiOperationDescriptor operation);
 
         /// <summary>
         /// Gets or sets the <see cref="MiddlewareBuilderContext" /> this builder is being built for.
@@ -28,9 +26,12 @@ namespace Blueprint
         protected MiddlewareBuilderContext BuilderContext { get; private set; }
 
         /// <inheritdoc />
+        public abstract bool Matches(ApiOperationDescriptor operation);
+
+        /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            BuilderContext = context;
+            this.BuilderContext = context;
 
             context.AppendFrames(this);
         }

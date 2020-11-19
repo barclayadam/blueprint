@@ -8,19 +8,19 @@ namespace Blueprint.Compiler
 {
     public class GeneratedAssembly
     {
-        private readonly GenerationRules generationRules;
-        private readonly HashSet<Assembly> assemblies = new HashSet<Assembly>();
+        private readonly GenerationRules _generationRules;
+        private readonly HashSet<Assembly> _assemblies = new HashSet<Assembly>();
 
         public GeneratedAssembly(GenerationRules generationRules)
         {
-            this.generationRules = generationRules;
+            this._generationRules = generationRules;
         }
 
         public List<GeneratedType> GeneratedTypes { get; } = new List<GeneratedType>();
 
         public void ReferenceAssembly(Assembly assembly)
         {
-            assemblies.Add(assembly);
+            this._assemblies.Add(assembly);
         }
 
         /// <summary>
@@ -32,12 +32,12 @@ namespace Blueprint.Compiler
         /// <exception cref="ArgumentException">If a type already exists.</exception>
         public GeneratedType AddType(string @namespace, string typeName, Type baseType)
         {
-            if (GeneratedTypes.Any(t => t.Namespace == @namespace && t.TypeName == typeName))
+            if (this.GeneratedTypes.Any(t => t.Namespace == @namespace && t.TypeName == typeName))
             {
                 throw new ArgumentException($"A type already exists at {@namespace}.{typeName}");
             }
 
-            var generatedType = new GeneratedType(this, typeName, @namespace ?? generationRules.AssemblyName);
+            var generatedType = new GeneratedType(this, typeName, @namespace ?? this._generationRules.AssemblyName);
 
             if (baseType.IsInterface)
             {
@@ -48,19 +48,19 @@ namespace Blueprint.Compiler
                 generatedType.InheritsFrom(baseType);
             }
 
-            GeneratedTypes.Add(generatedType);
+            this.GeneratedTypes.Add(generatedType);
 
             return generatedType;
         }
 
         public void CompileAll(IAssemblyGenerator generator)
         {
-            foreach (var assemblyReference in assemblies)
+            foreach (var assemblyReference in this._assemblies)
             {
                 generator.ReferenceAssembly(assemblyReference);
             }
 
-            foreach (var generatedType in GeneratedTypes)
+            foreach (var generatedType in this.GeneratedTypes)
             {
                 foreach (var x in generatedType.AssemblyReferences())
                 {
@@ -106,11 +106,11 @@ namespace Blueprint.Compiler
                 generator.AddFile(generatedType.TypeName + ".cs", code);
             }
 
-            var assembly = generator.Generate(generationRules);
+            var assembly = generator.Generate(this._generationRules);
 
             var generated = assembly.GetExportedTypes().ToArray();
 
-            foreach (var generatedType in GeneratedTypes)
+            foreach (var generatedType in this.GeneratedTypes)
             {
                 generatedType.FindType(generated);
             }

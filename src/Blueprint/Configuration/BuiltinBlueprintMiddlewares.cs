@@ -83,7 +83,6 @@ namespace Blueprint.Configuration
         /// </remarks>
         /// <param name="apiBuilder">The builder to add auth to.</param>
         /// <param name="configure">An action to configure authentication pipeline.</param>
-        /// <typeparam name="THost">The host type of the builder.</typeparam>
         /// <returns>The builder.</returns>
         public static BlueprintApiBuilder AddAuthentication(this BlueprintApiBuilder apiBuilder, Action<BlueprintAuthenticationBuilder> configure)
         {

@@ -18,7 +18,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
     public abstract class RegexAttribute : ValidationAttribute
     {
-        private readonly Regex regex;
+        private readonly Regex _regex;
 
         /// <summary>
         /// Initializes a new instance of the RegexAttribute class.
@@ -26,7 +26,7 @@ namespace Blueprint.Validation
         /// <param name="regex">The regular expression to check.</param>
         protected RegexAttribute(Regex regex)
         {
-            this.regex = regex;
+            this._regex = regex;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Blueprint.Validation
         /// </param>
         protected RegexAttribute(Regex regex, string errorMessage) : base(errorMessage)
         {
-            this.regex = regex;
+            this._regex = regex;
         }
 
         /// <summary>
@@ -50,13 +50,13 @@ namespace Blueprint.Validation
         /// </param>
         protected RegexAttribute(Regex regex, Func<string> errorMessageAccessor) : base(errorMessageAccessor)
         {
-            this.regex = regex;
+            this._regex = regex;
         }
 
         /// <summary>
         /// Gets the regular expression used by this validation attribute.
         /// </summary>
-        public Regex Regex => regex;
+        public Regex Regex => this._regex;
 
         /// <summary>
         /// Determines whether or not the specified value is valid, which means that is matches
@@ -73,7 +73,7 @@ namespace Blueprint.Validation
                 return true;
             }
 
-            var match = Regex.Match(input);
+            var match = this.Regex.Match(input);
 
             if (match.Success && match.Index == 0)
             {
@@ -93,8 +93,9 @@ namespace Blueprint.Validation
         {
             return string.Format(
                 CultureInfo.CurrentCulture,
-                ErrorMessageString,
-                new object[] { name, regex.ToString() });
+                this.ErrorMessageString,
+                name,
+                this._regex.ToString());
         }
     }
 }

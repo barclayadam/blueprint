@@ -28,19 +28,19 @@ namespace Blueprint.Http.MessagePopulation
     /// </remarks>
     public class HttpPartMessagePopulationSource : IMessagePopulationSource
     {
-        private readonly bool isCatchAll;
-        private readonly Type partAttribute;
-        private readonly GetSourceVariable sourceCodeExpression;
-        private readonly Func<MiddlewareBuilderContext, bool> applies;
-        private readonly string variablePrefix;
+        private readonly bool _isCatchAll;
+        private readonly Type _partAttribute;
+        private readonly GetSourceVariable _sourceCodeExpression;
+        private readonly Func<MiddlewareBuilderContext, bool> _applies;
+        private readonly string _variablePrefix;
 
         private HttpPartMessagePopulationSource(Type partAttribute, GetSourceVariable sourceCodeExpression)
         {
-            this.partAttribute = partAttribute;
-            this.sourceCodeExpression = sourceCodeExpression;
-            this.isCatchAll = false;
+            this._partAttribute = partAttribute;
+            this._sourceCodeExpression = sourceCodeExpression;
+            this._isCatchAll = false;
 
-            variablePrefix = partAttribute.Name.Replace("Attribute", string.Empty).Camelize();
+            this._variablePrefix = partAttribute.Name.Replace("Attribute", string.Empty).Camelize();
         }
 
         private HttpPartMessagePopulationSource(
@@ -48,11 +48,11 @@ namespace Blueprint.Http.MessagePopulation
             GetSourceVariable sourceCodeExpression,
             Func<MiddlewareBuilderContext, bool> applies)
         {
-            this.sourceCodeExpression = sourceCodeExpression;
-            this.applies = applies;
-            this.isCatchAll = true;
+            this._sourceCodeExpression = sourceCodeExpression;
+            this._applies = applies;
+            this._isCatchAll = true;
 
-            variablePrefix = partName;
+            this._variablePrefix = partName;
         }
 
         /// <summary>
@@ -173,13 +173,13 @@ namespace Blueprint.Http.MessagePopulation
         /// <returns>All properties with a custom attribute of the type this source represents.</returns>
         public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return isCatchAll ?
+            return this._isCatchAll ?
                 Enumerable.Empty<OwnedPropertyDescriptor>() :
                 operationDescriptor.Properties
-                    .Where(p => p.GetCustomAttributes(partAttribute).Any())
+                    .Where(p => p.GetCustomAttributes(this._partAttribute).Any())
                     .Select(p => new OwnedPropertyDescriptor(p)
                     {
-                        PropertyName = GetPartKey(p),
+                        PropertyName = this.GetPartKey(p),
                     });
         }
 
@@ -195,16 +195,16 @@ namespace Blueprint.Http.MessagePopulation
                 return;
             }
 
-            if (applies?.Invoke(context) == false)
+            if (this._applies?.Invoke(context) == false)
             {
                 return;
             }
 
             var operationVariable = context.FindVariable(context.Descriptor.OperationType);
             var httpContextVariable = context.FindVariable(typeof(HttpContext));
-            var sourceVariable = sourceCodeExpression(httpContextVariable);
+            var sourceVariable = this._sourceCodeExpression(httpContextVariable);
 
-            foreach (var prop in isCatchAll ? context.Descriptor.Properties : ownedBySource.Select(s => s.Property))
+            foreach (var prop in this._isCatchAll ? context.Descriptor.Properties : ownedBySource.Select(s => s.Property))
             {
                 if (prop.CanWrite == false)
                 {
@@ -213,18 +213,18 @@ namespace Blueprint.Http.MessagePopulation
 
                 // If this is a catch-all instance we DO NOT want to generate any code for a property
                 // that is owned by a different source.
-                if (isCatchAll && ownedProperties.Any(p => p.Property == prop))
+                if (this._isCatchAll && ownedProperties.Any(p => p.Property == prop))
                 {
                     continue;
                 }
 
-                var partKey = GetPartKey(prop);
+                var partKey = this.GetPartKey(prop);
                 var operationProperty = operationVariable.GetProperty(prop.Name);
 
                 // When this property is not in ALL routes we use TryGetValue from the RouteData dictionary and pass
                 // the var output from that to `GetConversionExpression` as part of ternary. If the route data
                 // does not exist then we fallback to the value already on the operation
-                var outVariableName = $"{variablePrefix}{prop.Name}";
+                var outVariableName = $"{this._variablePrefix}{prop.Name}";
                 var conversionExpression = GetConversionExpression(prop, outVariableName);
 
                 var indexProperty = sourceVariable.VariableType.GetProperties().SingleOrDefault(p => p.GetIndexParameters().Length == 1);
@@ -274,12 +274,12 @@ namespace Blueprint.Http.MessagePopulation
         /// <returns>The key used for the part for this property.</returns>
         private string GetPartKey(PropertyInfo prop)
         {
-            if (partAttribute == null)
+            if (this._partAttribute == null)
             {
                 return prop.Name;
             }
 
-            var attribute = prop.GetCustomAttributeData(partAttribute);
+            var attribute = prop.GetCustomAttributeData(this._partAttribute);
 
             return attribute?.GetConstructorArgument<string>(0) ?? prop.Name;
         }

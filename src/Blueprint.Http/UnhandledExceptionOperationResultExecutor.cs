@@ -15,8 +15,8 @@ namespace Blueprint.Http
     /// </summary>
     public class UnhandledExceptionOperationResultExecutor : IOperationResultExecutor<UnhandledExceptionOperationResult>
     {
-        private readonly OkResultOperationExecutor okResultOperationExecutor;
-        private readonly bool shouldExposeErrorMessage;
+        private readonly OkResultOperationExecutor _okResultOperationExecutor;
+        private readonly bool _shouldExposeErrorMessage;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="UnhandledExceptionOperationResultExecutor" /> class.
@@ -25,15 +25,15 @@ namespace Blueprint.Http
         /// <param name="okResultOperationExecutor">The <see cref="OkResultOperationExecutor"/> writing is delegated to.</param>
         public UnhandledExceptionOperationResultExecutor(IConfiguration configuration, OkResultOperationExecutor okResultOperationExecutor)
         {
-            this.okResultOperationExecutor = okResultOperationExecutor;
-            shouldExposeErrorMessage = Convert.ToBoolean(configuration["Api:ExposeErrorMessage"] ?? "false");
+            this._okResultOperationExecutor = okResultOperationExecutor;
+            this._shouldExposeErrorMessage = Convert.ToBoolean(configuration["Api:ExposeErrorMessage"] ?? "false");
         }
 
         /// <inheritdoc />
         public Task ExecuteAsync(ApiOperationContext context, UnhandledExceptionOperationResult result)
         {
             var httpContext = context.GetHttpContext();
-            var problemDetails = ToProblemDetails(result.Exception);
+            var problemDetails = this.ToProblemDetails(result.Exception);
 
             var traceId = context.ApmSpan?.TraceId;
 
@@ -42,7 +42,7 @@ namespace Blueprint.Http
                 problemDetails.AddExtension("traceId", traceId);
             }
 
-            return okResultOperationExecutor.WriteContentAsync(
+            return this._okResultOperationExecutor.WriteContentAsync(
                 httpContext,
                 problemDetails.Status.Value,
                 problemDetails);
@@ -75,8 +75,8 @@ namespace Blueprint.Http
                     {
                         Status = (int)HttpStatusCode.BadRequest,
                         Type = "invalid_request",
-                        Title = shouldExposeErrorMessage ? exception.Message : "There was a problem with the request",
-                        Detail = shouldExposeErrorMessage ? exception.ToString() : null,
+                        Title = this._shouldExposeErrorMessage ? exception.Message : "There was a problem with the request",
+                        Detail = this._shouldExposeErrorMessage ? exception.ToString() : null,
                     };
 
                 default:
@@ -84,8 +84,8 @@ namespace Blueprint.Http
                     {
                         Status = (int)HttpStatusCode.InternalServerError,
                         Type = "unknown_error",
-                        Title = shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
-                        Detail = shouldExposeErrorMessage ? exception.ToString() : null,
+                        Title = this._shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
+                        Detail = this._shouldExposeErrorMessage ? exception.ToString() : null,
                     };
             }
         }

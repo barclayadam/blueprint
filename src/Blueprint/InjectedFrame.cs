@@ -9,7 +9,7 @@ namespace Blueprint
     {
         public InjectedFrame(InjectedField field)
         {
-            InstanceVariable = field;
+            this.InstanceVariable = field;
         }
 
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)

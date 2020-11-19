@@ -11,8 +11,8 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ApiOperationHandlerExecutorBuilder : IOperationExecutorBuilder
     {
-        private readonly Type apiOperationHandlerType;
-        private readonly string foundAt;
+        private readonly Type _apiOperationHandlerType;
+        private readonly string _foundAt;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ApiOperationHandlerExecutorBuilder" /> that represents the given <see cref="ApiOperationDescriptor"/>.
@@ -26,9 +26,9 @@ namespace Blueprint.Middleware
             Guard.NotNull(nameof(apiOperationHandlerType), apiOperationHandlerType);
             Guard.NotNull(nameof(foundAt), foundAt);
 
-            Operation = operation;
-            this.apiOperationHandlerType = apiOperationHandlerType;
-            this.foundAt = foundAt;
+            this.Operation = operation;
+            this._apiOperationHandlerType = apiOperationHandlerType;
+            this._foundAt = foundAt;
         }
 
         /// <inheritdoc />
@@ -37,15 +37,15 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public Variable Build(MiddlewareBuilderContext context)
         {
-            var getInstanceFrame = context.VariableFromContainer(apiOperationHandlerType);
+            var getInstanceFrame = context.VariableFromContainer(this._apiOperationHandlerType);
 
             // We must look for the _exact_ method call that corresponds to the operation type as
             // we support handlers that implement multiple IApiOperationHandler<T> interfaces
             var handlerInvokeCall = new MethodCall(
-                apiOperationHandlerType,
-                apiOperationHandlerType.GetMethod(
+                this._apiOperationHandlerType,
+                this._apiOperationHandlerType.GetMethod(
                     nameof(IApiOperationHandler<object>.Handle),
-                    new [] { Operation.OperationType, typeof(ApiOperationContext) }));
+                    new[] { this.Operation.OperationType, typeof(ApiOperationContext) }));
 
             context.AppendFrames(
                 getInstanceFrame,
@@ -60,7 +60,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return foundAt;
+            return this._foundAt;
         }
     }
 }

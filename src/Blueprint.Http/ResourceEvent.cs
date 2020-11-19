@@ -20,15 +20,15 @@ namespace Blueprint.Http
     /// </remarks>
     public class ResourceEvent : INotification
     {
-        private readonly DateTimeOffset created;
+        private readonly DateTimeOffset _created;
 
-        private readonly ResourceEventChangeType changeType;
-        private readonly string eventId;
-        private readonly Type resourceType;
-        private readonly IQuery selfQuery;
+        private readonly ResourceEventChangeType _changeType;
+        private readonly string _eventId;
+        private readonly Type _resourceType;
+        private readonly IQuery _selfQuery;
 
-        private readonly Dictionary<string, object> metadata = new Dictionary<string, object>();
-        private readonly Dictionary<string, object> secureData = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _metadata = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _secureData = new Dictionary<string, object>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEvent" /> class.
@@ -43,12 +43,12 @@ namespace Blueprint.Http
             Guard.NotNull(nameof(resourceType), resourceType);
             Guard.NotNull(nameof(selfQuery), selfQuery);
 
-            this.changeType = changeType;
-            this.eventId = eventId;
-            this.resourceType = resourceType;
-            this.selfQuery = selfQuery;
+            this._changeType = changeType;
+            this._eventId = eventId;
+            this._resourceType = resourceType;
+            this._selfQuery = selfQuery;
 
-            created = SystemTime.UtcNow;
+            this._created = SystemTime.UtcNow;
         }
 
         /// <summary>
@@ -65,18 +65,18 @@ namespace Blueprint.Http
         /// The id <em>should</em> be a dot-delimited string with the first part being the resource type of
         /// the object that has been altered.
         /// </remarks>
-        public string EventId => eventId;
+        public string EventId => this._eventId;
 
         /// <summary>
         /// Gets a the change type of this event, which is a higher-level version of the Type property,
         /// indicating whether the resource was updated, created or deleted.
         /// </summary>
-        public ResourceEventChangeType ChangeType => changeType;
+        public ResourceEventChangeType ChangeType => this._changeType;
 
         /// <summary>
         /// Gets the created date of this event.
         /// </summary>
-        public DateTimeOffset Created => created;
+        public DateTimeOffset Created => this._created;
 
         /// <summary>
         /// Gets the query that represents the query that will load the resource this
@@ -84,19 +84,19 @@ namespace Blueprint.Http
         /// </summary>
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
-        public IQuery SelfQuery => selfQuery;
+        public IQuery SelfQuery => this._selfQuery;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
-        public Type ResourceType => resourceType;
+        public Type ResourceType => this._resourceType;
 
         /// <summary>
         /// Gets the type of resource represented.
         /// </summary>
-        public string ResourceObject => ApiResource.GetTypeName(ResourceType);
+        public string ResourceObject => ApiResource.GetTypeName(this.ResourceType);
 
         /// <summary>
         /// Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware
@@ -124,12 +124,12 @@ namespace Blueprint.Http
         /// Gets the metadata dictionary of this resource event, a simple bag of key value pairs
         /// of useful information that can be stored free-form against an event.
         /// </summary>
-        public Dictionary<string, object> Metadata => metadata;
+        public Dictionary<string, object> Metadata => this._metadata;
 
         /// <summary>
         /// Gets a dictionary of security-related data that will NOT be persisted anywhere.
         /// </summary>
-        public Dictionary<string, object> SecureData => secureData;
+        public Dictionary<string, object> SecureData => this._secureData;
 
         /// <summary>
         /// Gets or sets the correlation id for this event, which can be used to tie it back to
@@ -154,7 +154,7 @@ namespace Blueprint.Http
         /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
         public ResourceEvent WithMetadata(string key, object value)
         {
-            metadata[key] = value;
+            this._metadata[key] = value;
 
             return this;
         }
@@ -169,7 +169,7 @@ namespace Blueprint.Http
         /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
         public ResourceEvent WithSecureData(string key, object value)
         {
-            secureData[key] = value;
+            this._secureData[key] = value;
 
             return this;
         }
@@ -197,13 +197,23 @@ namespace Blueprint.Http
         {
         }
 
-        /// <inheritdoc />
         // System.Text.Json needs explicit ignore of this overriden property. It _will_ still serialise the base
         [System.Text.Json.Serialization.JsonIgnore]
         public new TResource Data
         {
             get => (TResource)base.Data;
             set => base.Data = value;
+        }
+
+        /// <summary>
+        /// Creates a fully-qualified event id, one that has the type name of the <see cref="ApiResource" />
+        /// represented by <typeparamref name="TResource" />.
+        /// </summary>
+        /// <param name="eventSubId">The "sub" ID, unique within a resource's event namespace.</param>
+        /// <returns>A fully-qualified event id.</returns>
+        public static string CreateId(string eventSubId)
+        {
+            return ApiResource.GetTypeName(typeof(TResource)) + "." + eventSubId;
         }
 
         /// <summary>
@@ -234,17 +244,6 @@ namespace Blueprint.Http
             base.WithSecureData(key, value);
 
             return this;
-        }
-
-        /// <summary>
-        /// Creates a fully-qualified event id, one that has the type name of the <see cref="ApiResource" />
-        /// represented by <typeparamref name="TResource" />.
-        /// </summary>
-        /// <param name="eventSubId">The "sub" ID, unique within a resource's event namespace.</param>
-        /// <returns>A fully-qualified event id.</returns>
-        public static string CreateId(string eventSubId)
-        {
-            return ApiResource.GetTypeName(typeof(TResource)) + "." + eventSubId;
         }
     }
 

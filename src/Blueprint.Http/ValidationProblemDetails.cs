@@ -19,7 +19,7 @@ namespace Blueprint.Http
         public ValidationProblemDetails(IDictionary<string, IEnumerable<string>> errors)
             : this()
         {
-            Errors = errors;
+            this.Errors = errors;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Blueprint.Http
         public ValidationProblemDetails(ValidationFailures errors)
             : this()
         {
-            Errors = errors.AsDictionary();
+            this.Errors = errors.AsDictionary();
         }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace Blueprint.Http
         /// </summary>
         internal ValidationProblemDetails()
         {
-            Title = "One or more validation errors occurred";
-            Type = "validation_failed";
-            Status = 422;
+            this.Title = "One or more validation errors occurred";
+            this.Type = "validation_failed";
+            this.Status = 422;
         }
 
         /// <summary>

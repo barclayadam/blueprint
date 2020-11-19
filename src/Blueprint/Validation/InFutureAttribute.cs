@@ -14,7 +14,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public sealed class InFutureAttribute : ValidationAttribute
     {
-        private readonly TemporalCheck temporalCheckType;
+        private readonly TemporalCheck _temporalCheckType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InFutureAttribute"/> class.
@@ -22,7 +22,7 @@ namespace Blueprint.Validation
         /// <param name="temporalCheckType">The type of check to perform.</param>
         public InFutureAttribute(TemporalCheck temporalCheckType)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Blueprint.Validation
         public InFutureAttribute(string errorMessage, TemporalCheck temporalCheckType)
                 : base(errorMessage)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Blueprint.Validation
         public InFutureAttribute(Func<string> errorMessageAccessor, TemporalCheck temporalCheckType)
                 : base(errorMessageAccessor)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -66,17 +66,17 @@ namespace Blueprint.Validation
 
             if (value is DateTimeOffset o)
             {
-                return o.IsInFuture(temporalCheckType);
+                return o.IsInFuture(this._temporalCheckType);
             }
 
             if (value is DateTime d)
             {
-                return d.IsInFuture(temporalCheckType);
+                return d.IsInFuture(this._temporalCheckType);
             }
 
             if (value is string s)
             {
-                return DateTime.TryParse(s, out var valueAsDateTime) && valueAsDateTime.IsInFuture(temporalCheckType);
+                return DateTime.TryParse(s, out var valueAsDateTime) && valueAsDateTime.IsInFuture(this._temporalCheckType);
             }
 
             throw new InvalidOperationException(Resources.InFutureAttribute_IsValid_NotDateTime_Message);

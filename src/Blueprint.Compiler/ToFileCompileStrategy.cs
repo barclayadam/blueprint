@@ -17,8 +17,8 @@ namespace Blueprint.Compiler
     /// </summary>
     public class ToFileCompileStrategy : ICompileStrategy
     {
-        private readonly ILogger<ToFileCompileStrategy> logger;
-        private readonly string outputFolder;
+        private readonly ILogger<ToFileCompileStrategy> _logger;
+        private readonly string _outputFolder;
 
         /// <summary>
         /// Initialises a new instanced of the <see cref="ToFileCompileStrategy" />.
@@ -27,8 +27,8 @@ namespace Blueprint.Compiler
         /// <param name="outputFolder">The folder that we should load / save generated DLLs.</param>
         public ToFileCompileStrategy(ILogger<ToFileCompileStrategy> logger, string outputFolder)
         {
-            this.logger = logger;
-            this.outputFolder = outputFolder;
+            this._logger = logger;
+            this._outputFolder = outputFolder;
         }
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace Blueprint.Compiler
 
             // Search through the potential paths for a candidate DLL to load. If we find one we load and return
             // from the foreach, otherwise we know it need to be compiled (see below loop).
-            var assemblyFile = Path.Combine(outputFolder, assemblyName);
-            var manifestFile = Path.Combine(outputFolder, manifestName);
+            var assemblyFile = Path.Combine(this._outputFolder, assemblyName);
+            var manifestFile = Path.Combine(this._outputFolder, manifestName);
 
             // If we have a previously generated DLL _and_ the manifest we have saved is the same hash
             // as we have now we can skip the actual compilation and re-use the existing DLL.
@@ -59,7 +59,7 @@ namespace Blueprint.Compiler
 
                 if (previousHash == sourceTextHash)
                 {
-                    logger.LogInformation(
+                    this._logger.LogInformation(
                         "NOT compiling as previous compilation exists at '{AssemblyFile}'. Hash of compilation is '{SourceTextHash}'",
                         assemblyFile,
                         sourceTextHash);
@@ -70,12 +70,12 @@ namespace Blueprint.Compiler
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "Unable to load existing DLL '{AssemblyFile}", assemblyFile);
+                        this._logger.LogError(e, "Unable to load existing DLL '{AssemblyFile}", assemblyFile);
                     }
                 }
                 else
                 {
-                    logger.LogInformation(
+                    this._logger.LogInformation(
                         "NOT using assembly at {AssemblyFile} because it's manifest {PreviousHash} does NOT match required {SourceTextHash}",
                         assemblyFile,
                         previousHash,
@@ -84,7 +84,7 @@ namespace Blueprint.Compiler
             }
             else
             {
-                logger.LogInformation("No previously generated DLL exists at '{AssemblyFile}'", assemblyFile);
+                this._logger.LogInformation("No previously generated DLL exists at '{AssemblyFile}'", assemblyFile);
             }
 
             return null;
@@ -107,18 +107,18 @@ namespace Blueprint.Compiler
 
             // Search through the potential paths for a candidate DLL to load. If we find one we load and return
             // from the foreach, otherwise we know it need to be compiled (see below loop).
-            var assemblyFile = Path.Combine(outputFolder, assemblyName);
-            var manifestFile = Path.Combine(outputFolder, manifestName);
+            var assemblyFile = Path.Combine(this._outputFolder, assemblyName);
+            var manifestFile = Path.Combine(this._outputFolder, manifestName);
 
             // Search through the potential paths for a candidate DLL to load. If we find one we load and return
             // from the foreach, otherwise we know it need to be compiled (see below loop).
-            var symbolsFile = Path.Combine(outputFolder, symbolsName);
+            var symbolsFile = Path.Combine(this._outputFolder, symbolsName);
 
             try
             {
-                logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
+                this._logger.LogInformation("Compiling source to DLL at '{0}'. Hash of compilation is '{1}'", assemblyFile, sourceTextHash);
 
-                Compile(compilation, check, compilation.SyntaxTrees, assemblyFile, symbolsFile);
+                this.Compile(compilation, check, compilation.SyntaxTrees, assemblyFile, symbolsFile);
 
                 File.WriteAllText(manifestFile, sourceTextHash);
 
@@ -126,7 +126,7 @@ namespace Blueprint.Compiler
             }
             catch (IOException e)
             {
-                logger.LogCritical(e, "Could not compile to {AssemblyName}", assemblyFile);
+                this._logger.LogCritical(e, "Could not compile to {AssemblyName}", assemblyFile);
 
                 throw;
             }
@@ -139,9 +139,9 @@ namespace Blueprint.Compiler
             string assemblyFile,
             string symbolsFile)
         {
-            if (!Directory.Exists(outputFolder))
+            if (!Directory.Exists(this._outputFolder))
             {
-                Directory.CreateDirectory(outputFolder);
+                Directory.CreateDirectory(this._outputFolder);
             }
 
             using var assemblyStream = File.OpenWrite(assemblyFile);
@@ -159,7 +159,7 @@ namespace Blueprint.Compiler
 
             check(result);
 
-            logger.LogInformation(
+            this._logger.LogInformation(
                 $"Compiled assembly to \"{assemblyFile}\" ({new FileInfo(assemblyFile).Length} bytes) and " +
                 $"symbols to \"{symbolsFile}\" ({new FileInfo(symbolsFile).Length} bytes)");
         }

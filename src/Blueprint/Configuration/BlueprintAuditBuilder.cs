@@ -5,18 +5,18 @@ namespace Blueprint.Configuration
 {
     public class BlueprintAuditBuilder
     {
-        private readonly BlueprintApiBuilder apiBuilder;
+        private readonly BlueprintApiBuilder _apiBuilder;
 
         public BlueprintAuditBuilder(BlueprintApiBuilder apiBuilder)
         {
-            this.apiBuilder = apiBuilder;
+            this._apiBuilder = apiBuilder;
         }
 
-        public IServiceCollection Services => apiBuilder.Services;
+        public IServiceCollection Services => this._apiBuilder.Services;
 
         public void UseAuditor<T>() where T : class, IAuditor
         {
-            Services.AddScoped<IAuditor, T>();
+            this.Services.AddScoped<IAuditor, T>();
         }
     }
 }

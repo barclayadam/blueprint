@@ -25,7 +25,7 @@ namespace Blueprint.Caching.Configuration
         /// <seealso cref="CacheOptions.Absolute"/>
         public override CacheOptions GetOptions()
         {
-            return CacheOptions.Absolute(ItemPriority, TimeSpan);
+            return CacheOptions.Absolute(this.ItemPriority, this.TimeSpan);
         }
     }
 }

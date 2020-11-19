@@ -53,6 +53,7 @@ ProjectSection(SolutionItems) = preProject
 	src\Directory.Build.props = src\Directory.Build.props
 	src\Rules.ruleset = src\Rules.ruleset
 	src\Stylecop.json = src\Stylecop.json
+	src\.editorconfig = src\.editorconfig
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{B407234C-3957-4C16-A581-FBAC4436F75A}"

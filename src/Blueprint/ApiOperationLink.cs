@@ -7,8 +7,8 @@ namespace Blueprint
 {
     public class ApiOperationLink
     {
-        private static readonly Regex ParameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
-        private static readonly Regex QueryStringRegex = new Regex("\\?.*", RegexOptions.Compiled);
+        private static readonly Regex _parameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
+        private static readonly Regex _queryStringRegex = new Regex("\\?.*", RegexOptions.Compiled);
 
         /// <summary>
         /// Constructs a link that applies at a 'system' level, can be overriden by setting
@@ -23,15 +23,15 @@ namespace Blueprint
             Guard.NotNull(nameof(urlFormat), urlFormat);
             Guard.NotNull(nameof(rel), rel);
 
-            OperationDescriptor = operationDescriptor;
-            UrlFormat = urlFormat.TrimStart('/');
-            Rel = rel;
+            this.OperationDescriptor = operationDescriptor;
+            this.UrlFormat = urlFormat.TrimStart('/');
+            this.Rel = rel;
 
             var placeholders = new List<ApiOperationLinkPlaceholder>(5);
 
-            RoutingUrl = QueryStringRegex.Replace(
-                ParameterRegex.Replace(
-                    UrlFormat,
+            this.RoutingUrl = _queryStringRegex.Replace(
+                _parameterRegex.Replace(
+                    this.UrlFormat,
                     match =>
                     {
                         var propertyName = match.Groups["propName"].Value;
@@ -56,7 +56,7 @@ namespace Blueprint
                     }),
                 string.Empty);
 
-            Placeholders = placeholders;
+            this.Placeholders = placeholders;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Blueprint
         /// Gets a value indicating whether this is a 'root' link, one that does not belong to
         /// a particular resource.
         /// </summary>
-        public bool IsRootLink => ResourceType == null;
+        public bool IsRootLink => this.ResourceType == null;
 
         /// <summary>
         /// Gets a value indicating whether this link has any placeholders, meaning they would need to be filled in
@@ -96,12 +96,13 @@ namespace Blueprint
         /// <returns>Whether any placeholders exist.</returns>
         public bool HasPlaceholders()
         {
-            return Placeholders.Count > 0;
+            return this.Placeholders.Count > 0;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{ResourceType?.Name ?? "Root"}#{Rel} => {OperationDescriptor.OperationType.Name}";
+            return $"{this.ResourceType?.Name ?? "Root"}#{this.Rel} => {this.OperationDescriptor.OperationType.Name}";
         }
     }
 }

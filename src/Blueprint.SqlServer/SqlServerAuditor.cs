@@ -16,15 +16,15 @@ namespace Blueprint.SqlServer
     /// </summary>
     public class SqlServerAuditor : IAuditor
     {
-        private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
             ContractResolver = new AuditDetailsResolver(),
         };
 
-        private readonly IDatabaseConnectionFactory databaseConnectionFactory;
-        private readonly IOptions<SqlServerAuditorConfiguration> configuration;
+        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+        private readonly IOptions<SqlServerAuditorConfiguration> _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class.
@@ -35,8 +35,8 @@ namespace Blueprint.SqlServer
         {
             Guard.NotNull(nameof(databaseConnectionFactory), databaseConnectionFactory);
 
-            this.databaseConnectionFactory = databaseConnectionFactory;
-            this.configuration = configuration;
+            this._databaseConnectionFactory = databaseConnectionFactory;
+            this._configuration = configuration;
         }
 
         /// <summary>
@@ -51,12 +51,12 @@ namespace Blueprint.SqlServer
             var serializedMessage = JsonConvert.SerializeObject(
                                                                 valueToSerialize,
                                                                 Formatting.None,
-                                                                JsonSerializerSettings);
-            using (var cn = databaseConnectionFactory.Open())
+                                                                _jsonSerializerSettings);
+            using (var cn = this._databaseConnectionFactory.Open())
             using (var transaction = cn.BeginTransaction())
             {
                 cn.Execute(
-                    $@"INSERT INTO {configuration.Value.QualifiedTableName} (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
+                    $@"INSERT INTO {this._configuration.Value.QualifiedTableName} (CorrelationId,  WasSuccessful,  ResultMessage,  Username,  Timestamp,  MessageType,  MessageData)
                            VALUES (@CorrelationId, @WasSuccessful, @ResultMessage, @Username, @Timestamp, @MessageType, @MessageData)",
                     new
                     {

@@ -11,7 +11,7 @@ namespace Blueprint.Http
     /// </summary>
     public class PlainTextResult : HttpResult
     {
-        private readonly string content;
+        private readonly string _content;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlainTextResult" /> class with the given string
@@ -20,13 +20,13 @@ namespace Blueprint.Http
         /// <param name="content">The content to write.</param>
         public PlainTextResult(string content) : base(HttpStatusCode.OK)
         {
-            this.content = content;
+            this._content = content;
         }
 
         /// <summary>
         /// The content that is to be written.
         /// </summary>
-        public string Content => content;
+        public string Content => this._content;
 
         /// <summary>
         /// Gets or sets the content type header, which defaults to <c>text/plain</c>.
@@ -41,11 +41,11 @@ namespace Blueprint.Http
             var httpContext = context.GetHttpContext();
             var response = httpContext.Response;
 
-            response.ContentType = ContentType;
+            response.ContentType = this.ContentType;
 
             using var httpResponseStreamWriter = new HttpResponseStreamWriter(response.Body, Encoding.UTF8);
 
-            await httpResponseStreamWriter.WriteAsync(content);
+            await httpResponseStreamWriter.WriteAsync(this._content);
             await httpResponseStreamWriter.FlushAsync();
         }
     }

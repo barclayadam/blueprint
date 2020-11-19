@@ -9,68 +9,68 @@ namespace Blueprint.Utilities
     /// converting to an appropriate string representation of a given unit size (e.g. as Bytes, Megabytes,
     /// Gigabytes etc.).
     /// </summary>
-    public struct FileSize : IFormattable
+    public readonly struct FileSize : IFormattable
     {
         private const string FileSystemFormatSpecifier = "FS";
 
-        private static readonly UnitSize ByteUnit = new UnitSize { UnitValue = Math.Pow(2, 0), Suffix = "B", FormatModifier = "N0" };
-        private static readonly UnitSize KilobyteUnit = new UnitSize { UnitValue = Math.Pow(2, 10), Suffix = "KB", FormatModifier = "N0" };
-        private static readonly UnitSize MegabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 20), Suffix = "MB", FormatModifier = "N2" };
-        private static readonly UnitSize GigabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 30), Suffix = "GB", FormatModifier = "N2" };
-        private static readonly UnitSize TerabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 40), Suffix = "TB", FormatModifier = "N2" };
-        private static readonly UnitSize PetabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 50), Suffix = "PB", FormatModifier = "N2" };
+        private static readonly UnitSize _byteUnit = new UnitSize { UnitValue = Math.Pow(2, 0), Suffix = "B", FormatModifier = "N0" };
+        private static readonly UnitSize _kilobyteUnit = new UnitSize { UnitValue = Math.Pow(2, 10), Suffix = "KB", FormatModifier = "N0" };
+        private static readonly UnitSize _megabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 20), Suffix = "MB", FormatModifier = "N2" };
+        private static readonly UnitSize _gigabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 30), Suffix = "GB", FormatModifier = "N2" };
+        private static readonly UnitSize _terabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 40), Suffix = "TB", FormatModifier = "N2" };
+        private static readonly UnitSize _petabyteUnit = new UnitSize { UnitValue = Math.Pow(2, 50), Suffix = "PB", FormatModifier = "N2" };
 
-        private static readonly UnitSize[] Units =
+        private static readonly UnitSize[] _allUnits =
         {
-            ByteUnit,
-            KilobyteUnit,
-            MegabyteUnit,
-            GigabyteUnit,
-            TerabyteUnit,
-            PetabyteUnit,
+            _byteUnit,
+            _kilobyteUnit,
+            _megabyteUnit,
+            _gigabyteUnit,
+            _terabyteUnit,
+            _petabyteUnit,
         };
 
-        private readonly UnitSize unitSize;
-        private readonly double units;
+        private readonly UnitSize _unitSize;
+        private readonly double _units;
 
         private FileSize(UnitSize unitSize, double units)
         {
             Guard.NotNull(nameof(unitSize), unitSize);
-            Guard.GreaterThanOrEqual("units", units, 0);
+            Guard.GreaterThanOrEqual(nameof(units), units, 0);
 
-            this.unitSize = unitSize;
-            this.units = units;
+            this._unitSize = unitSize;
+            this._units = units;
         }
 
         /// <summary>
         /// Gets the number of bytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Bytes => unitSize.ConvertTo(ByteUnit, units);
+        public double Bytes => this._unitSize.ConvertTo(_byteUnit, this._units);
 
         /// <summary>
         /// Gets the number of kilobytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Kilobytes => unitSize.ConvertTo(KilobyteUnit, units);
+        public double Kilobytes => this._unitSize.ConvertTo(_kilobyteUnit, this._units);
 
         /// <summary>
         /// Gets the number of megabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Megabytes => unitSize.ConvertTo(MegabyteUnit, units);
+        public double Megabytes => this._unitSize.ConvertTo(_megabyteUnit, this._units);
 
         /// <summary>
         /// Gets the number of gigabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Gigabytes => unitSize.ConvertTo(GigabyteUnit, units);
+        public double Gigabytes => this._unitSize.ConvertTo(_gigabyteUnit, this._units);
 
         /// <summary>
         /// Gets the number of terabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Terabytes => unitSize.ConvertTo(TerabyteUnit, units);
+        public double Terabytes => this._unitSize.ConvertTo(_terabyteUnit, this._units);
 
         /// <summary>
         /// Gets the number of petabytes this <see cref="FileSize" /> represents.
         /// </summary>
-        public double Petabytes => unitSize.ConvertTo(PetabyteUnit, units);
+        public double Petabytes => this._unitSize.ConvertTo(_petabyteUnit, this._units);
 
         /// <summary>
         /// Compares the two objects to determine if they contain the same number of bytes.
@@ -119,9 +119,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromBytes(double bytes)
         {
-            Guard.GreaterThanOrEqual("bytes", bytes, 0);
+            Guard.GreaterThanOrEqual(nameof(bytes), bytes, 0);
 
-            return new FileSize(ByteUnit, bytes);
+            return new FileSize(_byteUnit, bytes);
         }
 
         /// <summary>
@@ -136,9 +136,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromKilobytes(double kilobytes)
         {
-            Guard.GreaterThanOrEqual("kilobytes", kilobytes, 0);
+            Guard.GreaterThanOrEqual(nameof(kilobytes), kilobytes, 0);
 
-            return new FileSize(KilobyteUnit, kilobytes);
+            return new FileSize(_kilobyteUnit, kilobytes);
         }
 
         /// <summary>
@@ -153,9 +153,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromMegabytes(double megabytes)
         {
-            Guard.GreaterThanOrEqual("megabytes", megabytes, 0);
+            Guard.GreaterThanOrEqual(nameof(megabytes), megabytes, 0);
 
-            return new FileSize(MegabyteUnit, megabytes);
+            return new FileSize(_megabyteUnit, megabytes);
         }
 
         /// <summary>
@@ -170,9 +170,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromGigabytes(double gigabytes)
         {
-            Guard.GreaterThanOrEqual("gigabytes", gigabytes, 0);
+            Guard.GreaterThanOrEqual(nameof(gigabytes), gigabytes, 0);
 
-            return new FileSize(GigabyteUnit, gigabytes);
+            return new FileSize(_gigabyteUnit, gigabytes);
         }
 
         /// <summary>
@@ -187,9 +187,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromPetabytes(double petabytes)
         {
-            Guard.GreaterThanOrEqual("petabytes", petabytes, 0);
+            Guard.GreaterThanOrEqual(nameof(petabytes), petabytes, 0);
 
-            return new FileSize(PetabyteUnit, petabytes);
+            return new FileSize(_petabyteUnit, petabytes);
         }
 
         /// <summary>
@@ -204,9 +204,9 @@ namespace Blueprint.Utilities
         /// </returns>
         public static FileSize FromTerabytes(double terabytes)
         {
-            Guard.GreaterThanOrEqual("terabytes", terabytes, 0);
+            Guard.GreaterThanOrEqual(nameof(terabytes), terabytes, 0);
 
-            return new FileSize(TerabyteUnit, terabytes);
+            return new FileSize(_terabyteUnit, terabytes);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace Blueprint.Utilities
             }
 
             // Return true if the fields match:
-            return size.Bytes == Bytes;
+            return size.Bytes == this.Bytes;
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace Blueprint.Utilities
         /// <returns>The hash code of this file size.</returns>
         public override int GetHashCode()
         {
-            return Bytes.GetHashCode();
+            return this.Bytes.GetHashCode();
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace Blueprint.Utilities
         /// </returns>
         public override string ToString()
         {
-            return ToString(FileSystemFormatSpecifier, null);
+            return this.ToString(FileSystemFormatSpecifier, null);
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace Blueprint.Utilities
                 return formatter.Format(format, this, formatProvider);
             }
 
-            return GetUnitSizeForFormat(format, Bytes).Format(Bytes);
+            return GetUnitSizeForFormat(format, this.Bytes).Format(this.Bytes);
         }
 
         private static UnitSize GetUnitSizeForFormat(string format, double sizeInBytes)
@@ -292,9 +292,9 @@ namespace Blueprint.Utilities
         {
             unitFormat = (unitFormat ?? FileSystemFormatSpecifier).ToUpperInvariant();
 
-            if (unitFormat.Equals(FileSystemFormatSpecifier) || Units.All(u => u.Suffix != unitFormat))
+            if (unitFormat.Equals(FileSystemFormatSpecifier) || _allUnits.All(u => u.Suffix != unitFormat))
             {
-                return Units.Last(m => bytes >= m.UnitValue);
+                return _allUnits.Last(m => bytes >= m.UnitValue);
             }
 
             return GetUnitSize(unitFormat);
@@ -302,7 +302,7 @@ namespace Blueprint.Utilities
 
         private static UnitSize GetUnitSize(string unitFormat)
         {
-            return Units.Single(m => m.Suffix == unitFormat);
+            return _allUnits.Single(m => m.Suffix == unitFormat);
         }
 
         private class UnitSize
@@ -317,21 +317,21 @@ namespace Blueprint.Utilities
             {
                 return string.Format(
                                      CultureInfo.CurrentCulture,
-                                     "{0:" + FormatModifier + "}{1}",
-                                     bytes / UnitValue,
-                                     Suffix);
+                                     "{0:" + this.FormatModifier + "}{1}",
+                                     bytes / this.UnitValue,
+                                     this.Suffix);
             }
 
             public double ConvertTo(UnitSize yours, double units)
             {
-                if (yours.UnitValue > UnitValue)
+                if (yours.UnitValue > this.UnitValue)
                 {
-                    return units / (yours.UnitValue / UnitValue);
+                    return units / (yours.UnitValue / this.UnitValue);
                 }
 
-                if (yours.UnitValue < UnitValue)
+                if (yours.UnitValue < this.UnitValue)
                 {
-                    return units * (UnitValue / yours.UnitValue);
+                    return units * (this.UnitValue / yours.UnitValue);
                 }
 
                 return units;

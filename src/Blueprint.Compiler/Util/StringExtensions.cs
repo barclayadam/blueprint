@@ -18,22 +18,25 @@ namespace Blueprint.Compiler.Util
         // Must be a ref struct as it contains a ReadOnlySpan<char>
         public ref struct LineSplitEnumerator
         {
-            private ReadOnlySpan<char> str;
+            private ReadOnlySpan<char> _str;
 
             public LineSplitEnumerator(ReadOnlySpan<char> str)
             {
-                this.str = str;
-                Current = default;
+                this._str = str;
+                this.Current = default;
             }
 
             public LineSplitEntry Current { get; private set; }
 
             // Needed to be compatible with the foreach operator
-            public LineSplitEnumerator GetEnumerator() => this;
+            public LineSplitEnumerator GetEnumerator()
+            {
+                return this;
+            }
 
             public bool MoveNext()
             {
-                var span = str;
+                var span = this._str;
 
                 // Reach the end of the string
                 if (span.Length == 0)
@@ -46,8 +49,8 @@ namespace Blueprint.Compiler.Util
                 // The string is composed of only one line
                 if (index == -1)
                 {
-                    str = ReadOnlySpan<char>.Empty; // The remaining string is an empty string
-                    Current = new LineSplitEntry(span, ReadOnlySpan<char>.Empty);
+                    this._str = ReadOnlySpan<char>.Empty; // The remaining string is an empty string
+                    this.Current = new LineSplitEntry(span, ReadOnlySpan<char>.Empty);
                     return true;
                 }
 
@@ -57,14 +60,14 @@ namespace Blueprint.Compiler.Util
                     var next = span[index + 1];
                     if (next == '\n')
                     {
-                        Current = new LineSplitEntry(span.Slice(0, index), span.Slice(index, 2));
-                        str = span.Slice(index + 2);
+                        this.Current = new LineSplitEntry(span.Slice(0, index), span.Slice(index, 2));
+                        this._str = span.Slice(index + 2);
                         return true;
                     }
                 }
 
-                Current = new LineSplitEntry(span.Slice(0, index), span.Slice(index, 1));
-                str = span.Slice(index + 1);
+                this.Current = new LineSplitEntry(span.Slice(0, index), span.Slice(index, 1));
+                this._str = span.Slice(index + 1);
                 return true;
             }
         }
@@ -73,8 +76,8 @@ namespace Blueprint.Compiler.Util
         {
             public LineSplitEntry(ReadOnlySpan<char> line, ReadOnlySpan<char> separator)
             {
-                Line = line;
-                Separator = separator;
+                this.Line = line;
+                this.Separator = separator;
             }
 
             public ReadOnlySpan<char> Line { get; }
@@ -83,7 +86,10 @@ namespace Blueprint.Compiler.Util
 
             // This method allow to implicitly cast the type into a ReadOnlySpan<char>, so you can write the following code
             // foreach (ReadOnlySpan<char> entry in str.SplitLines())
-            public static implicit operator ReadOnlySpan<char>(LineSplitEntry entry) => entry.Line;
+            public static implicit operator ReadOnlySpan<char>(LineSplitEntry entry)
+            {
+                return entry.Line;
+            }
 
             // This method allow to deconstruct the type, so you can write any of the following code
             // foreach (var entry in str.SplitLines()) { _ = entry.Line; }
@@ -91,8 +97,8 @@ namespace Blueprint.Compiler.Util
             // https://docs.microsoft.com/en-us/dotnet/csharp/deconstruct#deconstructing-user-defined-types
             public void Deconstruct(out ReadOnlySpan<char> line, out ReadOnlySpan<char> separator)
             {
-                line = Line;
-                separator = Separator;
+                line = this.Line;
+                separator = this.Separator;
             }
         }
     }

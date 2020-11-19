@@ -16,7 +16,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [TestCase(typeof(List<Ball>), "ballList")]
         [TestCase(typeof(Basketball), "basketball")]
         [TestCase(typeof(IDoNotHaveIAtStart), "doNotHaveIAtStart")]
-        [TestCase(typeof(IIHaveIAtStart), "iHaveIAtStart")]
+        [TestCase(typeof(IiHaveIAtStart), "iHaveIAtStart")]
         [TestCase(typeof(IAmNotAnInterface), "iAmNotAnInterface")]
         [TestCase(typeof(AGenericClass<Ball>), "ballAGenericClass")]
         [TestCase(typeof(AGenericClass<AGenericClass<IBall>>), "ballAGenericClassAGenericClass")]
@@ -28,7 +28,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         interface IBall {}
         class Ball {}
         interface IDoNotHaveIAtStart {}
-        interface IIHaveIAtStart {}
+        interface IiHaveIAtStart {}
         class IAmNotAnInterface {}
         class AGenericClass<T> {}
     }

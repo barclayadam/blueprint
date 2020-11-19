@@ -16,7 +16,7 @@ namespace Blueprint.Compiler
     /// </summary>
     public class InMemoryOnlyCompileStrategy : ICompileStrategy
     {
-        private readonly ILogger<InMemoryOnlyCompileStrategy> logger;
+        private readonly ILogger<InMemoryOnlyCompileStrategy> _logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="InMemoryOnlyCompileStrategy" /> class.
@@ -24,7 +24,7 @@ namespace Blueprint.Compiler
         /// <param name="logger">The logger.</param>
         public InMemoryOnlyCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <inheritdoc />
@@ -37,7 +37,7 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public Assembly Compile(string sourceTextHash, CSharpCompilation compilation, Action<EmitResult> check)
         {
-            logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
+            this._logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
 
             using var assemblyStream = new MemoryStream();
             using var symbolsStream = new MemoryStream();

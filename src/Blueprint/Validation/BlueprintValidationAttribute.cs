@@ -15,14 +15,14 @@ namespace Blueprint.Validation
         {
             Guard.NotNull(nameof(apiOperationContext), apiOperationContext);
 
-            var validationResult = await IsValidAsync(value, propertyName, apiOperationContext);
+            var validationResult = await this.IsValidAsync(value, propertyName, apiOperationContext);
 
             if (validationResult == true)
             {
                 return ValidationResult.Success;
             }
 
-            return new ValidationResult(string.Format(ErrorMessage, GetType().Name, propertyName));
+            return new ValidationResult(string.Format(this.ErrorMessage, this.GetType().Name, propertyName));
         }
 
         protected virtual Task<bool> IsValidAsync(object value, string propertyName, ApiOperationContext apiOperationContext)

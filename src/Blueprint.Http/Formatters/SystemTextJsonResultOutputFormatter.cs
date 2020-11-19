@@ -12,8 +12,8 @@ namespace Blueprint.Http.Formatters
     /// </summary>
     public class SystemTextJsonResultOutputFormatter : IOperationResultOutputFormatter
     {
-        private readonly JsonSerializerOptions options;
-        private readonly List<MediaType> supportedMediaTypes;
+        private readonly JsonSerializerOptions _options;
+        private readonly List<MediaType> _supportedMediaTypes;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="SystemTextJsonResultOutputFormatter" /> class.
@@ -21,9 +21,9 @@ namespace Blueprint.Http.Formatters
         /// <param name="options">The JSON serializer options.</param>
         public SystemTextJsonResultOutputFormatter(JsonSerializerOptions options)
         {
-            this.options = options;
+            this._options = options;
 
-            supportedMediaTypes = new List<MediaType>
+            this._supportedMediaTypes = new List<MediaType>
             {
                 new MediaType(MediaTypeHeaderValues.ApplicationJson.ToString()),
                 new MediaType(MediaTypeHeaderValues.TextJson.ToString()),
@@ -37,11 +37,11 @@ namespace Blueprint.Http.Formatters
             if (!context.ContentType.HasValue)
             {
                 // application/json
-                context.ContentType = supportedMediaTypes.First();
+                context.ContentType = this._supportedMediaTypes.First();
                 return true;
             }
 
-            foreach (var s in supportedMediaTypes)
+            foreach (var s in this._supportedMediaTypes)
             {
                 if (context.ContentType.Value.IsSubsetOf(s))
                 {
@@ -60,7 +60,7 @@ namespace Blueprint.Http.Formatters
 
             var responseStream = context.Response.Body;
 
-            await JsonSerializer.SerializeAsync(responseStream, context.Result, context.Result.GetType(), options);
+            await JsonSerializer.SerializeAsync(responseStream, context.Result, context.Result.GetType(), this._options);
             await responseStream.FlushAsync();
         }
 

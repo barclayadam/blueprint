@@ -7,44 +7,44 @@ namespace Blueprint.Errors
 {
     public class BasicExceptionFilter : IExceptionFilter
     {
-        private static readonly Type TypeValidationError = typeof(ValidationException);
-        private static readonly Type TypeNotFoundException = typeof(NotFoundException);
-        private static readonly Type TypeSecurityException = typeof(SecurityException);
-        private static readonly Type TypeForbiddenException = typeof(ForbiddenException);
+        private static readonly Type _typeValidationError = typeof(ValidationException);
+        private static readonly Type _typeNotFoundException = typeof(NotFoundException);
+        private static readonly Type _typeSecurityException = typeof(SecurityException);
+        private static readonly Type _typeForbiddenException = typeof(ForbiddenException);
 
-        private readonly ILogger<BasicExceptionFilter> logger;
+        private readonly ILogger<BasicExceptionFilter> _logger;
 
         public BasicExceptionFilter(ILogger<BasicExceptionFilter> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
         public bool ShouldIgnore(Type exceptionType, Exception exception)
         {
-            if (exceptionType == TypeValidationError)
+            if (exceptionType == _typeValidationError)
             {
-                logger.LogInformation("Request has failed validation");
+                this._logger.LogInformation("Request has failed validation");
 
                 return true;
             }
 
-            if (exceptionType == TypeNotFoundException)
+            if (exceptionType == _typeNotFoundException)
             {
-                logger.LogInformation("404. Could not find entity");
+                this._logger.LogInformation("404. Could not find entity");
 
                 return true;
             }
 
-            if (exceptionType == TypeSecurityException)
+            if (exceptionType == _typeSecurityException)
             {
-                logger.LogInformation("Request has failed authorisation. message='{0}'", exception.Message);
+                this._logger.LogInformation("Request has failed authorisation. message='{0}'", exception.Message);
 
                 return true;
             }
 
-            if (exceptionType == TypeForbiddenException)
+            if (exceptionType == _typeForbiddenException)
             {
-                logger.LogInformation("Request is forbidden. message='{0}'", exception.Message);
+                this._logger.LogInformation("Request is forbidden. message='{0}'", exception.Message);
 
                 return true;
             }

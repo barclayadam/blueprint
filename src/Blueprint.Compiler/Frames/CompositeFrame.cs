@@ -9,57 +9,54 @@ namespace Blueprint.Compiler.Frames
 {
     public abstract class CompositeFrame : Frame, IEnumerable<Frame>
     {
-        private readonly List<Frame> inner;
+        private readonly List<Frame> _inner;
 
-        protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.IsAsync))
+        protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.Is))
         {
-            this.inner = inner.ToList();
+            this._inner = inner.ToList();
         }
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="CompositeFrame"/> is async, determined by whether
-        /// any of the children <see cref="Frame.IsAsync"/> properties are <c>true</c>.
+        /// any of the children <see cref="Frame.Is"/> properties are <c>true</c>.
         /// </summary>
-        public override bool IsAsync => inner.Any(i => i.IsAsync);
+        public override bool Is => this._inner.Any(i => i.Is);
 
-        public List<Frame> Inner
-        {
-            get => inner;
-        }
+        public List<Frame> Inner => this._inner;
 
         public void Add(Frame innerFrame)
         {
-            inner.Add(innerFrame);
+            this._inner.Add(innerFrame);
         }
 
         public override bool CanReturnTask()
         {
-            return inner.Last().CanReturnTask();
+            return this._inner.Last().CanReturnTask();
         }
 
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            if (inner.Count > 1)
+            if (this._inner.Count > 1)
             {
-                for (var i = 1; i < inner.Count; i++)
+                for (var i = 1; i < this._inner.Count; i++)
                 {
-                    inner[i - 1].NextFrame = inner[i];
+                    this._inner[i - 1].NextFrame = this._inner[i];
                 }
             }
 
-            GenerateCode(variables, method, writer, inner[0]);
+            this.GenerateCode(variables, method, writer, this._inner[0]);
 
             next();
         }
 
         IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
         {
-            return inner.GetEnumerator();
+            return this._inner.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return inner.GetEnumerator();
+            return this._inner.GetEnumerator();
         }
 
         protected abstract void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Frame inner);

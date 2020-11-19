@@ -9,7 +9,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public sealed class LessThanAttribute : ValidationAttribute
     {
-        private readonly int maximumValue;
+        private readonly int _maximumValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LessThanAttribute"/> class.
@@ -17,7 +17,7 @@ namespace Blueprint.Validation
         /// <param name="maximumValue">The minimum value allowed.</param>
         public LessThanAttribute(int maximumValue)
         {
-            this.maximumValue = maximumValue;
+            this._maximumValue = maximumValue;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Blueprint.Validation
         public LessThanAttribute(int maximumValue, string errorMessage)
                 : base(errorMessage)
         {
-            this.maximumValue = maximumValue;
+            this._maximumValue = maximumValue;
         }
 
         /// <summary>
@@ -42,13 +42,13 @@ namespace Blueprint.Validation
         public LessThanAttribute(int maximumValue, Func<string> errorMessageAccessor)
                 : base(errorMessageAccessor)
         {
-            this.maximumValue = maximumValue;
+            this._maximumValue = maximumValue;
         }
 
         /// <summary>
         /// Gets the maximum value for the property.
         /// </summary>
-        public int MaximumValue => maximumValue;
+        public int MaximumValue => this._maximumValue;
 
         /// <summary>
         /// If the value is less than that provided by the constructor, this returns true. Null objects also evaluate to true.
@@ -67,7 +67,7 @@ namespace Blueprint.Validation
             }
 
             var number = double.Parse(value.ToString());
-            return number < MaximumValue;
+            return number < this.MaximumValue;
         }
     }
 }

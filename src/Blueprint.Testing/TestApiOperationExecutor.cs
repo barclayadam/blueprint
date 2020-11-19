@@ -18,17 +18,17 @@ namespace Blueprint.Testing
     /// </remarks>
     public class TestApiOperationExecutor : IApiOperationExecutor
     {
-        private readonly ServiceProvider serviceProvider;
-        private readonly CodeGennedExecutor executor;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly CodeGennedExecutor _executor;
 
         private TestApiOperationExecutor(ServiceProvider serviceProvider, CodeGennedExecutor executor)
         {
-            this.serviceProvider = serviceProvider;
-            this.executor = executor;
+            this._serviceProvider = serviceProvider;
+            this._executor = executor;
         }
 
         /// <inheritdoc />
-        public ApiDataModel DataModel => executor.DataModel;
+        public ApiDataModel DataModel => this._executor.DataModel;
 
         /// <summary>
         /// Creates a new <see cref="TestApiOperationExecutor" /> with the specified configuration which allows adding static handlers
@@ -84,8 +84,8 @@ namespace Blueprint.Testing
                 builder
                     .SetApplicationName("Blueprint.Tests")
                     .Compilation(r => r
-                        // We want a unique DLL name every time, avoids clashes and ensures we always do
-                        // an actual build and compilation so we can get the generated code
+                        /* We want a unique DLL name every time, avoids clashes and ensures we always do
+                           an actual build and compilation so we can get the generated code */
                         .AssemblyName("Blueprint.Tests." + Guid.NewGuid().ToString("N"))
                         .UseOptimizationLevel(OptimizationLevel.Debug)
                         .UseInMemoryCompileStrategy());
@@ -107,7 +107,7 @@ namespace Blueprint.Testing
         /// <returns>The code used to create all executors.</returns>
         public string WhatCodeDidIGenerate()
         {
-            return executor.WhatCodeDidIGenerate();
+            return this._executor.WhatCodeDidIGenerate();
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Blueprint.Testing
         /// <returns>The executor's source code.</returns>
         public string WhatCodeDidIGenerateFor(Type operationType)
         {
-            return executor.WhatCodeDidIGenerateFor(operationType);
+            return this._executor.WhatCodeDidIGenerateFor(operationType);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Blueprint.Testing
         /// <returns>The executor's source code.</returns>
         public string WhatCodeDidIGenerateFor<T>()
         {
-            return executor.WhatCodeDidIGenerateFor<T>();
+            return this._executor.WhatCodeDidIGenerateFor<T>();
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Blueprint.Testing
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
         public ApiOperationContext HttpContextFor<T>(Action<HttpContext> configureContext = null, CancellationToken token = default)
         {
-            var context = DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
+            var context = this.DataModel.CreateOperationContext(this._serviceProvider, typeof(T), token);
             var httpContext = context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
 
             configureContext?.Invoke(httpContext);
@@ -159,7 +159,7 @@ namespace Blueprint.Testing
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
         public ApiOperationContext HttpContextFor<T>(T operation, Action<HttpContext> configureContext = null, CancellationToken token = default)
         {
-            var context = DataModel.CreateOperationContext(serviceProvider, operation, token);
+            var context = this.DataModel.CreateOperationContext(this._serviceProvider, operation, token);
             var httpContext = context.ConfigureHttp("https://www.my-api.com/api/" + typeof(T));
 
             configureContext?.Invoke(httpContext);
@@ -176,7 +176,7 @@ namespace Blueprint.Testing
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
         public ApiOperationContext ContextFor<T>(CancellationToken token = default)
         {
-            return DataModel.CreateOperationContext(serviceProvider, typeof(T), token);
+            return this.DataModel.CreateOperationContext(this._serviceProvider, typeof(T), token);
         }
 
         /// <summary>
@@ -188,13 +188,13 @@ namespace Blueprint.Testing
         /// <returns>A newly configured <see cref="ApiOperationContext" />.</returns>
         public ApiOperationContext ContextFor(object operation, CancellationToken token = default)
         {
-            return DataModel.CreateOperationContext(serviceProvider, operation, token);
+            return this.DataModel.CreateOperationContext(this._serviceProvider, operation, token);
         }
 
         /// <inheritdoc />
         public async Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
-            var result = await executor.ExecuteAsync(context);
+            var result = await this._executor.ExecuteAsync(context);
 
             if (result is UnhandledExceptionOperationResult e)
             {
@@ -207,7 +207,7 @@ namespace Blueprint.Testing
         /// <inheritdoc />
         public async Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
-            var result = await executor.ExecuteWithNewScopeAsync(operation, token);
+            var result = await this._executor.ExecuteWithNewScopeAsync(operation, token);
 
             if (result is UnhandledExceptionOperationResult e)
             {
@@ -219,7 +219,7 @@ namespace Blueprint.Testing
 
         public async Task<OperationResult> ExecuteWithNoUnwrapAsync(object operation, CancellationToken token = default)
         {
-            return await executor.ExecuteWithNewScopeAsync(operation, token);
+            return await this._executor.ExecuteWithNewScopeAsync(operation, token);
         }
     }
 }

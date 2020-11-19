@@ -13,7 +13,7 @@ namespace Blueprint.Validation
     {
         private const string RequiredIfFieldMessage = "The {0} field is required";
 
-        private readonly IEnumerable<string> convertedValues;
+        private readonly IEnumerable<string> _convertedValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
@@ -23,19 +23,19 @@ namespace Blueprint.Validation
         public RequiredIfAttribute(string dependentProperty, object dependentValue)
             : base(RequiredIfFieldMessage + $@" if {dependentProperty} field is {dependentValue}.")
         {
-            DependentProperty = dependentProperty;
-            DependentValue = dependentValue;
+            this.DependentProperty = dependentProperty;
+            this.DependentValue = dependentValue;
 
             if (dependentValue != null && dependentValue.GetType().IsArray)
             {
-                DependentValues = (IEnumerable<object>)dependentValue;
+                this.DependentValues = (IEnumerable<object>)dependentValue;
             }
             else
             {
-                DependentValues = new[] { dependentValue };
+                this.DependentValues = new[] { dependentValue };
             }
 
-            convertedValues = dependentValue == null ? new string[0] : DependentValues.Select(x => x.ToString());
+            this._convertedValues = dependentValue == null ? new string[0] : this.DependentValues.Select(x => x.ToString());
         }
 
         /// <summary>
@@ -65,15 +65,15 @@ namespace Blueprint.Validation
         /// </returns>
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var item = validationContext.ObjectInstance.GetType().GetProperty(DependentProperty).GetValue(validationContext.ObjectInstance, null);
+            var item = validationContext.ObjectInstance.GetType().GetProperty(this.DependentProperty).GetValue(validationContext.ObjectInstance, null);
 
             // We are required because the other item is null
-            if (DependentValue == null && item == null && value != null)
+            if (this.DependentValue == null && item == null && value != null)
             {
                 return ValidationResult.Success;
             }
 
-            if (item == null || !convertedValues.Contains(item.ToString()))
+            if (item == null || !this._convertedValues.Contains(item.ToString()))
             {
                 return ValidationResult.Success;
             }
@@ -83,7 +83,7 @@ namespace Blueprint.Validation
                 return ValidationResult.Success;
             }
 
-            return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
+            return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
         }
     }
 }

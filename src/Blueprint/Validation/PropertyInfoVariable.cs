@@ -16,7 +16,7 @@ namespace Blueprint.Validation
         /// <param name="usage">How to access the property info at runtime.</param>
         public PropertyInfoVariable(PropertyInfo property, string usage) : base(typeof(PropertyInfo), usage)
         {
-            Property = property;
+            this.Property = property;
         }
 
         /// <summary>

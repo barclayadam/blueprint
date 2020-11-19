@@ -16,7 +16,7 @@ namespace Blueprint.Tasks
         /// <param name="task">The background task being wrapped.</param>
         public BackgroundTaskEnvelope(IBackgroundTask task)
         {
-            Task = task;
+            this.Task = task;
         }
 
         /// <summary>

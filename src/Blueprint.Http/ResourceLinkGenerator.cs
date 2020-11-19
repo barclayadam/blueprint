@@ -17,7 +17,7 @@ namespace Blueprint.Http
                 return Task.CompletedTask;
             }
 
-            return AddLinksAsync(apiLinkGenerator, context, asTypedResource);
+            return this.AddLinksAsync(apiLinkGenerator, context, asTypedResource);
         }
 
         /// <inheritdoc cref="IResourceLinkGenerator.AddLinksAsync" />

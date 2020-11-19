@@ -9,7 +9,7 @@ namespace Blueprint.Tasks.Hangfire
     /// </summary>
     public class ServiceProviderJobActivator : JobActivator
     {
-        private readonly IServiceProvider rootServiceProvider;
+        private readonly IServiceProvider _rootServiceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProviderJobActivator"/>
@@ -18,45 +18,45 @@ namespace Blueprint.Tasks.Hangfire
         /// <param name="rootServiceProvider">Container that will be used to create instances of classes during the job activation process.</param>
         public ServiceProviderJobActivator(IServiceProvider rootServiceProvider)
         {
-            this.rootServiceProvider = rootServiceProvider ?? throw new ArgumentNullException(nameof(rootServiceProvider));
+            this._rootServiceProvider = rootServiceProvider ?? throw new ArgumentNullException(nameof(rootServiceProvider));
         }
 
         /// <inheritdoc />
         public override object ActivateJob(Type jobType)
         {
-            return rootServiceProvider.GetRequiredService(jobType);
+            return this._rootServiceProvider.GetRequiredService(jobType);
         }
 
         /// <inheritdoc />
         [Obsolete("Please implement/use the BeginScope(JobActivatorContext) method instead. Will be removed in 2.0.0.")]
         public override JobActivatorScope BeginScope()
         {
-            return new ServiceProviderDependencyScope(rootServiceProvider.CreateScope());
+            return new ServiceProviderDependencyScope(this._rootServiceProvider.CreateScope());
         }
 
         /// <inheritdoc />
         public override JobActivatorScope BeginScope(JobActivatorContext context)
         {
-            return new ServiceProviderDependencyScope(rootServiceProvider.CreateScope());
+            return new ServiceProviderDependencyScope(this._rootServiceProvider.CreateScope());
         }
 
         private class ServiceProviderDependencyScope : JobActivatorScope
         {
-            private readonly IServiceScope nestedContainer;
+            private readonly IServiceScope _nestedContainer;
 
             public ServiceProviderDependencyScope(IServiceScope nestedContainer)
             {
-                this.nestedContainer = nestedContainer;
+                this._nestedContainer = nestedContainer;
             }
 
             public override object Resolve(Type type)
             {
-                return nestedContainer.ServiceProvider.GetRequiredService(type);
+                return this._nestedContainer.ServiceProvider.GetRequiredService(type);
             }
 
             public override void DisposeScope()
             {
-                nestedContainer.Dispose();
+                this._nestedContainer.Dispose();
             }
         }
     }

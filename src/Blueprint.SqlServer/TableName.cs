@@ -17,8 +17,8 @@ namespace Blueprint.SqlServer
             Guard.NotNullOrEmpty(nameof(schema), schema);
             Guard.NotNullOrEmpty(nameof(tableName), tableName);
 
-            Schema = StripBrackets(schema);
-            Name = StripBrackets(tableName);
+            this.Schema = StripBrackets(schema);
+            this.Name = StripBrackets(tableName);
         }
 
         /// <summary>Gets the schema name of the table.</summary>
@@ -27,7 +27,7 @@ namespace Blueprint.SqlServer
         /// <summary>Gets the table's name.</summary>
         public string Name { get; }
 
-        internal string QualifiedTableName => "[" + Schema + "].[" + Name + "]";
+        internal string QualifiedTableName => "[" + this.Schema + "].[" + this.Name + "]";
 
         /// <summary>
         /// Checks whether the two <see cref="TableName" /> objects are equal (i.e. represent the same table).
@@ -73,7 +73,7 @@ namespace Blueprint.SqlServer
         /// <inheritdoc />
         public override string ToString()
         {
-            return QualifiedTableName;
+            return this.QualifiedTableName;
         }
 
         /// <inheritdoc />
@@ -89,7 +89,7 @@ namespace Blueprint.SqlServer
                 return true;
             }
 
-            return string.Equals(Schema, other.Schema, StringComparison.OrdinalIgnoreCase) && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(this.Schema, other.Schema, StringComparison.OrdinalIgnoreCase) && string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc />
@@ -105,13 +105,13 @@ namespace Blueprint.SqlServer
                 return true;
             }
 
-            return obj.GetType() == GetType() && Equals((TableName)obj);
+            return obj.GetType() == this.GetType() && this.Equals((TableName)obj);
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return Schema.GetHashCode() * 397 ^ Name.GetHashCode();
+            return this.Schema.GetHashCode() * 397 ^ this.Name.GetHashCode();
         }
 
         private static TableName TableNameFromParts(string name, string[] parts)

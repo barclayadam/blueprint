@@ -54,7 +54,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             public SourceFrame()
             {
-                this.Variable = new Variable(typeof(IHandler), this);
+                Variable = new Variable(typeof(IHandler), this);
             }
 
             public Variable Variable { get; }

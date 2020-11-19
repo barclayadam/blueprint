@@ -17,11 +17,11 @@ namespace Blueprint.Compiler.Frames
 
         public ConstructorFrame(Type builtType, ConstructorInfo ctor)
         {
-            Ctor = ctor ?? throw new ArgumentNullException(nameof(ctor));
-            Parameters = new Variable[ctor.GetParameters().Length];
+            this.Ctor = ctor ?? throw new ArgumentNullException(nameof(ctor));
+            this.Parameters = new Variable[ctor.GetParameters().Length];
 
-            BuiltType = builtType;
-            Variable = new Variable(BuiltType, this);
+            this.BuiltType = builtType;
+            this.Variable = new Variable(this.BuiltType, this);
         }
 
         public Type BuiltType { get;  }
@@ -46,51 +46,51 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            var parameters = Ctor.GetParameters();
+            var parameters = this.Ctor.GetParameters();
             for (var i = 0; i < parameters.Length; i++)
             {
-                if (Parameters[i] == null)
+                if (this.Parameters[i] == null)
                 {
                     var parameter = parameters[i];
-                    Parameters[i] = variables.FindVariable(parameter.ParameterType);
+                    this.Parameters[i] = variables.FindVariable(parameter.ParameterType);
                 }
             }
 
-            foreach (var setter in Setters)
+            foreach (var setter in this.Setters)
             {
                 setter.FindVariable(variables);
             }
 
-            switch (Mode)
+            switch (this.Mode)
             {
                 case ConstructorCallMode.Variable:
-                    writer.WriteLine(Declaration() + ";");
-                    ActivatorFrames.Write(variables, method, writer);
+                    writer.WriteLine(this.Declaration() + ";");
+                    this.ActivatorFrames.Write(variables, method, writer);
 
                     next();
                     break;
 
                 case ConstructorCallMode.ReturnValue:
-                    if (ActivatorFrames.Any())
+                    if (this.ActivatorFrames.Any())
                     {
-                        writer.WriteLine(Declaration() + ";");
-                        ActivatorFrames.Write(variables, method, writer);
+                        writer.WriteLine(this.Declaration() + ";");
+                        this.ActivatorFrames.Write(variables, method, writer);
 
-                        writer.WriteLine($"return {Variable};");
+                        writer.WriteLine($"return {this.Variable};");
                         next();
                     }
                     else
                     {
-                        writer.WriteLine($"return {Invocation()};");
+                        writer.WriteLine($"return {this.Invocation()};");
                         next();
                     }
 
                     break;
 
                 case ConstructorCallMode.UsingNestedVariable:
-                    writer.Using(Declaration(), w =>
+                    writer.Using(this.Declaration(), w =>
                     {
-                        ActivatorFrames.Write(variables, method, writer);
+                        this.ActivatorFrames.Write(variables, method, writer);
 
                         next();
                     });
@@ -100,18 +100,18 @@ namespace Blueprint.Compiler.Frames
 
         public string Declaration()
         {
-            return DeclaredType == null
-                ? $"var {Variable} = {Invocation()}"
-                : $"{DeclaredType.FullNameInCode()} {Variable} = {Invocation()}";
+            return this.DeclaredType == null
+                ? $"var {this.Variable} = {this.Invocation()}"
+                : $"{this.DeclaredType.FullNameInCode()} {this.Variable} = {this.Invocation()}";
         }
 
         public string Invocation()
         {
-            IEnumerable<string> tempQualifier = Parameters.Select(x => x.Usage);
-            var invocation = $"new {BuiltType.FullNameInCode()}({string.Join(", ", tempQualifier)})";
-            if (Setters.Any())
+            var tempQualifier = this.Parameters.Select(x => x.Usage);
+            var invocation = $"new {this.BuiltType.FullNameInCode()}({string.Join(", ", tempQualifier)})";
+            if (this.Setters.Any())
             {
-                IEnumerable<string> tempQualifier1 = Setters.Select(x => x.Assignment());
+                var tempQualifier1 = this.Setters.Select(x => x.Assignment());
                 invocation += $"{{{string.Join(", ", tempQualifier1)}}}";
             }
 
@@ -121,9 +121,9 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return DeclaredType == null
-                ? $"var {Variable} = new {BuiltType.Name}(...);"
-                : $"{DeclaredType.FullNameInCode()} {Variable} = new {BuiltType.Name}(...);";
+            return this.DeclaredType == null
+                ? $"var {this.Variable} = new {this.BuiltType.Name}(...);"
+                : $"{this.DeclaredType.FullNameInCode()} {this.Variable} = new {this.BuiltType.Name}(...);";
         }
     }
 
@@ -142,7 +142,7 @@ namespace Blueprint.Compiler.Frames
             var property = ReflectionHelper.GetProperty(expression);
             var setter = new SetterArg(property, variable);
 
-            Setters.Add(setter);
+            this.Setters.Add(setter);
         }
     }
 }

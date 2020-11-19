@@ -10,7 +10,7 @@ namespace Blueprint.Http
     /// </summary>
     public class ValidationFailedOperationResultExecutor : IOperationResultExecutor<ValidationFailedOperationResult>
     {
-        private readonly OkResultOperationExecutor okResultOperationExecutor;
+        private readonly OkResultOperationExecutor _okResultOperationExecutor;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="UnhandledExceptionOperationResultExecutor" /> class.
@@ -18,7 +18,7 @@ namespace Blueprint.Http
         /// <param name="okResultOperationExecutor">The <see cref="OkResultOperationExecutor"/> writing is delegated to.</param>
         public ValidationFailedOperationResultExecutor(OkResultOperationExecutor okResultOperationExecutor)
         {
-            this.okResultOperationExecutor = okResultOperationExecutor;
+            this._okResultOperationExecutor = okResultOperationExecutor;
         }
 
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace Blueprint.Http
         {
             var validationProblemDetails = new ValidationProblemDetails(result.Errors);
 
-            return okResultOperationExecutor.WriteContentAsync(
+            return this._okResultOperationExecutor.WriteContentAsync(
                 context.GetHttpContext(),
                 validationProblemDetails.Status.Value,
                 validationProblemDetails);

@@ -34,10 +34,10 @@ namespace Blueprint.Tasks
             Guard.NotNull(nameof(backgroundTask), backgroundTask);
             Guard.NotNullOrEmpty(nameof(cronExpression), cronExpression);
 
-            Name = name;
-            BackgroundTask = backgroundTask;
-            CronExpression = cronExpression;
-            TimeZone = timeZoneInfo ?? TimeZoneInfo.Utc;
+            this.Name = name;
+            this.BackgroundTask = backgroundTask;
+            this.CronExpression = cronExpression;
+            this.TimeZone = timeZoneInfo ?? TimeZoneInfo.Utc;
         }
 
         /// <summary>

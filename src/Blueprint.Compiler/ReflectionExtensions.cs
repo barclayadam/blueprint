@@ -9,7 +9,7 @@ namespace Blueprint.Compiler
 {
     public static class ReflectionExtensions
     {
-        private static readonly Dictionary<Type, string> Aliases = new Dictionary<Type, string>
+        private static readonly Dictionary<Type, string> _aliases = new Dictionary<Type, string>
         {
             {typeof(int), "int"},
             {typeof(void), "void"},
@@ -50,9 +50,9 @@ namespace Blueprint.Compiler
         /// <returns></returns>
         public static string FullNameInCode(this Type type)
         {
-            if (Aliases.ContainsKey(type))
+            if (_aliases.ContainsKey(type))
             {
-                return Aliases[type];
+                return _aliases[type];
             }
 
             if (type.IsGenericType && !type.IsGenericTypeDefinition)
@@ -69,7 +69,7 @@ namespace Blueprint.Compiler
                     cleanName = $"{type.ReflectedType.NameInCode()}.{cleanName}";
                 }
 
-                IEnumerable<string> tempQualifier = type.GetGenericArguments().Select(x => x.FullNameInCode());
+                var tempQualifier = type.GetGenericArguments().Select(x => x.FullNameInCode());
                 var args = string.Join(", ", tempQualifier);
 
                 return $"{type.Namespace}.{cleanName}<{args}>";
@@ -90,9 +90,9 @@ namespace Blueprint.Compiler
         /// <returns></returns>
         public static string NameInCode(this Type type)
         {
-            if (Aliases.ContainsKey(type))
+            if (_aliases.ContainsKey(type))
             {
-                return Aliases[type];
+                return _aliases[type];
             }
 
             if (type.IsGenericType && !type.IsGenericTypeDefinition)

@@ -13,18 +13,18 @@ namespace Blueprint.Tasks
     /// </summary>
     internal class RecurringJobManagerRegistrationHostedService : IHostedService
     {
-        private readonly IHostApplicationLifetime appLifetime;
-        private readonly IServiceProvider serviceProvider;
+        private readonly IHostApplicationLifetime _appLifetime;
+        private readonly IServiceProvider _serviceProvider;
 
         public RecurringJobManagerRegistrationHostedService(IHostApplicationLifetime appLifetime, IServiceProvider serviceProvider)
         {
-            this.appLifetime = appLifetime;
-            this.serviceProvider = serviceProvider;
+            this._appLifetime = appLifetime;
+            this._serviceProvider = serviceProvider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            appLifetime.ApplicationStarted.Register(OnStarted);
+            this._appLifetime.ApplicationStarted.Register(this.OnStarted);
 
             return Task.CompletedTask;
         }
@@ -36,7 +36,7 @@ namespace Blueprint.Tasks
 
         private async void OnStarted()
         {
-            using var scope = serviceProvider.CreateScope();
+            using var scope = this._serviceProvider.CreateScope();
             var provider = scope.ServiceProvider.GetRequiredService<IRecurringTaskProvider>();
 
             await provider.SetupRecurringManagerAsync();

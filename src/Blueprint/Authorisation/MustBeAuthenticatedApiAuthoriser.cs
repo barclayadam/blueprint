@@ -5,8 +5,8 @@ namespace Blueprint.Authorisation
 {
     public class MustBeAuthenticatedApiAuthoriser : IApiAuthoriser
     {
-        private static readonly Task<ExecutionAllowed> UserUnauthenticated = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
-        private static readonly Task<ExecutionAllowed> UserInactive = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
+        private static readonly Task<ExecutionAllowed> _userUnauthenticated = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
+        private static readonly Task<ExecutionAllowed> _userInactive = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
 
         public bool AppliesTo(ApiOperationDescriptor descriptor)
         {
@@ -27,12 +27,12 @@ namespace Blueprint.Authorisation
         {
             if (operationContext.UserAuthorisationContext == null)
             {
-                return UserUnauthenticated;
+                return _userUnauthenticated;
             }
 
             if (!operationContext.UserAuthorisationContext.IsActive)
             {
-                return UserInactive;
+                return _userInactive;
             }
 
             return ExecutionAllowed.YesTask;

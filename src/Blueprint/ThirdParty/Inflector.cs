@@ -9,8 +9,8 @@ namespace Blueprint.ThirdParty
     [GeneratedCode("Inflector", "18/05/2011")]
     public static class Inflector
     {
-        private static readonly List<Rule> Plurals = new List<Rule>();
-        private static readonly List<string> Uncountables = new List<string>();
+        private static readonly List<Rule> _plurals = new List<Rule>();
+        private static readonly List<string> _uncountables = new List<string>();
 
         static Inflector()
         {
@@ -64,7 +64,7 @@ namespace Blueprint.ThirdParty
 
         public static string Pluralize(this string word)
         {
-            return ApplyRules(Plurals, word);
+            return ApplyRules(_plurals, word);
         }
 
         public static string Uncapitalize(this string word)
@@ -79,19 +79,19 @@ namespace Blueprint.ThirdParty
 
         private static void AddPlural(string rule, string replacement)
         {
-            Plurals.Add(new Rule(rule, replacement));
+            _plurals.Add(new Rule(rule, replacement));
         }
 
         private static void AddUncountable(string word)
         {
-            Uncountables.Add(word.ToLower());
+            _uncountables.Add(word.ToLower());
         }
 
         private static string ApplyRules(List<Rule> rules, string word)
         {
             var result = word;
 
-            if (!Uncountables.Contains(word.ToLower()))
+            if (!_uncountables.Contains(word.ToLower()))
             {
                 for (var i = rules.Count - 1; i >= 0; i--)
                 {
@@ -107,24 +107,24 @@ namespace Blueprint.ThirdParty
 
         private class Rule
         {
-            private readonly Regex regex;
+            private readonly Regex _regex;
 
-            private readonly string replacement;
+            private readonly string _replacement;
 
             public Rule(string pattern, string replacement)
             {
-                regex = new Regex(pattern, RegexOptions.IgnoreCase);
-                this.replacement = replacement;
+                this._regex = new Regex(pattern, RegexOptions.IgnoreCase);
+                this._replacement = replacement;
             }
 
             public string Apply(string word)
             {
-                if (!regex.IsMatch(word))
+                if (!this._regex.IsMatch(word))
                 {
                     return null;
                 }
 
-                return regex.Replace(word, replacement);
+                return this._regex.Replace(word, this._replacement);
             }
         }
     }

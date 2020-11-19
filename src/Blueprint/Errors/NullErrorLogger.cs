@@ -10,7 +10,7 @@ namespace Blueprint.Errors
     /// </summary>
     public class NullErrorLogger : IErrorLogger
     {
-        private static readonly ValueTask<ErrorLogStatus> RecordedStatus = new ValueTask<ErrorLogStatus>(ErrorLogStatus.Recorded);
+        private static readonly ValueTask<ErrorLogStatus> _recordedStatus = new ValueTask<ErrorLogStatus>(ErrorLogStatus.Recorded);
 
         /// <inheritdoc />
         /// <remarks>
@@ -18,7 +18,7 @@ namespace Blueprint.Errors
         /// </remarks>
         public ValueTask<ErrorLogStatus> LogAsync(Exception exception, object errorData = default, UserExceptionIdentifier identifier = default)
         {
-            return RecordedStatus;
+            return _recordedStatus;
         }
 
         /// <inheritdoc />
@@ -27,7 +27,7 @@ namespace Blueprint.Errors
         /// </remarks>
         public ValueTask<ErrorLogStatus> LogAsync(string exceptionMessage, object errorData = default, UserExceptionIdentifier identifier = default)
         {
-            return RecordedStatus;
+            return _recordedStatus;
         }
 
         /// <inheritdoc />

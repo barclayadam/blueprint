@@ -21,10 +21,10 @@ namespace Blueprint.OpenApi
 {
     internal class OpenApiDocumentBuilder
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly ApiDataModel apiDataModel;
-        private readonly IEnumerable<IMessagePopulationSource> messagePopulationSources;
-        private readonly IOptions<OpenApiOptions> options;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ApiDataModel _apiDataModel;
+        private readonly IEnumerable<IMessagePopulationSource> _messagePopulationSources;
+        private readonly IOptions<OpenApiOptions> _options;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OpenApiDocumentBuilder" />.
@@ -39,15 +39,15 @@ namespace Blueprint.OpenApi
             IEnumerable<IMessagePopulationSource> messagePopulationSources,
             IOptions<OpenApiOptions> options)
         {
-            this.serviceProvider = serviceProvider;
-            this.apiDataModel = apiDataModel;
-            this.messagePopulationSources = messagePopulationSources;
-            this.options = options;
+            this._serviceProvider = serviceProvider;
+            this._apiDataModel = apiDataModel;
+            this._messagePopulationSources = messagePopulationSources;
+            this._options = options;
         }
 
         public OpenApiDocument Build()
         {
-            var openApiOptions = options.Value;
+            var openApiOptions = this._options.Value;
 
             var document = new OpenApiDocument();
 
@@ -55,7 +55,7 @@ namespace Blueprint.OpenApi
             {
                 SerializerSettings = new JsonSerializerSettings
                 {
-                    ContractResolver = new BlueprintContractResolver(apiDataModel, messagePopulationSources),
+                    ContractResolver = new BlueprintContractResolver(this._apiDataModel, this._messagePopulationSources),
 
                     Converters =
                     {
@@ -73,18 +73,18 @@ namespace Blueprint.OpenApi
             foreach (var processor in openApiOptions.SchemaProcessors)
             {
                 jsonSchemaGeneratorSettings.SchemaProcessors.Add(
-                    (ISchemaProcessor)ActivatorUtilities.CreateInstance(serviceProvider, processor, apiDataModel));
+                    (ISchemaProcessor)ActivatorUtilities.CreateInstance(this._serviceProvider, processor, this._apiDataModel));
             }
 
             openApiOptions.ConfigureSettings?.Invoke(jsonSchemaGeneratorSettings);
 
             var generator = openApiOptions.CreateGenerator == null ?
                 new BlueprintJsonSchemaGenerator(jsonSchemaGeneratorSettings) :
-                openApiOptions.CreateGenerator(serviceProvider, apiDataModel, jsonSchemaGeneratorSettings);
+                openApiOptions.CreateGenerator(this._serviceProvider, this._apiDataModel, jsonSchemaGeneratorSettings);
 
             var openApiDocumentSchemaResolver = new OpenApiDocumentSchemaResolver(document, jsonSchemaGeneratorSettings);
 
-            foreach (var operation in apiDataModel.Operations)
+            foreach (var operation in this._apiDataModel.Operations)
             {
                 if (!operation.IsExposed)
                 {
@@ -119,8 +119,8 @@ namespace Blueprint.OpenApi
 
                     var httpMethod = operation.GetFeatureData<HttpOperationFeatureData>().HttpMethod;
 
-                    var allOwned = messagePopulationSources
-                        .SelectMany(s => s.GetOwnedProperties(apiDataModel, operation))
+                    var allOwned = this._messagePopulationSources
+                        .SelectMany(s => s.GetOwnedProperties(this._apiDataModel, operation))
                         .ToList();
 
                     // First, add the explicit "owned" properties, those that we know come from a particular
@@ -420,24 +420,24 @@ namespace Blueprint.OpenApi
 
         private class BlueprintContractResolver : CamelCasePropertyNamesContractResolver
         {
-            private readonly ApiDataModel apiDataModel;
-            private readonly IEnumerable<IMessagePopulationSource> messagePopulationSources;
+            private readonly ApiDataModel _apiDataModel;
+            private readonly IEnumerable<IMessagePopulationSource> _messagePopulationSources;
 
             public BlueprintContractResolver(ApiDataModel apiDataModel, IEnumerable<IMessagePopulationSource> messagePopulationSources)
             {
-                this.apiDataModel = apiDataModel;
-                this.messagePopulationSources = messagePopulationSources;
+                this._apiDataModel = apiDataModel;
+                this._messagePopulationSources = messagePopulationSources;
             }
 
             protected override List<MemberInfo> GetSerializableMembers(Type objectType)
             {
-                if (apiDataModel.TryFindOperation(objectType, out var descriptor) == false)
+                if (this._apiDataModel.TryFindOperation(objectType, out var descriptor) == false)
                 {
                     return base.GetSerializableMembers(objectType);
                 }
 
-                var allOwned = messagePopulationSources
-                    .SelectMany(s => s.GetOwnedProperties(apiDataModel, descriptor))
+                var allOwned = this._messagePopulationSources
+                    .SelectMany(s => s.GetOwnedProperties(this._apiDataModel, descriptor))
                     .ToList();
 
                 return base.GetSerializableMembers(objectType)
@@ -510,7 +510,7 @@ namespace Blueprint.OpenApi
 
         private class OpenApiDocumentSchemaResolver : JsonSchemaResolver
         {
-            private readonly ITypeNameGenerator typeNameGenerator;
+            private readonly ITypeNameGenerator _typeNameGenerator;
 
             /// <summary>Initializes a new instance of the <see cref="OpenApiDocumentSchemaResolver" /> class.</summary>
             /// <param name="document">The Open API document.</param>
@@ -523,22 +523,22 @@ namespace Blueprint.OpenApi
                     throw new ArgumentNullException(nameof(document));
                 }
 
-                typeNameGenerator = settings.TypeNameGenerator;
+                this._typeNameGenerator = settings.TypeNameGenerator;
             }
 
-            private OpenApiDocument Document => (OpenApiDocument)RootObject;
+            private OpenApiDocument Document => (OpenApiDocument)this.RootObject;
 
             /// <inheritdoc/>
             public override void AppendSchema(JsonSchema schema, string typeNameHint)
             {
-                var schemas = Document.Components.Schemas;
+                var schemas = this.Document.Components.Schemas;
 
                 if (schemas.Values.Contains(schema))
                 {
                     return;
                 }
 
-                schemas[typeNameGenerator.Generate(schema, typeNameHint, schemas.Keys)] = schema;
+                schemas[this._typeNameGenerator.Generate(schema, typeNameHint, schemas.Keys)] = schema;
             }
         }
     }

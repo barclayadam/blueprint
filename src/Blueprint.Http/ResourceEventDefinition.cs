@@ -50,9 +50,9 @@ namespace Blueprint.Http
     /// <typeparam name="TResource">The type of resource that has been modified.</typeparam>
     public sealed class ResourceEventDefinition<TResource>
     {
-        private readonly ResourceEventChangeType changeType;
-        private readonly string eventId;
-        private readonly Func<IQuery<TResource>> mapper;
+        private readonly ResourceEventChangeType _changeType;
+        private readonly string _eventId;
+        private readonly Func<IQuery<TResource>> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinition{TResource}" /> class.
@@ -62,9 +62,9 @@ namespace Blueprint.Http
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
         public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId, Func<IQuery<TResource>> mapper)
         {
-            this.changeType = changeType;
-            this.eventId = eventId;
-            this.mapper = mapper;
+            this._changeType = changeType;
+            this._eventId = eventId;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Blueprint.Http
         /// <returns>A new resource event.</returns>
         public ResourceEvent<TResource> New([CanBeNull] IDictionary<string, object> metadata = null)
         {
-            var resourceEvent = new ResourceEvent<TResource>(changeType, eventId, mapper());
+            var resourceEvent = new ResourceEvent<TResource>(this._changeType, this._eventId, this._mapper());
 
             if (metadata != null)
             {
@@ -95,8 +95,8 @@ namespace Blueprint.Http
         /// <returns>Whether the event matches.</returns>
         public bool Matches(ResourceEvent @event)
         {
-            return @event.ChangeType == changeType &&
-                   @event.EventId == eventId &&
+            return @event.ChangeType == this._changeType &&
+                   @event.EventId == this._eventId &&
                    @event.ResourceObject == ApiResource.GetTypeName(typeof(TResource));
         }
     }
@@ -115,9 +115,9 @@ namespace Blueprint.Http
     /// this definition.</typeparam>
     public sealed class ResourceEventDefinition<TResource, TDomain>
     {
-        private readonly ResourceEventChangeType changeType;
-        private readonly string eventId;
-        private readonly Func<TDomain, IQuery<TResource>> mapper;
+        private readonly ResourceEventChangeType _changeType;
+        private readonly string _eventId;
+        private readonly Func<TDomain, IQuery<TResource>> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinition{TResource, TDomain}" /> class.
@@ -127,9 +127,9 @@ namespace Blueprint.Http
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
         public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId, Func<TDomain, IQuery<TResource>> mapper)
         {
-            this.changeType = changeType;
-            this.eventId = eventId;
-            this.mapper = mapper;
+            this._changeType = changeType;
+            this._eventId = eventId;
+            this._mapper = mapper;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Blueprint.Http
         /// <returns>A new resource event.</returns>
         public ResourceEvent<TResource> New(TDomain domainObject, [CanBeNull] IDictionary<string, object> metadata = null)
         {
-            var resourceEvent = new ResourceEvent<TResource>(changeType, eventId, mapper(domainObject));
+            var resourceEvent = new ResourceEvent<TResource>(this._changeType, this._eventId, this._mapper(domainObject));
 
             if (metadata != null)
             {
@@ -162,8 +162,8 @@ namespace Blueprint.Http
         /// <returns>Whether the event matches.</returns>
         public bool Matches(ResourceEvent @event)
         {
-            return @event.ChangeType == changeType &&
-                   @event.EventId == eventId &&
+            return @event.ChangeType == this._changeType &&
+                   @event.EventId == this._eventId &&
                    @event.ResourceObject == ApiResource.GetTypeName(typeof(TResource));
         }
     }

@@ -36,7 +36,7 @@ namespace Blueprint.Utilities
         /// As with validating email addresses a postcode that matches this regular expression does not guarantee the
         /// postcode is valid, only other checks could verify this.
         /// </remarks>
-        public const string UKPostcodePattern =
+        public const string UkPostcodePattern =
                 @"([Gg][Ii][Rr] ?0[aA]{2})|((([a-zA-Z][0-9]{1,2})|(([a-zA-Z][A-HJ-Ya-hj-y][0-9]{1,2})|(([a-zA-Z][0-9][a-zA-Z])|([a-zA-Z][A-HJ-Ya-hj-y][0-9]?[a-zA-Z])))) ?[0-9][a-zA-Z]{2})";
 
         /// <summary>
@@ -87,15 +87,15 @@ namespace Blueprint.Utilities
         /// A regular expression that can be used to find UK postcodes within a string, using word
         /// boundaries to separate an email address from the surrounding text.
         /// </summary>
-        public static readonly Regex UKPostcode = new Regex(
-                $@"\b{UKPostcodePattern}\b", RegexOptions.Compiled);
+        public static readonly Regex UkPostcode = new Regex(
+                $@"\b{UkPostcodePattern}\b", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression to determine whether or not a string matches a UK postcode and nothing else,
         /// cannot be used to find emails within other text.
         /// </summary>
-        public static readonly Regex UKPostcodeOnly = new Regex(
-                $@"^\s*{UKPostcodePattern}\s*$", RegexOptions.Compiled);
+        public static readonly Regex UkPostcodeOnly = new Regex(
+                $@"^\s*{UkPostcodePattern}\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// A regular expression that can be used to find URLs within a string, using word

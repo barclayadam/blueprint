@@ -21,9 +21,9 @@ namespace Blueprint.Notifications
     /// </remarks>
     public class NotificationService : INotificationService
     {
-        private readonly INotificationRepository notificationRepository;
-        private readonly IEnumerable<INotificationHandler> handlers;
-        private readonly ILogger<LoggingOnlyEmailSender> logger;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IEnumerable<INotificationHandler> _handlers;
+        private readonly ILogger<LoggingOnlyEmailSender> _logger;
 
         /// <summary>
         /// Initializes a new instance of the NotificationService class.
@@ -37,9 +37,9 @@ namespace Blueprint.Notifications
             Guard.NotNull(nameof(handlers), handlers);
             Guard.NotNull(nameof(logger), logger);
 
-            this.notificationRepository = notificationRepository;
-            this.handlers = handlers;
-            this.logger = logger;
+            this._notificationRepository = notificationRepository;
+            this._handlers = handlers;
+            this._logger = logger;
         }
 
         /// <summary>
@@ -49,21 +49,20 @@ namespace Blueprint.Notifications
         /// <param name="options">The options used to send this notification.</param>
         public void SendNotification(string templatePath, NotificationOptions options)
         {
-            var templates = notificationRepository.GetTemplates(templatePath);
+            var templates = this._notificationRepository.GetTemplates(templatePath);
 
             if (templates == null)
             {
-                object[] args = new[] {templatePath};
-                throw new NotificationNotFoundException(string.Format("Notification '{0}' could not be not found.", args));
+                throw new NotificationNotFoundException($"Notification '{templatePath}' could not be not found.");
             }
 
-            logger.LogInformation("Processing notification template_path={0}", templatePath);
+            this._logger.LogInformation("Processing notification template_path={0}", templatePath);
 
             foreach (var template in templates)
             {
-                foreach (var handler in handlers)
+                foreach (var handler in this._handlers)
                 {
-                    ProcessUsingHandler(template, options, handler);
+                    this.ProcessUsingHandler(template, options, handler);
                 }
             }
         }
@@ -72,7 +71,7 @@ namespace Blueprint.Notifications
         {
             var handlerName = handler.GetType().Name;
 
-            logger.LogDebug("Processing notification. handler={0}", handlerName);
+            this._logger.LogDebug("Processing notification. handler={0}", handlerName);
 
             handler.Handle(notificationTemplate, options);
         }

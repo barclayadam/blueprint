@@ -34,10 +34,10 @@ namespace Blueprint.Validation
             {
                 var contextVariable = variables.FindVariable(typeof(ApiOperationContext));
 
-                LoopAttributes(
+                this.LoopAttributes(
                     variables,
                     writer,
-                    $"{nameof(BlueprintValidationAttribute.GetValidationResultAsync)}({Property.PropertyValueVariable}, \"{Property.PropertyInfoVariable.Property.Name}\", {contextVariable})");
+                    $"{nameof(BlueprintValidationAttribute.GetValidationResultAsync)}({this.Property.PropertyValueVariable}, \"{this.Property.PropertyInfoVariable.Property.Name}\", {contextVariable})");
 
                 next();
             }

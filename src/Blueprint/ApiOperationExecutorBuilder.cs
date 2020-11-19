@@ -17,16 +17,16 @@ namespace Blueprint
 {
     public class ApiOperationExecutorBuilder
     {
-        private readonly ILogger<ApiOperationExecutorBuilder> logger;
+        private readonly ILogger<ApiOperationExecutorBuilder> _logger;
 
-        private readonly HashSet<Assembly> references = new HashSet<Assembly>();
-        private readonly List<IMiddlewareBuilder> builders = new List<IMiddlewareBuilder>();
+        private readonly HashSet<Assembly> _references = new HashSet<Assembly>();
+        private readonly List<IMiddlewareBuilder> _builders = new List<IMiddlewareBuilder>();
 
         public ApiOperationExecutorBuilder(ILogger<ApiOperationExecutorBuilder> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
 
-            references.Add(typeof(ApiOperationExecutorBuilder).Assembly);
+            this._references.Add(typeof(ApiOperationExecutorBuilder).Assembly);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Blueprint
                     // process OR it has previously been compiled and loaded as part of normal assembly loading (pre-compiled
                     // as part of dotnet publish)
 
-                    logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.GenerationRules.AssemblyName);
+                    this._logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.GenerationRules.AssemblyName);
 
                     return CreateFromAssembly(options, serviceProvider, model, assembly);
                 }
@@ -76,7 +76,7 @@ namespace Blueprint
 
             if (File.Exists(assemblyPath))
             {
-                logger.LogInformation(
+                this._logger.LogInformation(
                     "Assembly {AssemblyName} found at {AssemblyLocation}. Loading and using to create executor.",
                     options.GenerationRules.AssemblyName,
                     assemblyPath);
@@ -89,13 +89,13 @@ namespace Blueprint
             // 2. We DO NOT have any existing DLLs. In that case we are going to generate the source code using our configured
             // middlewares and then hand off to AssemblyGenerator to compile and load the assembly (which may be in-memory, stored
             // to a temp folder or stored to the project output folder)
-            logger.LogInformation("Building Blueprint API operation executor for {0} operations", options.Model.Operations.Count());
+            this._logger.LogInformation("Building Blueprint API operation executor for {0} operations", options.Model.Operations.Count());
 
             using (var serviceScope = serviceProvider.CreateScope())
             {
                 foreach (var middleware in options.MiddlewareBuilders)
                 {
-                    Use(middleware);
+                    this.Use(middleware);
                 }
 
                 var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
@@ -105,19 +105,19 @@ namespace Blueprint
 
                 foreach (var operation in model.Operations)
                 {
-                    references.Add(operation.OperationType.Assembly);
+                    this._references.Add(operation.OperationType.Assembly);
                 }
 
-                foreach (var a in references)
+                foreach (var a in this._references)
                 {
-                    logger.LogDebug("Referencing assembly {0}", a.FullName);
+                    this._logger.LogDebug("Referencing assembly {0}", a.FullName);
 
                     assembly.ReferenceAssembly(a);
                 }
 
                 foreach (var operation in model.Operations)
                 {
-                    logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
+                    this._logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
 
                     var typeName = NormaliseTypeName(operation);
 
@@ -132,17 +132,17 @@ namespace Blueprint
                     var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
                     var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
 
-                    Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
-                    Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
+                    this.Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
+                    this.Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
 
                     typeToCreationMappings.Add(
                         operation.OperationType,
                         () => pipelineExecutorType.CompiledType);
                 }
 
-                logger.LogInformation("Compiling {0} pipeline executors", typeToCreationMappings.Count);
+                this._logger.LogInformation("Compiling {0} pipeline executors", typeToCreationMappings.Count);
                 assembly.CompileAll(serviceProvider.GetRequiredService<IAssemblyGenerator>());
-                logger.LogInformation("Done compiling {0} pipeline executors", typeToCreationMappings.Count);
+                this._logger.LogInformation("Done compiling {0} pipeline executors", typeToCreationMappings.Count);
 
                 return new CodeGennedExecutor(
                     serviceProvider,
@@ -251,7 +251,7 @@ namespace Blueprint
             executeMethod.Frames.Add(new ErrorHandlerFrame(context));
             executeMethod.Frames.Add(new BlankLineFrame());
 
-            foreach (var behaviour in builders)
+            foreach (var behaviour in this._builders)
             {
                 if (isNested && !behaviour.SupportsNestedExecution)
                 {
@@ -288,8 +288,8 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(middlewareBuilder), middlewareBuilder);
 
-            builders.Add(middlewareBuilder);
-            references.Add(middlewareBuilder.GetType().Assembly);
+            this._builders.Add(middlewareBuilder);
+            this._references.Add(middlewareBuilder.GetType().Assembly);
         }
 
         /// <summary>
@@ -299,22 +299,22 @@ namespace Blueprint
         /// </summary>
         private class ConcreteOperationCastFrame : SyncFrame
         {
-            private readonly Argument operationContextVariable;
-            private readonly Variable operationVariable;
+            private readonly Argument _operationContextVariable;
+            private readonly Variable _operationVariable;
 
             public ConcreteOperationCastFrame(Argument operationContextVariable, Type operationType)
             {
-                this.operationContextVariable = operationContextVariable;
+                this._operationContextVariable = operationContextVariable;
 
-                operationVariable = new Variable(operationType, this);
+                this._operationVariable = new Variable(operationType, this);
             }
 
-            public Variable CastOperationVariable => operationVariable;
+            public Variable CastOperationVariable => this._operationVariable;
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 writer.WriteLine(
-                    $"var {operationVariable} = ({operationVariable.VariableType.FullNameInCode()}) {operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
+                    $"var {this._operationVariable} = ({this._operationVariable.VariableType.FullNameInCode()}) {this._operationContextVariable.GetProperty(nameof(ApiOperationContext.Operation))};");
 
                 next();
             }

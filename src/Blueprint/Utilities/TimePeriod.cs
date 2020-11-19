@@ -16,8 +16,8 @@ namespace Blueprint.Utilities
         /// <param name="endDate">The end date.</param>
         public TimePeriod(DateTime startDate, DateTime endDate)
         {
-            StartDate = startDate;
-            EndDate = endDate;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Blueprint.Utilities
         {
             Guard.NotNull(nameof(timePeriods), timePeriods);
 
-            return timePeriods.Where(Overlaps);
+            return timePeriods.Where(this.Overlaps);
         }
 
         /// <summary>
@@ -51,11 +51,11 @@ namespace Blueprint.Utilities
         {
             Guard.NotNull(nameof(timePeriod), timePeriod);
 
-            return (EndDate > timePeriod.StartDate && EndDate < timePeriod.EndDate)
-                   || (StartDate > timePeriod.StartDate && StartDate < timePeriod.EndDate)
-                   || (StartDate < timePeriod.StartDate && EndDate > timePeriod.EndDate)
-                   || (EndDate == timePeriod.EndDate)
-                   || (StartDate == timePeriod.StartDate);
+            return (this.EndDate > timePeriod.StartDate && this.EndDate < timePeriod.EndDate)
+                   || (this.StartDate > timePeriod.StartDate && this.StartDate < timePeriod.EndDate)
+                   || (this.StartDate < timePeriod.StartDate && this.EndDate > timePeriod.EndDate)
+                   || (this.EndDate == timePeriod.EndDate)
+                   || (this.StartDate == timePeriod.StartDate);
         }
     }
 }

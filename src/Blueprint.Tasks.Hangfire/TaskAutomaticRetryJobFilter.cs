@@ -17,7 +17,7 @@ namespace Blueprint.Tasks.Hangfire
     /// </remarks>
     public class TaskAutomaticRetryJobFilter : JobFilterAttribute, IElectStateFilter, IApplyStateFilter
     {
-        private readonly AutomaticRetryAttribute defaultAutomaticRetryAttribute;
+        private readonly AutomaticRetryAttribute _defaultAutomaticRetryAttribute;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="TaskAutomaticRetryJobFilter" /> class.
@@ -26,25 +26,25 @@ namespace Blueprint.Tasks.Hangfire
         /// will be applied.</param>
         public TaskAutomaticRetryJobFilter(AutomaticRetryAttribute defaultAutomaticRetryAttribute)
         {
-            this.defaultAutomaticRetryAttribute = defaultAutomaticRetryAttribute;
+            this._defaultAutomaticRetryAttribute = defaultAutomaticRetryAttribute;
         }
 
         /// <inheritdoc />
         public void OnStateElection(ElectStateContext context)
         {
-            WithRetryAttribute(context.BackgroundJob, a => a.OnStateElection(context));
+            this.WithRetryAttribute(context.BackgroundJob, a => a.OnStateElection(context));
         }
 
         /// <inheritdoc />
         public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
-            WithRetryAttribute(context.BackgroundJob, a => a.OnStateApplied(context, transaction));
+            this.WithRetryAttribute(context.BackgroundJob, a => a.OnStateApplied(context, transaction));
         }
 
         /// <inheritdoc />
         public void OnStateUnapplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
-            WithRetryAttribute(context.BackgroundJob, a => a.OnStateUnapplied(context, transaction));
+            this.WithRetryAttribute(context.BackgroundJob, a => a.OnStateUnapplied(context, transaction));
         }
 
         private static Type GetTaskType(BackgroundJob backgroundJob)
@@ -81,9 +81,9 @@ namespace Blueprint.Tasks.Hangfire
 
             // Either this is not a task being executed, or the task itself has not had an
             // attribute applied. In this case let's apply the global default.
-            if (defaultAutomaticRetryAttribute != null)
+            if (this._defaultAutomaticRetryAttribute != null)
             {
-                onAttribute(defaultAutomaticRetryAttribute);
+                onAttribute(this._defaultAutomaticRetryAttribute);
             }
         }
     }

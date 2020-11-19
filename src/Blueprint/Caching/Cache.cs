@@ -19,9 +19,9 @@ namespace Blueprint.Caching
         /// </summary>
         public static readonly ICache NoCache = new NoCache();
 
-        private readonly bool enabled;
-        private readonly IEnumerable<ICachingStrategy> orderedStrategies;
-        private readonly ILogger<Cache> logger;
+        private readonly bool _enabled;
+        private readonly IEnumerable<ICachingStrategy> _orderedStrategies;
+        private readonly ILogger<Cache> _logger;
 
         /// <summary>
         /// Initializes a new instance of the Cache class.
@@ -30,7 +30,7 @@ namespace Blueprint.Caching
         /// <param name="logger">Logger to use.</param>
         public Cache(IEnumerable<ICacheProvider> cacheProviders, ILogger<Cache> logger)
         {
-            this.logger = logger;
+            this._logger = logger;
             var cachingConfiguration = CachingConfiguration.Current;
 
             logger.LogInformation("Caching enabled = {0}.", cachingConfiguration.IsEnabled);
@@ -42,10 +42,10 @@ namespace Blueprint.Caching
                 throw new InvalidOperationException("Cannot create a Cache without specifing ProviderType");
             }
 
-            orderedStrategies = cachingConfiguration.Strategies.OrderBy(s => s.Priority).ToArray();
-            enabled = cachingConfiguration.IsEnabled;
+            this._orderedStrategies = cachingConfiguration.Strategies.OrderBy(s => s.Priority).ToArray();
+            this._enabled = cachingConfiguration.IsEnabled;
 
-            Provider = cacheProviders.SingleOrDefault(c => c.GetType() == cachingConfiguration.ProviderType);
+            this.Provider = cacheProviders.SingleOrDefault(c => c.GetType() == cachingConfiguration.ProviderType);
         }
 
         /// <summary>
@@ -71,15 +71,15 @@ namespace Blueprint.Caching
         /// </typeparam>
         public void Add<T>(string category, object key, T value)
         {
-            if (enabled)
+            if (this._enabled)
             {
-                logger.LogTrace("Attempting to add a new entry to the cache. category={0}  key={1}.", category, key);
+                this._logger.LogTrace("Attempting to add a new entry to the cache. category={0}  key={1}.", category, key);
 
-                var strategy = orderedStrategies.FirstOrDefault(s => s.AppliesTo(category, value));
+                var strategy = this._orderedStrategies.FirstOrDefault(s => s.AppliesTo(category, value));
 
                 if (strategy == null)
                 {
-                    logger.LogDebug("No strategy found, the item will not be added to the cache.");
+                    this._logger.LogDebug("No strategy found, the item will not be added to the cache.");
                     return;
                 }
 
@@ -87,15 +87,15 @@ namespace Blueprint.Caching
 
                 if (ShouldInsertIntoCache(options))
                 {
-                    logger.LogDebug("Adding item to cache. key={0} options={1}", key, options);
+                    this._logger.LogDebug("Adding item to cache. key={0} options={1}", key, options);
 
                     if (value == null)
                     {
-                        Provider.Add(GenerateStorageKey<T>(key), NullValue<T>.Instance, options);
+                        this.Provider.Add(GenerateStorageKey<T>(key), NullValue<T>.Instance, options);
                     }
                     else
                     {
-                        Provider.Add(GenerateStorageKey<T>(key), value, options);
+                        this.Provider.Add(GenerateStorageKey<T>(key), value, options);
                     }
                 }
             }
@@ -116,7 +116,7 @@ namespace Blueprint.Caching
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         public bool ContainsKey<T>(object key)
         {
-            return enabled && Provider.ContainsKey(GenerateStorageKey<T>(key));
+            return this._enabled && this.Provider.ContainsKey(GenerateStorageKey<T>(key));
         }
 
         /// <summary>
@@ -134,23 +134,23 @@ namespace Blueprint.Caching
         /// </returns>
         public T GetValue<T>(object key)
         {
-            if (enabled)
+            if (this._enabled)
             {
-                var storedItem = Provider.GetValue(GenerateStorageKey<T>(key));
+                var storedItem = this.Provider.GetValue(GenerateStorageKey<T>(key));
 
                 if (storedItem is NullValue<T>)
                 {
-                    logger.LogTrace("Value in cache saved as null. key={0}", key);
+                    this._logger.LogTrace("Value in cache saved as null. key={0}", key);
                     return default;
                 }
 
                 if (storedItem != null)
                 {
-                    logger.LogTrace("Cache hit. key={0} value_type={1}", key, storedItem);
+                    this._logger.LogTrace("Cache hit. key={0} value_type={1}", key, storedItem);
                 }
                 else
                 {
-                    logger.LogTrace("Cache miss. key={0}", key);
+                    this._logger.LogTrace("Cache miss. key={0}", key);
                 }
 
                 return (T)storedItem;
@@ -172,9 +172,9 @@ namespace Blueprint.Caching
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Type is used to avoid key naming conflicts")]
         public void Remove<T>(object key)
         {
-            if (enabled)
+            if (this._enabled)
             {
-                Provider.Remove(GenerateStorageKey<T>(key));
+                this.Provider.Remove(GenerateStorageKey<T>(key));
             }
         }
 

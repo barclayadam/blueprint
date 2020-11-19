@@ -9,7 +9,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class GreaterThanOrEqualToAttribute : ValidationAttribute
     {
-        private readonly int minimumValue;
+        private readonly int _minimumValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GreaterThanOrEqualToAttribute"/> class.
@@ -19,7 +19,7 @@ namespace Blueprint.Validation
         /// </param>
         public GreaterThanOrEqualToAttribute(int minimumValue)
         {
-            this.minimumValue = minimumValue;
+            this._minimumValue = minimumValue;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Blueprint.Validation
         public GreaterThanOrEqualToAttribute(int minimumValue, string errorMessage)
             : base(errorMessage)
         {
-            this.minimumValue = minimumValue;
+            this._minimumValue = minimumValue;
         }
 
         /// <summary>
@@ -52,13 +52,13 @@ namespace Blueprint.Validation
         public GreaterThanOrEqualToAttribute(int minimumValue, Func<string> errorMessageAccessor)
             : base(errorMessageAccessor)
         {
-            this.minimumValue = minimumValue;
+            this._minimumValue = minimumValue;
         }
 
         /// <summary>
         /// Gets the minimum value for the property.
         /// </summary>
-        public int MinimumValue => minimumValue;
+        public int MinimumValue => this._minimumValue;
 
         /// <summary>
         /// If the value is greater than that provided by the constructor, this returns true. Null objects also evaluate to true.
@@ -77,7 +77,7 @@ namespace Blueprint.Validation
             }
 
             var number = double.Parse(value.ToString());
-            return number >= MinimumValue;
+            return number >= this.MinimumValue;
         }
     }
 }

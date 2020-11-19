@@ -15,10 +15,10 @@ namespace Blueprint.Http.Formatters
         /// <param name="result">The pipeline result.</param>
         public OutputFormatterCanWriteContext(HttpContext httpContext, object result)
         {
-            Response = httpContext.Response;
-            Request = httpContext.Request;
-            Result = result;
-            ContentType = default;
+            this.Response = httpContext.Response;
+            this.Request = httpContext.Request;
+            this.Result = result;
+            this.ContentType = default;
         }
 
         /// <summary>

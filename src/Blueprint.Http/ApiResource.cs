@@ -15,9 +15,9 @@ namespace Blueprint.Http
     /// </summary>
     public class ApiResource : ILinkableResource, IHaveResourceKey
     {
-        private static readonly ConcurrentDictionary<Type, string> TypeNameCache = new ConcurrentDictionary<Type, string>();
+        private static readonly ConcurrentDictionary<Type, string> _typeNameCache = new ConcurrentDictionary<Type, string>();
 
-        private readonly Dictionary<string, Link> links = new Dictionary<string, Link>(5);
+        private readonly Dictionary<string, Link> _links = new Dictionary<string, Link>(5);
 
         /// <summary>
         /// Initializes a new instance of ApiResource, setting the <see cref="Object"/> property
@@ -25,7 +25,7 @@ namespace Blueprint.Http
         /// </summary>
         public ApiResource()
         {
-            Object = GetTypeName(GetType());
+            this.Object = GetTypeName(this.GetType());
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Blueprint.Http
         [DoNotCompare]
         [JsonProperty(PropertyName = "$links")]
         [JsonPropertyName("$links")]
-        public IDictionary<string, Link> Links => links;
+        public IDictionary<string, Link> Links => this._links;
 
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
@@ -65,7 +65,7 @@ namespace Blueprint.Http
         /// <returns>The public "type name" of the resource type. Used in properties like <see cref="Object"/>.</returns>
         public static string GetTypeName(Type resourceType)
         {
-            return TypeNameCache.GetOrAdd(
+            return _typeNameCache.GetOrAdd(
                 resourceType,
                 t => t.Name
                     .Replace("ApiResource", string.Empty)
@@ -84,15 +84,15 @@ namespace Blueprint.Http
         /// <exception cref="InvalidOperationException">If a link with the same relation type has already been added.</exception>
         public void AddLink(string rel, Link link)
         {
-            if (links.ContainsKey(rel))
+            if (this._links.ContainsKey(rel))
             {
                 throw new InvalidOperationException(
-                    $"Cannot add multiple links with the same relation of '{rel}' to the api resource '{GetType().Name}'");
+                    $"Cannot add multiple links with the same relation of '{rel}' to the api resource '{this.GetType().Name}'");
             }
 
             // Allow exception to bubble if link already exists. Allow normal success path to be quicker instead
             // of checking for duplicates (could do so in tests?)
-            links.Add(rel, link);
+            this._links.Add(rel, link);
         }
     }
 }

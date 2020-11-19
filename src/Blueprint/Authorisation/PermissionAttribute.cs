@@ -18,7 +18,7 @@ namespace Blueprint.Authorisation
         public PermissionAttribute(string permission)
             : base(ClaimTypes.Permission, "*", permission)
         {
-            Permission = permission;
+            this.Permission = permission;
         }
 
         /// <summary>

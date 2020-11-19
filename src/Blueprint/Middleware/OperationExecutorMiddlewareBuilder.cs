@@ -52,42 +52,42 @@ namespace Blueprint.Middleware
         /// </summary>
         private class OperationResultCastFrame : SyncFrame
         {
-            private readonly Variable resultVariable;
-            private readonly Variable operationResultVariable;
+            private readonly Variable _resultVariable;
+            private readonly Variable _operationResultVariable;
 
             public OperationResultCastFrame(Variable resultVariable)
             {
-                this.resultVariable = resultVariable;
+                this._resultVariable = resultVariable;
 
-                operationResultVariable = new Variable(typeof(OperationResult), this);
+                this._operationResultVariable = new Variable(typeof(OperationResult), this);
             }
 
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var operationResultName = typeof(OperationResult).FullNameInCode();
 
-                if (typeof(OperationResult).IsAssignableFrom(resultVariable.VariableType))
+                if (typeof(OperationResult).IsAssignableFrom(this._resultVariable.VariableType))
                 {
                     // If the declared type is already a type of OperationResult we can eliminate the ternary operator check and
                     // immediately assign to the operationResult variable
-                    writer.WriteLine($"{operationResultName} {operationResultVariable} = {resultVariable};");
+                    writer.WriteLine($"{operationResultName} {this._operationResultVariable} = {this._resultVariable};");
                 }
-                else if (resultVariable.VariableType.IsAssignableFrom(typeof(OperationResult)))
+                else if (this._resultVariable.VariableType.IsAssignableFrom(typeof(OperationResult)))
                 {
                     // If the variable type _could_ be an OperationResult then we use a ternary operator to check whether it
                     // actually is, and either use it directly or wrap in an OkResult
                     var okResultName = typeof(OkResult).FullNameInCode();
 
-                    writer.WriteLine($"{operationResultName} {operationResultVariable} = {resultVariable} is {operationResultName} r ? " +
+                    writer.WriteLine($"{operationResultName} {this._operationResultVariable} = {this._resultVariable} is {operationResultName} r ? " +
                                      "r : " +
-                                     $"new {okResultName}({resultVariable});");
+                                     $"new {okResultName}({this._resultVariable});");
                 }
                 else
                 {
                     // The type is NOT related to OperationResult at all, so we always create a wrapping OkResult
                     var okResultName = typeof(OkResult).FullNameInCode();
 
-                    writer.WriteLine($"{operationResultName} {operationResultVariable} = new {okResultName}({resultVariable});");
+                    writer.WriteLine($"{operationResultName} {this._operationResultVariable} = new {okResultName}({this._resultVariable});");
                 }
 
                 next();

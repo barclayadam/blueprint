@@ -8,7 +8,7 @@ namespace Blueprint.Errors
         public ForbiddenException(ExecutionAllowed failure)
             : base(failure.Message, "unauthorized", failure.Reason, (int)HttpStatusCode.Forbidden)
         {
-            FailureReason = failure;
+            this.FailureReason = failure;
         }
 
         /// <summary>

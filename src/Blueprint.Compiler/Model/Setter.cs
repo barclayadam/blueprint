@@ -10,7 +10,7 @@ namespace Blueprint.Compiler.Model
 
         public Setter(Type variableType, string name) : base(variableType, name)
         {
-            PropName = name;
+            this.PropName = name;
         }
 
         public string PropName { get; set; }
@@ -22,23 +22,23 @@ namespace Blueprint.Compiler.Model
 
         public virtual void WriteDeclaration(ISourceWriter writer)
         {
-            writer.WriteLine(ToDeclaration());
+            writer.WriteLine(this.ToDeclaration());
         }
 
         public void SetInitialValue(object @object)
         {
-            if (InitialValue == null)
+            if (this.InitialValue == null)
             {
                 return;
             }
 
-            var property = @object.GetType().GetProperty(Usage);
-            property.SetValue(@object, InitialValue);
+            var property = @object.GetType().GetProperty(this.Usage);
+            property.SetValue(@object, this.InitialValue);
         }
 
         private string ToDeclaration()
         {
-            return $"public {VariableType.FullNameInCode()} {PropName} {{get; set;}}";
+            return $"public {this.VariableType.FullNameInCode()} {this.PropName} {{get; set;}}";
         }
     }
 }

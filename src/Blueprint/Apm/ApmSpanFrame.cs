@@ -10,22 +10,22 @@ namespace Blueprint.Apm
     /// </summary>
     public class ApmSpanFrame : SyncFrame
     {
-        private readonly string spanKind;
-        private readonly string operationName;
-        private readonly string type;
+        private readonly string _spanKind;
+        private readonly string _operationName;
+        private readonly string _type;
 
-        private readonly Variable spanVariable;
+        private readonly Variable _spanVariable;
 
         private ApmSpanFrame(
             string spanKind,
             string operationName,
             string type)
         {
-            this.spanKind = spanKind;
-            this.operationName = operationName;
-            this.type = type;
+            this._spanKind = spanKind;
+            this._operationName = operationName;
+            this._type = type;
 
-            spanVariable = new Variable(
+            this._spanVariable = new Variable(
                 typeof(IApmSpan),
                 "apmSpanOf" + operationName.Replace(" ", string.Empty).Replace("-", string.Empty),
                 this);
@@ -54,7 +54,7 @@ namespace Blueprint.Apm
         /// <returns>A new <see cref="Frame" /> to end the span created by this <see cref="ApmSpanFrame" />.</returns>
         public Frame Complete()
         {
-            return new EndApmFrame(spanVariable);
+            return new EndApmFrame(this._spanVariable);
         }
 
         /// <inheritdoc />
@@ -64,24 +64,24 @@ namespace Blueprint.Apm
             var context = variables.FindVariable(typeof(ApiOperationContext));
             var currentSpan = context.GetProperty(nameof(ApiOperationContext.ApmSpan));
 
-            writer.WriteLine($"using var {spanVariable} = {currentSpan}.{nameof(IApmSpan.StartSpan)}(\"{spanKind}\", \"{operationName}\", \"{type}\");");
+            writer.WriteLine($"using var {this._spanVariable} = {currentSpan}.{nameof(IApmSpan.StartSpan)}(\"{this._spanKind}\", \"{this._operationName}\", \"{this._type}\");");
 
             next();
         }
 
         private class EndApmFrame : SyncFrame
         {
-            private readonly Variable spanVariable;
+            private readonly Variable _spanVariable;
 
             public EndApmFrame(Variable spanVariable)
             {
-                this.spanVariable = spanVariable;
+                this._spanVariable = spanVariable;
             }
 
             /// <inheritdoc />
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
-                writer.WriteLine($"{spanVariable}.{nameof(IApmSpan.Dispose)}();");
+                writer.WriteLine($"{this._spanVariable}.{nameof(IApmSpan.Dispose)}();");
 
                 next();
             }

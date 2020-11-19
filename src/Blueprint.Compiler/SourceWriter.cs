@@ -9,7 +9,7 @@ namespace Blueprint.Compiler
     /// </summary>
     public class SourceWriter : ISourceWriter
     {
-        private static readonly string[] indentationLevels =
+        private static readonly string[] _indentationLevels =
         {
             string.Empty,
             new string(' ', 1 * 4),
@@ -19,10 +19,10 @@ namespace Blueprint.Compiler
             new string(' ', 5 * 4),
         };
 
-        private readonly StringBuilder writer;
+        private readonly StringBuilder _writer;
 
-        private int level;
-        private string leadingSpaces = string.Empty;
+        private int _level;
+        private string _leadingSpaces = string.Empty;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="SourceWriter" /> class.
@@ -30,28 +30,25 @@ namespace Blueprint.Compiler
         /// <param name="capacity">The suggested initial capacity of the underlying <see cref="StringBuilder" />.</param>
         public SourceWriter(int capacity = 2048)
         {
-            writer = new StringBuilder(capacity);
+            this._writer = new StringBuilder(capacity);
         }
 
         /// <inheritdoc />
         public int IndentationLevel
         {
-            get
-            {
-                return level;
-            }
+            get => this._level;
 
             set
             {
-                level = value;
-                leadingSpaces = level < indentationLevels.Length ? indentationLevels[level] : new string(' ', level * 4);
+                this._level = value;
+                this._leadingSpaces = this._level < _indentationLevels.Length ? _indentationLevels[this._level] : new string(' ', this._level * 4);
             }
         }
 
         /// <inheritdoc />
         public ISourceWriter BlankLine()
         {
-            writer.Append("\r\n");
+            this._writer.Append("\r\n");
 
             return this;
         }
@@ -59,7 +56,7 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public ISourceWriter Append(string text)
         {
-            writer.Append(text);
+            this._writer.Append(text);
 
             return this;
         }
@@ -67,7 +64,7 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public ISourceWriter Append(char c)
         {
-            writer.Append(c);
+            this._writer.Append(c);
 
             return this;
         }
@@ -77,7 +74,7 @@ namespace Blueprint.Compiler
         {
             if (string.IsNullOrEmpty(text))
             {
-                BlankLine();
+                this.BlankLine();
 
                 return this;
             }
@@ -86,13 +83,13 @@ namespace Blueprint.Compiler
             {
                 if (line.IsWhiteSpace())
                 {
-                    BlankLine();
+                    this.BlankLine();
                 }
                 else
                 {
-                    writer.Append(leadingSpaces);
-                    writer.Append(line.ToString());
-                    writer.AppendLine();
+                    this._writer.Append(this._leadingSpaces);
+                    this._writer.Append(line.ToString());
+                    this._writer.AppendLine();
                 }
             }
 
@@ -104,13 +101,13 @@ namespace Blueprint.Compiler
         {
             if (string.IsNullOrEmpty(text))
             {
-                writer.AppendLine();
+                this._writer.AppendLine();
             }
             else
             {
-                writer.Append(leadingSpaces);
-                writer.Append(text);
-                writer.AppendLine();
+                this._writer.Append(this._leadingSpaces);
+                this._writer.Append(text);
+                this._writer.AppendLine();
             }
 
             return this;
@@ -119,10 +116,10 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public ISourceWriter Block(string text)
         {
-            WriteLine(text);
-            WriteLine("{");
+            this.WriteLine(text);
+            this.WriteLine("{");
 
-            IndentationLevel++;
+            this.IndentationLevel++;
 
             return this;
         }
@@ -130,31 +127,34 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public ISourceWriter FinishBlock(string extra = null)
         {
-            if (IndentationLevel == 0)
+            if (this.IndentationLevel == 0)
             {
                 throw new InvalidOperationException("Not currently in a code block");
             }
 
-            IndentationLevel--;
+            this.IndentationLevel--;
 
             if (string.IsNullOrEmpty(extra))
             {
-                WriteLine("}");
+                this.WriteLine("}");
             }
             else
             {
-                WriteLine("}" + extra);
+                this.WriteLine("}" + extra);
             }
 
-            BlankLine();
+            this.BlankLine();
 
             return this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns the code that has been written to this <see cref="SourceWriter" />.
+        /// </summary>
+        /// <returns></returns>
         public string Code()
         {
-            return writer.ToString();
+            return this._writer.ToString();
         }
     }
 }

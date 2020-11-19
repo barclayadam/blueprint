@@ -14,7 +14,7 @@ namespace Blueprint.Configuration
         {
             if (embeddedResourceAssemblies.Length == 0)
             {
-                embeddedResourceAssemblies = new[] {Assembly.GetEntryAssembly()};
+                embeddedResourceAssemblies = new[] { Assembly.GetEntryAssembly() };
             }
 
             blueprintApiBuilder.Services.AddOptions<TemplatedEmailHandlerOptions>();

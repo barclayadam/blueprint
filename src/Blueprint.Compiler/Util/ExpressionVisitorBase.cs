@@ -35,7 +35,7 @@ namespace Blueprint.Compiler.Util
                 case ExpressionType.ArrayLength:
                 case ExpressionType.Quote:
                 case ExpressionType.TypeAs:
-                    return VisitUnary((UnaryExpression)exp);
+                    return this.VisitUnary((UnaryExpression)exp);
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                 case ExpressionType.Subtract:
@@ -59,32 +59,32 @@ namespace Blueprint.Compiler.Util
                 case ExpressionType.RightShift:
                 case ExpressionType.LeftShift:
                 case ExpressionType.ExclusiveOr:
-                    return VisitBinary((BinaryExpression)exp);
+                    return this.VisitBinary((BinaryExpression)exp);
                 case ExpressionType.TypeIs:
-                    return VisitTypeIs((TypeBinaryExpression)exp);
+                    return this.VisitTypeIs((TypeBinaryExpression)exp);
                 case ExpressionType.Conditional:
-                    return VisitConditional((ConditionalExpression)exp);
+                    return this.VisitConditional((ConditionalExpression)exp);
                 case ExpressionType.Constant:
-                    return VisitConstant((ConstantExpression)exp);
+                    return this.VisitConstant((ConstantExpression)exp);
                 case ExpressionType.Parameter:
-                    return VisitParameter((ParameterExpression)exp);
+                    return this.VisitParameter((ParameterExpression)exp);
                 case ExpressionType.MemberAccess:
-                    return VisitMemberAccess((MemberExpression)exp);
+                    return this.VisitMemberAccess((MemberExpression)exp);
                 case ExpressionType.Call:
-                    return VisitMethodCall((MethodCallExpression)exp);
+                    return this.VisitMethodCall((MethodCallExpression)exp);
                 case ExpressionType.Lambda:
-                    return VisitLambda((LambdaExpression)exp);
+                    return this.VisitLambda((LambdaExpression)exp);
                 case ExpressionType.New:
-                    return VisitNew((NewExpression)exp);
+                    return this.VisitNew((NewExpression)exp);
                 case ExpressionType.NewArrayInit:
                 case ExpressionType.NewArrayBounds:
-                    return VisitNewArray((NewArrayExpression)exp);
+                    return this.VisitNewArray((NewArrayExpression)exp);
                 case ExpressionType.Invoke:
-                    return VisitInvocation((InvocationExpression)exp);
+                    return this.VisitInvocation((InvocationExpression)exp);
                 case ExpressionType.MemberInit:
-                    return VisitMemberInit((MemberInitExpression)exp);
+                    return this.VisitMemberInit((MemberInitExpression)exp);
                 case ExpressionType.ListInit:
-                    return VisitListInit((ListInitExpression)exp);
+                    return this.VisitListInit((ListInitExpression)exp);
                 default:
                     throw new NotSupportedException($"Unhandled expression type: '{exp.NodeType}'");
             }
@@ -95,11 +95,11 @@ namespace Blueprint.Compiler.Util
             switch (binding.BindingType)
             {
                 case MemberBindingType.Assignment:
-                    return VisitMemberAssignment((MemberAssignment)binding);
+                    return this.VisitMemberAssignment((MemberAssignment)binding);
                 case MemberBindingType.MemberBinding:
-                    return VisitMemberMemberBinding((MemberMemberBinding)binding);
+                    return this.VisitMemberMemberBinding((MemberMemberBinding)binding);
                 case MemberBindingType.ListBinding:
-                    return VisitMemberListBinding((MemberListBinding)binding);
+                    return this.VisitMemberListBinding((MemberListBinding)binding);
                 default:
                     throw new NotSupportedException($"Unhandled binding type '{binding.BindingType}'");
             }
@@ -107,7 +107,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
         {
-            var arguments = VisitList(initializer.Arguments);
+            var arguments = this.VisitList(initializer.Arguments);
 
             if (arguments != initializer.Arguments)
             {
@@ -119,7 +119,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitUnary(UnaryExpression u)
         {
-            var operand = Visit(u.Operand);
+            var operand = this.Visit(u.Operand);
 
             if (operand != u.Operand)
             {
@@ -131,9 +131,9 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitBinary(BinaryExpression b)
         {
-            var left = Visit(b.Left);
-            var right = Visit(b.Right);
-            var conversion = Visit(b.Conversion);
+            var left = this.Visit(b.Left);
+            var right = this.Visit(b.Right);
+            var conversion = this.Visit(b.Conversion);
 
             if (left != b.Left || right != b.Right || conversion != b.Conversion)
             {
@@ -150,7 +150,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitTypeIs(TypeBinaryExpression b)
         {
-            var expr = Visit(b.Expression);
+            var expr = this.Visit(b.Expression);
 
             if (expr != b.Expression)
             {
@@ -167,9 +167,9 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitConditional(ConditionalExpression c)
         {
-            var test = Visit(c.Test);
-            var ifTrue = Visit(c.IfTrue);
-            var ifFalse = Visit(c.IfFalse);
+            var test = this.Visit(c.Test);
+            var ifTrue = this.Visit(c.IfTrue);
+            var ifFalse = this.Visit(c.IfFalse);
 
             if (test != c.Test || ifTrue != c.IfTrue || ifFalse != c.IfFalse)
             {
@@ -186,7 +186,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitMemberAccess(MemberExpression m)
         {
-            var exp = Visit(m.Expression);
+            var exp = this.Visit(m.Expression);
 
             if (exp != m.Expression)
             {
@@ -198,8 +198,8 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitMethodCall(MethodCallExpression m)
         {
-            var obj = Visit(m.Object);
-            IEnumerable<Expression> args = VisitList(m.Arguments);
+            var obj = this.Visit(m.Object);
+            IEnumerable<Expression> args = this.VisitList(m.Arguments);
 
             if (obj != m.Object || args != m.Arguments)
             {
@@ -214,7 +214,7 @@ namespace Blueprint.Compiler.Util
             List<Expression> list = null;
             for (int i = 0, n = original.Count; i < n; i++)
             {
-                var p = Visit(original[i]);
+                var p = this.Visit(original[i]);
                 if (list != null)
                 {
                     list.Add(p);
@@ -241,7 +241,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
-            var e = Visit(assignment.Expression);
+            var e = this.Visit(assignment.Expression);
 
             if (e != assignment.Expression)
             {
@@ -253,7 +253,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
         {
-            var bindings = VisitBindingList(binding.Bindings);
+            var bindings = this.VisitBindingList(binding.Bindings);
 
             if (bindings != binding.Bindings)
             {
@@ -265,7 +265,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
         {
-            var initializers = VisitElementInitializerList(binding.Initializers);
+            var initializers = this.VisitElementInitializerList(binding.Initializers);
 
             if (initializers != binding.Initializers)
             {
@@ -280,7 +280,7 @@ namespace Blueprint.Compiler.Util
             List<MemberBinding> list = null;
             for (int i = 0, n = original.Count; i < n; i++)
             {
-                var b = VisitBinding(original[i]);
+                var b = this.VisitBinding(original[i]);
 
                 if (list != null)
                 {
@@ -312,7 +312,7 @@ namespace Blueprint.Compiler.Util
             List<ElementInit> list = null;
             for (int i = 0, n = original.Count; i < n; i++)
             {
-                var init = VisitElementInitializer(original[i]);
+                var init = this.VisitElementInitializer(original[i]);
                 if (list != null)
                 {
                     list.Add(init);
@@ -339,7 +339,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitLambda(LambdaExpression lambda)
         {
-            var body = Visit(lambda.Body);
+            var body = this.Visit(lambda.Body);
 
             if (body != lambda.Body)
             {
@@ -351,7 +351,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual NewExpression VisitNew(NewExpression nex)
         {
-            IEnumerable<Expression> args = VisitList(nex.Arguments);
+            IEnumerable<Expression> args = this.VisitList(nex.Arguments);
 
             if (args != nex.Arguments)
             {
@@ -368,8 +368,8 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitMemberInit(MemberInitExpression init)
         {
-            var n = VisitNew(init.NewExpression);
-            var bindings = VisitBindingList(init.Bindings);
+            var n = this.VisitNew(init.NewExpression);
+            var bindings = this.VisitBindingList(init.Bindings);
 
             if (n != init.NewExpression || bindings != init.Bindings)
             {
@@ -381,8 +381,8 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitListInit(ListInitExpression init)
         {
-            var n = VisitNew(init.NewExpression);
-            var initializers = VisitElementInitializerList(init.Initializers);
+            var n = this.VisitNew(init.NewExpression);
+            var initializers = this.VisitElementInitializerList(init.Initializers);
 
             if (n != init.NewExpression || initializers != init.Initializers)
             {
@@ -394,7 +394,7 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitNewArray(NewArrayExpression na)
         {
-            IEnumerable<Expression> exprs = VisitList(na.Expressions);
+            IEnumerable<Expression> exprs = this.VisitList(na.Expressions);
             if (exprs != na.Expressions)
             {
                 if (na.NodeType == ExpressionType.NewArrayInit)
@@ -410,8 +410,8 @@ namespace Blueprint.Compiler.Util
 
         protected virtual Expression VisitInvocation(InvocationExpression iv)
         {
-            IEnumerable<Expression> args = VisitList(iv.Arguments);
-            var expr = Visit(iv.Expression);
+            IEnumerable<Expression> args = this.VisitList(iv.Arguments);
+            var expr = this.Visit(iv.Expression);
 
             if (args != iv.Arguments || expr != iv.Expression)
             {

@@ -86,7 +86,7 @@ namespace Microsoft.AspNetCore.Builder
                     target: routeHandler,
                     routeName: httpFeatureData.HttpMethod + "-" + link.UrlFormat,
                     routeTemplate: basePath + link.RoutingUrl,
-                    defaults: new RouteValueDictionary(new {operation = link.OperationDescriptor}),
+                    defaults: new RouteValueDictionary(new { operation = link.OperationDescriptor }),
                     constraints: new Dictionary<string, object>
                     {
                         ["httpMethod"] = new HttpMethodRouteConstraint(httpFeatureData.HttpMethod),
@@ -105,14 +105,15 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         private class CompilationWrapperException : Exception, ICompilationException
         {
-            private readonly CompilationException compilationException;
+            private readonly CompilationException _compilationException;
 
-            public CompilationWrapperException(CompilationException compilationException) : base("Pipeline compilation failed", compilationException)
+            public CompilationWrapperException(CompilationException compilationException)
+                : base("Pipeline compilation failed", compilationException)
             {
-                this.compilationException = compilationException;
+                this._compilationException = compilationException;
             }
 
-            public IEnumerable<CompilationFailure> CompilationFailures => compilationException.Failures
+            public IEnumerable<CompilationFailure> CompilationFailures => this._compilationException.Failures
                 .Select(f =>
                 {
                     var sourceTree = f.Location.SourceTree;
@@ -122,7 +123,7 @@ namespace Microsoft.AspNetCore.Builder
                         sourceTree.FilePath,
                         sourceCode,
                         sourceCode,
-                        new[] {ToDiagnosticMessage(f)});
+                        new[] { ToDiagnosticMessage(f) });
                 });
 
             private static DiagnosticMessage ToDiagnosticMessage(Diagnostic f)
@@ -144,12 +145,12 @@ namespace Microsoft.AspNetCore.Builder
 
         private class BlueprintApiRouter : IRouter
         {
-            private readonly IApiOperationExecutor apiOperationExecutor;
-            private readonly IApmTool apmTool;
-            private readonly IServiceProvider rootServiceProvider;
-            private readonly ILogger<BlueprintApiRouter> logger;
-            private readonly IOptions<BlueprintHttpOptions> httpOptions;
-            private readonly string basePath;
+            private readonly IApiOperationExecutor _apiOperationExecutor;
+            private readonly IApmTool _apmTool;
+            private readonly IServiceProvider _rootServiceProvider;
+            private readonly ILogger<BlueprintApiRouter> _logger;
+            private readonly IOptions<BlueprintHttpOptions> _httpOptions;
+            private readonly string _basePath;
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
@@ -159,12 +160,12 @@ namespace Microsoft.AspNetCore.Builder
                 IOptions<BlueprintHttpOptions> httpOptions,
                 string basePath)
             {
-                this.apiOperationExecutor = apiOperationExecutor;
-                this.apmTool = apmTool;
-                this.rootServiceProvider = rootServiceProvider;
-                this.logger = logger;
-                this.httpOptions = httpOptions;
-                this.basePath = basePath;
+                this._apiOperationExecutor = apiOperationExecutor;
+                this._apmTool = apmTool;
+                this._rootServiceProvider = rootServiceProvider;
+                this._logger = logger;
+                this._httpOptions = httpOptions;
+                this._basePath = basePath;
             }
 
             public Task RouteAsync(RouteContext context)
@@ -176,7 +177,7 @@ namespace Microsoft.AspNetCore.Builder
 
                     var operation = (ApiOperationDescriptor)routeData.Values["operation"];
 
-                    using var apmTransaction = apmTool.StartOperation(
+                    using var apmTransaction = this._apmTool.StartOperation(
                         operation,
                         SpanKinds.Server);
 
@@ -192,7 +193,7 @@ namespace Microsoft.AspNetCore.Builder
 
                         if (httpFeatureData.HttpMethod != httpRequest.Method)
                         {
-                            logger.LogInformation(
+                            this._logger.LogInformation(
                                 "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
                                 httpRequest.GetDisplayUrl(),
                                 httpRequest.Method,
@@ -203,11 +204,11 @@ namespace Microsoft.AspNetCore.Builder
                             return;
                         }
 
-                        using var nestedContainer = rootServiceProvider.CreateScope();
+                        using var nestedContainer = this._rootServiceProvider.CreateScope();
 
                         var apiContext = new ApiOperationContext(
                             nestedContainer.ServiceProvider,
-                            apiOperationExecutor.DataModel,
+                            this._apiOperationExecutor.DataModel,
                             operation,
                             httpContext.RequestAborted)
                         {
@@ -221,13 +222,13 @@ namespace Microsoft.AspNetCore.Builder
                         });
 
                         var request = httpContext.Request;
-                        var baseUri = $"{request.Scheme}://{httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{basePath}";
+                        var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
 
                         httpContext.SetBaseUri(baseUri);
 
                         apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
 
-                        var result = await apiOperationExecutor.ExecuteAsync(apiContext);
+                        var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 
                         // We want to immediately execute the result to allow it to write to the HTTP response
                         await result.ExecuteAsync(apiContext);

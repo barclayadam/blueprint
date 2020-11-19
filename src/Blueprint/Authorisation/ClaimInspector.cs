@@ -8,9 +8,9 @@ namespace Blueprint.Authorisation
 {
     public class ClaimInspector : IClaimInspector
     {
-        private readonly IEnumerable<IResourceKeyExpander> resourceKeyExpanders;
-        private readonly ICache cache;
-        private readonly ILogger<ClaimInspector> logger;
+        private readonly IEnumerable<IResourceKeyExpander> _resourceKeyExpanders;
+        private readonly ICache _cache;
+        private readonly ILogger<ClaimInspector> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClaimInspector"/> class.
@@ -23,9 +23,9 @@ namespace Blueprint.Authorisation
             Guard.NotNull(nameof(resourceKeyExpanders), resourceKeyExpanders);
             Guard.NotNull(nameof(cache), cache);
 
-            this.resourceKeyExpanders = resourceKeyExpanders;
-            this.cache = cache;
-            this.logger = logger;
+            this._resourceKeyExpanders = resourceKeyExpanders;
+            this._cache = cache;
+            this._logger = logger;
         }
 
         /// <summary>
@@ -41,32 +41,32 @@ namespace Blueprint.Authorisation
         {
             if (demandedClaim == null)
             {
-                logger.LogTrace("No claim demanded, returning ClaimInspectionResult.Success");
+                this._logger.LogTrace("No claim demanded, returning ClaimInspectionResult.Success");
 
                 return true;
             }
 
             if (claimExpansionState == ClaimExpansionState.AlreadyExpanded)
             {
-                return IsExpandedClaimFulfilled(userClaims, demandedClaim);
+                return this.IsExpandedClaimFulfilled(userClaims, demandedClaim);
             }
 
             var expandedClaim = demandedClaim;
 
             if (demandedClaim.Value == "*")
             {
-                logger.LogTrace("Wildcard claim given, no expansion necessary.");
+                this._logger.LogTrace("Wildcard claim given, no expansion necessary.");
             }
-            else if (!resourceKeyExpanders.Any())
+            else if (!this._resourceKeyExpanders.Any())
             {
-                logger.LogTrace("No resource key expanders");
+                this._logger.LogTrace("No resource key expanders");
             }
             else
             {
-                expandedClaim = ExpandClaim(demandedClaim);
+                expandedClaim = this.ExpandClaim(demandedClaim);
             }
 
-            return IsExpandedClaimFulfilled(userClaims, expandedClaim);
+            return this.IsExpandedClaimFulfilled(userClaims, expandedClaim);
         }
 
         private bool IsExpandedClaimFulfilled(IClaimsHolder issuedClaims, Claim demandedClaim)
@@ -84,20 +84,20 @@ namespace Blueprint.Authorisation
 
                 if (demandedClaim.Value == "*")
                 {
-                    logger.LogTrace("Wildcard claim given, ValueType and Type match found, returning true.");
+                    this._logger.LogTrace("Wildcard claim given, ValueType and Type match found, returning true.");
                     return true;
                 }
 
                 if (demandedClaim.Value.Contains(claim.Value))
                 {
-                    logger.LogTrace("Expanded claim was fulfilled, returning ClaimInspectionResult.Success.");
+                    this._logger.LogTrace("Expanded claim was fulfilled, returning ClaimInspectionResult.Success.");
                     return true;
                 }
             }
 
-            if (logger.IsEnabled(LogLevel.Trace))
+            if (this._logger.IsEnabled(LogLevel.Trace))
             {
-                logger.LogTrace("Expanded claim '[{0}, {1}, {2}]' was not fulfilled.", demandedClaim.Type, demandedClaim.Value, demandedClaim.ValueType);
+                this._logger.LogTrace("Expanded claim '[{0}, {1}, {2}]' was not fulfilled.", demandedClaim.Type, demandedClaim.Value, demandedClaim.ValueType);
             }
 
             return false;
@@ -105,14 +105,14 @@ namespace Blueprint.Authorisation
 
         private Claim ExpandClaim(Claim claim)
         {
-            logger.LogTrace("Expanding required claim {0}.", claim);
+            this._logger.LogTrace("Expanding required claim {0}.", claim);
 
-            var expandedKey = cache.GetOrCreate(
+            var expandedKey = this._cache.GetOrCreate(
                 "Resource Key Expansion",
                 claim.Value,
                 () =>
                 {
-                    return resourceKeyExpanders.Select(k => k.Expand(claim.Value)).FirstOrDefault(x => x != null);
+                    return this._resourceKeyExpanders.Select(k => k.Expand(claim.Value)).FirstOrDefault(x => x != null);
                 });
 
             if (expandedKey == null)

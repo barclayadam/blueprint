@@ -14,28 +14,28 @@ namespace Blueprint.Compiler
         // The variables that are used / created within the body of this GeneratedMethod. Keeps track of
         // them to ensure the same variable frame is not injected twice (i.e. if multiple frames asks for a variable
         // of a given type it should resolve to that same variable instance when it can)
-        private readonly Dictionary<Type, Variable> variables = new Dictionary<Type, Variable>();
+        private readonly Dictionary<Type, Variable> _variables = new Dictionary<Type, Variable>();
 
         // A list of every frame that has contributed to the code of this method. This is built up during
         // code generation (see WriteMethod) by each Frame calling RegisterFrame
-        private readonly List<Frame> allRegisteredFrames = new List<Frame>();
+        private readonly List<Frame> _allRegisteredFrames = new List<Frame>();
 
         internal GeneratedMethod(GeneratedType generatedType, MethodInfo method)
         {
-            GeneratedType = generatedType;
-            ReturnType = method.ReturnType;
-            Arguments = method.GetParameters().Select(x => new Argument(x)).ToArray();
-            MethodName = method.Name;
-            Sources.Add(generatedType);
+            this.GeneratedType = generatedType;
+            this.ReturnType = method.ReturnType;
+            this.Arguments = method.GetParameters().Select(x => new Argument(x)).ToArray();
+            this.MethodName = method.Name;
+            this.Sources.Add(generatedType);
         }
 
         internal GeneratedMethod(GeneratedType generatedType, string methodName, Type returnType, params Argument[] arguments)
         {
-            GeneratedType = generatedType;
-            ReturnType = returnType;
-            Arguments = arguments;
-            MethodName = methodName;
-            Sources.Add(generatedType);
+            this.GeneratedType = generatedType;
+            this.ReturnType = returnType;
+            this.Arguments = arguments;
+            this.MethodName = methodName;
+            this.Sources.Add(generatedType);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Blueprint.Compiler
         /// </summary>
         public void Return()
         {
-            Frames.Return(ReturnType);
+            this.Frames.Return(this.ReturnType);
         }
 
         /// <summary>
@@ -144,10 +144,10 @@ namespace Blueprint.Compiler
         public void WriteMethod(ISourceWriter writer)
         {
             // 1. Chain all existing frames together (setting their NextFrame property).
-            var topFrame = ChainFrames(Frames);
+            var topFrame = ChainFrames(this.Frames);
 
             // 2. Clear out "all registered frames" to enable this method to be called multiple times.
-            this.allRegisteredFrames.Clear();
+            this._allRegisteredFrames.Clear();
 
             // 3. The first time around is used for discovering the variables, ensuring frames
             // are fully created etc. No actual writing will occur
@@ -157,37 +157,37 @@ namespace Blueprint.Compiler
             // 4. Determine the async mode of this method, which determines the result type and how
             // the actual return value is generated. Only do this is asyncMode is not set to
             // something else to allow overriding externally
-            if (AsyncMode == AsyncMode.None)
+            if (this.AsyncMode == AsyncMode.None)
             {
-                AsyncMode = AsyncMode.AsyncTask;
+                this.AsyncMode = AsyncMode.AsyncTask;
 
-                if (this.allRegisteredFrames.All(x => !x.IsAsync))
+                if (this._allRegisteredFrames.All(x => !x.Is))
                 {
-                    AsyncMode = AsyncMode.None;
+                    this.AsyncMode = AsyncMode.None;
                 }
                 else
                 {
-                    var lastFrame = this.allRegisteredFrames.Last();
+                    var lastFrame = this._allRegisteredFrames.Last();
 
-                    if (this.allRegisteredFrames.Count(x => x.IsAsync) == 1 && lastFrame.IsAsync && lastFrame.CanReturnTask())
+                    if (this._allRegisteredFrames.Count(x => x.Is) == 1 && lastFrame.Is && lastFrame.CanReturnTask())
                     {
-                        AsyncMode = AsyncMode.ReturnFromLastNode;
+                        this.AsyncMode = AsyncMode.ReturnFromLastNode;
                     }
                 }
             }
 
             // 5. Now find various types of variables to push to the GeneratedType, in addition to also
             // adding the creation frames to this method's collection if they do not already exist
-            foreach (var variable in variables.Values.TopologicalSort(v => v.Dependencies))
+            foreach (var variable in this._variables.Values.TopologicalSort(v => v.Dependencies))
             {
-                if (variable.Creator != null && !this.allRegisteredFrames.Contains(variable.Creator))
+                if (variable.Creator != null && !this._allRegisteredFrames.Contains(variable.Creator))
                 {
                     // Find the first usage of this variable and place the frame before that.
-                    var firstUsage = this.allRegisteredFrames.FirstOrDefault(f => f.Uses.Contains(variable));
+                    var firstUsage = this._allRegisteredFrames.FirstOrDefault(f => f.Uses.Contains(variable));
 
                     if (firstUsage == null)
                     {
-                        Frames.Insert(0, variable.Creator);
+                        this.Frames.Insert(0, variable.Creator);
 
                         // throw new InvalidOperationException(
                         //     $"The variable '{variable}' has a creator Frame that has not been appended to this GeneratedMethod, " +
@@ -195,50 +195,50 @@ namespace Blueprint.Compiler
                     }
                     else
                     {
-                        Frames.Insert(Frames.IndexOf(firstUsage), variable.Creator);
+                        this.Frames.Insert(this.Frames.IndexOf(firstUsage), variable.Creator);
                     }
 
-                    allRegisteredFrames.Add(variable.Creator);
+                    this._allRegisteredFrames.Add(variable.Creator);
                 }
 
                 switch (variable)
                 {
                     case InjectedField field:
-                        GeneratedType.AllInjectedFields.Add(field);
+                        this.GeneratedType.AllInjectedFields.Add(field);
                         break;
 
                     case Setter setter:
-                        GeneratedType.Setters.Add(setter);
+                        this.GeneratedType.Setters.Add(setter);
                         break;
 
                     case StaticField staticField:
-                        GeneratedType.AllStaticFields.Add(staticField);
+                        this.GeneratedType.AllStaticFields.Add(staticField);
                         break;
                 }
             }
 
-            // 6. Rechain all existing frames as we may have pushed new ones
-            topFrame = ChainFrames(Frames);
+            // 6. Re-chain all existing frames as we may have pushed new ones
+            topFrame = ChainFrames(this.Frames);
 
             // 7. We now have all frames & variables collected, lets do the final generation of code
-            var returnValue = DetermineReturnExpression();
+            var returnValue = this.DetermineReturnExpression();
 
-            if (Overrides)
+            if (this.Overrides)
             {
                 returnValue = "override " + returnValue;
             }
 
-            IEnumerable<string> tempQualifier = Arguments.Select(x => x.Declaration);
+            var tempQualifier = this.Arguments.Select(x => x.Declaration);
             var arguments = string.Join(", ", tempQualifier);
 
-            writer.Block($"public {returnValue} {MethodName}({arguments})");
+            writer.Block($"public {returnValue} {this.MethodName}({arguments})");
 
             // 7.1. Clear out "all registered frames" so we do not end up with large duplicated List
-            this.allRegisteredFrames.Clear();
+            this._allRegisteredFrames.Clear();
 
             topFrame.GenerateCode(trackingWriter, this, new MethodSourceWriter(trackingWriter, this, writer));
 
-            WriteReturnStatement(writer);
+            this.WriteReturnStatement(writer);
 
             writer.FinishBlock();
         }
@@ -246,10 +246,10 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public override string ToString()
         {
-            IEnumerable<string> tempQualifier = Arguments.Select(x => x.Declaration);
+            var tempQualifier = this.Arguments.Select(x => x.Declaration);
             var arguments = string.Join(", ", tempQualifier);
 
-            return $"public {ReturnType.FullNameInCode()} {MethodName}({arguments})";
+            return $"public {this.ReturnType.FullNameInCode()} {this.MethodName}({arguments})";
         }
 
         private static Frame ChainFrames(IReadOnlyList<Frame> frames)
@@ -277,7 +277,7 @@ namespace Blueprint.Compiler
 
         private void WriteReturnStatement(ISourceWriter writer)
         {
-            if ((AsyncMode == AsyncMode.ReturnCompletedTask || AsyncMode == AsyncMode.None) && ReturnType == typeof(Task))
+            if ((this.AsyncMode == AsyncMode.ReturnCompletedTask || this.AsyncMode == AsyncMode.None) && this.ReturnType == typeof(Task))
             {
                 writer.WriteLine("return Task.CompletedTask;");
             }
@@ -285,9 +285,9 @@ namespace Blueprint.Compiler
 
         private string DetermineReturnExpression()
         {
-            return AsyncMode == AsyncMode.AsyncTask
-                ? "async " + ReturnType.FullNameInCode()
-                : ReturnType.FullNameInCode();
+            return this.AsyncMode == AsyncMode.AsyncTask
+                ? "async " + this.ReturnType.FullNameInCode()
+                : this.ReturnType.FullNameInCode();
         }
 
         /// <inheritdoc />
@@ -297,7 +297,7 @@ namespace Blueprint.Compiler
 
             if (variable == null)
             {
-                var searchedSources = string.Join(", ", Sources.Select(s => s.GetType().Name));
+                var searchedSources = string.Join(", ", this.Sources.Select(s => s.GetType().Name));
 
                 throw new ArgumentOutOfRangeException(
                     nameof(variableType),
@@ -311,15 +311,15 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public Variable TryFindVariable(Type type)
         {
-            if (variables.ContainsKey(type))
+            if (this._variables.ContainsKey(type))
             {
-                return variables[type];
+                return this._variables[type];
             }
 
-            var variable = DoFindVariable(type, 0);
+            var variable = this.DoFindVariable(type, 0);
             if (variable != null)
             {
-                variables.Add(type, variable);
+                this._variables.Add(type, variable);
             }
 
             return variable;
@@ -331,7 +331,7 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <remarks>
         /// This method _may_ create variables/frames as required should the variable come from an <see cref="IVariableSource" />,
-        /// so the creation should be cached (<seealso cref="variables"/>).
+        /// so the creation should be cached (<seealso cref="_variables"/>).
         /// </remarks>
         /// <param name="variableType">The type of the variable to be found / created.</param>
         /// <param name="indentationLevel">The current indentation level, which will only be a value different to
@@ -339,7 +339,7 @@ namespace Blueprint.Compiler
         /// <returns>A <see cref="Variable"/> of the given type.</returns>
         private Variable DoFindVariable(Type variableType, int indentationLevel)
         {
-            foreach (var v in Arguments)
+            foreach (var v in this.Arguments)
             {
                 if (v.VariableType == variableType)
                 {
@@ -379,14 +379,14 @@ namespace Blueprint.Compiler
                 return null;
             }
 
-            var fromFrames = SearchExistingFramesForVariable(Frames);
+            var fromFrames = SearchExistingFramesForVariable(this.Frames);
 
             if (fromFrames != null)
             {
                 return fromFrames;
             }
 
-            foreach (var s in Sources)
+            foreach (var s in this.Sources)
             {
                 var created = s.TryFindVariable(this, variableType);
 
@@ -401,71 +401,71 @@ namespace Blueprint.Compiler
 
         private class MethodSourceWriter : IMethodSourceWriter
         {
-            private readonly IMethodVariables variables;
-            private readonly GeneratedMethod method;
-            private readonly ISourceWriter inner;
+            private readonly IMethodVariables _variables;
+            private readonly GeneratedMethod _method;
+            private readonly ISourceWriter _inner;
 
             public MethodSourceWriter(IMethodVariables variables, GeneratedMethod method, ISourceWriter inner)
             {
-                this.variables = variables;
-                this.method = method;
-                this.inner = inner;
+                this._variables = variables;
+                this._method = method;
+                this._inner = inner;
             }
 
-            public int IndentationLevel => inner.IndentationLevel;
+            public int IndentationLevel => this._inner.IndentationLevel;
 
             public ISourceWriter BlankLine()
             {
-                inner.BlankLine();
+                this._inner.BlankLine();
 
                 return this;
             }
 
             public ISourceWriter Block(string text)
             {
-                inner.Block(text);
+                this._inner.Block(text);
 
                 return this;
             }
 
             public ISourceWriter Append(string text)
             {
-                inner.Append(text);
+                this._inner.Append(text);
 
                 return this;
             }
 
             public ISourceWriter Append(char c)
             {
-                inner.Append(c);
+                this._inner.Append(c);
 
                 return this;
             }
 
             public ISourceWriter WriteLines(string text = null)
             {
-                inner.WriteLines(text);
+                this._inner.WriteLines(text);
 
                 return this;
             }
 
             public ISourceWriter WriteLine(string text)
             {
-                inner.WriteLine(text);
+                this._inner.WriteLine(text);
 
                 return this;
             }
 
             public ISourceWriter FinishBlock(string extra = null)
             {
-                inner.FinishBlock(extra);
+                this._inner.FinishBlock(extra);
 
                 return this;
             }
 
             public void Write(Frame frame)
             {
-                frame.GenerateCode(variables, method, this);
+                frame.GenerateCode(this._variables, this._method, this);
             }
         }
 
@@ -481,11 +481,11 @@ namespace Blueprint.Compiler
         /// </remarks>
         private class TrackingVariableWriter : ISourceWriter, IMethodVariables
         {
-            private readonly GeneratedMethod method;
+            private readonly GeneratedMethod _method;
 
             public TrackingVariableWriter(GeneratedMethod method)
             {
-                this.method = method;
+                this._method = method;
             }
 
             public int IndentationLevel { get; private set; }
@@ -497,14 +497,14 @@ namespace Blueprint.Compiler
 
             public ISourceWriter Block(string extra = null)
             {
-                IndentationLevel++;
+                this.IndentationLevel++;
 
                 return this;
             }
 
             public ISourceWriter FinishBlock(string extra = null)
             {
-                IndentationLevel--;
+                this.IndentationLevel--;
 
                 return this;
             }
@@ -536,7 +536,7 @@ namespace Blueprint.Compiler
 
                 if (variable == null)
                 {
-                    var searchedSources = string.Join(", ", method.Sources.Select(s => s.GetType().Name));
+                    var searchedSources = string.Join(", ", this._method.Sources.Select(s => s.GetType().Name));
 
                     throw new ArgumentOutOfRangeException(
                         nameof(variableType),
@@ -550,15 +550,15 @@ namespace Blueprint.Compiler
             /// <inheritdoc />
             Variable IMethodVariables.TryFindVariable(Type type)
             {
-                if (method.variables.ContainsKey(type))
+                if (this._method._variables.ContainsKey(type))
                 {
-                    return method.variables[type];
+                    return this._method._variables[type];
                 }
 
-                var variable = method.DoFindVariable(type, IndentationLevel);
+                var variable = this._method.DoFindVariable(type, this.IndentationLevel);
                 if (variable != null)
                 {
-                    method.variables.Add(type, variable);
+                    this._method._variables.Add(type, variable);
                 }
 
                 return variable;
@@ -567,7 +567,7 @@ namespace Blueprint.Compiler
 
         internal void RegisterFrame(Frame frame)
         {
-            this.allRegisteredFrames.Add(frame);
+            this._allRegisteredFrames.Add(frame);
         }
     }
 }

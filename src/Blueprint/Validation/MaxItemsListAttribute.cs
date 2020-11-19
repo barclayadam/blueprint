@@ -14,7 +14,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public sealed class MaxItemsListAttribute : ValidationAttribute
     {
-        private readonly int maxItems;
+        private readonly int _maxItems;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MaxItemsListAttribute"/> class.
@@ -22,7 +22,7 @@ namespace Blueprint.Validation
         /// <param name="maxItems">The maximum number of items.</param>
         public MaxItemsListAttribute(int maxItems)
         {
-            this.maxItems = maxItems;
+            this._maxItems = maxItems;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Blueprint.Validation
         public MaxItemsListAttribute(int maxItems, string errorMessage)
                 : base(errorMessage)
         {
-            this.maxItems = maxItems;
+            this._maxItems = maxItems;
         }
 
         /// <summary>
@@ -45,13 +45,13 @@ namespace Blueprint.Validation
         public MaxItemsListAttribute(int maxItems, Func<string> errorMessageAccessor)
                 : base(errorMessageAccessor)
         {
-            this.maxItems = maxItems;
+            this._maxItems = maxItems;
         }
 
         /// <summary>
         /// Gets the maximum number of items allowed in the collection.
         /// </summary>
-        public int MaxItems => maxItems;
+        public int MaxItems => this._maxItems;
 
         /// <summary>
         /// The property is valid if it is a collection with fewer than the specified number of items.
@@ -67,7 +67,7 @@ namespace Blueprint.Validation
 
             if (value is IEnumerable)
             {
-                return ((IEnumerable<object>)value).Count() <= MaxItems;
+                return ((IEnumerable<object>)value).Count() <= this.MaxItems;
             }
 
             throw new InvalidOperationException("This attribute can only be applied to a property whose type implements IEnumerable.");

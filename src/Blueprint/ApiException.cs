@@ -23,9 +23,9 @@ namespace Blueprint
         public ApiException(string title, string type, string detail, int httpStatus, IDictionary<string, object> extensions = null)
             : base(detail)
         {
-            Title = title;
-            Type = type;
-            HttpStatus = httpStatus;
+            this.Title = title;
+            this.Type = type;
+            this.HttpStatus = httpStatus;
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Blueprint
         public ApiException(string title, string type, string detail, int httpStatus, Exception inner, IDictionary<string, object> extensions = null)
             : base(detail, inner)
         {
-            Title = title;
-            Type = type;
-            HttpStatus = httpStatus;
+            this.Title = title;
+            this.Type = type;
+            this.HttpStatus = httpStatus;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Blueprint
         /// <summary>
         /// A human-readable explanation specific to this occurrence of the problem.
         /// </summary>
-        public string Detail => Message;
+        public string Detail => this.Message;
 
         /// <summary>
         /// Extension data that MAY contain additional, problem type specific details. Extension members appear in the same

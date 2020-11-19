@@ -13,7 +13,7 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBuilder
     {
-        private readonly MethodInfo method;
+        private readonly MethodInfo _method;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ApiOperationInClassConventionExecutorBuilder" /> that represents the given <see cref="ApiOperationDescriptor"/>.
@@ -22,8 +22,8 @@ namespace Blueprint.Middleware
         /// <param name="method">The method that is to be executed.</param>
         public ApiOperationInClassConventionExecutorBuilder(ApiOperationDescriptor operation, MethodInfo method)
         {
-            Operation = operation;
-            this.method = method;
+            this.Operation = operation;
+            this._method = method;
         }
 
         /// <inheritdoc />
@@ -34,7 +34,7 @@ namespace Blueprint.Middleware
         {
             // We rely on the compiler infrastructure to make the correct calls, to the correct type (i.e. the actual
             // operation), and to fill in the parameters of that method as required.
-            var handlerInvokeCall = new MethodCall(context.Descriptor.OperationType, method);
+            var handlerInvokeCall = new MethodCall(context.Descriptor.OperationType, this._method);
 
             // Note that although we know the handler type at compile time, we still specify it as a
             // parameter to logging so that it is output as a structured value (as it changes between
@@ -42,7 +42,7 @@ namespace Blueprint.Middleware
             context.AppendFrames(
                 LogFrame.Debug(
                     "Executing API operation with handler {HandlerType}",
-                    $"\"{method.DeclaringType.Name}\""),
+                    $"\"{this._method.DeclaringType.Name}\""),
                 handlerInvokeCall);
 
             // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'
@@ -63,7 +63,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{method.DeclaringType.Name}.{method.Name}";
+            return $"{this._method.DeclaringType.Name}.{this._method.Name}";
         }
     }
 }

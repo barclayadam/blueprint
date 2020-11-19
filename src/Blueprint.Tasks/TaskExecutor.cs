@@ -13,9 +13,9 @@ namespace Blueprint.Tasks
     /// </summary>
     public class TaskExecutor
     {
-        private readonly IApiOperationExecutor apiOperationExecutor;
-        private readonly IServiceProvider rootServiceProvider;
-        private readonly IApmTool apmTool;
+        private readonly IApiOperationExecutor _apiOperationExecutor;
+        private readonly IServiceProvider _rootServiceProvider;
+        private readonly IApmTool _apmTool;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="TaskExecutor" /> class.
@@ -28,9 +28,9 @@ namespace Blueprint.Tasks
             IServiceProvider rootServiceProvider,
             IApmTool apmTool)
         {
-            this.apiOperationExecutor = apiOperationExecutor;
-            this.rootServiceProvider = rootServiceProvider;
-            this.apmTool = apmTool;
+            this._apiOperationExecutor = apiOperationExecutor;
+            this._rootServiceProvider = rootServiceProvider;
+            this._apmTool = apmTool;
         }
 
         /// <summary>
@@ -49,15 +49,15 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
 
-            using var nestedContainer = rootServiceProvider.CreateScope();
+            using var nestedContainer = this._rootServiceProvider.CreateScope();
 
             var apiContext = new ApiOperationContext(
                 nestedContainer.ServiceProvider,
-                apiOperationExecutor.DataModel,
+                this._apiOperationExecutor.DataModel,
                 taskEnvelope.Task,
                 token);
 
-            using var span = this.apmTool.StartOperation(
+            using var span = this._apmTool.StartOperation(
                 apiContext.Descriptor,
                 SpanKinds.Consumer,
                 taskEnvelope.ApmContext);
@@ -66,7 +66,7 @@ namespace Blueprint.Tasks
 
             apiContext.ApmSpan = span;
 
-            var result = await apiOperationExecutor.ExecuteAsync(apiContext);
+            var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 
             if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
             {

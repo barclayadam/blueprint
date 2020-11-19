@@ -5,7 +5,7 @@ namespace Blueprint.Caching
 {
     public class RuntimeMemoryCacheProvider : ICacheProvider
     {
-        private readonly MemoryCache memoryCache;
+        private readonly MemoryCache _memoryCache;
 
         /// <summary>
         /// Initializes a new instance of the memoryCacheProvider class using the
@@ -18,7 +18,7 @@ namespace Blueprint.Caching
         {
             Guard.NotNull(nameof(memoryCache), memoryCache);
 
-            this.memoryCache = memoryCache;
+            this._memoryCache = memoryCache;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Blueprint.Caching
         /// </param>
         public void Add(string key, object value, CacheOptions options)
         {
-            memoryCache.Add(key, value, new CacheItemPolicy
+            this._memoryCache.Add(key, value, new CacheItemPolicy
             {
                 AbsoluteExpiration = options.AbsoluteExpiration,
                 SlidingExpiration = options.SlidingExpiration,
@@ -56,7 +56,7 @@ namespace Blueprint.Caching
         /// </returns>
         public bool ContainsKey(string key)
         {
-            return memoryCache.Contains(key);
+            return this._memoryCache.Contains(key);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Blueprint.Caching
         /// </returns>
         public object GetValue(string key)
         {
-            return memoryCache[key];
+            return this._memoryCache[key];
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Blueprint.Caching
         /// </param>
         public void Remove(string key)
         {
-            memoryCache.Remove(key);
+            this._memoryCache.Remove(key);
         }
 
         private static System.Runtime.Caching.CacheItemPriority ConvertPriority(CacheItemPriority priority)

@@ -13,7 +13,7 @@ namespace Blueprint.CodeGen
     /// <typeparam name="T">The type of instance represented by this frame.</typeparam>
     public class TransientInstanceFrame<T> : GetInstanceFrame<T>
     {
-        private readonly Type constructedType;
+        private readonly Type _constructedType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransientInstanceFrame{T}"/> class with the specified
@@ -22,15 +22,15 @@ namespace Blueprint.CodeGen
         /// <param name="variableType">The type of variable and request container type.</param>
         public TransientInstanceFrame(Type variableType)
         {
-            constructedType = variableType;
-            InstanceVariable = new Variable(variableType, this);
+            this._constructedType = variableType;
+            this.InstanceVariable = new Variable(variableType, this);
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
             return
-                $"var {InstanceVariable} = services.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.Name}>();";
+                $"var {this.InstanceVariable} = services.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{this._constructedType.Name}>();";
         }
 
         /// <inheritdoc />
@@ -43,7 +43,7 @@ namespace Blueprint.CodeGen
             method.GeneratedType.Namespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
 
             writer.WriteLine(
-                $"var {InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{constructedType.FullNameInCode()}>();");
+                $"var {this.InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{this._constructedType.FullNameInCode()}>();");
 
             next();
         }

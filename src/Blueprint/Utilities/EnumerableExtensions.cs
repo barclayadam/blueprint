@@ -28,8 +28,8 @@ namespace Blueprint.Utilities
         public static Page<T> ToPage<T>(this IEnumerable<T> enumerable, int pageNumber, int pageSize)
         {
             Guard.NotNull(nameof(enumerable), enumerable);
-            Guard.GreaterThanOrEqual("pageNumber", pageNumber, 1);
-            Guard.GreaterThanOrEqual("pageSize", pageSize, 1);
+            Guard.GreaterThanOrEqual(nameof(pageNumber), pageNumber, 1);
+            Guard.GreaterThanOrEqual(nameof(pageSize), pageSize, 1);
 
             var query = enumerable.AsQueryable();
             var totalCount = query.Count();

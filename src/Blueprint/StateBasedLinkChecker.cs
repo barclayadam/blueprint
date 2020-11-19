@@ -13,7 +13,7 @@ namespace Blueprint
     public abstract class StateBasedLinkChecker<TOperation, TResource> : IApiAuthoriser
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Task<ExecutionAllowed> StateCheckFailed = Task.FromResult(ExecutionAllowed.No("Resource in incorrect state", "Cannot perform operation at this time.", ExecutionAllowedFailureType.Authorisation));
+        private static readonly Task<ExecutionAllowed> _stateCheckFailed = Task.FromResult(ExecutionAllowed.No("Resource in incorrect state", "Cannot perform operation at this time.", ExecutionAllowedFailureType.Authorisation));
 
         public bool AppliesTo(ApiOperationDescriptor descriptor)
         {
@@ -35,9 +35,9 @@ namespace Blueprint
 
         public Task<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
-            if (resource is TResource r && !IsLinkAvailableForOperation(operationContext, r))
+            if (resource is TResource r && !this.IsLinkAvailableForOperation(operationContext, r))
             {
-                return StateCheckFailed;
+                return _stateCheckFailed;
             }
 
             return ExecutionAllowed.YesTask;

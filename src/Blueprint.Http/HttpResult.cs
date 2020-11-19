@@ -11,7 +11,7 @@ namespace Blueprint.Http
     /// </summary>
     public abstract class HttpResult : OperationResult
     {
-        private Dictionary<string, StringValues> headers;
+        private Dictionary<string, StringValues> _headers;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="HttpResult" /> class.
@@ -19,7 +19,7 @@ namespace Blueprint.Http
         /// <param name="statusCode">The status code of the response.</param>
         protected HttpResult(HttpStatusCode statusCode)
         {
-            StatusCode = statusCode;
+            this.StatusCode = statusCode;
         }
 
         /// <summary>
@@ -31,13 +31,7 @@ namespace Blueprint.Http
         /// Gets a dictionary that can be populated with custom headers to set on the response when this
         /// result is executed.
         /// </summary>
-        public Dictionary<string, StringValues> Headers
-        {
-            get
-            {
-                return headers ??= new Dictionary<string, StringValues>();
-            }
-        }
+        public Dictionary<string, StringValues> Headers => this._headers ??= new Dictionary<string, StringValues>();
 
         /// <summary>
         /// Sets the HTTP status code and adds any custom headers that have been added to <see cref="Headers" />.
@@ -49,11 +43,11 @@ namespace Blueprint.Http
             var httpContext = context.GetHttpContext();
             var response = httpContext.Response;
 
-            response.StatusCode = (int)StatusCode;
+            response.StatusCode = (int)this.StatusCode;
 
-            if (Headers != null)
+            if (this.Headers != null)
             {
-                foreach (var h in Headers)
+                foreach (var h in this.Headers)
                 {
                     response.Headers.Add(h);
                 }

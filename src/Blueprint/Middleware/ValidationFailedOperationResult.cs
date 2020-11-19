@@ -32,7 +32,7 @@ namespace Blueprint.Middleware
         /// <param name="errors">The errors of this failure result.</param>
         public ValidationFailedOperationResult(Dictionary<string, IEnumerable<string>> errors)
         {
-            Errors = errors;
+            this.Errors = errors;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Blueprint.Middleware
         /// <param name="errors">The validation errors.</param>
         public ValidationFailedOperationResult(ValidationFailures errors)
         {
-            Errors = errors.AsDictionary();
+            this.Errors = errors.AsDictionary();
         }
 
         /// <summary>

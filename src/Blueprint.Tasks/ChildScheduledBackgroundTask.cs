@@ -14,51 +14,51 @@ namespace Blueprint.Tasks
     /// <see cref="IBackgroundTaskScheduleProvider" /> which would have been created from the parent (which would be either another
     /// instance of <see cref="ChildScheduledBackgroundTask" /> or a "root" instance of <see cref="ScheduledBackgroundTask" />.
     /// </remarks>
-    [DebuggerDisplay("ChildScheduledBackgroundTask: Type {taskEnvelope.Task.GetType()}")]
+    [DebuggerDisplay("ChildScheduledBackgroundTask: Type {_taskEnvelope.Task.GetType()}")]
     internal class ChildScheduledBackgroundTask : IScheduledBackgroundTask
     {
-        private readonly BackgroundTaskEnvelope taskEnvelope;
-        private readonly BackgroundTaskContinuationOptions option;
-        private readonly BackgroundTaskScheduler scheduler;
+        private readonly BackgroundTaskEnvelope _taskEnvelope;
+        private readonly BackgroundTaskContinuationOptions _option;
+        private readonly BackgroundTaskScheduler _scheduler;
 
         // NB: children is not initialized as in many cases no children will be added so we want to avoid the allocation
-        private List<ChildScheduledBackgroundTask> children;
+        private List<ChildScheduledBackgroundTask> _children;
 
         public ChildScheduledBackgroundTask(BackgroundTaskEnvelope taskEnvelope, BackgroundTaskContinuationOptions option, BackgroundTaskScheduler scheduler)
         {
-            this.taskEnvelope = taskEnvelope;
-            this.option = option;
-            this.scheduler = scheduler;
+            this._taskEnvelope = taskEnvelope;
+            this._option = option;
+            this._scheduler = scheduler;
         }
 
         public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
         {
-            if (children == null)
+            if (this._children == null)
             {
-                children = new List<ChildScheduledBackgroundTask>();
+                this._children = new List<ChildScheduledBackgroundTask>();
             }
 
             // Copy over the metadata from this parent task, as we know this must have been executed in the
             // same context as this one.
             var backgroundTaskEnvelope = new BackgroundTaskEnvelope(backgroundTask)
             {
-                ApmContext = taskEnvelope.ApmContext,
+                ApmContext = this._taskEnvelope.ApmContext,
             };
 
-            var scheduledBackgroundTask = new ChildScheduledBackgroundTask(backgroundTaskEnvelope, options, scheduler);
+            var scheduledBackgroundTask = new ChildScheduledBackgroundTask(backgroundTaskEnvelope, options, this._scheduler);
 
-            children.Add(scheduledBackgroundTask);
+            this._children.Add(scheduledBackgroundTask);
 
             return scheduledBackgroundTask;
         }
 
         internal async Task PushToProviderAsync(IBackgroundTaskScheduleProvider provider, string parentId)
         {
-            var id = await provider.EnqueueChildAsync(taskEnvelope, parentId, option);
+            var id = await provider.EnqueueChildAsync(this._taskEnvelope, parentId, this._option);
 
-            if (children != null)
+            if (this._children != null)
             {
-                foreach (var child in children)
+                foreach (var child in this._children)
                 {
                     await child.PushToProviderAsync(provider, id);
                 }

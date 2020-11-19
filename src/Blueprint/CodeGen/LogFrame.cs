@@ -18,15 +18,15 @@ namespace Blueprint.CodeGen
     /// </remarks>
     public class LogFrame : SyncFrame
     {
-        private readonly LogLevel level;
-        private readonly string message;
-        private readonly object[] parameters;
+        private readonly LogLevel _level;
+        private readonly string _message;
+        private readonly object[] _parameters;
 
         private LogFrame(LogLevel level, string message, object[] parameters)
         {
-            this.level = level;
-            this.message = message;
-            this.parameters = parameters;
+            this._level = level;
+            this._message = message;
+            this._parameters = parameters;
         }
 
         /// <summary>
@@ -104,21 +104,21 @@ namespace Blueprint.CodeGen
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"Log.{level}(\"{message}\")";
+            return $"Log.{this._level}(\"{this._message}\")";
         }
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var loggerVariable = variables.FindVariable(typeof(ILogger));
-            var safeMessage = SafeValue(message);
+            var safeMessage = SafeValue(this._message);
 
             var methodCall = $"{loggerVariable}.{nameof(ILogger.Log)}";
-            var logLevel = Variable.StaticFrom<LogLevel>(level.ToString());
+            var logLevel = Variable.StaticFrom<LogLevel>(this._level.ToString());
 
-            var safeParameters = parameters.Select(SafeValue);
+            var safeParameters = this._parameters.Select(SafeValue);
 
-            writer.WriteLine(parameters.Length == 0
+            writer.WriteLine(this._parameters.Length == 0
                 ? $"{methodCall}({logLevel}, {safeMessage});"
                 : $"{methodCall}({logLevel}, {safeMessage}, {string.Join(", ", safeParameters)});");
 

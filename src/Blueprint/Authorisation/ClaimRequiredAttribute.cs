@@ -20,11 +20,11 @@ namespace Blueprint.Authorisation
     [AttributeUsage(AttributeTargets.Class)]
     public class ClaimRequiredAttribute : Attribute
     {
-        private static readonly Regex ResourceKeyPropertyRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?}", RegexOptions.Compiled);
+        private static readonly Regex _resourceKeyPropertyRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?}", RegexOptions.Compiled);
 
-        private readonly string claimType;
-        private readonly string valueTemplate;
-        private readonly string valueType;
+        private readonly string _claimType;
+        private readonly string _valueTemplate;
+        private readonly string _valueType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClaimRequiredAttribute"/> class that will be
@@ -39,28 +39,28 @@ namespace Blueprint.Authorisation
             Guard.NotNull(nameof(valueTemplate), valueTemplate);
             Guard.NotNull(nameof(valueType), valueType);
 
-            this.claimType = claimType;
-            this.valueTemplate = valueTemplate;
-            this.valueType = valueType;
+            this._claimType = claimType;
+            this._valueTemplate = valueTemplate;
+            this._valueType = valueType;
         }
 
         /// <summary>
         /// Gets the claim type this attribute represents.
         /// </summary>
-        public string ClaimType => claimType;
+        public string ClaimType => this._claimType;
 
         /// <summary>
         /// Gets the value key template this attribute represents, which should either be the
         /// resource key (or 'template'), or the wildcard '*' to indicate just having a claim
         /// with specified <see cref="ClaimType"/> and <see cref="ValueType" /> is enough.
         /// </summary>
-        public string ValueTemplate => valueTemplate;
+        public string ValueTemplate => this._valueTemplate;
 
         /// <summary>
         /// Gets the value type this attribute represents, which would for example be the
         /// actual role / permission request (i.e. ViewReport).
         /// </summary>
-        public string ValueType => valueType;
+        public string ValueType => this._valueType;
 
         /// <summary>
         /// Gets the claims that decorate the type of the given object.
@@ -71,8 +71,8 @@ namespace Blueprint.Authorisation
         {
             Guard.NotNull(nameof(resource), resource);
 
-            var value = ResourceKeyPropertyRegex.Replace(
-                ValueTemplate,
+            var value = _resourceKeyPropertyRegex.Replace(
+                this.ValueTemplate,
                 match =>
                 {
                     var propertyName = match.Groups["propName"].Value;
@@ -91,7 +91,7 @@ namespace Blueprint.Authorisation
                     if (property == null)
                     {
                         throw new InvalidOperationException(
-                            $"'{ValueTemplate}' is malformed. Cannot find the property '{propertyName}' on type '{resource.GetType()}' to create claim, make sure it is a property not a field.");
+                            $"'{this.ValueTemplate}' is malformed. Cannot find the property '{propertyName}' on type '{resource.GetType()}' to create claim, make sure it is a property not a field.");
                     }
 
                     var propertyValue = property.GetValue(resource, null);
@@ -99,7 +99,7 @@ namespace Blueprint.Authorisation
                     return propertyValue?.ToString() ?? "[null]";
                 });
 
-            return new Claim(ClaimType, value, ValueType);
+            return new Claim(this.ClaimType, value, this.ValueType);
         }
     }
 }

@@ -14,10 +14,10 @@ namespace Blueprint
     /// </summary>
     public class MiddlewareBuilderContext
     {
-        private readonly Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> exceptionHandlers = new Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>>();
-        private readonly FramesCollection finallyFrames = new FramesCollection();
+        private readonly Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> _exceptionHandlers = new Dictionary<Type, List<Func<Variable, IEnumerable<Frame>>>>();
+        private readonly FramesCollection _finallyFrames = new FramesCollection();
 
-        private readonly InstanceFrameProvider instanceFrameProvider;
+        private readonly InstanceFrameProvider _instanceFrameProvider;
 
         internal MiddlewareBuilderContext(
             GeneratedMethod executeMethod,
@@ -27,13 +27,13 @@ namespace Blueprint
             InstanceFrameProvider instanceFrameProvider,
             bool isNested)
         {
-            ExecuteMethod = executeMethod;
-            Descriptor = descriptor;
-            Model = model;
-            ServiceProvider = serviceProvider;
-            IsNested = isNested;
+            this.ExecuteMethod = executeMethod;
+            this.Descriptor = descriptor;
+            this.Model = model;
+            this.ServiceProvider = serviceProvider;
+            this.IsNested = isNested;
 
-            this.instanceFrameProvider = instanceFrameProvider;
+            this._instanceFrameProvider = instanceFrameProvider;
         }
 
         /// <summary>
@@ -45,12 +45,12 @@ namespace Blueprint
         /// <summary>
         /// Gets the generated type that contains the execution method and implements <see cref="IOperationExecutorPipeline" />.
         /// </summary>
-        public GeneratedType GeneratedType => ExecuteMethod.GeneratedType;
+        public GeneratedType GeneratedType => this.ExecuteMethod.GeneratedType;
 
         /// <summary>
         /// Gets the assembly that contains the generated pipeline.
         /// </summary>
-        public GeneratedAssembly GeneratedAssembly => GeneratedType.GeneratedAssembly;
+        public GeneratedAssembly GeneratedAssembly => this.GeneratedType.GeneratedAssembly;
 
         /// <summary>
         /// Gets the descriptor for the operation that a method is currently being generated for.
@@ -75,12 +75,12 @@ namespace Blueprint
         /// <summary>
         /// Gets the currently registered exception handlers.
         /// </summary>
-        public IReadOnlyDictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> ExceptionHandlers => exceptionHandlers;
+        public IReadOnlyDictionary<Type, List<Func<Variable, IEnumerable<Frame>>>> ExceptionHandlers => this._exceptionHandlers;
 
         /// <summary>
         /// Gets the list of registered frames to execute in the operation's finally block.
         /// </summary>
-        public IReadOnlyList<Frame> FinallyFrames => finallyFrames;
+        public IReadOnlyList<Frame> FinallyFrames => this._finallyFrames;
 
         /// <summary>
         /// Adds a reference to the given <see cref="Assembly" /> to the generated assembly, ensuring that any types that are used
@@ -91,7 +91,7 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(assembly), assembly);
 
-            GeneratedAssembly.ReferenceAssembly(assembly);
+            this.GeneratedAssembly.ReferenceAssembly(assembly);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Blueprint
         /// <param name="frames">The frames to be appended.</param>
         public void AppendFrames(params Frame[] frames)
         {
-            ExecuteMethod.Frames.Append(frames);
+            this.ExecuteMethod.Frames.Append(frames);
         }
 
         /// <summary>
@@ -118,11 +118,11 @@ namespace Blueprint
         /// specified exception type and represents the caught exception.</param>
         public void RegisterUnhandledExceptionHandler(Type exceptionType, Func<Variable, IEnumerable<Frame>> create)
         {
-            AddAssemblyReference(exceptionType.Assembly);
+            this.AddAssemblyReference(exceptionType.Assembly);
 
-            if (!exceptionHandlers.TryGetValue(exceptionType, out var handlers))
+            if (!this._exceptionHandlers.TryGetValue(exceptionType, out var handlers))
             {
-                exceptionHandlers[exceptionType] = handlers = new List<Func<Variable, IEnumerable<Frame>>>();
+                this._exceptionHandlers[exceptionType] = handlers = new List<Func<Variable, IEnumerable<Frame>>>();
             }
 
             handlers.Add(create);
@@ -135,7 +135,7 @@ namespace Blueprint
         /// <param name="frames">The frame(s) to append.</param>
         public void RegisterFinallyFrames(params Frame[] frames)
         {
-            finallyFrames.Append(frames);
+            this._finallyFrames.Append(frames);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Blueprint
         /// <seealso cref="ApiOperationContextVariableSource" />
         public Variable FindVariable(Type type)
         {
-            return ExecuteMethod.FindVariable(type);
+            return this.ExecuteMethod.FindVariable(type);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Blueprint
         /// <seealso cref="ApiOperationContextVariableSource" />
         public Variable FindVariable<T>()
         {
-            return ExecuteMethod.FindVariable(typeof(T));
+            return this.ExecuteMethod.FindVariable(typeof(T));
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no registration exists for the given type.</exception>>
         public GetInstanceFrame<T> VariableFromContainer<T>()
         {
-            return GetVariableFromContainer<T>(typeof(T));
+            return this.GetVariableFromContainer<T>(typeof(T));
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no registration exists for the given type.</exception>>
         public GetInstanceFrame<object> VariableFromContainer(Type type)
         {
-            return GetVariableFromContainer<object>(type);
+            return this.GetVariableFromContainer<object>(type);
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Blueprint
         /// <c>null</c> if no such registration exists.</returns>
         public GetInstanceFrame<T> TryGetVariableFromContainer<T>()
         {
-            return TryGetVariableFromContainer<T>(typeof(T));
+            return this.TryGetVariableFromContainer<T>(typeof(T));
         }
 
         /// <summary>
@@ -231,21 +231,21 @@ namespace Blueprint
         /// <c>null</c> if no such registration exists.</returns>
         public GetInstanceFrame<object> TryGetVariableFromContainer(Type type)
         {
-            return TryGetVariableFromContainer<object>(type);
+            return this.TryGetVariableFromContainer<object>(type);
         }
 
         private GetInstanceFrame<T> GetVariableFromContainer<T>(Type type)
         {
-            AddAssemblyReference(type.Assembly);
+            this.AddAssemblyReference(type.Assembly);
 
-            return instanceFrameProvider.GetVariableFromContainer<T>(GeneratedType, type);
+            return this._instanceFrameProvider.GetVariableFromContainer<T>(this.GeneratedType, type);
         }
 
         private GetInstanceFrame<T> TryGetVariableFromContainer<T>(Type type)
         {
-            AddAssemblyReference(type.Assembly);
+            this.AddAssemblyReference(type.Assembly);
 
-            return instanceFrameProvider.TryGetVariableFromContainer<T>(GeneratedType, type);
+            return this._instanceFrameProvider.TryGetVariableFromContainer<T>(this.GeneratedType, type);
         }
     }
 }

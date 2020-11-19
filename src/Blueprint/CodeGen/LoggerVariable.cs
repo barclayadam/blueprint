@@ -6,19 +6,19 @@ namespace Blueprint.CodeGen
 {
     public class LoggerVariable : InjectedField
     {
-        private readonly string name;
+        private readonly string _name;
 
         public LoggerVariable(string name)
             : base(typeof(ILogger))
         {
-            this.name = name;
+            this._name = name;
         }
 
-        public override string CtorArgDeclaration => $"{typeof(ILoggerFactory).FullNameInCode()} {ArgumentName}Factory";
+        public override string CtorArgDeclaration => $"{typeof(ILoggerFactory).FullNameInCode()} {this.ArgumentName}Factory";
 
         public override void WriteAssignment(ISourceWriter writer)
         {
-            writer.WriteLine($"{Usage} = {ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{name}\");");
+            writer.WriteLine($"{this.Usage} = {this.ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{this._name}\");");
         }
     }
 }

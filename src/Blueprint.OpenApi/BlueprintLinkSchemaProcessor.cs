@@ -12,7 +12,7 @@ namespace Blueprint.OpenApi
     /// </summary>
     public class BlueprintLinkSchemaProcessor : ISchemaProcessor
     {
-        private readonly ApiDataModel apiDataModel;
+        private readonly ApiDataModel _apiDataModel;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintLinkSchemaProcessor" /> class.
@@ -20,7 +20,7 @@ namespace Blueprint.OpenApi
         /// <param name="apiDataModel">The <see cref="ApiDataModel" /> being processed.</param>
         public BlueprintLinkSchemaProcessor(ApiDataModel apiDataModel)
         {
-            this.apiDataModel = apiDataModel;
+            this._apiDataModel = apiDataModel;
         }
 
         /// <inheritdoc />
@@ -31,7 +31,7 @@ namespace Blueprint.OpenApi
                 return;
             }
 
-            var resourceLinks = apiDataModel
+            var resourceLinks = this._apiDataModel
                 .GetLinksForResource(context.Type)
                 .Where(l => l.Rel != "self")
                 .ToList();

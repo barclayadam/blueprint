@@ -14,7 +14,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public sealed class NotInFutureAttribute : ValidationAttribute
     {
-        private readonly TemporalCheck temporalCheckType;
+        private readonly TemporalCheck _temporalCheckType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotInFutureAttribute"/> class.
@@ -22,7 +22,7 @@ namespace Blueprint.Validation
         /// <param name="temporalCheckType">The type of check to perform.</param>
         public NotInFutureAttribute(TemporalCheck temporalCheckType)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Blueprint.Validation
         public NotInFutureAttribute(string errorMessage, TemporalCheck temporalCheckType)
                 : base(errorMessage)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Blueprint.Validation
         public NotInFutureAttribute(Func<string> errorMessageAccessor, TemporalCheck temporalCheckType)
                 : base(errorMessageAccessor)
         {
-            this.temporalCheckType = temporalCheckType;
+            this._temporalCheckType = temporalCheckType;
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Blueprint.Validation
 
                 if (DateTime.TryParse(value.ToString(), out valueAsDateTime))
                 {
-                    return !valueAsDateTime.IsInFuture(temporalCheckType);
+                    return !valueAsDateTime.IsInFuture(this._temporalCheckType);
                 }
 
                 return false;

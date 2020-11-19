@@ -20,7 +20,7 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(exception), exception);
 
-            Exception = exception;
+            this.Exception = exception;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Blueprint
         /// </summary>
         public void Rethrow()
         {
-            ExceptionDispatchInfo.Capture(Exception).Throw();
+            ExceptionDispatchInfo.Capture(this.Exception).Throw();
         }
     }
 }

@@ -61,51 +61,51 @@ namespace Blueprint.Apm.DataDog
 
         private class OpenTracingSpan : IApmSpan
         {
-            private readonly DataDogApmTool tool;
-            private readonly Scope scope;
+            private readonly DataDogApmTool _tool;
+            private readonly Scope _scope;
 
             public OpenTracingSpan(DataDogApmTool tool, Scope scope)
             {
-                this.tool = tool;
-                this.scope = scope;
+                this._tool = tool;
+                this._scope = scope;
             }
 
-            public string TraceId => scope.Span.TraceId.ToString();
+            public string TraceId => this._scope.Span.TraceId.ToString();
 
             public IApmSpan StartSpan(
                 string spanKind,
                 string operationName,
                 string type)
             {
-                return tool.Start(spanKind, operationName, type);
+                return this._tool.Start(spanKind, operationName, type);
             }
 
             public void Dispose()
             {
-                this.scope.Dispose();
+                this._scope.Dispose();
             }
 
             public void RecordException(Exception e)
             {
-                this.scope.Span.SetException(e);
+                this._scope.Span.SetException(e);
             }
 
             public void SetTag(string key, string value)
             {
-                this.scope.Span.SetTag(key, value);
+                this._scope.Span.SetTag(key, value);
             }
 
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
-                context["SpanId"] = this.scope.Span.SpanId.ToString();
-                context["TraceId"] = this.scope.Span.TraceId.ToString();
-                context["SamplingPriority"] = this.scope.Span.GetTag(Tags.SamplingPriority);
+                context["SpanId"] = this._scope.Span.SpanId.ToString();
+                context["TraceId"] = this._scope.Span.TraceId.ToString();
+                context["SamplingPriority"] = this._scope.Span.GetTag(Tags.SamplingPriority);
             }
 
             public void SetResource(string resourceName)
             {
-                this.scope.Span.ResourceName = resourceName;
+                this._scope.Span.ResourceName = resourceName;
             }
         }
     }

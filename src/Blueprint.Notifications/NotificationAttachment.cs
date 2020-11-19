@@ -14,10 +14,10 @@ namespace Blueprint.Notifications
         /// <param name="physicalFilePath">The file path.</param>
         public NotificationAttachment(string physicalFilePath)
         {
-            Guard.NotNullOrEmpty("physicalFilePath", physicalFilePath);
+            Guard.NotNullOrEmpty(nameof(physicalFilePath), physicalFilePath);
 
-            Name = Path.GetFileName(physicalFilePath);
-            PhysicalFilePath = physicalFilePath;
+            this.Name = Path.GetFileName(physicalFilePath);
+            this.PhysicalFilePath = physicalFilePath;
         }
 
         /// <summary>
@@ -27,11 +27,11 @@ namespace Blueprint.Notifications
         /// <param name="name">The name.</param>
         public NotificationAttachment(string physicalFilePath, string name)
         {
-            Guard.NotNullOrEmpty("physicalFilePath", physicalFilePath);
-            Guard.NotNullOrEmpty("name", name);
+            Guard.NotNullOrEmpty(nameof(physicalFilePath), physicalFilePath);
+            Guard.NotNullOrEmpty(nameof(name), name);
 
-            Name = name;
-            PhysicalFilePath = physicalFilePath;
+            this.Name = name;
+            this.PhysicalFilePath = physicalFilePath;
         }
 
         /// <summary>
@@ -42,10 +42,10 @@ namespace Blueprint.Notifications
         public NotificationAttachment(Stream stream, string name)
         {
             Guard.NotNull(nameof(stream), stream);
-            Guard.NotNullOrEmpty("name", name);
+            Guard.NotNullOrEmpty(nameof(name), name);
 
-            Name = name;
-            Stream = stream;
+            this.Name = name;
+            this.Stream = stream;
         }
 
         /// <summary>
@@ -66,12 +66,12 @@ namespace Blueprint.Notifications
 
         public Attachment ToMailAttachment()
         {
-            if (Stream == null)
+            if (this.Stream == null)
             {
-                return new Attachment(PhysicalFilePath) { Name = Name };
+                return new Attachment(this.PhysicalFilePath) { Name = this.Name };
             }
 
-            return new Attachment(Stream, Name);
+            return new Attachment(this.Stream, this.Name);
         }
     }
 }

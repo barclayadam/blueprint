@@ -20,7 +20,7 @@ namespace Blueprint.Utilities
 
         public static TEnumType AsEnum<TEnumType>(this string value) where TEnumType : struct
         {
-            Guard.NotNullOrEmpty("value", value);
+            Guard.NotNullOrEmpty(nameof(value), value);
 
             return (TEnumType)Enum.Parse(typeof(TEnumType), value);
         }

@@ -5,9 +5,9 @@ namespace Blueprint.Http
 {
     public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     {
-        private readonly IApiAuthoriserAggregator apiAuthoriserAggregator;
-        private readonly IApiLinkGenerator linkGenerator;
-        private readonly ILogger<EntityOperationResourceLinkGenerator> logger;
+        private readonly IApiAuthoriserAggregator _apiAuthoriserAggregator;
+        private readonly IApiLinkGenerator _linkGenerator;
+        private readonly ILogger<EntityOperationResourceLinkGenerator> _logger;
 
         public EntityOperationResourceLinkGenerator(
             IApiAuthoriserAggregator apiAuthoriserAggregator,
@@ -18,9 +18,9 @@ namespace Blueprint.Http
             Guard.NotNull(nameof(linkGenerator), linkGenerator);
             Guard.NotNull(nameof(logger), logger);
 
-            this.apiAuthoriserAggregator = apiAuthoriserAggregator;
-            this.linkGenerator = linkGenerator;
-            this.logger = logger;
+            this._apiAuthoriserAggregator = apiAuthoriserAggregator;
+            this._linkGenerator = linkGenerator;
+            this._logger = logger;
         }
 
         public async Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
@@ -37,32 +37,32 @@ namespace Blueprint.Http
 
                 if (!entityOperation.IsExposed)
                 {
-                    if (logger.IsEnabled(LogLevel.Trace))
+                    if (this._logger.IsEnabled(LogLevel.Trace))
                     {
-                        logger.LogTrace("Operation not exposed, excluding. operation_type={0}", entityOperationName);
+                        this._logger.LogTrace("Operation not exposed, excluding. operation_type={0}", entityOperationName);
                     }
 
                     continue;
                 }
 
-                var result = await apiAuthoriserAggregator.CanShowLinkAsync(context, entityOperation, linkableResource);
+                var result = await this._apiAuthoriserAggregator.CanShowLinkAsync(context, entityOperation, linkableResource);
 
                 if (result.IsAllowed == false)
                 {
-                    if (logger.IsEnabled(LogLevel.Trace))
+                    if (this._logger.IsEnabled(LogLevel.Trace))
                     {
-                        logger.LogTrace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
+                        this._logger.LogTrace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
                     }
 
                     continue;
                 }
 
-                if (logger.IsEnabled(LogLevel.Trace))
+                if (this._logger.IsEnabled(LogLevel.Trace))
                 {
-                    logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
+                    this._logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
                 }
 
-                linkableResource.AddLink(link.Rel, ConvertResourceDescriptorToLink(link, linkableResource));
+                linkableResource.AddLink(link.Rel, this.ConvertResourceDescriptorToLink(link, linkableResource));
             }
         }
 
@@ -70,7 +70,7 @@ namespace Blueprint.Http
         {
             return new Link
             {
-                Href = linkGenerator.CreateUrl(link, result),
+                Href = this._linkGenerator.CreateUrl(link, result),
             };
         }
     }

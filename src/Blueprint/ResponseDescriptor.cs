@@ -26,10 +26,10 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(type), type);
 
-            Type = type;
-            HttpStatus = httpStatus;
-            Description = description;
-            Metadata = metadata;
+            this.Type = type;
+            this.HttpStatus = httpStatus;
+            this.Description = description;
+            this.Metadata = metadata;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Blueprint
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{Type}: {HttpStatus}";
+            return $"{this.Type}: {this.HttpStatus}";
         }
     }
 }

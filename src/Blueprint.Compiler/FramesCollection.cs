@@ -10,7 +10,7 @@ namespace Blueprint.Compiler
 {
     public class FramesCollection : IReadOnlyList<Frame>
     {
-        private readonly List<Frame> frames = new List<Frame>();
+        private readonly List<Frame> _frames = new List<Frame>();
 
         /// <summary>
         /// Adds the specified <see cref="Frame" /> to this collection.
@@ -24,7 +24,7 @@ namespace Blueprint.Compiler
                 throw new ArgumentNullException(nameof(frame));
             }
 
-            frames.Add(frame);
+            this._frames.Add(frame);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Blueprint.Compiler
                 throw new ArgumentNullException(nameof(frame));
             }
 
-            frames.Insert(index, frame);
+            this._frames.Insert(index, frame);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Blueprint.Compiler
                 throw new ArgumentNullException(nameof(frame));
             }
 
-            return frames.IndexOf(frame);
+            return this._frames.IndexOf(frame);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Blueprint.Compiler
                     throw new ArgumentNullException(nameof(frame));
                 }
 
-                frames.Add(frame);
+                this._frames.Add(frame);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Blueprint.Compiler
         /// </summary>
         public void Clear()
         {
-            frames.Clear();
+            this._frames.Clear();
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Blueprint.Compiler
         {
             var frame = new ReturnFrame(returnType);
 
-            Add(frame);
+            this.Add(frame);
             return this;
         }
 
@@ -107,7 +107,7 @@ namespace Blueprint.Compiler
         {
             var frame = new ReturnFrame(returnVariable);
 
-            Add(frame);
+            this.Add(frame);
             return this;
         }
 
@@ -123,7 +123,7 @@ namespace Blueprint.Compiler
         {
             var frame = new ConstructorFrame<T>(constructor);
             configure?.Invoke(frame);
-            Add(frame);
+            this.Add(frame);
 
             return this;
         }
@@ -135,7 +135,7 @@ namespace Blueprint.Compiler
         /// <returns>This frame collection.</returns>
         public FramesCollection Append<T>() where T : Frame, new()
         {
-            return Append(new T());
+            return this.Append(new T());
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Blueprint.Compiler
         /// <returns>This frame collection.</returns>
         public FramesCollection Append(params Frame[] frames)
         {
-            AddRange(frames);
+            this.AddRange(frames);
             return this;
         }
 
@@ -161,7 +161,7 @@ namespace Blueprint.Compiler
         {
             var @call = MethodCall.For(expression);
             configure?.Invoke(@call);
-            Add(@call);
+            this.Add(@call);
 
             return this;
         }
@@ -177,19 +177,19 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         IEnumerator<Frame> IEnumerable<Frame>.GetEnumerator()
         {
-            return frames.GetEnumerator();
+            return this._frames.GetEnumerator();
         }
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable)frames).GetEnumerator();
+            return ((IEnumerable)this._frames).GetEnumerator();
         }
 
         /// <inheritdoc />
-        public int Count => frames.Count;
+        public int Count => this._frames.Count;
 
         /// <inheritdoc />
-        public Frame this[int index] => frames[index];
+        public Frame this[int index] => this._frames[index];
     }
 }

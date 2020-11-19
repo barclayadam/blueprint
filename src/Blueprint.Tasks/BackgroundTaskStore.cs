@@ -10,15 +10,15 @@ namespace Blueprint.Tasks
     /// </summary>
     public class BackgroundTaskStore
     {
-        private readonly string contextKey;
-        private readonly IBackgroundTaskContextProvider provider;
+        private readonly string _contextKey;
+        private readonly IBackgroundTaskContextProvider _provider;
 
-        private bool loaded;
-        private bool modified;
+        private bool _loaded;
+        private bool _modified;
 
         // NB: We only create this on first modification, or set it on first load to avoid allocating
         // empty dictionaries for every creation of context when most tasks do not require this
-        private BackgroundTaskContextData data;
+        private BackgroundTaskContextData _data;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BackgroundTaskStore" /> class.
@@ -27,15 +27,15 @@ namespace Blueprint.Tasks
         /// <param name="provider">The provider that implements the actual persistent storage.</param>
         public BackgroundTaskStore(string contextKey, IBackgroundTaskContextProvider provider)
         {
-            this.contextKey = contextKey;
-            this.provider = provider;
+            this._contextKey = contextKey;
+            this._provider = provider;
         }
 
         /// <summary>
         /// Gets the key of this context, a value that identifies the context in the system. This value will
         /// NOT be unique per execution but is instead usually shared between task <b>types</b>.
         /// </summary>
-        public string Key => contextKey;
+        public string Key => this._contextKey;
 
         /// <summary>
         /// Creates a new 'empty' <see cref="BackgroundTaskStore"/> which will not have any data that
@@ -67,26 +67,26 @@ namespace Blueprint.Tasks
         /// <returns>The stored value, or <c>default(T)</c> if it does not exist.</returns>
         public async Task<T> GetAsync<T>(string key)
         {
-            if (!loaded)
+            if (!this._loaded)
             {
-                var loadedData = await provider.LoadDataAsync(contextKey)
-                                 ?? new BackgroundTaskContextData(contextKey);
+                var loadedData = await this._provider.LoadDataAsync(this._contextKey)
+                                 ?? new BackgroundTaskContextData(this._contextKey);
 
                 // If data has been modified before loading we need to merge those
                 // changes in to the existing data
-                if (modified)
+                if (this._modified)
                 {
-                    foreach (var modifiedKvp in data.Data)
+                    foreach (var modifiedKvp in this._data.Data)
                     {
                         loadedData.Data[modifiedKvp.Key] = modifiedKvp.Value;
                     }
                 }
 
-                data = loadedData;
-                loaded = true;
+                this._data = loadedData;
+                this._loaded = true;
             }
 
-            if (data.Data.TryGetValue(key, out var value))
+            if (this._data.Data.TryGetValue(key, out var value))
             {
                 return (T)value;
             }
@@ -102,14 +102,14 @@ namespace Blueprint.Tasks
         /// <param name="value">The value to store.</param>
         public void Set(string key, object value)
         {
-            modified = true;
+            this._modified = true;
 
-            if (data == null)
+            if (this._data == null)
             {
-                data = new BackgroundTaskContextData(contextKey);
+                this._data = new BackgroundTaskContextData(this._contextKey);
             }
 
-            data.Data[key] = value;
+            this._data.Data[key] = value;
         }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Blueprint.Tasks
         /// <returns>A task representing the save operation.</returns>
         public Task SaveAsync()
         {
-            if (!modified)
+            if (!this._modified)
             {
                 return Task.CompletedTask;
             }
 
-            return provider.SaveDataAsync(data);
+            return this._provider.SaveDataAsync(this._data);
         }
     }
 }

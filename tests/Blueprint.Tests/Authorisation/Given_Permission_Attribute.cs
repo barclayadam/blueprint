@@ -35,11 +35,11 @@ namespace Blueprint.Tests.Authorisation
             Func<Task> tryExecute = () => executor.ExecuteWithAuth(new ClaimRequiredOperation());
 
             // Assert
-            var okResult = tryExecute.Should().ThrowExactly<ForbiddenException>();
+            var forbiddenException = await tryExecute.Should().ThrowExactlyAsync<ForbiddenException>();
 
-            okResult.And.Detail.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
-            okResult.And.Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
-            okResult.And.Title.Should().Be("You do not have enough permissions to perform this action");
+            forbiddenException.And.Detail.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            forbiddenException.And.Message.Should().Be("User does not have required claim urn:claims/permission ExecuteThisOperation for *");
+            forbiddenException.And.Title.Should().Be("You do not have enough permissions to perform this action");
         }
 
         [Test]

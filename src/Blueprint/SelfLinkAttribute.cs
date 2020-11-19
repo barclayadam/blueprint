@@ -8,7 +8,7 @@ namespace Blueprint
         public SelfLinkAttribute(Type resourceType, string resourceUrl)
             : base(resourceType, resourceUrl)
         {
-            Rel = "self";
+            this.Rel = "self";
         }
     }
 }

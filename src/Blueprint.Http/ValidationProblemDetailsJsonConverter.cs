@@ -7,7 +7,7 @@ namespace Blueprint.Http
 {
     internal class ValidationProblemDetailsJsonConverter : JsonConverter<ValidationProblemDetails>
     {
-        private static readonly JsonEncodedText Errors = JsonEncodedText.Encode("errors");
+        private static readonly JsonEncodedText _errors = JsonEncodedText.Encode("errors");
 
         public override ValidationProblemDetails Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -20,7 +20,7 @@ namespace Blueprint.Http
 
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
-                if (reader.ValueTextEquals(Errors.EncodedUtf8Bytes))
+                if (reader.ValueTextEquals(_errors.EncodedUtf8Bytes))
                 {
                     var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(ref reader, options);
                     foreach (var item in errors)
@@ -47,7 +47,7 @@ namespace Blueprint.Http
             writer.WriteStartObject();
             ProblemDetailsJsonConverter.WriteProblemDetails(writer, value, options);
 
-            writer.WriteStartObject(Errors);
+            writer.WriteStartObject(_errors);
 
             foreach (var kvp in value.Errors)
             {

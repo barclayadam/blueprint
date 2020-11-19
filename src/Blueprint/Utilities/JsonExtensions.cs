@@ -12,12 +12,12 @@ namespace Blueprint.Utilities
     public static class JsonExtensions
     {
         // TODO potentially move typed settings in here
-        private static readonly JsonSerializer DefaultSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
+        private static readonly JsonSerializer _defaultSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
         {
             CheckAdditionalContent = false,
         });
 
-        private static readonly Dictionary<Type, object> EmptyArrayCache = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, object> _emptyArrayCache = new Dictionary<Type, object>();
 
         public static T FromJson<T>(this string value) where T : class
         {
@@ -26,7 +26,7 @@ namespace Blueprint.Utilities
                 return default;
             }
 
-            return (T)FromJson(value, typeof(T), DefaultSerializer);
+            return (T)FromJson(value, typeof(T), _defaultSerializer);
         }
 
         public static T FromJson<T>(this string value, JsonSerializer serializer) where T : class
@@ -46,7 +46,7 @@ namespace Blueprint.Utilities
                 return default;
             }
 
-            return FromJson(value, type, DefaultSerializer);
+            return FromJson(value, type, _defaultSerializer);
         }
 
         public static object FromJson(this string value, Type valueType, JsonSerializer serializer)
@@ -60,15 +60,15 @@ namespace Blueprint.Utilities
             // via. FromJson(value, typeof(IEnumerable<>), serializer)
             if (value == "[]")
             {
-                if (EmptyArrayCache.ContainsKey(valueType))
+                if (_emptyArrayCache.ContainsKey(valueType))
                 {
-                    return EmptyArrayCache[valueType];
+                    return _emptyArrayCache[valueType];
                 }
 
                 if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
-                    EmptyArrayCache[valueType] = Array.CreateInstance(valueType.GetGenericArguments()[0], 0);
-                    return EmptyArrayCache[valueType];
+                    _emptyArrayCache[valueType] = Array.CreateInstance(valueType.GetGenericArguments()[0], 0);
+                    return _emptyArrayCache[valueType];
                 }
             }
 
@@ -81,7 +81,7 @@ namespace Blueprint.Utilities
 
         public static string ToJson<T>(this T value)
         {
-            return ToJson(value, typeof(T), DefaultSerializer);
+            return ToJson(value, typeof(T), _defaultSerializer);
         }
 
         public static string ToJson<T>(this T value, JsonSerializer serializer)
@@ -91,7 +91,7 @@ namespace Blueprint.Utilities
 
         public static string ToJson(object value, Type objectType)
         {
-            return ToJson(value, objectType, DefaultSerializer);
+            return ToJson(value, objectType, _defaultSerializer);
         }
 
         public static string ToJson(object value, Type objectType, JsonSerializer serializer)

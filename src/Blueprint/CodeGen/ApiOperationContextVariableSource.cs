@@ -24,7 +24,7 @@ namespace Blueprint.CodeGen
     /// </remarks>
     public class ApiOperationContextVariableSource : IVariableSource
     {
-        private readonly Argument operationContextVariable;
+        private readonly Argument _operationContextVariable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiOperationContextVariableSource" /> class.
@@ -34,9 +34,9 @@ namespace Blueprint.CodeGen
         /// type.</param>
         public ApiOperationContextVariableSource(Argument operationContextVariable, Variable castFrameCastOperationVariable)
         {
-            this.operationContextVariable = operationContextVariable;
+            this._operationContextVariable = operationContextVariable;
 
-            OperationVariable = castFrameCastOperationVariable;
+            this.OperationVariable = castFrameCastOperationVariable;
         }
 
         /// <summary>
@@ -54,61 +54,61 @@ namespace Blueprint.CodeGen
         /// <returns>The corresponding <see cref="Variable"/> for the type.</returns>
         public Variable Get(Type type)
         {
-            return DoTryFindVariable(type) ??
+            return this.DoTryFindVariable(type) ??
                    throw new ArgumentException($"{nameof(ApiOperationContextVariableSource)} cannot build variable of type {type.Name}");
         }
 
         /// <inheritdoc />
         public Variable TryFindVariable(IMethodVariables variables, Type type)
         {
-            return DoTryFindVariable(type);
+            return this.DoTryFindVariable(type);
         }
 
         private Variable DoTryFindVariable(Type type)
         {
             if (type == typeof(ApiDataModel))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.DataModel));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.DataModel));
             }
 
             if (type == typeof(ApiOperationDescriptor))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.Descriptor));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.Descriptor));
             }
 
             if (type == typeof(ApiOperationContext))
             {
-                return operationContextVariable;
+                return this._operationContextVariable;
             }
 
-            if (type == OperationVariable.VariableType)
+            if (type == this.OperationVariable.VariableType)
             {
-                return OperationVariable;
+                return this.OperationVariable;
             }
 
             if (type == typeof(IServiceProvider))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.ServiceProvider));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.ServiceProvider));
             }
 
             if (type == typeof(IUserAuthorisationContext))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.UserAuthorisationContext));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.UserAuthorisationContext));
             }
 
             if (type == typeof(ClaimsIdentity))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.ClaimsIdentity));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.ClaimsIdentity));
             }
 
             if (type == typeof(IApmSpan))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
             }
 
             if (type == typeof(CancellationToken))
             {
-                return operationContextVariable.GetProperty(nameof(ApiOperationContext.OperationCancelled));
+                return this._operationContextVariable.GetProperty(nameof(ApiOperationContext.OperationCancelled));
             }
 
             return null;

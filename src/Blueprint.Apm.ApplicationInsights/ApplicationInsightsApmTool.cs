@@ -12,7 +12,7 @@ namespace Blueprint.Apm.ApplicationInsights
     /// </summary>
     public class ApplicationInsightsApmTool : IApmTool
     {
-        private readonly TelemetryClient telemetryClient;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the ApplicationInsightsApmOperationTracker class that will
@@ -21,13 +21,13 @@ namespace Blueprint.Apm.ApplicationInsights
         /// <param name="telemetryClient">The client to interact with Application Insights.</param>
         public ApplicationInsightsApmTool(TelemetryClient telemetryClient)
         {
-            this.telemetryClient = telemetryClient;
+            this._telemetryClient = telemetryClient;
         }
 
         /// <inheritdoc />
         public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
         {
-            var request = telemetryClient.StartOperation<RequestTelemetry>(operation.Name);
+            var request = this._telemetryClient.StartOperation<RequestTelemetry>(operation.Name);
 
             if (existingContext != null &&
                 existingContext.TryGetValue("RootId", out var rootId) &&
@@ -45,7 +45,7 @@ namespace Blueprint.Apm.ApplicationInsights
         {
             if (spanKind == SpanKinds.Client || spanKind == SpanKinds.Producer || spanKind == SpanKinds.Internal)
             {
-                var operation = telemetryClient.StartOperation<DependencyTelemetry>(operationName);
+                var operation = this._telemetryClient.StartOperation<DependencyTelemetry>(operationName);
                 operation.Telemetry.Type = type;
                 operation.Telemetry.Target = resourceName;
 
@@ -61,7 +61,7 @@ namespace Blueprint.Apm.ApplicationInsights
             }
             else
             {
-                var operation = telemetryClient.StartOperation<RequestTelemetry>(operationName);
+                var operation = this._telemetryClient.StartOperation<RequestTelemetry>(operationName);
                 operation.Telemetry.Properties["Type"] = type;
                 operation.Telemetry.Properties["ResourceName"] = resourceName;
 
@@ -79,36 +79,36 @@ namespace Blueprint.Apm.ApplicationInsights
 
         private class ApplicationInsightsApmSpan<T> : IApmSpan where T : OperationTelemetry
         {
-            private readonly ApplicationInsightsApmTool tool;
-            private readonly IOperationHolder<T> operation;
+            private readonly ApplicationInsightsApmTool _tool;
+            private readonly IOperationHolder<T> _operation;
 
             public ApplicationInsightsApmSpan(ApplicationInsightsApmTool tool, IOperationHolder<T> operation)
             {
-                this.tool = tool;
-                this.operation = operation;
+                this._tool = tool;
+                this._operation = operation;
             }
+
+            public string TraceId => this._operation.Telemetry.Id;
 
             public void Dispose()
             {
-                this.operation.Dispose();
+                this._operation.Dispose();
             }
-
-            public string TraceId => operation.Telemetry.Id;
 
             public IApmSpan StartSpan(
                 string spanKind,
                 string operationName,
                 string type)
             {
-                return tool.Start(spanKind, operationName, type);
+                return this._tool.Start(spanKind, operationName, type);
             }
 
             public void RecordException(Exception e)
             {
-                operation.Telemetry.Success = false;
+                this._operation.Telemetry.Success = false;
 
-                operation.Telemetry.Properties["ExceptionType"] = e.GetType().Name;
-                operation.Telemetry.Properties["ExceptionMessage"] = e.Message;
+                this._operation.Telemetry.Properties["ExceptionType"] = e.GetType().Name;
+                this._operation.Telemetry.Properties["ExceptionMessage"] = e.Message;
             }
 
             public void SetTag(string key, string value)
@@ -116,15 +116,15 @@ namespace Blueprint.Apm.ApplicationInsights
                 switch (key)
                 {
                     case "user.id":
-                        operation.Telemetry.Context.User.Id = value;
+                        this._operation.Telemetry.Context.User.Id = value;
                         break;
 
                     case "user.account_id":
-                        operation.Telemetry.Context.User.AccountId = value;
+                        this._operation.Telemetry.Context.User.AccountId = value;
                         break;
 
                     default:
-                        operation.Telemetry.Properties[key] = value;
+                        this._operation.Telemetry.Properties[key] = value;
                         break;
                 }
             }
@@ -132,19 +132,19 @@ namespace Blueprint.Apm.ApplicationInsights
             /// <inheritdoc />
             public void InjectContext(IDictionary<string, string> context)
             {
-                context["RootId"] = operation.Telemetry.Context.Operation.Id;
-                context["ParentId"] = operation.Telemetry.Id;
+                context["RootId"] = this._operation.Telemetry.Context.Operation.Id;
+                context["ParentId"] = this._operation.Telemetry.Id;
             }
 
             public void SetResource(string resourceName)
             {
-                if (operation.Telemetry is DependencyTelemetry d)
+                if (this._operation.Telemetry is DependencyTelemetry d)
                 {
                     d.Target = resourceName;
                 }
                 else
                 {
-                    operation.Telemetry.Properties["ResourceName"] = resourceName;
+                    this._operation.Telemetry.Properties["ResourceName"] = resourceName;
                 }
             }
         }

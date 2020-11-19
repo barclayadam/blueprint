@@ -12,7 +12,7 @@ namespace Blueprint.Validation
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class ResourceKeyAttribute : RegexAttribute
     {
-        private static readonly Regex ResourceKey =
+        private static readonly Regex _resourceKey =
                 new Regex(
                         @"^[a-z][a-z0-9]+/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -20,7 +20,7 @@ namespace Blueprint.Validation
         /// <summary>
         /// Initializes a new instance of the ResourceKeyAttribute class.
         /// </summary>
-        public ResourceKeyAttribute() : base(ResourceKey)
+        public ResourceKeyAttribute() : base(_resourceKey)
         {
         }
 
@@ -31,7 +31,7 @@ namespace Blueprint.Validation
         /// The error message to be shown on validation failure.
         /// </param>
         public ResourceKeyAttribute(string errorMessage)
-            : base(ResourceKey, errorMessage)
+            : base(_resourceKey, errorMessage)
         {
         }
 
@@ -40,7 +40,7 @@ namespace Blueprint.Validation
         /// </summary>
         /// <param name="errorMessageAccessor">A function which will return the error message to be shown on failure.</param>
         public ResourceKeyAttribute(Func<string> errorMessageAccessor)
-            : base(ResourceKey, errorMessageAccessor)
+            : base(_resourceKey, errorMessageAccessor)
         {
         }
     }

@@ -20,14 +20,14 @@ namespace Blueprint.Validation
         ///     +one number and one character that isn't a letter or number,
         ///     +if the string is 8 characters or more.
         /// </summary>
-        private static readonly Regex StrongPassword =
+        private static readonly Regex _strongPassword =
                 new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$", RegexOptions.Compiled);
 
         /// <summary>
         /// Initializes a new instance of the PasswordAttribute class.
         /// </summary>
         public PasswordAttribute()
-            : base(StrongPassword, DefaultMessage)
+            : base(_strongPassword, DefaultMessage)
         {
         }
 
@@ -38,7 +38,7 @@ namespace Blueprint.Validation
         /// The error message to be shown on validation failure.
         /// </param>
         public PasswordAttribute(string errorMessage)
-            : base(StrongPassword, errorMessage)
+            : base(_strongPassword, errorMessage)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Blueprint.Validation
         /// <param name="errorMessage">The error message to be shown on validation failure.</param>
         /// <param name="appendInvalidPasswordDescription">Determines whether the invalid password description should be appended to the error message.</param>
         public PasswordAttribute(string errorMessage, bool appendInvalidPasswordDescription)
-            : base(StrongPassword, appendInvalidPasswordDescription ? errorMessage + " " + DefaultMessage : errorMessage)
+            : base(_strongPassword, appendInvalidPasswordDescription ? errorMessage + " " + DefaultMessage : errorMessage)
         {
         }
 
@@ -60,7 +60,7 @@ namespace Blueprint.Validation
         /// to be shown on failure.
         /// </param>
         public PasswordAttribute(Func<string> errorMessageAccessor)
-            : base(StrongPassword, errorMessageAccessor)
+            : base(_strongPassword, errorMessageAccessor)
         {
         }
     }

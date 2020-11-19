@@ -13,8 +13,8 @@ namespace Blueprint.Http
     /// </summary>
     public class OkResultOperationExecutor : IOperationResultExecutor<OkResult>
     {
-        private readonly IOutputFormatterSelector outputFormatterSelector;
-        private readonly ILogger<OkResultOperationExecutor> logger;
+        private readonly IOutputFormatterSelector _outputFormatterSelector;
+        private readonly ILogger<OkResultOperationExecutor> _logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OkResultOperationExecutor" /> class.
@@ -23,8 +23,8 @@ namespace Blueprint.Http
         /// <param name="logger">A logger.</param>
         public OkResultOperationExecutor(IOutputFormatterSelector outputFormatterSelector, ILogger<OkResultOperationExecutor> logger)
         {
-            this.outputFormatterSelector = outputFormatterSelector;
-            this.logger = logger;
+            this._outputFormatterSelector = outputFormatterSelector;
+            this._logger = logger;
         }
 
         /// <inheritdoc />
@@ -32,7 +32,7 @@ namespace Blueprint.Http
         {
             var httpContext = context.GetHttpContext();
 
-            return WriteContentAsync(httpContext, (int)HttpStatusCode.OK, result.Content);
+            return this.WriteContentAsync(httpContext, (int)HttpStatusCode.OK, result.Content);
         }
 
         /// <summary>
@@ -47,11 +47,11 @@ namespace Blueprint.Http
             var httpResponse = httpContext.Response;
 
             var context = new OutputFormatterCanWriteContext(httpContext, result);
-            var formatter = outputFormatterSelector.SelectFormatter(context);
+            var formatter = this._outputFormatterSelector.SelectFormatter(context);
 
             if (formatter == null)
             {
-                logger.LogDebug("Could not determine output formatter to use. Returning 406 Not Acceptable");
+                this._logger.LogDebug("Could not determine output formatter to use. Returning 406 Not Acceptable");
 
                 httpResponse.StatusCode = StatusCodes.Status406NotAcceptable;
 

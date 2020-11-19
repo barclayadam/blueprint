@@ -24,9 +24,9 @@ namespace Blueprint
         /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
         public ApiExceptionFactory(string title, string type, int httpStatus)
         {
-            Title = title;
-            Type = type;
-            HttpStatus = httpStatus;
+            this.Title = title;
+            this.Type = type;
+            this.HttpStatus = httpStatus;
         }
 
         /// <summary>

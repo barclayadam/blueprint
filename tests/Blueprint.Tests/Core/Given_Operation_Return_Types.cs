@@ -132,9 +132,9 @@ namespace Blueprint.Tests.Core
         {
             public object Result { get; set; }
 
-            public async ValueTask<object> Handle()
+            public ValueTask<object> Handle()
             {
-                return Result;
+                return new ValueTask<object>(Result);
             }
         }
 
@@ -142,9 +142,9 @@ namespace Blueprint.Tests.Core
         {
             public object Result { get; set; }
 
-            public async Task<object> Handle()
+            public Task<object> Handle()
             {
-                return Result;
+                return Task.FromResult(Result);
             }
         }
 

@@ -11,7 +11,7 @@ namespace Blueprint.Tasks
     /// </summary>
     public class InMemoryBackgroundTaskContextProvider : IBackgroundTaskContextProvider
     {
-        private readonly Dictionary<string, object> data;
+        private readonly Dictionary<string, object> _data;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="InMemoryBackgroundTaskContextProvider" />
@@ -19,7 +19,7 @@ namespace Blueprint.Tasks
         /// </summary>
         public InMemoryBackgroundTaskContextProvider()
         {
-            data = new Dictionary<string, object>();
+            this._data = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Blueprint.Tasks
         {
             Guard.NotNull(nameof(data), data);
 
-            this.data = data;
+            this._data = data;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Blueprint.Tasks
         /// <returns>A new <see cref="BackgroundTaskContextData" /> with data from this instance.</returns>
         public Task<BackgroundTaskContextData> LoadDataAsync(string contextKey)
         {
-            return Task.FromResult(new BackgroundTaskContextData(contextKey, data));
+            return Task.FromResult(new BackgroundTaskContextData(contextKey, this._data));
         }
 
         /// <inheritdoc />

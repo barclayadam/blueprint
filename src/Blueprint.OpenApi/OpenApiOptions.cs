@@ -14,7 +14,7 @@ namespace Blueprint.OpenApi
     [PublicAPI]
     public class OpenApiOptions
     {
-        private readonly List<Type> schemaProcessors = new List<Type>();
+        private readonly List<Type> _schemaProcessors = new List<Type>();
 
         /// <summary>
         /// Called when the OpenAPI document has been fully constructed. Allows for modification of
@@ -51,7 +51,7 @@ namespace Blueprint.OpenApi
         /// A list of <see cref="ISchemaProcessor" /> types to instantiate and add to the
         /// settings to enable some custom processing of generated schemas.
         /// </summary>
-        public IReadOnlyList<Type> SchemaProcessors => schemaProcessors;
+        public IReadOnlyList<Type> SchemaProcessors => this._schemaProcessors;
 
         /// <summary>
         /// The version of Redoc (https://github.com/Redocly/redoc) to use for the OpenApi documentation
@@ -65,7 +65,7 @@ namespace Blueprint.OpenApi
         /// <typeparam name="T">The schema processor type to add.</typeparam>
         public void AddSchemaProcessor<T>() where T : ISchemaProcessor
         {
-            schemaProcessors.Add(typeof(T));
+            this._schemaProcessors.Add(typeof(T));
         }
     }
 }

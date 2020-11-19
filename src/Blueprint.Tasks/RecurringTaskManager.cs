@@ -17,10 +17,10 @@ namespace Blueprint.Tasks
     {
         private const char IdSplitter = ':';
 
-        private readonly IEnumerable<IRecurringTaskScheduler> taskSchedulers;
-        private readonly IRecurringTaskProvider provider;
-        private readonly ILogger<RecurringTaskManager> logger;
-        private readonly IOptions<RecurringTaskManagerOptions> options;
+        private readonly IEnumerable<IRecurringTaskScheduler> _taskSchedulers;
+        private readonly IRecurringTaskProvider _provider;
+        private readonly ILogger<RecurringTaskManager> _logger;
+        private readonly IOptions<RecurringTaskManagerOptions> _options;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="RecurringTaskManager" /> class.
@@ -41,10 +41,10 @@ namespace Blueprint.Tasks
             Guard.NotNull(nameof(logger), logger);
             Guard.NotNull(nameof(options), options);
 
-            this.taskSchedulers = taskSchedulers;
-            this.provider = provider;
-            this.logger = logger;
-            this.options = options;
+            this._taskSchedulers = taskSchedulers;
+            this._provider = provider;
+            this._logger = logger;
+            this._options = options;
         }
 
         /// <summary>
@@ -54,17 +54,17 @@ namespace Blueprint.Tasks
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RescheduleAllAsync()
         {
-            var schedulers = GetActiveSchedulers().ToArray();
+            var schedulers = this.GetActiveSchedulers().ToArray();
             var current = new List<RecurringTaskScheduleDto>();
 
-            logger.LogInformation("Rescheduling tasks from {SchedulerCount} schedulers", schedulers.Length);
+            this._logger.LogInformation("Rescheduling tasks from {SchedulerCount} schedulers", schedulers.Length);
 
             foreach (var taskScheduler in schedulers)
             {
-                await RescheduleAsync(taskScheduler, current);
+                await this.RescheduleAsync(taskScheduler, current);
             }
 
-            await provider.UpdateAsync(current);
+            await this._provider.UpdateAsync(current);
         }
 
         private static string GetGroupNameFromScheduler(IRecurringTaskScheduler scheduler)
@@ -76,13 +76,13 @@ namespace Blueprint.Tasks
         {
             try
             {
-                logger.LogInformation("Getting scheduled tasks. scheduler={0}", schedulerName);
+                this._logger.LogInformation("Getting scheduled tasks. scheduler={0}", schedulerName);
 
                 return await recurringTaskScheduler.GetTaskSchedulesAsync();
             }
             catch (Exception e)
             {
-                logger.LogError(
+                this._logger.LogError(
                     e,
                     "Unhandled exception getting schedules from '{0}'. Will delete all existing jobs.",
                     schedulerName);
@@ -101,7 +101,7 @@ namespace Blueprint.Tasks
         /// <returns>A list of active schedulers.</returns>
         private IEnumerable<IRecurringTaskScheduler> GetActiveSchedulers()
         {
-            var loadedOptions = options.Value;
+            var loadedOptions = this._options.Value;
             var schedulerEnabled = loadedOptions.SchedulerEnabled;
 
             if (!schedulerEnabled)
@@ -109,16 +109,16 @@ namespace Blueprint.Tasks
                 return Enumerable.Empty<IRecurringTaskScheduler>();
             }
 
-            return taskSchedulers.Where(s => !loadedOptions.DisabledSchedulers.Contains(s.GetType().Name));
+            return this._taskSchedulers.Where(s => !loadedOptions.DisabledSchedulers.Contains(s.GetType().Name));
         }
 
         private async Task RescheduleAsync(IRecurringTaskScheduler recurringTaskScheduler, List<RecurringTaskScheduleDto> current)
         {
             var schedulerName = recurringTaskScheduler.GetType().Name;
 
-            logger.LogInformation("Getting schedules for scheduler {SchedulerName}", schedulerName);
+            this._logger.LogInformation("Getting schedules for scheduler {SchedulerName}", schedulerName);
 
-            var taskSchedules = (await GetSchedulesAsync(recurringTaskScheduler, schedulerName)).ToList();
+            var taskSchedules = (await this.GetSchedulesAsync(recurringTaskScheduler, schedulerName)).ToList();
 
             var group = GetGroupNameFromScheduler(recurringTaskScheduler);
 

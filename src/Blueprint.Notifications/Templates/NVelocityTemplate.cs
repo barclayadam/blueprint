@@ -20,8 +20,8 @@ namespace Blueprint.Notifications.Templates
         internal NVelocityTemplate(string name, string text)
                 : base(name, text)
         {
-            Guard.NotNullOrEmpty("name", name);
-            Guard.NotNullOrEmpty("text", text);
+            Guard.NotNullOrEmpty(nameof(name), name);
+            Guard.NotNullOrEmpty(nameof(text), text);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Blueprint.Notifications.Templates
             var engine = CreateEngine();
             var context = CreateContext(values);
 
-            return Evaluate(context, engine);
+            return this.Evaluate(context, engine);
         }
 
         private static VelocityContext CreateContext(TemplateValues values)
@@ -59,7 +59,7 @@ namespace Blueprint.Notifications.Templates
         {
             using (var textWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
-                engine.Evaluate(context, textWriter, Name, Text);
+                engine.Evaluate(context, textWriter, this.Name, this.Text);
 
                 return textWriter.ToString();
             }

@@ -9,7 +9,7 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class IfBlock : CompositeFrame
     {
-        private readonly string condition;
+        private readonly string _condition;
 
         /// <summary>
         /// Initialises a new instance of an <see cref="IfBlock"/>, using the specified <see cref="Variable"/>.
@@ -33,19 +33,19 @@ namespace Blueprint.Compiler.Frames
         /// creating composite blocks is using inner list initialisation syntax.</param>
         public IfBlock(string condition, params Frame[] inner) : base(inner)
         {
-            this.condition = condition;
+            this._condition = condition;
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"if ({condition})";
+            return $"if ({this._condition})";
         }
 
         /// <inheritdoc />
         protected override void GenerateCode(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Frame inner)
         {
-            writer.Block($"if ({condition})");
+            writer.Block($"if ({this._condition})");
             inner.GenerateCode(variables, method, writer);
             writer.FinishBlock();
         }

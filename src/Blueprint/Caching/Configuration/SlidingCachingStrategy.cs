@@ -24,7 +24,7 @@ namespace Blueprint.Caching.Configuration
         /// <seealso cref="CacheOptions.Sliding"/>
         public override CacheOptions GetOptions()
         {
-            return CacheOptions.Sliding(ItemPriority, TimeSpan);
+            return CacheOptions.Sliding(this.ItemPriority, this.TimeSpan);
         }
     }
 }

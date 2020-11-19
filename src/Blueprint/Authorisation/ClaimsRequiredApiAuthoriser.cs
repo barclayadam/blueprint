@@ -7,16 +7,16 @@ namespace Blueprint.Authorisation
 {
     public class ClaimsRequiredApiAuthoriser : IApiAuthoriser
     {
-        private static readonly Task<ExecutionAllowed> UserUnauthenticated = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
-        private static readonly Task<ExecutionAllowed> UserInactive = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is inactive", "Your account has been deactivated", ExecutionAllowedFailureType.Authentication));
+        private static readonly Task<ExecutionAllowed> _userUnauthenticated = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is unauthenticated", "Please log in", ExecutionAllowedFailureType.Authentication));
+        private static readonly Task<ExecutionAllowed> _userInactive = Task.FromResult(ExecutionAllowed.No("Operation does not have AllowAnonymous attribute. User is inactive", "Your account has been deactivated", ExecutionAllowedFailureType.Authentication));
 
-        private readonly IClaimInspector claimInspector;
+        private readonly IClaimInspector _claimInspector;
 
         public ClaimsRequiredApiAuthoriser(IClaimInspector claimInspector)
         {
             Guard.NotNull(nameof(claimInspector), claimInspector);
 
-            this.claimInspector = claimInspector;
+            this._claimInspector = claimInspector;
         }
 
         public bool AppliesTo(ApiOperationDescriptor descriptor)
@@ -26,24 +26,24 @@ namespace Blueprint.Authorisation
 
         public Task<ExecutionAllowed> CanExecuteOperationAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object operation)
         {
-            return IsAuthorisedAsync(operationContext, descriptor, operation);
+            return this.IsAuthorisedAsync(operationContext, descriptor, operation);
         }
 
         public Task<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
-            return IsAuthorisedAsync(operationContext, descriptor, resource);
+            return this.IsAuthorisedAsync(operationContext, descriptor, resource);
         }
 
         private Task<ExecutionAllowed> IsAuthorisedAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
             if (operationContext.UserAuthorisationContext == null)
             {
-                return UserUnauthenticated;
+                return _userUnauthenticated;
             }
 
             if (!operationContext.UserAuthorisationContext.IsActive)
             {
-                return UserInactive;
+                return _userInactive;
             }
 
             if (!(operationContext.UserAuthorisationContext is IClaimsHolder userClaims))
@@ -66,7 +66,7 @@ namespace Blueprint.Authorisation
                 expansionState = ClaimExpansionState.AlreadyExpanded;
             }
 
-            var result = claimInspector.IsDemandedClaimFulfilled(userClaims, requiredClaim, expansionState);
+            var result = this._claimInspector.IsDemandedClaimFulfilled(userClaims, requiredClaim, expansionState);
 
             if (!result)
             {

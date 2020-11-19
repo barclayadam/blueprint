@@ -16,7 +16,7 @@ namespace Blueprint
         public MissingApiOperationHandlerException(ApiOperationDescriptor[] missingApiOperationHandlers)
             : base(BuildErrorMessage(missingApiOperationHandlers))
         {
-            ApiOperationHandlers = missingApiOperationHandlers;
+            this.ApiOperationHandlers = missingApiOperationHandlers;
         }
 
         /// <summary>

@@ -15,11 +15,11 @@
         /// <param name="details">The object that was passed as the action.</param>
         public AuditItem(string correlationId, bool wasSuccessful, string resultMessage, string username, object details)
         {
-            CorrelationId = correlationId;
-            ResultMessage = resultMessage;
-            Username = username;
-            Details = details;
-            WasSuccessful = wasSuccessful;
+            this.CorrelationId = correlationId;
+            this.ResultMessage = resultMessage;
+            this.Username = username;
+            this.Details = details;
+            this.WasSuccessful = wasSuccessful;
         }
 
         /// <summary>

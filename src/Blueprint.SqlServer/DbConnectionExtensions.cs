@@ -12,7 +12,7 @@ namespace Blueprint.SqlServer
     /// </summary>
     public static class DbConnectionExtensions
     {
-        private static readonly Regex StatementSplitter = new Regex(@"\bGO\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex _statementSplitter = new Regex(@"\bGO\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Splits and executes a SQL block that may contain multiple statements.
@@ -24,7 +24,7 @@ namespace Blueprint.SqlServer
         {
             Guard.NotNull(nameof(sql), sql);
 
-            var commandTexts = StatementSplitter.Split(sql).Where(s => !string.IsNullOrWhiteSpace(s));
+            var commandTexts = _statementSplitter.Split(sql).Where(s => !string.IsNullOrWhiteSpace(s));
 
             foreach (var commandText in commandTexts)
             {
@@ -34,8 +34,7 @@ namespace Blueprint.SqlServer
                 }
                 catch (Exception ex)
                 {
-                    object[] args = new[] {commandText};
-                    throw new InvalidOperationException(string.Format("Failed to execute command text '{0}'.", args), ex);
+                    throw new InvalidOperationException($"Failed to execute command text '{commandText}'.", ex);
                 }
             }
         }

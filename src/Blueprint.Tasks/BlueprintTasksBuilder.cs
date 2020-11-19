@@ -14,7 +14,7 @@ namespace Blueprint.Tasks
         /// <param name="serviceCollection">The service collection being configured.</param>
         protected BlueprintTasksBuilder(IServiceCollection serviceCollection)
         {
-            Services = serviceCollection;
+            this.Services = serviceCollection;
         }
 
         /// <summary>

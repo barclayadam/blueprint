@@ -12,7 +12,7 @@ namespace Blueprint.Notifications.Handlers
         {
             if (notificationTemplate is TTemplate)
             {
-                InternalHandle((TTemplate)notificationTemplate, options);
+                this.InternalHandle((TTemplate)notificationTemplate, options);
             }
         }
 

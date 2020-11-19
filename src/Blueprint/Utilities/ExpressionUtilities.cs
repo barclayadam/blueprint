@@ -62,9 +62,8 @@ namespace Blueprint.Utilities
                 return GetValueFromMemberExpression(unaryExpression.Operand as MemberExpression);
             }
 
-            object[] args = new[] {expression.GetType().Name};
             throw new InvalidOperationException(
-                    string.Format("Trying to get a constant value from an expression of type {0}. Make sure it is either a ConstantExpression or a MemberExpression", args));
+                $"Trying to get a constant value from an expression of type {expression.GetType().Name}. Make sure it is either a ConstantExpression or a MemberExpression");
         }
 
         private static object GetValueFromMemberExpression(MemberExpression member)

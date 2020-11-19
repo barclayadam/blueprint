@@ -10,7 +10,7 @@ namespace Blueprint.Tasks.AspNetCore
     /// </summary>
     public class TaskRunnerMiddleware
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="TaskRunnerMiddleware" />.
@@ -20,7 +20,7 @@ namespace Blueprint.Tasks.AspNetCore
         {
             Guard.NotNull(nameof(next), next);
 
-            this.next = next;
+            this._next = next;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Blueprint.Tasks.AspNetCore
         /// <returns>A task representing this invocation.</returns>
         public async Task Invoke(HttpContext context, IBackgroundTaskScheduler backgroundTaskScheduler)
         {
-            await next(context);
+            await this._next(context);
             await backgroundTaskScheduler.RunNowAsync();
         }
     }

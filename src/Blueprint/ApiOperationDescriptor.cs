@@ -15,9 +15,9 @@ namespace Blueprint
     [DebuggerVisualizer(nameof(Name))]
     public class ApiOperationDescriptor
     {
-        private readonly Dictionary<string, object> featureData = new Dictionary<string, object>();
-        private readonly List<ApiOperationLink> links = new List<ApiOperationLink>();
-        private readonly List<ResponseDescriptor> responses = new List<ResponseDescriptor>();
+        private readonly Dictionary<string, object> _featureData = new Dictionary<string, object>();
+        private readonly List<ApiOperationLink> _links = new List<ApiOperationLink>();
+        private readonly List<ResponseDescriptor> _responses = new List<ResponseDescriptor>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ApiOperationDescriptor" /> class.
@@ -29,19 +29,19 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(apiOperationType), apiOperationType);
 
-            OperationType = apiOperationType;
-            Source = source;
+            this.OperationType = apiOperationType;
+            this.Source = source;
 
-            TypeAttributes = apiOperationType.GetCustomAttributes(true);
-            Properties = apiOperationType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyAttributes = Properties.Select(p => p.GetCustomAttributes(true)).ToArray();
+            this.TypeAttributes = apiOperationType.GetCustomAttributes(true);
+            this.Properties = apiOperationType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            this.PropertyAttributes = this.Properties.Select(p => p.GetCustomAttributes(true)).ToArray();
 
-            AnonymousAccessAllowed = false;
-            IsExposed = true;
-            ShouldAudit = true;
-            RecordPerformanceMetrics = true;
+            this.AnonymousAccessAllowed = false;
+            this.IsExposed = true;
+            this.ShouldAudit = true;
+            this.RecordPerformanceMetrics = true;
 
-            Name = apiOperationType.Name.Replace("Query", string.Empty).Replace("Command", string.Empty).ToPascalCase();
+            this.Name = apiOperationType.Name.Replace("Query", string.Empty).Replace("Command", string.Empty).ToPascalCase();
         }
 
         /// <summary>
@@ -115,18 +115,18 @@ namespace Blueprint
         /// <summary>
         /// Gets a value indicating whether this operation describes an <see cref="ICommand" />.
         /// </summary>
-        public bool IsCommand => typeof(ICommand).IsAssignableFrom(OperationType);
+        public bool IsCommand => typeof(ICommand).IsAssignableFrom(this.OperationType);
 
         /// <summary>
         /// Gets all registered <see cref="ApiOperationLink" />s for this descriptor.
         /// </summary>
-        public IReadOnlyList<ApiOperationLink> Links => links;
+        public IReadOnlyList<ApiOperationLink> Links => this._links;
 
         /// <summary>
         /// Gets the list of response types this operation could generate, which should typically only
         /// be a single Type to avoid clients having to deal with multiple possible responses
         /// </summary>
-        public IReadOnlyList<ResponseDescriptor> Responses => responses;
+        public IReadOnlyList<ResponseDescriptor> Responses => this._responses;
 
         /// <summary>
         /// Adds a link for this descriptor.
@@ -140,7 +140,7 @@ namespace Blueprint
                 throw new InvalidOperationException("The ApiOperationLink MUST have been created for this ApiOperationDescriptor");
             }
 
-            links.Add(apiOperationLink);
+            this._links.Add(apiOperationLink);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(responseDescriptor), responseDescriptor);
 
-            responses.Add(responseDescriptor);
+            this._responses.Add(responseDescriptor);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no such feature data exists.</exception>
         public T GetFeatureData<T>()
         {
-            if (TryGetFeatureData<T>(out var featureData) == false)
+            if (this.TryGetFeatureData<T>(out var featureData) == false)
             {
                 throw new InvalidOperationException($"Could not find feature data of type {typeof(T).FullName}");
             }
@@ -183,7 +183,7 @@ namespace Blueprint
         {
             var key = typeof(T).FullName;
 
-            if (featureData.TryGetValue(key, out var data))
+            if (this._featureData.TryGetValue(key, out var data))
             {
                 feature = (T)data;
 
@@ -200,11 +200,11 @@ namespace Blueprint
         /// <param name="newFeatureData">The feature data to store.</param>
         public void SetFeatureData(object newFeatureData)
         {
-            Guard.NotNull(nameof(featureData), featureData);
+            Guard.NotNull(nameof(this._featureData), this._featureData);
 
             var key = newFeatureData.GetType().FullName;
 
-            featureData[key] = newFeatureData;
+            this._featureData[key] = newFeatureData;
         }
 
         /// <summary>
@@ -215,13 +215,13 @@ namespace Blueprint
         /// <returns>A new instance of operation this descriptor describes.</returns>
         public object CreateInstance()
         {
-            return Activator.CreateInstance(OperationType);
+            return Activator.CreateInstance(this.OperationType);
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return OperationType.FullName;
+            return this.OperationType.FullName;
         }
     }
 }

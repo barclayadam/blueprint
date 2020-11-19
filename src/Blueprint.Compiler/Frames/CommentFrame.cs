@@ -8,7 +8,7 @@ namespace Blueprint.Compiler.Frames
     /// </summary>
     public class CommentFrame : SyncFrame
     {
-        private readonly string commentText;
+        private readonly string _commentText;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="CommentFrame" /> class.
@@ -16,19 +16,19 @@ namespace Blueprint.Compiler.Frames
         /// <param name="commentText">The comment to write.</param>
         public CommentFrame(string commentText)
         {
-            this.commentText = commentText;
+            this._commentText = commentText;
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"// {commentText}";
+            return $"// {this._commentText}";
         }
 
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.Comment(commentText);
+            writer.Comment(this._commentText);
 
             next();
         }

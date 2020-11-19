@@ -28,8 +28,8 @@ namespace Blueprint.Http.Infrastructure
         /// </remarks>
         private const int DefaultBufferSize = 16 * 1024;
 
-        private readonly ArrayPool<byte> bytePool;
-        private readonly ArrayPool<char> charPool;
+        private readonly ArrayPool<byte> _bytePool;
+        private readonly ArrayPool<char> _charPool;
 
         /// <summary>
         /// Creates a new <see cref="MemoryPoolHttpResponseStreamWriterFactory"/>.
@@ -47,8 +47,8 @@ namespace Blueprint.Http.Infrastructure
             Guard.NotNull(nameof(bytePool), bytePool);
             Guard.NotNull(nameof(charPool), charPool);
 
-            this.bytePool = bytePool;
-            this.charPool = charPool;
+            this._bytePool = bytePool;
+            this._charPool = charPool;
         }
 
         /// <inheritdoc />
@@ -64,7 +64,7 @@ namespace Blueprint.Http.Infrastructure
                 throw new ArgumentNullException(nameof(encoding));
             }
 
-            return new HttpResponseStreamWriter(stream, encoding, DefaultBufferSize, bytePool, charPool);
+            return new HttpResponseStreamWriter(stream, encoding, DefaultBufferSize, this._bytePool, this._charPool);
         }
     }
 }

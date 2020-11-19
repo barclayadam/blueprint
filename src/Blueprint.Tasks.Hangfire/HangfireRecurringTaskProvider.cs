@@ -17,8 +17,8 @@ namespace Blueprint.Tasks.Hangfire
     {
         private const string SchedulerJobId = "System:Scheduler";
 
-        private readonly IRecurringJobManager recurringJobManager;
-        private readonly ILogger<TaskScheduler> logger;
+        private readonly IRecurringJobManager _recurringJobManager;
+        private readonly ILogger<TaskScheduler> _logger;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="HangfireRecurringTaskProvider" /> class.
@@ -30,9 +30,9 @@ namespace Blueprint.Tasks.Hangfire
             Guard.NotNull(nameof(logger), logger);
             Guard.NotNull(nameof(recurringJobManager), recurringJobManager);
 
-            this.recurringJobManager = recurringJobManager;
+            this._recurringJobManager = recurringJobManager;
 
-            this.logger = logger;
+            this._logger = logger;
         }
 
         /// <inheritdoc />
@@ -47,14 +47,14 @@ namespace Blueprint.Tasks.Hangfire
                 .Where(jk => !currentAsDictionary.ContainsKey(jk.Id) && jk.Id != SchedulerJobId)
                 .ToList();
 
-            logger.LogInformation("Deleting old jobs that no longer exist");
+            this._logger.LogInformation("Deleting old jobs that no longer exist");
 
             foreach (var j in jobsToDelete)
             {
-                recurringJobManager.RemoveIfExists(j.Id);
+                this._recurringJobManager.RemoveIfExists(j.Id);
             }
 
-            logger.LogInformation("Scheduling (add or update) current jobs");
+            this._logger.LogInformation("Scheduling (add or update) current jobs");
 
             foreach (var kvp in currentAsDictionary)
             {
@@ -68,13 +68,13 @@ namespace Blueprint.Tasks.Hangfire
                         null,
                         CancellationToken.None));
 
-                recurringJobManager.AddOrUpdate(
+                this._recurringJobManager.AddOrUpdate(
                     schedule.Id,
                     job,
                     schedule.Schedule.CronExpression,
                     schedule.Schedule.TimeZone);
 
-                logger.LogDebug(
+                this._logger.LogDebug(
                     "Scheduled job {JobName} ({JobId}) with cron {CronExpression}",
                     schedule.Schedule.Name,
                     schedule.Id,
@@ -87,7 +87,7 @@ namespace Blueprint.Tasks.Hangfire
         /// <inheritdoc />
         public Task SetupRecurringManagerAsync()
         {
-            recurringJobManager.AddOrUpdate(
+            this._recurringJobManager.AddOrUpdate(
                 SchedulerJobId,
                 Job.FromExpression<RecurringTaskManager>(s => s.RescheduleAllAsync()),
                 "*/30 * * * *");

@@ -36,6 +36,7 @@ namespace Blueprint.Http
         /// By default this is <c>null</c> which means when generating URLs Blueprint will look at the
         /// incoming HTTP request and use the <see cref="HttpRequest.Host" /> property.
         /// </remarks>
-        [CanBeNull] public string PublicHost { get; set; }
+        [CanBeNull]
+        public string PublicHost { get; set; }
     }
 }

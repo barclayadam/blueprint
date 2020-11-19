@@ -20,7 +20,7 @@ namespace Blueprint.Utilities
     /// </summary>
     public static class XmlDocsExtensions
     {
-        private static readonly Dictionary<string, XDocument> Cache = new Dictionary<string, XDocument>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, XDocument> _cache = new Dictionary<string, XDocument>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Returns the contents of the "summary" XML documentation tag for the specified member.</summary>
         /// <param name="type">The type.</param>
@@ -229,23 +229,23 @@ namespace Blueprint.Utilities
 
         private static XDocument TryGetXmlDocsDocument(AssemblyName assemblyName, string pathToXmlFile)
         {
-            if (!Cache.ContainsKey(assemblyName.FullName))
+            if (!_cache.ContainsKey(assemblyName.FullName))
             {
                 if (File.Exists(pathToXmlFile) == false)
                 {
-                    Cache[assemblyName.FullName] = null;
+                    _cache[assemblyName.FullName] = null;
                     return null;
                 }
 
-                Cache[assemblyName.FullName] = XDocument.Load(pathToXmlFile, LoadOptions.PreserveWhitespace);
+                _cache[assemblyName.FullName] = XDocument.Load(pathToXmlFile, LoadOptions.PreserveWhitespace);
             }
 
-            return Cache[assemblyName.FullName];
+            return _cache[assemblyName.FullName];
         }
 
         private static bool IsAssemblyMissingDocumentationInCache(AssemblyName assemblyName)
         {
-            if (Cache.ContainsKey(assemblyName.FullName) && Cache[assemblyName.FullName] == null)
+            if (_cache.ContainsKey(assemblyName.FullName) && _cache[assemblyName.FullName] == null)
             {
                 return true;
             }
@@ -487,7 +487,7 @@ namespace Blueprint.Utilities
                     return null;
                 }
 
-                if (Cache.ContainsKey(assemblyName.FullName))
+                if (_cache.ContainsKey(assemblyName.FullName))
                 {
                     return null;
                 }

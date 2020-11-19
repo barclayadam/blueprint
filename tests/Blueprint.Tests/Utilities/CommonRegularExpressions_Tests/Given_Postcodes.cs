@@ -13,7 +13,7 @@ namespace Blueprint.Tests.Utilities.CommonRegularExpressions_Tests
         public void When_Invalid_Postcode_Then_No_Match(string postcode)
         {
             Assert.IsFalse(
-                           CommonRegularExpressions.UKPostcodeOnly.IsMatch(postcode),
+                           CommonRegularExpressions.UkPostcodeOnly.IsMatch(postcode),
                            "Matched invalid value: " + postcode);
         }
 
@@ -27,7 +27,7 @@ namespace Blueprint.Tests.Utilities.CommonRegularExpressions_Tests
         [TestCase("PO36JZ")]
         public void When_Valid_Postcode_Then_Match(string postcode)
         {
-            Assert.IsTrue(CommonRegularExpressions.UKPostcodeOnly.IsMatch(postcode), "Failed to match " + postcode);
+            Assert.IsTrue(CommonRegularExpressions.UkPostcodeOnly.IsMatch(postcode), "Failed to match " + postcode);
         }
     }
 }

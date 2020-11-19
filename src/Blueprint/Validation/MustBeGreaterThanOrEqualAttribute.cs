@@ -14,7 +14,7 @@ namespace Blueprint.Validation
         public MustBeGreaterThanOrEqualAttribute(string dependentProperty)
             : base(RequiredIfFieldMessage + dependentProperty)
         {
-            DependentProperty = dependentProperty;
+            this.DependentProperty = dependentProperty;
         }
 
         /// <summary>
@@ -24,10 +24,10 @@ namespace Blueprint.Validation
 
         protected override ValidationResult IsValid(object maxValue, ValidationContext validationContext)
         {
-            var property = validationContext.ObjectInstance.GetType().GetProperty(DependentProperty);
+            var property = validationContext.ObjectInstance.GetType().GetProperty(this.DependentProperty);
             if (property == null)
             {
-                throw new InvalidOperationException($"{DependentProperty} was null!");
+                throw new InvalidOperationException($"{this.DependentProperty} was null!");
             }
 
             var item = property.GetValue(validationContext.ObjectInstance, null);
@@ -43,10 +43,10 @@ namespace Blueprint.Validation
             }
             else
             {
-                throw new InvalidOperationException($"{DependentProperty} is not IComparable");
+                throw new InvalidOperationException($"{this.DependentProperty} is not IComparable");
             }
 
-            return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
+            return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
         }
     }
 }

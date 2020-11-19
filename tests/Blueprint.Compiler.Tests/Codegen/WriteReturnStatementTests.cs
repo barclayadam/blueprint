@@ -12,7 +12,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         private SourceWriter theWriter;
         private Variable aVariable;
 
-        private AsyncMode ifTheAsyncMode
+        private AsyncMode IfTheAsyncMode
         {
             set => theMethod.AsyncMode = value;
         }
@@ -28,7 +28,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void write_for_async_task_method()
         {
-            ifTheAsyncMode = AsyncMode.AsyncTask;
+            IfTheAsyncMode = AsyncMode.AsyncTask;
 
             theWriter.Return(theMethod);
 
@@ -41,7 +41,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
 
-            ifTheAsyncMode = AsyncMode.ReturnCompletedTask;
+            IfTheAsyncMode = AsyncMode.ReturnCompletedTask;
 
             theWriter.Return(theMethod);
 
@@ -54,7 +54,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
 
-            ifTheAsyncMode = AsyncMode.ReturnFromLastNode;
+            IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
             theWriter.Return(theMethod);
 
@@ -66,7 +66,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void write_for_variable_and_async_task_method()
         {
-            ifTheAsyncMode = AsyncMode.AsyncTask;
+            IfTheAsyncMode = AsyncMode.AsyncTask;
 
             theWriter.Return(theMethod, aVariable);
 
@@ -79,7 +79,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var expected = $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}(name);";
 
-            ifTheAsyncMode = AsyncMode.ReturnCompletedTask;
+            IfTheAsyncMode = AsyncMode.ReturnCompletedTask;
 
             theWriter.Return(theMethod, aVariable);
 
@@ -92,7 +92,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             var expected = $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}(name);";
 
-            ifTheAsyncMode = AsyncMode.ReturnFromLastNode;
+            IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
             theWriter.Return(theMethod, aVariable);
 

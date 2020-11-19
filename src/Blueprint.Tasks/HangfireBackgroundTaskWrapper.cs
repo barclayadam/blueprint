@@ -15,7 +15,7 @@ namespace Blueprint.Tasks
         /// <param name="envelope">The task envelope to wrap.</param>
         public HangfireBackgroundTaskWrapper(BackgroundTaskEnvelope envelope)
         {
-            Envelope = envelope;
+            this.Envelope = envelope;
         }
 
         /// <summary>
@@ -31,21 +31,21 @@ namespace Blueprint.Tasks
         {
             // Extra safety if, for some reason, deserialisation fails. We do not want this to blow up
             // on a single job as it could mean not being able to view jobs at all in the Hangfire dashboard.
-            if (Envelope?.Task == null)
+            if (this.Envelope?.Task == null)
             {
                 return "[ERR] Unknown task";
             }
 
             // A slightly more useful default for Hangfire to not
             // include the type's namespace
-            return $"{Envelope.Task.GetType().Name}({GetParamDisplay()})";
+            return $"{this.Envelope.Task.GetType().Name}({this.GetParamDisplay()})";
         }
 
         private string GetParamDisplay()
         {
             // Parameters displayed as JSON but without the opening and closing parens
             // to slightly aid readability
-            var parameters = JsonConvert.SerializeObject(Envelope.Task);
+            var parameters = JsonConvert.SerializeObject(this.Envelope.Task);
 
             return parameters.Substring(1, parameters.Length - 2);
         }

@@ -6,12 +6,12 @@ namespace Blueprint.Compiler.Util
 {
     internal class ConstructorFinderVisitor<T> : ExpressionVisitorBase
     {
-        private readonly Type type;
-        private ConstructorInfo constructor;
+        private readonly Type _type;
+        private ConstructorInfo _constructor;
 
         private ConstructorFinderVisitor(Type type)
         {
-            this.type = type;
+            this._type = type;
         }
 
         public static ConstructorInfo Find(Expression<Func<T>> expression)
@@ -19,14 +19,14 @@ namespace Blueprint.Compiler.Util
             var finder = new ConstructorFinderVisitor<T>(typeof(T));
             finder.Visit(expression);
 
-            return finder.constructor;
+            return finder._constructor;
         }
 
         protected override NewExpression VisitNew(NewExpression nex)
         {
-            if (nex.Type == type)
+            if (nex.Type == this._type)
             {
-                constructor = nex.Constructor;
+                this._constructor = nex.Constructor;
             }
 
             return base.VisitNew(nex);

@@ -15,8 +15,8 @@ namespace Blueprint.Tasks
         /// <param name="contextKey">The key for this data.</param>
         public BackgroundTaskContextData(string contextKey)
         {
-            ContextKey = contextKey;
-            Data = new Dictionary<string, object>();
+            this.ContextKey = contextKey;
+            this.Data = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -28,8 +28,8 @@ namespace Blueprint.Tasks
         [JsonConstructor]
         public BackgroundTaskContextData(string contextKey, Dictionary<string, object> data)
         {
-            ContextKey = contextKey;
-            Data = data;
+            this.ContextKey = contextKey;
+            this.Data = data;
         }
 
         /// <summary>

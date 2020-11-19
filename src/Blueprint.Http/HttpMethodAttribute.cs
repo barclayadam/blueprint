@@ -7,7 +7,7 @@ namespace Blueprint.Http
     {
         public HttpMethodAttribute(string httpMethod)
         {
-            HttpMethod = httpMethod;
+            this.HttpMethod = httpMethod;
         }
 
         public string HttpMethod { get; }

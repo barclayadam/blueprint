@@ -22,7 +22,7 @@ namespace Blueprint.Http
         /// <param name="name">The name of the cookie to look for, instead of using the property name.</param>
         public FromCookieAttribute(string name)
         {
-            Name = name;
+            this.Name = name;
         }
 
         /// <summary>

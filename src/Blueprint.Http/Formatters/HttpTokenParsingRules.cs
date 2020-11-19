@@ -2,58 +2,50 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics.Contracts;
-using System.Text;
 
 namespace Blueprint.Http.Formatters
 {
-    // Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
     internal static class HttpTokenParsingRules
     {
-        private static readonly bool[] TokenChars;
         private const int MaxNestedCount = 5;
 
-        internal const char CR = '\r';
-        internal const char LF = '\n';
-        internal const char SP = ' ';
-        internal const char Tab = '\t';
-        internal const int MaxInt64Digits = 19;
-        internal const int MaxInt32Digits = 10;
+        private const char Cr = '\r';
+        private const char Lf = '\n';
+        private const char Sp = ' ';
+        private const char Tab = '\t';
 
-        // iso-8859-1, Western European (ISO)
-        internal static readonly Encoding DefaultHttpEncoding = Encoding.GetEncoding(28591);
+        private static readonly bool[] _tokenChars;
 
         static HttpTokenParsingRules()
         {
             // token = 1*<any CHAR except CTLs or separators>
             // CTL = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
-            TokenChars = new bool[128]; // everything is false
+            _tokenChars = new bool[128]; // everything is false
 
-            for (int i = 33; i < 127; i++) // skip Space (32) & DEL (127)
+            for (var i = 33; i < 127; i++) // skip Space (32) & DEL (127)
             {
-                TokenChars[i] = true;
+                _tokenChars[i] = true;
             }
 
             // remove separators: these are not valid token characters
-            TokenChars[(byte)'('] = false;
-            TokenChars[(byte)')'] = false;
-            TokenChars[(byte)'<'] = false;
-            TokenChars[(byte)'>'] = false;
-            TokenChars[(byte)'@'] = false;
-            TokenChars[(byte)','] = false;
-            TokenChars[(byte)';'] = false;
-            TokenChars[(byte)':'] = false;
-            TokenChars[(byte)'\\'] = false;
-            TokenChars[(byte)'"'] = false;
-            TokenChars[(byte)'/'] = false;
-            TokenChars[(byte)'['] = false;
-            TokenChars[(byte)']'] = false;
-            TokenChars[(byte)'?'] = false;
-            TokenChars[(byte)'='] = false;
-            TokenChars[(byte)'{'] = false;
-            TokenChars[(byte)'}'] = false;
+            _tokenChars[(byte)'('] = false;
+            _tokenChars[(byte)')'] = false;
+            _tokenChars[(byte)'<'] = false;
+            _tokenChars[(byte)'>'] = false;
+            _tokenChars[(byte)'@'] = false;
+            _tokenChars[(byte)','] = false;
+            _tokenChars[(byte)';'] = false;
+            _tokenChars[(byte)':'] = false;
+            _tokenChars[(byte)'\\'] = false;
+            _tokenChars[(byte)'"'] = false;
+            _tokenChars[(byte)'/'] = false;
+            _tokenChars[(byte)'['] = false;
+            _tokenChars[(byte)']'] = false;
+            _tokenChars[(byte)'?'] = false;
+            _tokenChars[(byte)'='] = false;
+            _tokenChars[(byte)'{'] = false;
+            _tokenChars[(byte)'}'] = false;
         }
 
         internal static bool IsTokenChar(char character)
@@ -64,7 +56,7 @@ namespace Blueprint.Http.Formatters
                 return false;
             }
 
-            return TokenChars[character];
+            return _tokenChars[character];
         }
 
         internal static int GetTokenLength(string input, int startIndex)
@@ -106,19 +98,19 @@ namespace Blueprint.Http.Formatters
             {
                 var c = input[current];
 
-                if ((c == SP) || (c == Tab))
+                if ((c == Sp) || (c == Tab))
                 {
                     current++;
                     continue;
                 }
 
-                if (c == CR)
+                if (c == Cr)
                 {
                     // If we have a #13 char, it must be followed by #10 and then at least one SP or HT.
-                    if ((current + 2 < input.Length) && (input[current + 1] == LF))
+                    if ((current + 2 < input.Length) && (input[current + 1] == Lf))
                     {
-                        char spaceOrTab = input[current + 2];
-                        if ((spaceOrTab == SP) || (spaceOrTab == Tab))
+                        var spaceOrTab = input[current + 2];
+                        if ((spaceOrTab == Sp) || (spaceOrTab == Tab))
                         {
                             current += 3;
                             continue;
@@ -242,9 +234,11 @@ namespace Blueprint.Http.Formatters
                                 break;
 
                             case HttpParseResult.NotParsed:
-                                Contract.Assert(false, "'NotParsed' is unexpected: We started nested expression " +
-                                                       "parsing, because we found the open-char. So either it's a valid nested " +
-                                                       "expression or it has invalid format.");
+                                Contract.Assert(
+                                    false,
+                                    "'NotParsed' is unexpected: We started nested expression " +
+                                              "parsing, because we found the open-char. So either it's a valid nested " +
+                                              "expression or it has invalid format.");
                                 break;
 
                             case HttpParseResult.InvalidFormat:

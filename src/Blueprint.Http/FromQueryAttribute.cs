@@ -22,7 +22,7 @@ namespace Blueprint.Http
         /// <param name="name">The name of the query string to look for, instead of using the property name.</param>
         public FromQueryAttribute(string name)
         {
-            Name = name;
+            this.Name = name;
         }
 
         /// <summary>

@@ -14,8 +14,8 @@ namespace Blueprint.Tasks
     /// </summary>
     public class ApmBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
-        private readonly IBackgroundTaskScheduleProvider innerProvider;
-        private readonly IApmTool apmTool;
+        private readonly IBackgroundTaskScheduleProvider _innerProvider;
+        private readonly IApmTool _apmTool;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ApmBackgroundTaskScheduleProvider" /> class.
@@ -24,8 +24,8 @@ namespace Blueprint.Tasks
         /// <param name="apmTool">The registered APM tool to enable cross-process tracing.</param>
         public ApmBackgroundTaskScheduleProvider(IBackgroundTaskScheduleProvider innerProvider, IApmTool apmTool)
         {
-            this.innerProvider = innerProvider;
-            this.apmTool = apmTool;
+            this._innerProvider = innerProvider;
+            this._apmTool = apmTool;
         }
 
         /// <inheritdoc />
@@ -35,7 +35,7 @@ namespace Blueprint.Tasks
         /// </remarks>
         public Task<string> EnqueueAsync(BackgroundTaskEnvelope task)
         {
-            return TrackAsync(task, () => innerProvider.EnqueueAsync(task));
+            return this.TrackAsync(task, () => this._innerProvider.EnqueueAsync(task));
         }
 
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace Blueprint.Tasks
         /// </remarks>
         public Task<string> ScheduleAsync(BackgroundTaskEnvelope task, TimeSpan delay)
         {
-            return TrackAsync(task, () => innerProvider.ScheduleAsync(task, delay));
+            return this.TrackAsync(task, () => this._innerProvider.ScheduleAsync(task, delay));
         }
 
         /// <inheritdoc />
@@ -55,14 +55,14 @@ namespace Blueprint.Tasks
         /// </remarks>
         public Task<string> EnqueueChildAsync(BackgroundTaskEnvelope task, string parentId, BackgroundTaskContinuationOptions continuationOptions)
         {
-            return TrackAsync(task, () => innerProvider.EnqueueChildAsync(task, parentId, continuationOptions));
+            return this.TrackAsync(task, () => this._innerProvider.EnqueueChildAsync(task, parentId, continuationOptions));
         }
 
         private async Task<string> TrackAsync(BackgroundTaskEnvelope task, Func<Task<string>> fn)
         {
             task.ApmContext = new Dictionary<string, string>();
 
-            using var op = this.apmTool.Start(
+            using var op = this._apmTool.Start(
                 SpanKinds.Producer,
                 "task.enqueue",
                 "queue");

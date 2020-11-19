@@ -11,25 +11,25 @@ namespace Blueprint
     /// </summary>
     public class ApiDataModel
     {
-        private readonly Dictionary<Type, ApiOperationDescriptor> allOperations =
+        private readonly Dictionary<Type, ApiOperationDescriptor> _allOperations =
             new Dictionary<Type, ApiOperationDescriptor>();
 
-        private readonly List<ApiOperationLink> allLinks = new List<ApiOperationLink>();
+        private readonly List<ApiOperationLink> _allLinks = new List<ApiOperationLink>();
 
         // Dictionary lookups, contains values from allLinks
-        private readonly Dictionary<Type, List<ApiOperationLink>> operationTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
-        private readonly Dictionary<Type, List<ApiOperationLink>> resourceTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
+        private readonly Dictionary<Type, List<ApiOperationLink>> _operationTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
+        private readonly Dictionary<Type, List<ApiOperationLink>> _resourceTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
 
         /// <summary>
         /// Gets all registered links for this model, with a link representing the association between a resource and a different
         /// operation (for example a link between the resource 'Jobs' and the operation 'Apply').
         /// </summary>
-        public IEnumerable<ApiOperationLink> Links => allLinks;
+        public IEnumerable<ApiOperationLink> Links => this._allLinks;
 
         /// <summary>
         /// Gets all registered operations.
         /// </summary>
-        public IEnumerable<ApiOperationDescriptor> Operations => allOperations.Values;
+        public IEnumerable<ApiOperationDescriptor> Operations => this._allOperations.Values;
 
         /// <summary>
         /// Given a type that represents an API operation will construct a new <see cref="ApiOperationContext"/> that represents
@@ -41,7 +41,7 @@ namespace Blueprint
         /// <returns>A new <see cref="ApiOperationContext"/> representing the given type.</returns>
         public ApiOperationContext CreateOperationContext(IServiceProvider serviceProvider, Type type, CancellationToken token)
         {
-            if (allOperations.TryGetValue(type, out var operation))
+            if (this._allOperations.TryGetValue(type, out var operation))
             {
                 return new ApiOperationContext(serviceProvider, this, operation, token);
             }
@@ -72,11 +72,11 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(descriptor), descriptor);
 
-            allOperations[descriptor.OperationType] = descriptor;
+            this._allOperations[descriptor.OperationType] = descriptor;
 
             foreach (var link in descriptor.Links)
             {
-                RegisterLink(link);
+                this.RegisterLink(link);
             }
         }
 
@@ -92,7 +92,7 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If the link is not unique.</exception>
         private void RegisterLink(ApiOperationLink link)
         {
-            var existing = allLinks.Where(l =>
+            var existing = this._allLinks.Where(l =>
                     l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
                     l.OperationDescriptor.Name == link.OperationDescriptor.Name)
                 .ToList();
@@ -104,30 +104,30 @@ namespace Blueprint
                     string.Join("\n", existing.Select(e => $" {e} sourced from {e.OperationDescriptor.Source}")));
             }
 
-            allLinks.Add(link);
+            this._allLinks.Add(link);
 
             if (!link.IsRootLink)
             {
-                if (!resourceTypeToLinks.ContainsKey(link.ResourceType))
+                if (!this._resourceTypeToLinks.ContainsKey(link.ResourceType))
                 {
-                    resourceTypeToLinks[link.ResourceType] = new List<ApiOperationLink>();
+                    this._resourceTypeToLinks[link.ResourceType] = new List<ApiOperationLink>();
                 }
 
-                if (resourceTypeToLinks[link.ResourceType].Any(l => l.Rel == link.Rel))
+                if (this._resourceTypeToLinks[link.ResourceType].Any(l => l.Rel == link.Rel))
                 {
                     throw new InvalidOperationException(
                         $"Duplicate link found for resource type {link.ResourceType.Name} with rel {link.Rel}");
                 }
 
-                resourceTypeToLinks[link.ResourceType].Add(link);
+                this._resourceTypeToLinks[link.ResourceType].Add(link);
             }
 
-            if (!operationTypeToLinks.ContainsKey(link.OperationDescriptor.OperationType))
+            if (!this._operationTypeToLinks.ContainsKey(link.OperationDescriptor.OperationType))
             {
-                operationTypeToLinks[link.OperationDescriptor.OperationType] = new List<ApiOperationLink>();
+                this._operationTypeToLinks[link.OperationDescriptor.OperationType] = new List<ApiOperationLink>();
             }
 
-            operationTypeToLinks[link.OperationDescriptor.OperationType].Add(link);
+            this._operationTypeToLinks[link.OperationDescriptor.OperationType].Add(link);
         }
 
         /// <summary>
@@ -140,18 +140,18 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no operation of the specified type has been registered.</exception>
         public IEnumerable<ApiOperationLink> GetLinksForOperation(Type operationType)
         {
-            if (!allOperations.TryGetValue(operationType, out var operationDescriptor))
+            if (!this._allOperations.TryGetValue(operationType, out var operationDescriptor))
             {
                 throw new InvalidOperationException(
                     $"Cannot get links for operation '{operationType.Name}' as it has not been registered.");
             }
 
-            if (!operationTypeToLinks.ContainsKey(operationDescriptor.OperationType))
+            if (!this._operationTypeToLinks.ContainsKey(operationDescriptor.OperationType))
             {
                 return Enumerable.Empty<ApiOperationLink>();
             }
 
-            return operationTypeToLinks[operationDescriptor.OperationType];
+            return this._operationTypeToLinks[operationDescriptor.OperationType];
         }
 
         /// <summary>
@@ -164,12 +164,12 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(resourceType), resourceType);
 
-            if (!resourceTypeToLinks.ContainsKey(resourceType))
+            if (!this._resourceTypeToLinks.ContainsKey(resourceType))
             {
                 return Enumerable.Empty<ApiOperationLink>();
             }
 
-            return resourceTypeToLinks[resourceType];
+            return this._resourceTypeToLinks[resourceType];
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(resourceType), resourceType);
 
-            if (!resourceTypeToLinks.TryGetValue(resourceType, out var links))
+            if (!this._resourceTypeToLinks.TryGetValue(resourceType, out var links))
             {
                 return null;
             }
@@ -205,7 +205,7 @@ namespace Blueprint
         /// <returns>All non-resource associated registered links.</returns>
         public IEnumerable<ApiOperationLink> GetRootLinks()
         {
-            return allLinks.Where(l => l.IsRootLink);
+            return this._allLinks.Where(l => l.IsRootLink);
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Blueprint
         /// <exception cref="InvalidOperationException">If no operation descriptor exists.</exception>
         public ApiOperationDescriptor FindOperation(Type operationType)
         {
-            if (!TryFindOperation(operationType, out var found))
+            if (!this.TryFindOperation(operationType, out var found))
             {
                 throw new InvalidOperationException(@$"Could not find an operation of the type {operationType.FullName}.
 
@@ -238,7 +238,7 @@ Operations will be found polymorphically, meaning an operation could be register
         /// <returns>Whether an operation was found.</returns>
         public bool TryFindOperation(Type operationType, out ApiOperationDescriptor descriptor)
         {
-            var found = Operations.SingleOrDefault(d => d.OperationType.IsAssignableFrom(operationType));
+            var found = this.Operations.SingleOrDefault(d => d.OperationType.IsAssignableFrom(operationType));
 
             if (found == null)
             {

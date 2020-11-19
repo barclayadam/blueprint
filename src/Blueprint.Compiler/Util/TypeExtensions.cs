@@ -6,7 +6,7 @@ namespace Blueprint.Compiler.Util
 {
     public static class TypeExtensions
     {
-        private static readonly Type[] TupleTypes =
+        private static readonly Type[] _tupleTypes =
         {
             typeof(ValueTuple<>),
             typeof(ValueTuple<,>),
@@ -92,7 +92,7 @@ namespace Blueprint.Compiler.Util
 
         public static bool IsValueTuple(this Type type)
         {
-            return (type != null && type.IsGenericType) && TupleTypes.Contains(type.GetGenericTypeDefinition());
+            return (type != null && type.IsGenericType) && _tupleTypes.Contains(type.GetGenericTypeDefinition());
         }
 
         private static bool IsString(this Type type)

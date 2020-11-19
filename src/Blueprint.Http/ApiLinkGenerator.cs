@@ -12,8 +12,8 @@ namespace Blueprint.Http
     /// </summary>
     public class ApiLinkGenerator : IApiLinkGenerator
     {
-        private readonly ApiDataModel apiDataModel;
-        private readonly string baseUri;
+        private readonly ApiDataModel _apiDataModel;
+        private readonly string _baseUri;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiLinkGenerator"/> class.
@@ -25,32 +25,32 @@ namespace Blueprint.Http
             Guard.NotNull(nameof(apiDataModel), apiDataModel);
             Guard.NotNull(nameof(httpContextAccessor), httpContextAccessor);
 
-            this.apiDataModel = apiDataModel;
-            baseUri = httpContextAccessor.HttpContext.GetBlueprintBaseUri();
+            this._apiDataModel = apiDataModel;
+            this._baseUri = httpContextAccessor.HttpContext.GetBlueprintBaseUri();
         }
 
         /// <inheritdoc />
         public Link CreateSelfLink<T>(int id, object queryString = null) where T : ApiResource
         {
-            return CreateSelfLink<T>(new {id}, queryString);
+            return this.CreateSelfLink<T>(new { id }, queryString);
         }
 
         /// <inheritdoc />
         public Link CreateSelfLink<T>(long id, object queryString = null) where T : ApiResource
         {
-            return CreateSelfLink<T>(new {id}, queryString);
+            return this.CreateSelfLink<T>(new { id }, queryString);
         }
 
         /// <inheritdoc />
         public Link CreateSelfLink<T>(string id, object queryString = null) where T : ApiResource
         {
-            return CreateSelfLink<T>(new {id}, queryString);
+            return this.CreateSelfLink<T>(new { id }, queryString);
         }
 
         /// <inheritdoc />
         public Link CreateSelfLink<T>(Guid id, object queryString = null) where T : ApiResource
         {
-            return CreateSelfLink<T>(new {id}, queryString);
+            return this.CreateSelfLink<T>(new { id }, queryString);
         }
 
         /// <inheritdoc />
@@ -58,7 +58,7 @@ namespace Blueprint.Http
         {
             Guard.NotNull(nameof(idDefinition), idDefinition);
 
-            var selfLink = apiDataModel.GetLinkFor(typeof(T), "self");
+            var selfLink = this._apiDataModel.GetLinkFor(typeof(T), "self");
 
             if (selfLink == null)
             {
@@ -77,7 +77,7 @@ namespace Blueprint.Http
 
             return new Link
             {
-                Href = baseUri + routeUrl,
+                Href = this._baseUri + routeUrl,
                 Type = ApiResource.GetTypeName(typeof(T)),
             };
         }
@@ -89,26 +89,26 @@ namespace Blueprint.Http
             // of StringBuilder unnecessarily
             if (result == null)
             {
-                return baseUri + link.UrlFormat;
+                return this._baseUri + link.UrlFormat;
             }
 
             // We can short-circuit in the (relatively uncommon case) of no placeholders
             if (!link.HasPlaceholders())
             {
-                return baseUri + link.UrlFormat;
+                return this._baseUri + link.UrlFormat;
             }
 
             // baseUri always has / at end, relative never has at start
-            return baseUri + CreateRelativeUrlFromLink(link, result);
+            return this._baseUri + CreateRelativeUrlFromLink(link, result);
         }
 
         /// <inheritdoc />
         public string CreateUrl(object operation)
         {
             var operationType = operation.GetType();
-            var operationDescriptor = apiDataModel.FindOperation(operationType);
+            var operationDescriptor = this._apiDataModel.FindOperation(operationType);
             var properties = operationDescriptor.Properties;
-            var link = apiDataModel.GetLinksForOperation(operationType).FirstOrDefault();
+            var link = this._apiDataModel.GetLinksForOperation(operationType).FirstOrDefault();
 
             if (link == null)
             {
@@ -121,7 +121,7 @@ namespace Blueprint.Http
             // be written does NOT exist as a placeholder in the link and therefore would NOT have already been "consumed"
             AppendAsQueryString(routeUrl, properties, operation, p => link.Placeholders.All(ph => ph.Property != p));
 
-            return baseUri + routeUrl;
+            return this._baseUri + routeUrl;
         }
 
         private static void AppendAsQueryString(StringBuilder routeUrl, PropertyInfo[] properties, object values, Func<PropertyInfo, bool> shouldInclude)

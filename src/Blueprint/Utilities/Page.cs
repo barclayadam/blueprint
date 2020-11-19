@@ -10,11 +10,11 @@ namespace Blueprint.Utilities
     /// <typeparam name="T">The type of the elements in this page.</typeparam>
     public class Page<T>
     {
-        private readonly IEnumerable<T> items;
-        private readonly int pageCount;
-        private readonly int pageNumber;
-        private readonly int pageSize;
-        private readonly int totalCount;
+        private readonly IEnumerable<T> _items;
+        private readonly int _pageCount;
+        private readonly int _pageNumber;
+        private readonly int _pageSize;
+        private readonly int _totalCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Page{T}"/> class.
@@ -26,32 +26,32 @@ namespace Blueprint.Utilities
         public Page(IEnumerable<T> items, int pageNumber, int pageSize, int totalCount)
         {
             Guard.NotNull(nameof(items), items);
-            Guard.GreaterThanOrEqual("pageNumber", pageNumber, 0);
-            Guard.GreaterThanOrEqual("pageSize", pageSize, 1);
-            Guard.GreaterThanOrEqual("totalCount", totalCount, 0);
+            Guard.GreaterThanOrEqual(nameof(pageNumber), pageNumber, 0);
+            Guard.GreaterThanOrEqual(nameof(pageSize), pageSize, 1);
+            Guard.GreaterThanOrEqual(nameof(totalCount), totalCount, 0);
 
-            this.pageSize = pageSize;
-            this.pageNumber = pageNumber;
-            this.totalCount = totalCount;
-            this.items = items;
+            this._pageSize = pageSize;
+            this._pageNumber = pageNumber;
+            this._totalCount = totalCount;
+            this._items = items;
 
-            pageCount = CalculatePageCount(pageSize, totalCount);
+            this._pageCount = CalculatePageCount(pageSize, totalCount);
         }
 
         /// <summary>
         /// Gets all the items in the current page.
         /// </summary>
-        public IEnumerable<T> Items => items;
+        public IEnumerable<T> Items => this._items;
 
         /// <summary>
         /// Gets the number of pages in the collection.
         /// </summary>
-        public int PageCount => pageCount;
+        public int PageCount => this._pageCount;
 
         /// <summary>
         /// Gets the current page number.
         /// </summary>
-        public int PageNumber => items.Any() ? pageNumber : 0;
+        public int PageNumber => this._items.Any() ? this._pageNumber : 0;
 
         /// <summary>
         /// Gets the size of the page.
@@ -59,12 +59,12 @@ namespace Blueprint.Utilities
         /// <value>
         /// The size of the page.
         /// </value>
-        public int PageSize => pageSize;
+        public int PageSize => this._pageSize;
 
         /// <summary>
         /// Gets the total number of objects in the collection.
         /// </summary>
-        public int TotalCount => totalCount;
+        public int TotalCount => this._totalCount;
 
         /// <summary>
         /// Calculates the page count.

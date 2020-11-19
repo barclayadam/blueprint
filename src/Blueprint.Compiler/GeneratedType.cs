@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
 using Blueprint.Compiler.Model;
-using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
     public class GeneratedType : IVariableSource
     {
-        private readonly IList<Type> interfaces = new List<Type>();
-        private readonly IList<GeneratedMethod> methods = new List<GeneratedMethod>();
+        private readonly IList<Type> _interfaces = new List<Type>();
+        private readonly IList<GeneratedMethod> _methods = new List<GeneratedMethod>();
 
         internal GeneratedType(GeneratedAssembly generatedAssembly, string typeName, string @namespace)
         {
-            GeneratedAssembly = generatedAssembly;
+            this.GeneratedAssembly = generatedAssembly;
 
-            Namespace = @namespace;
-            TypeName = typeName;
+            this.Namespace = @namespace;
+            this.TypeName = typeName;
         }
 
         /// <summary>
@@ -38,13 +36,13 @@ namespace Blueprint.Compiler
 
         public HashSet<string> Namespaces { get; } = new HashSet<string>();
 
-        public List<InjectedField> AllInjectedFields { get; } = new List<InjectedField>();
+        public HashSet<InjectedField> AllInjectedFields { get; } = new HashSet<InjectedField>();
 
-        public List<StaticField> AllStaticFields { get; } = new List<StaticField>();
+        public HashSet<StaticField> AllStaticFields { get; } = new HashSet<StaticField>();
 
-        public IEnumerable<Type> Interfaces => interfaces;
+        public IEnumerable<Type> Interfaces => this._interfaces;
 
-        public IEnumerable<GeneratedMethod> Methods => methods;
+        public IEnumerable<GeneratedMethod> Methods => this._methods;
 
         public string SourceCode { get; set; }
 
@@ -52,7 +50,7 @@ namespace Blueprint.Compiler
 
         public GeneratedType InheritsFrom<T>()
         {
-            return InheritsFrom(typeof(T));
+            return this.InheritsFrom(typeof(T));
         }
 
         public GeneratedType InheritsFrom(Type baseType)
@@ -68,17 +66,20 @@ namespace Blueprint.Compiler
 
             if (ctors.Length == 1)
             {
-                BaseConstructorArguments = ctors.Single().GetParameters()
+                this.BaseConstructorArguments = ctors.Single().GetParameters()
                     .Select(x => new InjectedField(x.ParameterType, x.Name)).ToArray();
 
-                AllInjectedFields.AddRange(BaseConstructorArguments);
+                foreach (var a in this.BaseConstructorArguments)
+                {
+                    this.AllInjectedFields.Add(a);
+                }
             }
 
-            BaseType = baseType;
+            this.BaseType = baseType;
 
             foreach (var methodInfo in baseType.GetMethods().Where(x => x.DeclaringType != typeof(object)).Where(x => x.CanBeOverridden()))
             {
-                methods.Add(new GeneratedMethod(this, methodInfo)
+                this._methods.Add(new GeneratedMethod(this, methodInfo)
                 {
                     Overrides = true,
                 });
@@ -94,11 +95,11 @@ namespace Blueprint.Compiler
                 throw new ArgumentOutOfRangeException(nameof(type), "Must be an interface type");
             }
 
-            interfaces.Add(type);
+            this._interfaces.Add(type);
 
             foreach (var methodInfo in type.GetMethods().Where(x => x.DeclaringType != typeof(object)))
             {
-                methods.Add(new GeneratedMethod(this, methodInfo));
+                this._methods.Add(new GeneratedMethod(this, methodInfo));
             }
 
             return this;
@@ -106,23 +107,23 @@ namespace Blueprint.Compiler
 
         public GeneratedType Implements<T>()
         {
-            return Implements(typeof(T));
+            return this.Implements(typeof(T));
         }
 
         public void AddMethod(GeneratedMethod method)
         {
-            methods.Add(method);
+            this._methods.Add(method);
         }
 
         public GeneratedMethod MethodFor(string methodName)
         {
-            return methods.FirstOrDefault(x => x.MethodName == methodName);
+            return this._methods.FirstOrDefault(x => x.MethodName == methodName);
         }
 
         public GeneratedMethod AddVoidMethod(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(this, name, typeof(void), args);
-            AddMethod(method);
+            this.AddMethod(method);
 
             return method;
         }
@@ -130,7 +131,7 @@ namespace Blueprint.Compiler
         public GeneratedMethod AddMethodThatReturns<TReturn>(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(this, name, typeof(TReturn), args);
-            AddMethod(method);
+            this.AddMethod(method);
 
             return method;
         }
@@ -142,23 +143,23 @@ namespace Blueprint.Compiler
             // this type that need to be written out below
             var methodWriter = new SourceWriter();
 
-            foreach (var method in methods)
+            foreach (var method in this._methods)
             {
                 methodWriter.BlankLine();
                 method.WriteMethod(methodWriter);
             }
 
-            WriteDeclaration(writer);
+            this.WriteDeclaration(writer);
 
-            if (AllStaticFields.Any())
+            if (this.AllStaticFields.Any())
             {
-                WriteFieldDeclarations(writer, AllStaticFields);
+                this.WriteFieldDeclarations(writer, this.AllStaticFields);
             }
 
-            if (AllInjectedFields.Any())
+            if (this.AllInjectedFields.Any())
             {
-                WriteFieldDeclarations(writer, AllInjectedFields);
-                WriteConstructorMethod(writer, AllInjectedFields);
+                this.WriteFieldDeclarations(writer, this.AllInjectedFields);
+                this.WriteConstructorMethod(writer, this.AllInjectedFields);
             }
 
             writer.WriteLines(methodWriter.Code());
@@ -168,12 +169,12 @@ namespace Blueprint.Compiler
 
         public IEnumerable<Assembly> AssemblyReferences()
         {
-            if (BaseType != null)
+            if (this.BaseType != null)
             {
-                yield return BaseType.Assembly;
+                yield return this.BaseType.Assembly;
             }
 
-            foreach (var @interface in interfaces)
+            foreach (var @interface in this._interfaces)
             {
                 yield return @interface.Assembly;
             }
@@ -181,24 +182,24 @@ namespace Blueprint.Compiler
 
         public T CreateInstance<T>(params object[] arguments)
         {
-            if (CompiledType == null)
+            if (this.CompiledType == null)
             {
                 throw new InvalidOperationException("This generated assembly has not yet been successfully compiled");
             }
 
-            return (T)Activator.CreateInstance(CompiledType, arguments);
+            return (T)Activator.CreateInstance(this.CompiledType, arguments);
         }
 
         public void ApplySetterValues(object builtObject)
         {
-            if (builtObject.GetType() != CompiledType)
+            if (builtObject.GetType() != this.CompiledType)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(builtObject),
                     "This can only be applied to objects of the generated type");
             }
 
-            foreach (var setter in Setters)
+            foreach (var setter in this.Setters)
             {
                 setter.SetInitialValue(builtObject);
             }
@@ -207,22 +208,22 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public override string ToString()
         {
-            return GetDeclaration();
+            return this.GetDeclaration();
         }
 
         internal void FindType(Type[] generated)
         {
-            CompiledType = generated.SingleOrDefault(x => x.Name == TypeName && x.Namespace == Namespace);
+            this.CompiledType = generated.SingleOrDefault(x => x.Name == this.TypeName && x.Namespace == this.Namespace);
 
-            if (CompiledType == null)
+            if (this.CompiledType == null)
             {
-                throw new InvalidOperationException($"Could not find compile typed {Namespace}.{TypeName} in {generated.Length} types");
+                throw new InvalidOperationException($"Could not find compile typed {this.Namespace}.{this.TypeName} in {generated.Length} types");
             }
         }
 
         Variable IVariableSource.TryFindVariable(IMethodVariables variables, Type variableType)
         {
-            foreach (var v in AllInjectedFields)
+            foreach (var v in this.AllInjectedFields)
             {
                 if (v.VariableType == variableType)
                 {
@@ -230,7 +231,7 @@ namespace Blueprint.Compiler
                 }
             }
 
-            foreach (var v in BaseConstructorArguments)
+            foreach (var v in this.BaseConstructorArguments)
             {
                 if (v.VariableType == variableType)
                 {
@@ -243,7 +244,7 @@ namespace Blueprint.Compiler
 
         private void WriteSetters(ISourceWriter writer)
         {
-            foreach (var setter in Setters)
+            foreach (var setter in this.Setters)
             {
                 writer.BlankLine();
                 setter.WriteDeclaration(writer);
@@ -252,15 +253,15 @@ namespace Blueprint.Compiler
             writer.BlankLine();
         }
 
-        private void WriteConstructorMethod(ISourceWriter writer, IList<InjectedField> args)
+        private void WriteConstructorMethod(ISourceWriter writer, HashSet<InjectedField> args)
         {
-            IEnumerable<string> tempQualifier = args.Select(x => x.CtorArgDeclaration);
+            var tempQualifier = args.Select(x => x.CtorArgDeclaration);
             var ctorArgs = string.Join(", ", tempQualifier);
-            var declaration = $"public {TypeName}({ctorArgs})";
+            var declaration = $"public {this.TypeName}({ctorArgs})";
 
-            if (BaseConstructorArguments.Any())
+            if (this.BaseConstructorArguments.Any())
             {
-                IEnumerable<string> tempQualifier1 = BaseConstructorArguments.Select(x => x.ArgumentName);
+                var tempQualifier1 = this.BaseConstructorArguments.Select(x => x.ArgumentName);
                 declaration = $"{declaration} : base({string.Join(", ", tempQualifier1)})";
             }
 
@@ -274,7 +275,7 @@ namespace Blueprint.Compiler
             writer.FinishBlock();
         }
 
-        private void WriteFieldDeclarations(ISourceWriter writer, IList<StaticField> args)
+        private void WriteFieldDeclarations(ISourceWriter writer, HashSet<StaticField> args)
         {
             foreach (var field in args)
             {
@@ -284,7 +285,7 @@ namespace Blueprint.Compiler
             writer.BlankLine();
         }
 
-        private void WriteFieldDeclarations(ISourceWriter writer, IList<InjectedField> args)
+        private void WriteFieldDeclarations(ISourceWriter writer, HashSet<InjectedField> args)
         {
             foreach (var field in args)
             {
@@ -296,30 +297,30 @@ namespace Blueprint.Compiler
 
         private void WriteDeclaration(ISourceWriter writer)
         {
-            writer.Block($"{GetDeclaration()}");
+            writer.Block($"{this.GetDeclaration()}");
         }
 
         private string GetDeclaration()
         {
-            var implemented = Implements().ToArray();
+            var implemented = this.Implements().ToArray();
 
             if (implemented.Any())
             {
-                IEnumerable<string> tempQualifier = implemented.Select(x => x.FullNameInCode());
-                return $"public class {TypeName} : {string.Join(", ", tempQualifier)}";
+                var tempQualifier = implemented.Select(x => x.FullNameInCode());
+                return $"public class {this.TypeName} : {string.Join(", ", tempQualifier)}";
             }
 
-            return $":public class {TypeName}";
+            return $":public class {this.TypeName}";
         }
 
         private IEnumerable<Type> Implements()
         {
-            if (BaseType != null)
+            if (this.BaseType != null)
             {
-                yield return BaseType;
+                yield return this.BaseType;
             }
 
-            foreach (var @interface in Interfaces)
+            foreach (var @interface in this.Interfaces)
             {
                 yield return @interface;
             }

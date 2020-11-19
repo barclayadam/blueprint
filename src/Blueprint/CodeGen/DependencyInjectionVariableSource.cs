@@ -10,8 +10,8 @@ namespace Blueprint.CodeGen
     /// </summary>
     public class DependencyInjectionVariableSource : IVariableSource
     {
-        private readonly GeneratedMethod generatedMethod;
-        private readonly InstanceFrameProvider instanceFrameProvider;
+        private readonly GeneratedMethod _generatedMethod;
+        private readonly InstanceFrameProvider _instanceFrameProvider;
 
         /// <summary>
         /// Constructs a new instance of the <see cref="DependencyInjectionVariableSource" /> class.
@@ -20,15 +20,15 @@ namespace Blueprint.CodeGen
         /// <param name="instanceFrameProvider">The instance frame provider that does the work of creating an appropriate frame.</param>
         public DependencyInjectionVariableSource(GeneratedMethod generatedMethod, InstanceFrameProvider instanceFrameProvider)
         {
-            this.generatedMethod = generatedMethod;
-            this.instanceFrameProvider = instanceFrameProvider;
+            this._generatedMethod = generatedMethod;
+            this._instanceFrameProvider = instanceFrameProvider;
         }
 
         /// <inheritdoc />
         public Variable TryFindVariable(IMethodVariables variables, Type type)
         {
-            return instanceFrameProvider
-                .TryGetVariableFromContainer<object>(generatedMethod.GeneratedType, type)
+            return this._instanceFrameProvider
+                .TryGetVariableFromContainer<object>(this._generatedMethod.GeneratedType, type)
                 ?.InstanceVariable;
         }
     }

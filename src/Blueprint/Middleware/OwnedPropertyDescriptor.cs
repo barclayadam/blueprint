@@ -53,7 +53,7 @@ namespace Blueprint.Middleware
                 return true;
             }
 
-            return Equals(Property, other.Property);
+            return Equals(this.Property, other.Property);
         }
 
         /// <inheritdoc />
@@ -74,13 +74,13 @@ namespace Blueprint.Middleware
                 return false;
             }
 
-            return Equals((OwnedPropertyDescriptor) obj);
+            return this.Equals((OwnedPropertyDescriptor)obj);
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return (Property != null ? Property.GetHashCode() : 0);
+            return (this.Property != null ? this.Property.GetHashCode() : 0);
         }
     }
 }

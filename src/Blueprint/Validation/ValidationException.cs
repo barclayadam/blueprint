@@ -44,7 +44,7 @@ namespace Blueprint.Validation
             Guard.NotNull(nameof(validationResults), validationResults);
 
             // TODO: Is there a specialist 1-item collection we could use for performance?
-            ValidationResults = validationResults.ToDictionary(k => k.Key, v => (IEnumerable<string>)new[] { v.Value });
+            this.ValidationResults = validationResults.ToDictionary(k => k.Key, v => (IEnumerable<string>)new[] { v.Value });
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Blueprint.Validation
         {
             Guard.NotNull(nameof(validationResults), validationResults);
 
-            ValidationResults = validationResults;
+            this.ValidationResults = validationResults;
         }
 
         /// <summary>

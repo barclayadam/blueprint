@@ -13,14 +13,14 @@ namespace Blueprint.Notifications.Templates
         Justification = "We do not want to expose this as a dictionary, it is not required for its use by clients")]
     public class TemplateValues : IEnumerable<KeyValuePair<string, object>>
     {
-        private readonly IDictionary<string, object> values;
+        private readonly IDictionary<string, object> _values;
 
         /// <summary>
         /// Initializes a new instance of the TemplateValues class.
         /// </summary>
         public TemplateValues()
         {
-            values = new Dictionary<string, object>();
+            this._values = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -30,18 +30,18 @@ namespace Blueprint.Notifications.Templates
         /// <param name="values">The initial values to be used by this template.</param>
         public TemplateValues(IDictionary<string, object> values)
         {
-            this.values = TemplateValuesParser.Parse(values);
+            this._values = TemplateValuesParser.Parse(values);
         }
 
         /// <summary>
         /// Gets all keys that have been set on this template.
         /// </summary>
-        public IEnumerable<string> Keys => values.Keys;
+        public IEnumerable<string> Keys => this._values.Keys;
 
         /// <summary>
         /// Gets all values that have been set on this template.
         /// </summary>
-        public IEnumerable<object> Values => values.Values;
+        public IEnumerable<object> Values => this._values.Values;
 
         /// <summary>
         /// Gets or sets the value that is stored against the specified key.
@@ -52,15 +52,12 @@ namespace Blueprint.Notifications.Templates
         {
             get
             {
-                Guard.NotNullOrEmpty("key", key);
+                Guard.NotNullOrEmpty(nameof(key), key);
 
-                return values.ContainsKey(key) ? values[key] : null;
+                return this._values.ContainsKey(key) ? this._values[key] : null;
             }
 
-            set
-            {
-                Add(key, value);
-            }
+            set => this.Add(key, value);
         }
 
         /// <summary>
@@ -70,9 +67,9 @@ namespace Blueprint.Notifications.Templates
         /// <param name="value">The value to be set.</param>
         public void Add(string key, object value)
         {
-            Guard.NotNullOrEmpty("key", key);
+            Guard.NotNullOrEmpty(nameof(key), key);
 
-            values[key] = value;
+            this._values[key] = value;
         }
 
         /// <summary>
@@ -81,7 +78,7 @@ namespace Blueprint.Notifications.Templates
         /// <returns>An <see cref="IEnumerator{T}"/> that can be used to iterate through the collection.</returns>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return values.GetEnumerator();
+            return this._values.GetEnumerator();
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace Blueprint.Notifications.Templates
         /// <returns>An <see cref="IEnumerator{T}"/> that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return values.GetEnumerator();
+            return this._values.GetEnumerator();
         }
     }
 }

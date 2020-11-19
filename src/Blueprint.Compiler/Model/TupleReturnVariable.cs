@@ -7,19 +7,13 @@ namespace Blueprint.Compiler.Model
 {
     public class TupleReturnVariable : Variable
     {
-        private readonly Variable[] inner;
+        private readonly Variable[] _inner;
 
         public TupleReturnVariable(Type returnType, Variable[] inner) : base(returnType)
         {
-            this.inner = inner;
+            this._inner = inner;
         }
 
-        public override string Usage
-        {
-            get
-            {
-                return "(" + string.Join(", ", inner.Select(x => $"var {x.Usage}")) + ")";
-            }
-        }
+        public override string Usage => "(" + string.Join(", ", this._inner.Select(x => $"var {x.Usage}")) + ")";
     }
 }

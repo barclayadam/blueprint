@@ -10,11 +10,11 @@ namespace Blueprint.Utilities
     /// </summary>
     public class RandomStringGenerator
     {
-        private readonly List<char[]> characterSets = new List<char[]>();
+        private readonly List<char[]> _characterSets = new List<char[]>();
 
-        private readonly Random random = new Random();
+        private readonly Random _random = new Random();
 
-        private int length;
+        private int _length;
 
         /// <summary>
         /// Generates a random string containing characters from any defined characters sets or
@@ -24,17 +24,17 @@ namespace Blueprint.Utilities
         /// <exception cref="InvalidOperationException">If no character sets or length has been defined.</exception>
         public string Generate()
         {
-            if (!characterSets.Any())
+            if (!this._characterSets.Any())
             {
                 throw new InvalidOperationException("No character sets have been defined. See the WithCharacterSet method.");
             }
 
-            if (length <= 0)
+            if (this._length <= 0)
             {
                 throw new InvalidOperationException("No length has been defined. See OfLength method.");
             }
 
-            return string.Join(string.Empty, Enumerable.Range(0, length).Select(GetFromCharacterSet).ToArray());
+            return string.Join(string.Empty, Enumerable.Range(0, this._length).Select(this.GetFromCharacterSet).ToArray());
         }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace Blueprint.Utilities
         /// <returns>This RandomStringGenerator for further configuration.</returns>
         public RandomStringGenerator OfLength(int desiredLength)
         {
-            Guard.GreaterThan("desiredLength", desiredLength, 0);
+            Guard.GreaterThan(nameof(desiredLength), desiredLength, 0);
 
-            length = desiredLength;
+            this._length = desiredLength;
 
             return this;
         }
@@ -59,7 +59,7 @@ namespace Blueprint.Utilities
         /// <returns>This RandomStringGenerator for further configuration.</returns>
         public RandomStringGenerator WithCharacter(char character)
         {
-            characterSets.Add(new[] { character });
+            this._characterSets.Add(new[] { character });
 
             return this;
         }
@@ -74,7 +74,7 @@ namespace Blueprint.Utilities
         {
             Guard.NotNull(nameof(characterSet), characterSet);
 
-            characterSets.Add(characterSet.ToArray());
+            this._characterSets.Add(characterSet.ToArray());
 
             return this;
         }
@@ -88,15 +88,15 @@ namespace Blueprint.Utilities
         /// <returns>This RandomStringGenerator for further configuration.</returns>
         public RandomStringGenerator WithCharacterSet(char start, char end)
         {
-            characterSets.Add(Enumerable.Range(start, (end - start) + 1).Select(i => (char)i).ToArray());
+            this._characterSets.Add(Enumerable.Range(start, (end - start) + 1).Select(i => (char)i).ToArray());
 
             return this;
         }
 
         private char GetFromCharacterSet(int i)
         {
-            var characterSet = characterSets.ElementAt(i % characterSets.Count());
-            var randomIndex = random.Next(0, characterSet.Length);
+            var characterSet = this._characterSets.ElementAt(i % this._characterSets.Count());
+            var randomIndex = this._random.Next(0, characterSet.Length);
 
             return characterSet[randomIndex];
         }

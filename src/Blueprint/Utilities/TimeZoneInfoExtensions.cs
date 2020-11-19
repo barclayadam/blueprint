@@ -12,7 +12,7 @@ namespace Blueprint.Utilities
 
         public static TimeZoneInfo GetByStandardName(string standardName)
         {
-            Guard.NotNullOrEmpty("standardName", standardName);
+            Guard.NotNullOrEmpty(nameof(standardName), standardName);
 
             return TimeZoneInfo.GetSystemTimeZones().Single(t => t.StandardName == standardName);
         }

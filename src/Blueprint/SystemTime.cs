@@ -14,19 +14,19 @@ namespace Blueprint
     /// </remarks>
     public static class SystemTime
     {
-        private static readonly AsyncLocal<SystemTimeModifier> Modifier = new AsyncLocal<SystemTimeModifier>();
+        private static readonly AsyncLocal<SystemTimeModifier> _modifier = new AsyncLocal<SystemTimeModifier>();
 
         /// <summary>
         /// Gets the current UTC date and time, which in a production environment would simply delegate to <see cref="DateTime.UtcNow"/> but
         /// can be controlled in tests using <see cref="PauseForThread" />.
         /// </summary>
-        public static DateTime UtcNow => Modifier.Value?.UtcNow ?? DateTime.UtcNow;
+        public static DateTime UtcNow => _modifier.Value?.UtcNow ?? DateTime.UtcNow;
 
         /// <summary>
         /// Gets the current local date and time, which in a production environment would simply delegate to <see cref="DateTime.Now"/> but
         /// can be controlled in tests using <see cref="PauseForThread" />.
         /// </summary>
-        public static DateTime Now => Modifier.Value?.Now ?? DateTime.Now;
+        public static DateTime Now => _modifier.Value?.Now ?? DateTime.Now;
 
         /// <summary>
         /// Pauses time for the current thread / async context to make it possible to control time for any client that
@@ -39,9 +39,9 @@ namespace Blueprint
         /// <returns>A <see cref="SystemTimeModifier" /> which allows for modification of time.</returns>
         public static SystemTimeModifier PauseForThread()
         {
-            Modifier.Value = new SystemTimeModifier();
+            _modifier.Value = new SystemTimeModifier();
 
-            return Modifier.Value;
+            return _modifier.Value;
         }
 
         /// <summary>
@@ -50,15 +50,15 @@ namespace Blueprint
         /// </summary>
         public static void ResumeForThread()
         {
-            Modifier.Value = null;
+            _modifier.Value = null;
         }
 
         public class SystemTimeModifier : IDisposable
         {
             internal SystemTimeModifier()
             {
-                UtcNow = SystemTime.UtcNow;
-                Now = SystemTime.Now;
+                this.UtcNow = SystemTime.UtcNow;
+                this.Now = SystemTime.Now;
             }
 
             /// <summary>
@@ -79,8 +79,8 @@ namespace Blueprint
             /// <param name="dateTime">The date to set</param>
             public void Set(DateTime dateTime)
             {
-                UtcNow = dateTime;
-                Now = dateTime;
+                this.UtcNow = dateTime;
+                this.Now = dateTime;
             }
 
             /// <summary>
@@ -89,8 +89,8 @@ namespace Blueprint
             /// <param name="timeSpan">The amount to progress by.</param>
             public void FastForward(TimeSpan timeSpan)
             {
-                UtcNow = UtcNow.Add(timeSpan);
-                Now = Now.Add(timeSpan);
+                this.UtcNow = this.UtcNow.Add(timeSpan);
+                this.Now = this.Now.Add(timeSpan);
             }
 
             /// <summary>
@@ -99,8 +99,8 @@ namespace Blueprint
             /// <param name="timeSpan">The amount to rewind by.</param>
             public void Rewind(TimeSpan timeSpan)
             {
-                UtcNow = UtcNow.Subtract(timeSpan);
-                Now = Now.Subtract(timeSpan);
+                this.UtcNow = this.UtcNow.Subtract(timeSpan);
+                this.Now = this.Now.Subtract(timeSpan);
             }
 
             /// <summary>
@@ -109,7 +109,7 @@ namespace Blueprint
             /// <param name="dateTime">The date to set</param>
             public void SetUtcNow(DateTime dateTime)
             {
-                UtcNow = dateTime;
+                this.UtcNow = dateTime;
             }
 
             /// <summary>
@@ -118,7 +118,7 @@ namespace Blueprint
             /// <param name="timeSpan">The amount to progress by.</param>
             public void FastForwardUtc(TimeSpan timeSpan)
             {
-                UtcNow = UtcNow.Add(timeSpan);
+                this.UtcNow = this.UtcNow.Add(timeSpan);
             }
 
             /// <summary>
@@ -127,7 +127,7 @@ namespace Blueprint
             /// <param name="timeSpan">The amount to rewind by.</param>
             public void RewindUtc(TimeSpan timeSpan)
             {
-                UtcNow = UtcNow.Subtract(timeSpan);
+                this.UtcNow = this.UtcNow.Subtract(timeSpan);
             }
 
             public void Dispose()

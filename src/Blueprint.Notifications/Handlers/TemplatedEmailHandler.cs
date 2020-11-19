@@ -13,10 +13,10 @@ namespace Blueprint.Notifications.Handlers
     /// </summary>
     public class TemplatedEmailHandler : NotificationHandler<EmailTemplate>
     {
-        private readonly ITemplateFactory templateFactory;
-        private readonly IEmailSender emailSender;
-        private readonly ILogger<TemplatedEmailHandler> logger;
-        private readonly IOptions<TemplatedEmailHandlerOptions> options;
+        private readonly ITemplateFactory _templateFactory;
+        private readonly IEmailSender _emailSender;
+        private readonly ILogger<TemplatedEmailHandler> _logger;
+        private readonly IOptions<TemplatedEmailHandlerOptions> _options;
 
         /// <summary>
         /// Initializes a new instance of the TemplatedEmailHandler class.
@@ -30,17 +30,17 @@ namespace Blueprint.Notifications.Handlers
             Guard.NotNull(nameof(templateFactory), templateFactory);
             Guard.NotNull(nameof(emailSender), emailSender);
 
-            this.templateFactory = templateFactory;
-            this.emailSender = emailSender;
-            this.logger = logger;
-            this.options = options;
+            this._templateFactory = templateFactory;
+            this._emailSender = emailSender;
+            this._logger = logger;
+            this._options = options;
         }
 
         protected override void InternalHandle(EmailTemplate emailTemplate, NotificationOptions options)
         {
-            using (var message = CreateMessage(emailTemplate, options))
+            using (var message = this.CreateMessage(emailTemplate, options))
             {
-                emailSender.Send(message);
+                this._emailSender.Send(message);
             }
         }
 
@@ -71,16 +71,16 @@ namespace Blueprint.Notifications.Handlers
 
             var message = new MailMessage
             {
-                Subject = ApplyTemplate("Subject", emailTemplate.Subject, options),
-                Body = ApplyTemplate("Body", emailTemplate.Body, options, emailTemplate.Layout),
-                From = new MailAddress(ApplyTemplate("From", fromEmailAddress, options)),
+                Subject = this.ApplyTemplate("Subject", emailTemplate.Subject, options),
+                Body = this.ApplyTemplate("Body", emailTemplate.Body, options, emailTemplate.Layout),
+                From = new MailAddress(this.ApplyTemplate("From", fromEmailAddress, options)),
                 IsBodyHtml = true,
             };
 
             // If the from address does not have the same domain as our main sender address then we
             // will set an sender to ensure email validity checks (e.g. DKIM) are executed against our
             // controlled domain, otherwise we can use the from address as the sender
-            var sender = new MailAddress(this.options.Value.Sender);
+            var sender = new MailAddress(this._options.Value.Sender);
             message.Sender = sender.Host != message.From.Host ? sender : message.From;
 
             foreach (var attachment in options.Attachments)
@@ -90,12 +90,12 @@ namespace Blueprint.Notifications.Handlers
 
             if (!string.IsNullOrEmpty(options.ToEmailAddress))
             {
-                message.To.Add(ModifyRecipient(ApplyTemplate("To-Options", options.ToEmailAddress, options)));
+                message.To.Add(this.ModifyRecipient(this.ApplyTemplate("To-Options", options.ToEmailAddress, options)));
             }
 
             if (!string.IsNullOrEmpty(emailTemplate.To))
             {
-                message.To.Add(ModifyRecipient(ApplyTemplate("To-Template", emailTemplate.To, options)));
+                message.To.Add(this.ModifyRecipient(this.ApplyTemplate("To-Template", emailTemplate.To, options)));
             }
 
             if (message.To.Count == 0)
@@ -109,7 +109,7 @@ namespace Blueprint.Notifications.Handlers
 
         private string ModifyRecipient(string email)
         {
-            if (options.Value.RecipientModifier == string.Empty)
+            if (this._options.Value.RecipientModifier == string.Empty)
             {
                 return email;
             }
@@ -130,13 +130,13 @@ namespace Blueprint.Notifications.Handlers
             var address = new MailAddress(email).Address;
             var safe = address.Replace("@", "#").Replace("+", "_");
 
-            var modified = options.Value.RecipientModifier
+            var modified = this._options.Value.RecipientModifier
                                .Replace("{email}", email)
                                .Replace("{safe-email}", safe);
 
             if (modified != address)
             {
-                logger.LogDebug($"Modified email address for sending. original={address} replaced={modified}");
+                this._logger.LogDebug($"Modified email address for sending. original={address} replaced={modified}");
             }
 
             // If we have not replaced the email address return the original incoming, as that may be
@@ -148,7 +148,7 @@ namespace Blueprint.Notifications.Handlers
         {
             var templatesValues = options.TemplateValues;
 
-            var baseContent = templateFactory
+            var baseContent = this._templateFactory
                 .CreateTemplate(propertyTemplateAppliedTo, UnescapeXmlCharacters(text))
                 .Merge(templatesValues);
 
@@ -157,7 +157,7 @@ namespace Blueprint.Notifications.Handlers
                 return baseContent;
             }
 
-            return templateFactory
+            return this._templateFactory
                 .CreateTemplate(propertyTemplateAppliedTo + "Layout", layout)
                 .Merge(new TemplateValues
                 {

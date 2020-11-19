@@ -29,9 +29,9 @@ namespace Blueprint.Configuration
         /// </summary>
         public OperationScanner()
         {
-            _conventions.Add(new XmlDocResponseConvention());
-            _conventions.Add(new ApiExceptionFactoryResponseConvention());
-            _conventions.Add(new CommandOrQueryIsSupportedConvention());
+            this._conventions.Add(new XmlDocResponseConvention());
+            this._conventions.Add(new ApiExceptionFactoryResponseConvention());
+            this._conventions.Add(new CommandOrQueryIsSupportedConvention());
         }
 
         private delegate void RegisterOperation(Type operationType, string source);
@@ -39,7 +39,7 @@ namespace Blueprint.Configuration
         /// <summary>
         /// The assemblies that have been registered to be scanned for operations.
         /// </summary>
-        public IReadOnlyList<Assembly> ScannedAssemblies => _scannedAssemblies;
+        public IReadOnlyList<Assembly> ScannedAssemblies => this._scannedAssemblies;
 
         /// <summary>
         /// Adds an <see cref="IOperationScannerConvention" /> that will be invoked for every
@@ -53,7 +53,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(contributor), contributor);
 
-            _conventions.Add(contributor);
+            this._conventions.Add(contributor);
 
             return this;
         }
@@ -98,7 +98,7 @@ namespace Blueprint.Configuration
 
                 if (assemblyFilter(a.GetName()))
                 {
-                    Scan(a, filter);
+                    this.Scan(a, filter);
                 }
 
                 foreach (var referenced in a.GetReferencedAssemblies())
@@ -123,7 +123,7 @@ namespace Blueprint.Configuration
         {
             foreach (var assembly in assemblies)
             {
-                Scan(assembly, filter);
+                this.Scan(assembly, filter);
             }
 
             return this;
@@ -138,16 +138,16 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         public OperationScanner Scan(Assembly assembly, Func<Type, bool> filter = null)
         {
-            if (ScannedAssemblies.Contains(assembly))
+            if (this.ScannedAssemblies.Contains(assembly))
             {
                 return this;
             }
 
             this._scannedAssemblies.Add(assembly);
 
-            _scanOperations.Add((add) =>
+            this._scanOperations.Add((add) =>
             {
-                DoScan(assembly, filter, add);
+                this.DoScan(assembly, filter, add);
             });
 
             return this;
@@ -165,7 +165,7 @@ namespace Blueprint.Configuration
         {
             foreach (var type in types)
             {
-                AddOperation(type, source);
+                this.AddOperation(type, source);
             }
 
             return this;
@@ -180,7 +180,7 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         public OperationScanner AddOperation<T>(string source = null)
         {
-            AddOperation(typeof(T), source ?? $"AddOperation<{typeof(T).Name}>()");
+            this.AddOperation(typeof(T), source ?? $"AddOperation<{typeof(T).Name}>()");
 
             return this;
         }
@@ -194,7 +194,7 @@ namespace Blueprint.Configuration
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         public OperationScanner AddOperation(Type type, string source = null)
         {
-            _scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
+            this._scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
 
             return this;
         }
@@ -206,9 +206,9 @@ namespace Blueprint.Configuration
         /// <param name="dataModel">The data model to register the operations to.</param>
         internal void FindOperations(ApiDataModel dataModel)
         {
-            foreach (var scanOperation in _scanOperations)
+            foreach (var scanOperation in this._scanOperations)
             {
-                scanOperation((t, source) => Register(dataModel, t, source));
+                scanOperation((t, source) => this.Register(dataModel, t, source));
             }
         }
 
@@ -260,7 +260,7 @@ namespace Blueprint.Configuration
                 // By default types are NOT included. It's only if a convention is positive
                 // that a type will be included (note that only ONE convention needs to include the
                 // message).
-                foreach (var globalFilters in _conventions)
+                foreach (var globalFilters in this._conventions)
                 {
                     if (globalFilters.IsSupported(type))
                     {
@@ -274,7 +274,7 @@ namespace Blueprint.Configuration
 
         private void Register(ApiDataModel dataModel, Type type, string source)
         {
-            var apiOperationDescriptor = CreateApiOperationDescriptor(type, source);
+            var apiOperationDescriptor = this.CreateApiOperationDescriptor(type, source);
 
             dataModel.RegisterOperation(apiOperationDescriptor);
         }
@@ -300,7 +300,7 @@ namespace Blueprint.Configuration
 
             RegisterResponses(descriptor);
 
-            foreach (var c in _conventions)
+            foreach (var c in this._conventions)
             {
                 c.Apply(descriptor);
             }

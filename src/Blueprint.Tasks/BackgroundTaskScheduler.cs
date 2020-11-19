@@ -17,12 +17,12 @@ namespace Blueprint.Tasks
     /// </summary>
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
-        private readonly ApmBackgroundTaskScheduleProvider backgroundTaskScheduleProvider;
-        private readonly IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors;
-        private readonly IApmTool apmTool;
-        private readonly ILogger<BackgroundTaskScheduler> logger;
+        private readonly ApmBackgroundTaskScheduleProvider _backgroundTaskScheduleProvider;
+        private readonly IEnumerable<IBackgroundTaskPreprocessor> _backgroundTaskPreprocessors;
+        private readonly IApmTool _apmTool;
+        private readonly ILogger<BackgroundTaskScheduler> _logger;
 
-        private readonly List<ScheduledBackgroundTask> tasks = new List<ScheduledBackgroundTask>();
+        private readonly List<ScheduledBackgroundTask> _tasks = new List<ScheduledBackgroundTask>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BackgroundTaskScheduler" /> class.
@@ -41,19 +41,19 @@ namespace Blueprint.Tasks
             Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
 
-            this.backgroundTaskScheduleProvider = new ApmBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider, apmTool);
-            this.backgroundTaskPreprocessors = backgroundTaskPreprocessors;
-            this.apmTool = apmTool;
-            this.logger = logger;
+            this._backgroundTaskScheduleProvider = new ApmBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider, apmTool);
+            this._backgroundTaskPreprocessors = backgroundTaskPreprocessors;
+            this._apmTool = apmTool;
+            this._logger = logger;
         }
 
         /// <inheritdoc />
         public IScheduledBackgroundTask Enqueue(IBackgroundTask task)
         {
-            var envelope = CreateTaskEnvelope(task);
+            var envelope = this.CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, null, this);
 
-            tasks.Add(scheduledTask);
+            this._tasks.Add(scheduledTask);
 
             return scheduledTask;
         }
@@ -61,10 +61,10 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public IScheduledBackgroundTask Schedule(IBackgroundTask task, TimeSpan delay)
         {
-            var envelope = CreateTaskEnvelope(task);
+            var envelope = this.CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, delay, this);
 
-            tasks.Add(scheduledTask);
+            this._tasks.Add(scheduledTask);
 
             return scheduledTask;
         }
@@ -72,24 +72,24 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public async Task RunNowAsync()
         {
-            if (!tasks.Any())
+            if (!this._tasks.Any())
             {
                 return;
             }
 
             // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
-            var currentTasks = new List<ScheduledBackgroundTask>(tasks);
+            var currentTasks = new List<ScheduledBackgroundTask>(this._tasks);
 
-            tasks.Clear();
+            this._tasks.Clear();
 
             if (currentTasks.Count > 5)
             {
-                logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
+                this._logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
             }
 
             foreach (var task in currentTasks)
             {
-                await task.PushToProviderAsync(backgroundTaskScheduleProvider);
+                await task.PushToProviderAsync(this._backgroundTaskScheduleProvider);
             }
         }
 
@@ -97,7 +97,7 @@ namespace Blueprint.Tasks
         {
             var envelope = new BackgroundTaskEnvelope(task);
 
-            foreach (var p in backgroundTaskPreprocessors)
+            foreach (var p in this._backgroundTaskPreprocessors)
             {
                 p.Preprocess(envelope);
             }

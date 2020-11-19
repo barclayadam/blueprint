@@ -14,7 +14,7 @@ namespace Blueprint.Sample.Console.CounterApp.Api
         private readonly ILogger logger;
 
         // This exists here for simplicity
-        public static int Counter;
+        public static int counter;
 
         public IncrementCountCommandHandler(ILogger<IncrementCountCommandHandler> logger)
         {
@@ -23,16 +23,16 @@ namespace Blueprint.Sample.Console.CounterApp.Api
 
         public ValueTask<object> Handle(IncrementCountCommand operation, ApiOperationContext apiOperationContext)
         {
-            if (operation.Max != -1 && Counter >= operation.Max)
+            if (operation.Max != -1 && counter >= operation.Max)
             {
                 logger.LogWarning("Reached max count");
 
                 return default;
             }
 
-            Counter++;
+            counter++;
 
-            logger.LogInformation("Counter is {0}", Counter);
+            logger.LogInformation("Counter is {0}", counter);
 
             return default;
         }

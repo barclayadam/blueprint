@@ -18,7 +18,8 @@ namespace Blueprint.Validation
         /// <summary>
         /// Initializes a new instance of the EmailAddressAttribute class.
         /// </summary>
-        public EmailAddressAttribute() : base(CommonRegularExpressions.EmailOnly, "Please enter a valid email address")
+        public EmailAddressAttribute()
+            : base(CommonRegularExpressions.EmailOnly, "Please enter a valid email address")
         {
         }
 

@@ -13,7 +13,7 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ApiOperationInClassConventionExecutorBuilderScanner : IOperationExecutorBuilderScanner
     {
-        private static readonly string[] AllowedMethodNames = {"Invoke", "InvokeAsync", "Execute", "ExecuteAsync", "Handle", "HandleAsync"};
+        private static readonly string[] _allowedMethodNames = { "Invoke", "InvokeAsync", "Execute", "ExecuteAsync", "Handle", "HandleAsync" };
 
         /// <inheritdoc />
         public IEnumerable<IOperationExecutorBuilder> FindHandlers(
@@ -25,7 +25,7 @@ namespace Blueprint.Middleware
             {
                 foreach (var method in operation.OperationType.GetMethods())
                 {
-                    if (AllowedMethodNames.Contains(method.Name))
+                    if (_allowedMethodNames.Contains(method.Name))
                     {
                         var typedOperation = operation.OperationType
                             .GetInterfaces()

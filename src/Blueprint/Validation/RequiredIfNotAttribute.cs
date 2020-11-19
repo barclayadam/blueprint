@@ -13,7 +13,7 @@ namespace Blueprint.Validation
     {
         private const string RequiredFieldMessage = "The field {0} is required.";
 
-        private readonly IEnumerable<string> convertedValues;
+        private readonly IEnumerable<string> _convertedValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
@@ -23,21 +23,21 @@ namespace Blueprint.Validation
         public RequiredIfNotAttribute(string dependantProperty, object dependantValue)
             : base(RequiredFieldMessage)
         {
-            DependantProperty = dependantProperty;
-            DependantValue = dependantValue;
+            this.DependantProperty = dependantProperty;
+            this.DependantValue = dependantValue;
 
             var isArray = dependantValue != null && dependantValue.GetType().IsArray;
 
             if (isArray)
             {
-                DependantValues = (IEnumerable<object>)dependantValue;
+                this.DependantValues = (IEnumerable<object>)dependantValue;
             }
             else
             {
-                DependantValues = new[] {dependantValue};
+                this.DependantValues = new[] { dependantValue };
             }
 
-            convertedValues = DependantValues.Select(x => x == null ? null : x.ToString()).Distinct().ToList();
+            this._convertedValues = this.DependantValues.Select(x => x == null ? null : x.ToString()).Distinct().ToList();
         }
 
         /// <summary>
@@ -67,9 +67,9 @@ namespace Blueprint.Validation
         /// </returns>
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var item = validationContext.ObjectInstance.GetType().GetProperty(DependantProperty).GetValue(validationContext.ObjectInstance, null);
+            var item = validationContext.ObjectInstance.GetType().GetProperty(this.DependantProperty).GetValue(validationContext.ObjectInstance, null);
 
-            if (item == null || convertedValues.Contains(item.ToString()))
+            if (item == null || this._convertedValues.Contains(item.ToString()))
             {
                 return ValidationResult.Success;
             }
@@ -79,8 +79,7 @@ namespace Blueprint.Validation
                 return ValidationResult.Success;
             }
 
-            object[] args = new[] {validationContext.DisplayName};
-            return new ValidationResult(string.Format("Please fill in '{0}'", args), new[] { validationContext.DisplayName });
+            return new ValidationResult($"Please fill in '{validationContext.DisplayName}'", new[] { validationContext.DisplayName });
         }
     }
 }

@@ -44,13 +44,13 @@ namespace Blueprint.Apm.Stackify
 
         private class StackifyApmSpan : IApmSpan
         {
-            private readonly StackifyApmTool tool;
-            private readonly TaskCompletionSource<bool> manualSlim;
+            private readonly StackifyApmTool _tool;
+            private readonly TaskCompletionSource<bool> _manualSlim;
 
             public StackifyApmSpan(StackifyApmTool tool, TaskCompletionSource<bool> manualSlim)
             {
-                this.tool = tool;
-                this.manualSlim = manualSlim;
+                this._tool = tool;
+                this._manualSlim = manualSlim;
             }
 
             public string TraceId => "-";
@@ -61,19 +61,19 @@ namespace Blueprint.Apm.Stackify
                 string operationName,
                 string type)
             {
-                return tool.Start(spanKind, operationName, type);
+                return this._tool.Start(spanKind, operationName, type);
             }
 
             /// <inheritdoc />
             public void Dispose()
             {
-                manualSlim.SetResult(true);
+                this._manualSlim.SetResult(true);
             }
 
             /// <inheritdoc />
             public void RecordException(Exception e)
             {
-                manualSlim.SetException(e);
+                this._manualSlim.SetException(e);
             }
 
             /// <inheritdoc />

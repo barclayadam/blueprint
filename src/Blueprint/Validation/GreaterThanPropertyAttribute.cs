@@ -18,7 +18,7 @@ namespace Blueprint.Validation
         public GreaterThanPropertyAttribute(string dependantProperty)
             : base(GreaterThanPropertyFieldMessage)
         {
-            DependantProperty = dependantProperty;
+            this.DependantProperty = dependantProperty;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Blueprint.Validation
         /// </returns>
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var item = validationContext.ObjectInstance.GetType().GetProperty(DependantProperty).GetValue(validationContext.ObjectInstance, null);
+            var item = validationContext.ObjectInstance.GetType().GetProperty(this.DependantProperty).GetValue(validationContext.ObjectInstance, null);
 
             if (item == null)
             {
@@ -46,19 +46,17 @@ namespace Blueprint.Validation
 
             if (value.GetType() != item.GetType())
             {
-                object[] args = new[] {value.GetType()};
-                throw new InvalidOperationException(string.Format("The dependent property you supply must also be of type '{0}'.", args));
+                throw new InvalidOperationException($"The dependent property you supply must also be of type '{value.GetType()}'.");
             }
 
             var comparableValue = value as IComparable;
 
             if (comparableValue == null)
             {
-                object[] args = new[] {validationContext.DisplayName};
-                throw new InvalidOperationException(string.Format("The property type of '{0}' is not comparable.", args));
+                throw new InvalidOperationException($"The property type of '{validationContext.DisplayName}' is not comparable.");
             }
 
-            return comparableValue.CompareTo(item) > 0 ? ValidationResult.Success : new ValidationResult(FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
+            return comparableValue.CompareTo(item) > 0 ? ValidationResult.Success : new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName), new[] { validationContext.DisplayName });
         }
     }
 }

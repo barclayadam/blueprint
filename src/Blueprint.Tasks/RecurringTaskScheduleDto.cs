@@ -15,8 +15,8 @@ namespace Blueprint.Tasks
         /// <param name="schedule">The schedule.</param>
         public RecurringTaskScheduleDto(string id, RecurringTaskSchedule schedule)
         {
-            Id = id;
-            Schedule = schedule;
+            this.Id = id;
+            this.Schedule = schedule;
         }
 
         /// <summary>

@@ -9,7 +9,7 @@ namespace Blueprint.Utilities
     /// </summary>
     public static class DateTimeExtensions
     {
-        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Given a DateTime will get the last second of the day that it represents, with ticks set to 0,
@@ -131,7 +131,7 @@ namespace Blueprint.Utilities
         /// <returns>The equivalent DateTime.</returns>
         public static DateTime FromUnixTimeSeconds(this long unixTime)
         {
-            return UnixEpoch.AddSeconds(unixTime);
+            return _unixEpoch.AddSeconds(unixTime);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Blueprint.Utilities
         /// <returns>The equivalent DateTime.</returns>
         public static DateTime FromUnixTimeMilliseconds(this long unixTime)
         {
-            return UnixEpoch.AddMilliseconds(unixTime);
+            return _unixEpoch.AddMilliseconds(unixTime);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Blueprint.Utilities
         /// <returns>The equivalent UNIX timestamp.</returns>
         public static long ToUnixTimeSeconds(this DateTime date)
         {
-            return Convert.ToInt64((date - UnixEpoch).TotalSeconds);
+            return Convert.ToInt64((date - _unixEpoch).TotalSeconds);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace Blueprint.Utilities
         /// <returns>The equivalent UNIX timestamp.</returns>
         public static long ToUnixTimeMilliseconds(this DateTime date)
         {
-            return Convert.ToInt64((date - UnixEpoch).TotalMilliseconds);
+            return Convert.ToInt64((date - _unixEpoch).TotalMilliseconds);
         }
     }
 }

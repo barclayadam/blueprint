@@ -7,11 +7,11 @@ namespace Blueprint.Http
 {
     internal class ProblemDetailsJsonConverter : JsonConverter<ProblemDetails>
     {
-        private static readonly JsonEncodedText Type = JsonEncodedText.Encode("type");
-        private static readonly JsonEncodedText Title = JsonEncodedText.Encode("title");
-        private static readonly JsonEncodedText Status = JsonEncodedText.Encode("status");
-        private static readonly JsonEncodedText Detail = JsonEncodedText.Encode("detail");
-        private static readonly JsonEncodedText Instance = JsonEncodedText.Encode("instance");
+        private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
+        private static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
+        private static readonly JsonEncodedText _status = JsonEncodedText.Encode("status");
+        private static readonly JsonEncodedText _detail = JsonEncodedText.Encode("detail");
+        private static readonly JsonEncodedText _instance = JsonEncodedText.Encode("instance");
 
         public override ProblemDetails Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -44,23 +44,23 @@ namespace Blueprint.Http
 
         internal static void ReadValue(ref Utf8JsonReader reader, ProblemDetails value, JsonSerializerOptions options)
         {
-            if (TryReadStringProperty(ref reader, Type, out var propertyValue))
+            if (TryReadStringProperty(ref reader, _type, out var propertyValue))
             {
                 value.Type = propertyValue;
             }
-            else if (TryReadStringProperty(ref reader, Title, out propertyValue))
+            else if (TryReadStringProperty(ref reader, _title, out propertyValue))
             {
                 value.Title = propertyValue;
             }
-            else if (TryReadStringProperty(ref reader, Detail, out propertyValue))
+            else if (TryReadStringProperty(ref reader, _detail, out propertyValue))
             {
                 value.Detail = propertyValue;
             }
-            else if (TryReadStringProperty(ref reader, Instance, out propertyValue))
+            else if (TryReadStringProperty(ref reader, _instance, out propertyValue))
             {
                 value.Instance = propertyValue;
             }
-            else if (reader.ValueTextEquals(Status.EncodedUtf8Bytes))
+            else if (reader.ValueTextEquals(_status.EncodedUtf8Bytes))
             {
                 reader.Read();
                 if (reader.TokenType == JsonTokenType.Null)
@@ -98,27 +98,27 @@ namespace Blueprint.Http
         {
             if (value.Type != null)
             {
-                writer.WriteString(Type, value.Type);
+                writer.WriteString(_type, value.Type);
             }
 
             if (value.Title != null)
             {
-                writer.WriteString(Title, value.Title);
+                writer.WriteString(_title, value.Title);
             }
 
             if (value.Status != null)
             {
-                writer.WriteNumber(Status, value.Status.Value);
+                writer.WriteNumber(_status, value.Status.Value);
             }
 
             if (value.Detail != null)
             {
-                writer.WriteString(Detail, value.Detail);
+                writer.WriteString(_detail, value.Detail);
             }
 
             if (value.Instance != null)
             {
-                writer.WriteString(Instance, value.Instance);
+                writer.WriteString(_instance, value.Instance);
             }
 
             if (value.Extensions != null)

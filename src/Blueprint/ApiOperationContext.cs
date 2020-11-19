@@ -34,14 +34,14 @@ namespace Blueprint
             Guard.NotNull(nameof(dataModel), dataModel);
             Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
 
-            Descriptor = operationDescriptor;
-            OperationCancelled = token;
-            DataModel = dataModel;
-            ServiceProvider = serviceProvider;
-            Operation = operationDescriptor.CreateInstance();
-            ApmSpan = NullApmSpan.Instance;
+            this.Descriptor = operationDescriptor;
+            this.OperationCancelled = token;
+            this.DataModel = dataModel;
+            this.ServiceProvider = serviceProvider;
+            this.Operation = operationDescriptor.CreateInstance();
+            this.ApmSpan = NullApmSpan.Instance;
 
-            Data = new Dictionary<string, object>();
+            this.Data = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -64,22 +64,22 @@ namespace Blueprint
 
             var operationType = operation.GetType();
 
-            Descriptor = dataModel.FindOperation(operationType);
+            this.Descriptor = dataModel.FindOperation(operationType);
 
-            if (Descriptor == null)
+            if (this.Descriptor == null)
             {
                 throw new ArgumentException(
                     $"Could not find descriptor for operation of type {operationType}",
                     nameof(operation));
             }
 
-            OperationCancelled = token;
-            DataModel = dataModel;
-            ServiceProvider = serviceProvider;
-            Operation = operation;
-            ApmSpan = NullApmSpan.Instance;
+            this.OperationCancelled = token;
+            this.DataModel = dataModel;
+            this.ServiceProvider = serviceProvider;
+            this.Operation = operation;
+            this.ApmSpan = NullApmSpan.Instance;
 
-            Data = new Dictionary<string, object>();
+            this.Data = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Blueprint
         /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
         /// existing context, used to execute another operation in the context of an existing one.
         /// </summary>
-        public bool IsNested => Parent != null;
+        public bool IsNested => this.Parent != null;
 
         /// <summary>
         /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
@@ -149,9 +149,9 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(type), type);
 
-            var context = DataModel.CreateOperationContext(ServiceProvider, type, OperationCancelled);
+            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, type, this.OperationCancelled);
 
-            PopulateNested(context);
+            this.PopulateNested(context);
 
             return context;
         }
@@ -160,9 +160,9 @@ namespace Blueprint
         {
             Guard.NotNull(nameof(operation), operation);
 
-            var context = DataModel.CreateOperationContext(ServiceProvider, operation, OperationCancelled);
+            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, operation, this.OperationCancelled);
 
-            PopulateNested(context);
+            this.PopulateNested(context);
 
             return context;
         }
@@ -170,9 +170,9 @@ namespace Blueprint
         private void PopulateNested(ApiOperationContext childContext)
         {
             childContext.Parent = this;
-            childContext.Data = Data;
-            childContext.ClaimsIdentity = ClaimsIdentity;
-            childContext.UserAuthorisationContext = UserAuthorisationContext;
+            childContext.Data = this.Data;
+            childContext.ClaimsIdentity = this.ClaimsIdentity;
+            childContext.UserAuthorisationContext = this.UserAuthorisationContext;
         }
     }
 }

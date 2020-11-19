@@ -5,54 +5,54 @@ namespace Blueprint.Configuration
 {
     public class PipelineBuilder
     {
-        private readonly List<MiddlewareRegistration> middlewareStages = new List<MiddlewareRegistration>();
+        private readonly List<MiddlewareRegistration> _middlewareStages = new List<MiddlewareRegistration>();
 
-        private readonly BlueprintApiBuilder blueprintApiBuilder;
+        private readonly BlueprintApiBuilder _blueprintApiBuilder;
 
         internal PipelineBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
-            this.blueprintApiBuilder = blueprintApiBuilder;
+            this._blueprintApiBuilder = blueprintApiBuilder;
 
-            AddMiddleware<MessagePopulationMiddlewareBuilder>(MiddlewareStage.Population);
+            this.AddMiddleware<MessagePopulationMiddlewareBuilder>(MiddlewareStage.Population);
 
-            Add(new OperationExecutorMiddlewareBuilder(), MiddlewareStage.Execution, 0);
+            this.Add(new OperationExecutorMiddlewareBuilder(), MiddlewareStage.Execution, 0);
 
             // Special-case this last middleware to have high priority as we MUST have this as the very last middleware, regardless of what else will
             // be registered
-            Add(new ReturnFrameMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
+            this.Add(new ReturnFrameMiddlewareBuilder(), MiddlewareStage.PostExecution, int.MaxValue);
         }
 
         public PipelineBuilder AddMiddlewareBefore<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
-            Add(new T(), middlewareStage, -1);
+            this.Add(new T(), middlewareStage, -1);
 
             return this;
         }
 
         public PipelineBuilder AddMiddlewareBefore(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
-            Add(builder, middlewareStage, -1);
+            this.Add(builder, middlewareStage, -1);
 
             return this;
         }
 
         public PipelineBuilder AddMiddleware<T>(MiddlewareStage middlewareStage) where T : IMiddlewareBuilder, new()
         {
-            Add(new T(), middlewareStage, 0);
+            this.Add(new T(), middlewareStage, 0);
 
             return this;
         }
 
         public PipelineBuilder AddMiddleware(IMiddlewareBuilder builder, MiddlewareStage middlewareStage)
         {
-            Add(builder, middlewareStage, 0);
+            this.Add(builder, middlewareStage, 0);
 
             return this;
         }
 
         internal void Register()
         {
-            middlewareStages.Sort((x, y) =>
+            this._middlewareStages.Sort((x, y) =>
             {
                 if (x.Stage < y.Stage)
                 {
@@ -74,25 +74,25 @@ namespace Blueprint.Configuration
                 return 1;
             });
 
-            foreach (var registration in middlewareStages)
+            foreach (var registration in this._middlewareStages)
             {
-                blueprintApiBuilder.Options.MiddlewareBuilders.Add(registration.MiddlewareBuilder);
+                this._blueprintApiBuilder.Options.MiddlewareBuilders.Add(registration.MiddlewareBuilder);
             }
         }
 
         private void Add(IMiddlewareBuilder middleware, MiddlewareStage middlewareStage, int priority)
         {
-            middlewareStages.Add(new MiddlewareRegistration(middleware, middlewareStage, priority, middlewareStages.Count));
+            this._middlewareStages.Add(new MiddlewareRegistration(middleware, middlewareStage, priority, this._middlewareStages.Count));
         }
 
         private class MiddlewareRegistration
         {
             public MiddlewareRegistration(IMiddlewareBuilder middlewareBuilder, MiddlewareStage stage, int priority, int index)
             {
-                MiddlewareBuilder = middlewareBuilder;
-                Stage = stage;
-                Priority = priority;
-                Index = index;
+                this.MiddlewareBuilder = middlewareBuilder;
+                this.Stage = stage;
+                this.Priority = priority;
+                this.Index = index;
             }
 
             internal IMiddlewareBuilder MiddlewareBuilder { get; }
@@ -105,7 +105,7 @@ namespace Blueprint.Configuration
 
             public override string ToString()
             {
-                return $"{MiddlewareBuilder.GetType().Name} in {Stage} at priority {Priority}/{Index}";
+                return $"{this.MiddlewareBuilder.GetType().Name} in {this.Stage} at priority {this.Priority}/{this.Index}";
             }
         }
     }

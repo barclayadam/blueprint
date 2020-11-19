@@ -6,7 +6,7 @@ namespace Blueprint.Sample.WebApi.Data
 {
     public class WeatherDataSource : IWeatherDataSource
     {
-        private static readonly string[] Summaries = {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+        private static readonly string[] summaries = {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
 
         public IEnumerable<WeatherForecast> Get(string city)
         {
@@ -17,7 +17,7 @@ namespace Blueprint.Sample.WebApi.Data
                     City = city,
                     Date = DateTime.Now.AddDays(index),
                     TemperatureC = rng.Next(-20, 55),
-                    Summary = Summaries[rng.Next(Summaries.Length)],
+                    Summary = summaries[rng.Next(summaries.Length)],
                 })
                 .ToArray();
         }

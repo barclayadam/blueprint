@@ -12,9 +12,9 @@ namespace Blueprint.Compiler
     /// </summary>
     public static class SourceWriterExtensions
     {
-        private static readonly string ReturnCompletedTask = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
+        private static readonly string _returnCompletedTask = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
 
-        private static readonly string ReturnFromResult =
+        private static readonly string _returnFromResult =
             $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}({{0}});";
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Blueprint.Compiler
             }
             else
             {
-                writer.WriteLine(ReturnCompletedTask);
+                writer.WriteLine(_returnCompletedTask);
             }
         }
 
@@ -121,11 +121,9 @@ namespace Blueprint.Compiler
         /// <param name="variable">The variable to return.</param>
         public static void Return(this ISourceWriter writer, GeneratedMethod method, Variable variable)
         {
-            object[] args = { variable.Usage };
-
             writer.WriteLine(method.AsyncMode == AsyncMode.AsyncTask
                 ? $"return {variable.Usage};"
-                : string.Format(ReturnFromResult, args));
+                : string.Format(_returnFromResult, variable.Usage));
         }
 
         /// <summary>

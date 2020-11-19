@@ -13,7 +13,7 @@ namespace Blueprint.StructureMap
     [UsedImplicitly]
     public class StructureMapInstanceFrameProvider : InstanceFrameProvider
     {
-        private readonly IContainer container;
+        private readonly IContainer _container;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StructureMapInstanceFrameProvider" /> class.
@@ -21,7 +21,7 @@ namespace Blueprint.StructureMap
         /// <param name="container">The container from which instances would be grabbed at runtime.</param>
         public StructureMapInstanceFrameProvider(IContainer container)
         {
-            this.container = container;
+            this._container = container;
         }
 
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace Blueprint.StructureMap
         /// <inheritdoc />
         protected override IEnumerable<IoCRegistration> GetRegistrations(Type type)
         {
-            var instanceRefs = container.Model.AllInstances.Where(i => i.ReturnedType == type || i.PluginType == type);
+            var instanceRefs = this._container.Model.AllInstances.Where(i => i.ReturnedType == type || i.PluginType == type);
 
             return instanceRefs.Select(i => new IoCRegistration
             {

@@ -13,7 +13,7 @@ namespace Blueprint.CodeGen
     /// </summary>
     public class ErrorHandlerFrame : SyncFrame
     {
-        private readonly MiddlewareBuilderContext context;
+        private readonly MiddlewareBuilderContext _context;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ErrorHandlerFrame" /> class.
@@ -21,7 +21,7 @@ namespace Blueprint.CodeGen
         /// <param name="context">The builder context for this frame.</param>
         public ErrorHandlerFrame(MiddlewareBuilderContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
         /// <inheritdoc />
@@ -31,7 +31,7 @@ namespace Blueprint.CodeGen
             next();
             writer.FinishBlock();
 
-            foreach (var handler in context.ExceptionHandlers.OrderBy(k => k.Key, new CatchClauseComparer()))
+            foreach (var handler in this._context.ExceptionHandlers.OrderBy(k => k.Key, new CatchClauseComparer()))
             {
                 writer.Block($"catch ({handler.Key.FullNameInCode()} e)");
 
@@ -47,11 +47,11 @@ namespace Blueprint.CodeGen
                 writer.FinishBlock();
             }
 
-            if (context.FinallyFrames.Any())
+            if (this._context.FinallyFrames.Any())
             {
                 writer.Block("finally");
 
-                foreach (var frame in context.FinallyFrames)
+                foreach (var frame in this._context.FinallyFrames)
                 {
                     frame.GenerateCode(variables, method, writer);
                 }

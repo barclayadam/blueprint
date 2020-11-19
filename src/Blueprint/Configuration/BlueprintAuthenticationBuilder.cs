@@ -9,11 +9,11 @@ namespace Blueprint.Configuration
     /// </summary>
     public class BlueprintAuthenticationBuilder
     {
-        private readonly BlueprintApiBuilder apiBuilder;
+        private readonly BlueprintApiBuilder _apiBuilder;
 
         internal BlueprintAuthenticationBuilder(BlueprintApiBuilder apiBuilder)
         {
-            this.apiBuilder = apiBuilder;
+            this._apiBuilder = apiBuilder;
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Blueprint.Configuration
         /// <typeparam name="T">The type of factory to register.</typeparam>
         public BlueprintAuthenticationBuilder UseContextLoader<T>() where T : class, IUserAuthorisationContextFactory
         {
-            apiBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();
+            this._apiBuilder.Services.AddScoped<IUserAuthorisationContextFactory, T>();
 
             return this;
         }

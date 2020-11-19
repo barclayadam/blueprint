@@ -10,24 +10,24 @@ namespace Blueprint
     /// <typeparam name="T">The type of resource (typically an ApiResource) being represented.</typeparam>
     public class ResourceKey<T>
     {
-        private readonly T id;
-        private readonly string resourceType;
+        private readonly T _id;
+        private readonly string _resourceType;
 
         private ResourceKey(string resourceType, T id)
         {
-            this.id = id;
-            this.resourceType = resourceType;
+            this._id = id;
+            this._resourceType = resourceType;
         }
 
         /// <summary>
         /// Gets the ID of the resource this resource key represents.
         /// </summary>
-        public T Id => id;
+        public T Id => this._id;
 
         /// <summary>
         /// Gets the type this resource key represents.
         /// </summary>
-        public string ResourceType => resourceType;
+        public string ResourceType => this._resourceType;
 
         /// <summary>
         /// Converts the string representation of a ResourceKey to the equivalent ResourceKey structure.
@@ -47,9 +47,8 @@ namespace Blueprint
                 return parsedResourceKey;
             }
 
-            object[] args = new[] {resourceKey, typeof(T).Name};
             throw new FormatException(
-                string.Format("Resource key '{0}' is in an invalid format. A resource key must be in the format '[Type]/[Id]' where Id is a {1}.", args));
+                $"Resource key '{resourceKey}' is in an invalid format. A resource key must be in the format '[Type]/[Id]' where Id is a {typeof(T).Name}.");
         }
 
         /// <summary>
@@ -128,7 +127,7 @@ namespace Blueprint
         /// </returns>
         public override string ToString()
         {
-            return resourceType + "/" + id;
+            return this._resourceType + "/" + this._id;
         }
     }
 }

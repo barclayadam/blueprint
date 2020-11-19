@@ -11,13 +11,13 @@ namespace Blueprint.Notifications
     /// </summary>
     public class SmtpClientEmailSender : IEmailSender
     {
-        private readonly ILogger<SmtpClientEmailSender> logger;
-        private readonly SmtpClient smtpClient;
+        private readonly ILogger<SmtpClientEmailSender> _logger;
+        private readonly SmtpClient _smtpClient;
 
         public SmtpClientEmailSender(ILogger<SmtpClientEmailSender> logger, SmtpClient smtpClient)
         {
-            this.logger = logger;
-            this.smtpClient = smtpClient;
+            this._logger = logger;
+            this._smtpClient = smtpClient;
         }
 
         /// <summary>
@@ -34,27 +34,25 @@ namespace Blueprint.Notifications
         /// to send the message.</exception>
         public void Send(MailMessage message)
         {
-            logger.LogDebug("Attempting to send email. to={0} from={1}", message.To, message.From);
+            this._logger.LogDebug("Attempting to send email. to={0} from={1}", message.To, message.From);
 
             try
             {
-                DoSend(message);
+                this.DoSend(message);
 
-                logger.LogDebug("Successfully sent email. to={0} from={1}", message.To, message.From);
+                this._logger.LogDebug("Successfully sent email. to={0} from={1}", message.To, message.From);
             }
             catch (InvalidOperationException e)
             {
-                logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
+                this._logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
-                object[] args = new[] {e.Message};
-                throw new EmailSendingException(string.Format("An error has occurred attempting to send email ({0}).", args), e);
+                throw new EmailSendingException($"An error has occurred attempting to send email ({e.Message}).", e);
             }
             catch (SmtpException e)
             {
-                logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
+                this._logger.LogWarning("Failed to send email. to={0} from={1}", message.To, message.From);
 
-                object[] args = new[] {e.Message};
-                throw new EmailSendingException(string.Format("An error has occurred attempting to send email ({0}).", args), e);
+                throw new EmailSendingException($"An error has occurred attempting to send email ({e.Message}).", e);
             }
         }
 
@@ -62,7 +60,7 @@ namespace Blueprint.Notifications
         {
             Guard.NotNull(nameof(message), message);
 
-            smtpClient.Send(message);
+            this._smtpClient.Send(message);
         }
     }
 }

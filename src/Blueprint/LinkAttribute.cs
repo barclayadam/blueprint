@@ -7,8 +7,8 @@ namespace Blueprint
     {
         public LinkAttribute(Type resourceType, string url)
         {
-            ResourceType = resourceType;
-            Url = url;
+            this.ResourceType = resourceType;
+            this.Url = url;
         }
 
         protected LinkAttribute()

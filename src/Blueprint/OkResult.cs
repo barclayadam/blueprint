@@ -15,7 +15,7 @@ namespace Blueprint
         /// <param name="content">The content to write to the body of the output.</param>
         public OkResult(object content)
         {
-            Content = content;
+            this.Content = content;
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace Blueprint.Compiler.Frames
     public class ThrowExceptionFrame<T> : SyncFrame
         where T : Exception
     {
-        private readonly string exceptionMessage;
+        private readonly string _exceptionMessage;
 
         /// <summary>
         /// Initialised a new instance of the <see cref="ThrowExceptionFrame{T}" /> class that will throw
@@ -20,7 +20,7 @@ namespace Blueprint.Compiler.Frames
         /// <param name="exceptionMessage">The exception message to output.</param>
         public ThrowExceptionFrame(string exceptionMessage)
         {
-            this.exceptionMessage = exceptionMessage;
+            this._exceptionMessage = exceptionMessage;
 
             if (!typeof(T).GetConstructors()
                 .Any(c => c.GetParameters().Length == 1 && c.GetParameters()[0].ParameterType == typeof(string)))
@@ -33,7 +33,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.WriteLine(ToString());
+            writer.WriteLine(this.ToString());
 
             next();
         }
@@ -41,7 +41,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"throw new {typeof(T).FullNameInCode()}(\"{exceptionMessage.Replace("\"", "\\\"")}\"); ";
+            return $"throw new {typeof(T).FullNameInCode()}(\"{this._exceptionMessage.Replace("\"", "\\\"")}\"); ";
         }
     }
 }

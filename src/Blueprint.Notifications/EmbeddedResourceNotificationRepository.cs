@@ -15,26 +15,26 @@ namespace Blueprint.Notifications
     /// </summary>
     public class EmbeddedResourceNotificationRepository : INotificationRepository
     {
-        private static readonly XmlSerializer EmailTemplateSerializer = new XmlSerializer(typeof(EmailTemplate));
+        private static readonly XmlSerializer _emailTemplateSerializer = new XmlSerializer(typeof(EmailTemplate));
 
-        private readonly ILogger<EmbeddedResourceNotificationRepository> logger;
-        private readonly Assembly[] assembliesToScan;
+        private readonly ILogger<EmbeddedResourceNotificationRepository> _logger;
+        private readonly Assembly[] _assembliesToScan;
 
         public EmbeddedResourceNotificationRepository(Assembly[] assembliesToScan, ILogger<EmbeddedResourceNotificationRepository> logger)
         {
             Guard.NotNull(nameof(assembliesToScan), assembliesToScan);
             Guard.NotNull(nameof(logger), logger);
 
-            this.assembliesToScan = assembliesToScan;
-            this.logger = logger;
+            this._assembliesToScan = assembliesToScan;
+            this._logger = logger;
         }
 
         public EmbeddedResourceNotificationRepository(ILogger<EmbeddedResourceNotificationRepository> logger)
         {
             Guard.NotNull(nameof(logger), logger);
 
-            assembliesToScan = new[] { Assembly.GetExecutingAssembly() };
-            this.logger = logger;
+            this._assembliesToScan = new[] { Assembly.GetExecutingAssembly() };
+            this._logger = logger;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Blueprint.Notifications
         /// represent a non existent notification.</returns>
         public IEnumerable<INotificationTemplate> GetTemplates(string name)
         {
-            var notificationContent = GetNotificationTemplate(name);
+            var notificationContent = this.GetNotificationTemplate(name);
 
             if (notificationContent == null)
             {
@@ -58,7 +58,7 @@ namespace Blueprint.Notifications
 
                 // We need to convert the reference to the layout from the stored template to an actual
                 // layout.
-                notificationContent.Layout = GetNotificationEmbeddedResourceContent(layoutName);
+                notificationContent.Layout = this.GetNotificationEmbeddedResourceContent(layoutName);
 
                 if (notificationContent.Layout == null)
                 {
@@ -66,7 +66,7 @@ namespace Blueprint.Notifications
                 }
             }
 
-            logger.LogDebug("Embedded Resource Notification '{0}' has been found.", name);
+            this._logger.LogDebug("Embedded Resource Notification '{0}' has been found.", name);
 
             return new[] { notificationContent };
         }
@@ -79,7 +79,7 @@ namespace Blueprint.Notifications
         /// <returns>Returns a notification email template.</returns>
         private EmailTemplate GetNotificationTemplate(string name)
         {
-            var content = GetNotificationEmbeddedResourceContent(name);
+            var content = this.GetNotificationEmbeddedResourceContent(name);
 
             if (string.IsNullOrEmpty(content))
             {
@@ -88,7 +88,7 @@ namespace Blueprint.Notifications
 
             using (var memStream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
             {
-                return (EmailTemplate)EmailTemplateSerializer.Deserialize(memStream);
+                return (EmailTemplate)_emailTemplateSerializer.Deserialize(memStream);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Blueprint.Notifications
         /// <returns>Returns the content if successful else returns an empty string.</returns>
         private string GetNotificationEmbeddedResourceContent(string name)
         {
-            return assembliesToScan.Select(a => a.GetEmbeddedResourceAsString(name)).FirstOrDefault(t => t != null);
+            return this._assembliesToScan.Select(a => a.GetEmbeddedResourceAsString(name)).FirstOrDefault(t => t != null);
         }
     }
 }
