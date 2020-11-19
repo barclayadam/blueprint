@@ -84,8 +84,6 @@ namespace Blueprint.Errors
                 return ErrorLogStatus.Ignored;
             }
 
-            exception = exception.Demystify();
-
             // Attach extra data to the Exception object via. it's Data property, used in exception sinks to
             // add metadata useful for diagnostics purposes.
             if (errorData != null)
