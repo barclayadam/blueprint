@@ -5,8 +5,8 @@ namespace Blueprint
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     public sealed class RootLinkAttribute : LinkAttribute
     {
-        public RootLinkAttribute(string resourceUrl)
-            : base(null, resourceUrl)
+        public RootLinkAttribute(string routePattern)
+            : base(null, routePattern)
         {
         }
     }

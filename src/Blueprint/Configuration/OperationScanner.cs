@@ -292,7 +292,7 @@ namespace Blueprint.Configuration
             foreach (var linkAttribute in type.GetCustomAttributes<LinkAttribute>())
             {
                 descriptor.AddLink(
-                    new ApiOperationLink(descriptor, linkAttribute.Url, linkAttribute.Rel ?? descriptor.Name)
+                    new ApiOperationLink(descriptor, linkAttribute.RoutePattern, linkAttribute.Rel ?? descriptor.Name)
                     {
                         ResourceType = linkAttribute.ResourceType,
                     });

@@ -5,10 +5,10 @@ namespace Blueprint
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     public class LinkAttribute : Attribute
     {
-        public LinkAttribute(Type resourceType, string url)
+        public LinkAttribute(Type resourceType, string routePattern)
         {
             this.ResourceType = resourceType;
-            this.Url = url;
+            this.RoutePattern = routePattern;
         }
 
         protected LinkAttribute()
@@ -17,7 +17,7 @@ namespace Blueprint
 
         public Type ResourceType { get; }
 
-        public string Url { get; }
+        public string RoutePattern { get; }
 
         public string Rel { get; set; }
     }
