@@ -21,6 +21,28 @@ namespace Blueprint.Tests.OpenApi
     public class Given_OpenApiQuery
     {
         [Test]
+        public async Task When_called_multiple_times_servers_updated_correctly()
+        {
+            // Bug report of servers[0].url being wrong on subsequent calls due to how setting BasePath works in NSwag.
+
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .AddOpenApi());
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+
+            var result1 = await executor.ExecuteAsync(context);
+            var result2 = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult1 = result1.ShouldBeOperationResultType<PlainTextResult>();
+            var plaintextResult2 = result2.ShouldBeOperationResultType<PlainTextResult>();
+
+            plaintextResult1.Content.Should().Be(plaintextResult2.Content);
+        }
+
+        [Test]
         public async Task When_no_operations_then_renders_correctly()
         {
             // Arrange

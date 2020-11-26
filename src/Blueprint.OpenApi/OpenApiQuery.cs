@@ -1,3 +1,4 @@
+using System.Linq;
 using Blueprint.Authorisation;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,15 @@ namespace Blueprint.OpenApi
             var openApiOptions = options.Value;
             var baseUri = httpContext.GetBlueprintBaseUri();
 
-            openApiDocument.BasePath = baseUri;
+            // If the document does not have any servers defined explicitly by client application we will push
+            // a default one that is the currently running server
+            if (openApiDocument.Servers.Any() == false)
+            {
+                openApiDocument.Servers.Add(new OpenApiServer
+                {
+                    Url = baseUri,
+                });
+            }
 
             var httpRequest = httpContext.Request;
 
