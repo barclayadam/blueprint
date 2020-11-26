@@ -29,12 +29,13 @@ namespace Blueprint.OpenApi
             IOptions<OpenApiOptions> options)
         {
             var openApiOptions = options.Value;
-            var baseUri = httpContext.GetBlueprintBaseUri();
 
             // If the document does not have any servers defined explicitly by client application we will push
             // a default one that is the currently running server
-            if (openApiDocument.Servers.Any() == false)
+            if (openApiDocument.Servers.Count == 0)
             {
+                var baseUri = httpContext.GetBlueprintBaseUri();
+
                 openApiDocument.Servers.Add(new OpenApiServer
                 {
                     Url = baseUri,
