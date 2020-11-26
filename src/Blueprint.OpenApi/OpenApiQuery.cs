@@ -48,6 +48,7 @@ namespace Blueprint.OpenApi
             // by passing a json query string to force the JSON response.
             if (httpRequest.Headers["Accept"].ToString().Contains("text/html") && httpRequest.Query.ContainsKey("json") == false)
             {
+                var baseUri = httpContext.GetBlueprintBaseUri();
                 var refitHtmlDocument = @$"<!DOCTYPE html>
 <html>
 <head>
