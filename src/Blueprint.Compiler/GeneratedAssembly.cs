@@ -103,7 +103,7 @@ namespace Blueprint.Compiler
                 var code = writer.Code();
 
                 generatedType.SourceCode = code;
-                generator.AddFile(generatedType.TypeName + ".cs", code);
+                generator.AddFile($"{generatedType.Namespace.Replace(".", "/")}/{generatedType.TypeName}.cs", code);
             }
 
             var assembly = generator.Generate(this._generationRules);

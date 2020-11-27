@@ -59,6 +59,11 @@ namespace Blueprint.Compiler
         /// <inheritdoc />
         public void AddFile(string fileName, string code)
         {
+            if (this._files.Any(f => f.FileName == fileName))
+            {
+                throw new ArgumentException($"A source file with the name {fileName} has already been added", nameof(fileName));
+            }
+
             this._files.Add(new SourceFile(fileName, code));
         }
 
