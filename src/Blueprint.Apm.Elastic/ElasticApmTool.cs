@@ -103,7 +103,7 @@ namespace Blueprint.Apm.Elastic
 
                 foreach (var kvp in e.Data.Keys.Cast<string>())
                 {
-                    this._segment.Labels[kvp] = e.Data[kvp]?.ToString();
+                    this._segment.SetLabel(kvp, e.Data[kvp]?.ToString());
                 }
             }
 
@@ -129,13 +129,13 @@ namespace Blueprint.Apm.Elastic
                             break;
 
                         default:
-                            span.Labels[key] = value;
+                            span.SetLabel(key, value);
                             break;
                     }
                 }
                 else
                 {
-                    this._segment.Labels[key] = value;
+                    this._segment.SetLabel(key, value);
                 }
             }
 
@@ -153,7 +153,7 @@ namespace Blueprint.Apm.Elastic
                 }
                 else
                 {
-                    this._segment.Labels["resource"] = resourceName;
+                    this._segment.SetLabel("resource", resourceName);
                 }
             }
         }
