@@ -49,7 +49,7 @@ namespace Blueprint.Middleware
 
             context.AppendFrames(
                 getInstanceFrame,
-                LogFrame.Debug(
+                LogFrame.Information(
                     "Executing API operation with handler {HandlerType}",
                     new Variable(typeof(string), $"{getInstanceFrame.InstanceVariable}.GetType().Name")),
                 handlerInvokeCall);

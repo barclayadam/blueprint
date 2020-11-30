@@ -40,9 +40,9 @@ namespace Blueprint.Middleware
             // parameter to logging so that it is output as a structured value (as it changes between
             // invocations)
             context.AppendFrames(
-                LogFrame.Debug(
+                LogFrame.Information(
                     "Executing API operation with handler {HandlerType}",
-                    $"\"{this._method.DeclaringType.Name}\""),
+                    $"\"{context.Descriptor.OperationType.Name}\""),
                 handlerInvokeCall);
 
             // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'
@@ -63,7 +63,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{this._method.DeclaringType.Name}.{this._method.Name}";
+            return $"{this.Operation.OperationType.Name}.{this._method.Name}";
         }
     }
 }
