@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 
 namespace Blueprint
 {
@@ -27,6 +28,21 @@ namespace Blueprint
             this.Title = title;
             this.Type = type;
             this.HttpStatus = httpStatus;
+        }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ApiException" /> class.
+        /// </summary>
+        /// <param name="title">The title of this exception, which <em>SHOULD NOT</em> change from occurrence to
+        ///     occurrence.</param>
+        /// <param name="type">The type of this exception, which <em>SHOULD NOT</em> change from occurrence to
+        ///     occurrence, and is typically a URI that when followed gives more details of the problem.</param>
+        /// <param name="httpStatus">The HTTP status code this exception is best represented by.</param>
+        public ApiExceptionFactory(string title, string type, HttpStatusCode httpStatus)
+        {
+            this.Title = title;
+            this.Type = type;
+            this.HttpStatus = (int)httpStatus;
         }
 
         /// <summary>
