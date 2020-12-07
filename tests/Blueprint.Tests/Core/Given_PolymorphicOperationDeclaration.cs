@@ -120,7 +120,6 @@ namespace Blueprint.Tests.Core
             _errorLogger = errorLogger;
         }
 
-
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteAsync(Blueprint.ApiOperationContext context)
         {
             var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
@@ -130,15 +129,14 @@ namespace Blueprint.Tests.Core
                 // OperationExecutorMiddlewareBuilder
                 using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
                 _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationBaseIApiOperationHandler.GetType().Name);
-        await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
+                await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
                 _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationChild2IApiOperationHandler.GetType().Name);
-        await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
+                await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
                 apmSpanOfHandler.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
             }
-
             catch (System.Exception e)
             {
                 var userAuthorisationContext = context.UserAuthorisationContext;
@@ -146,14 +144,12 @@ namespace Blueprint.Tests.Core
 
                 userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
 
-        var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
+                var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
 
                 context.ApmSpan?.RecordException(e);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
-
         }
-
 
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteNestedAsync(Blueprint.ApiOperationContext context)
         {
@@ -164,15 +160,14 @@ namespace Blueprint.Tests.Core
                 // OperationExecutorMiddlewareBuilder
                 using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
                 _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationBaseIApiOperationHandler.GetType().Name);
-        await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
+                await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
                 _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationChild2IApiOperationHandler.GetType().Name);
-        await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
+                await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
                 apmSpanOfHandler.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
             }
-
             catch (System.Exception e)
             {
                 var userAuthorisationContext = context.UserAuthorisationContext;
@@ -180,18 +175,14 @@ namespace Blueprint.Tests.Core
 
                 userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
 
-        var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
+                var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
 
                 context.ApmSpan?.RecordException(e);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
-
         }
-
     }
-
 }
-
 ");
         }
 
