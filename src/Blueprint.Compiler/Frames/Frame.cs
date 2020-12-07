@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blueprint.Compiler.Model;
-using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Frames
 {
@@ -18,9 +17,9 @@ namespace Blueprint.Compiler.Frames
         /// Initialises a new instance of the <see cref="Frame" /> class.
         /// </summary>
         /// <param name="isAsync">Whether this <see cref="Frame"/> is async.</param>
-        protected Frame(bool @is)
+        protected Frame(bool isAsync)
         {
-            this.IsAsync = @is;
+            this.IsAsync = isAsync;
         }
 
         /// <summary>

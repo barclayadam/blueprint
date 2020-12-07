@@ -30,10 +30,17 @@ pr:
 
 steps:
   - task: UseDotNet@2
+    displayName: 'Install .NET 5.0.x'
     inputs:
       packageType: 'sdk'
       version: '5.0.x'
       includePreviewVersions: true
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET 3.0.x'
+    inputs:
+      packageType: 'sdk'
+      version: '3.0.x'
 
   - task: SonarCloudPrepare@1
     displayName: 'SonarQube Preparation'
