@@ -32,7 +32,8 @@ steps:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '3.1.x'
+      version: '5.0.x'
+      includePreviewVersions: true
 
   - task: SonarCloudPrepare@1
     displayName: 'SonarQube Preparation'
