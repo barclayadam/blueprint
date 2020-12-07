@@ -44,9 +44,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             var lines = writer.Code().ReadLines().ToArray();
 
             lines[5].Should().Be("    }");
-
-            // There's a line break between the blocks
-            lines[7].Should().Be("}");
+            lines[6].Should().Be("}");
         }
 
         [Test]

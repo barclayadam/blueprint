@@ -201,10 +201,14 @@ namespace Blueprint.Compiler.Tests.Codegen
             theMethod.Frames.Add(@call);
             theMethod.WriteMethod(writer);
 
-            var allLines = writer.Code().ReadLines().Select(l => l.Trim()).ToArray();
-            var bodyOnly = allLines.AsSpan().Slice(2, allLines.Length - 4);
+            var allLines = writer.Code().ReadLines().ToArray();
 
-            return bodyOnly.ToArray();
+            // Skip method declaration and {
+            // Do not take first 2 lines, nor closing }
+            return allLines.Skip(2)
+                .Take(allLines.Length - 3)
+                .Select(l => l.Trim())
+                .ToArray();
         }
     }
 
