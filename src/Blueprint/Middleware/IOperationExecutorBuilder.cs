@@ -11,16 +11,12 @@ namespace Blueprint.Middleware
     public interface IOperationExecutorBuilder
     {
         /// <summary>
-        /// Gets the <see cref="ApiOperationDescriptor" /> that this builder has been registered for.
-        /// </summary>
-        ApiOperationDescriptor Operation { get; }
-
-        /// <summary>
         /// Performs the code generation for this builder, adding <see cref="Frame"/>s to call the appropriate
         /// handler and return the <see cref="Variable" /> that represents that execution.
         /// </summary>
-        /// <param name="context">The context of the currently built pipeline (will represent the same operation as <see cref="Operation"/>.</param>
+        /// <param name="context">The context of the currently built pipeline.</param>
+        /// <param name="executorReturnType">The return type this builder needs to follow.</param>
         /// <returns>The variable that represents the result of executing a handler for the operation.</returns>
-        Variable Build(MiddlewareBuilderContext context);
+        Variable Build(MiddlewareBuilderContext context, ExecutorReturnType executorReturnType);
     }
 }

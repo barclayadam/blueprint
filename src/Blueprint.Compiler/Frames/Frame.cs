@@ -20,13 +20,13 @@ namespace Blueprint.Compiler.Frames
         /// <param name="isAsync">Whether this <see cref="Frame"/> is async.</param>
         protected Frame(bool @is)
         {
-            this.Is = @is;
+            this.IsAsync = @is;
         }
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Frame" /> is async.
         /// </summary>
-        public virtual bool Is { get; }
+        public virtual bool IsAsync { get; }
 
         /// <summary>
         /// Gets the <see cref="Variable" />s used by this <see cref="Frame" />.

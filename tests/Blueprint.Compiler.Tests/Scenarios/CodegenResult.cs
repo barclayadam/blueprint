@@ -12,7 +12,9 @@ namespace Blueprint.Compiler.Tests.Scenarios
         }
 
         public TObject Object { get; }
+
         public string Code { get; }
+
         public string[] LinesOfCode { get; }
     }
 }

@@ -28,7 +28,7 @@ namespace Blueprint.Compiler.Frames
         {
             if (this.ReturnedVariable == null && this._returnType != null)
             {
-                this.ReturnedVariable = variables.FindVariable(this._returnType);
+                this.ReturnedVariable = variables.TryFindVariable(this._returnType);
             }
 
             if (this.ReturnedVariable == null)

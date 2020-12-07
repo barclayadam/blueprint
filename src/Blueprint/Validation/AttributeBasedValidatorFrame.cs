@@ -21,7 +21,7 @@ namespace Blueprint.Validation
         {
             var resultsVariable = variables.FindVariable(typeof(ValidationFailures));
             var attributeType = typeof(T).FullNameInCode();
-            var awaitMethod = this.Is ? "await" : string.Empty;
+            var awaitMethod = this.IsAsync ? "await" : string.Empty;
 
             writer.Comment($"{this._property.PropertyInfoVariable} == {this._property.PropertyInfoVariable.Property.DeclaringType.Name}.{this._property.PropertyInfoVariable.Property.Name}");
             writer.Block($"foreach (var attribute in {this._property.PropertyAttributesVariable})");

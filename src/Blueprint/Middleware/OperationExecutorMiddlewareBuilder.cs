@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Apm;
-using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware
 {
@@ -31,17 +28,51 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            var allHandlers = context.ServiceProvider.GetRequiredService<List<IOperationExecutorBuilder>>();
-            var handler = allHandlers.Single(h => h.Operation == context.Descriptor);
-
             var apmFrame = ApmSpanFrame.Start(SpanKinds.Internal, "Handler", "exec");
-
             context.AppendFrames(apmFrame);
 
-            var returnVariable = handler.Build(context);
-            returnVariable.OverrideName("handlerResult");
+            if (context.Descriptor.Handlers.Count > 1)
+            {
+                if (context.Descriptor.RequiresReturnValue)
+                {
+                    throw new InvalidOperationException(
+                        $@"Unable to build an executor for the operation {context.Descriptor} because multiple handlers have been registered but the operation has {nameof(context.Descriptor.RequiresReturnValue)} set to true. 
 
-            context.AppendFrames(new OperationResultCastFrame(returnVariable));
+When {nameof(context.Descriptor.RequiresReturnValue)} is true multiple handlers cannot be used as there is not one, obvious, return value that could be used.
+
+Handlers found:
+  - {string.Join("\n  - ", context.Descriptor.Handlers)}
+");
+                }
+
+                foreach (var handler in context.Descriptor.Handlers)
+                {
+                    handler.Build(context, ExecutorReturnType.NoReturn);
+                }
+            }
+            else
+            {
+                // We only have a single handler, return the result of that
+                var allHandlers = context.Descriptor.Handlers;
+                var handler = allHandlers.Single();
+
+                var returnVariable = handler.Build(context, ExecutorReturnType.Return);
+
+                if (returnVariable == null && context.Descriptor.RequiresReturnValue)
+                {
+                    throw new InvalidOperationException(
+                        $@"Unable to build an executor for the operation {context.Descriptor} because the single handler registered, {handler}, did not return a variable but the operation has {nameof(context.Descriptor.RequiresReturnValue)} set to true. 
+
+This can happen if an the only registered handler for an operation is one that is NOT of the same type (for example a handler IApiOperationHandler<ConcreteClass> for the operation IOperationInterface) where it cannot be guaranteed that the handler will be executed.");
+                }
+
+                if (returnVariable != null)
+                {
+                    returnVariable.OverrideName("handlerResult");
+
+                    context.AppendFrames(new OperationResultCastFrame(returnVariable));
+                }
+            }
 
             context.AppendFrames(apmFrame.Complete());
         }

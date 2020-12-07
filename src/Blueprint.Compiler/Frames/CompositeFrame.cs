@@ -11,16 +11,16 @@ namespace Blueprint.Compiler.Frames
     {
         private readonly List<Frame> _inner;
 
-        protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.Is))
+        protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.IsAsync))
         {
             this._inner = inner.ToList();
         }
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="CompositeFrame"/> is async, determined by whether
-        /// any of the children <see cref="Frame.Is"/> properties are <c>true</c>.
+        /// any of the children <see cref="Frame.IsAsync"/> properties are <c>true</c>.
         /// </summary>
-        public override bool Is => this._inner.Any(i => i.Is);
+        public override bool IsAsync => this._inner.Any(i => i.IsAsync);
 
         public List<Frame> Inner => this._inner;
 

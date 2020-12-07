@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Blueprint.Authorisation;
+using Blueprint.Middleware;
 using Blueprint.Utilities;
 
 namespace Blueprint
@@ -18,6 +19,7 @@ namespace Blueprint
         private readonly Dictionary<string, object> _featureData = new Dictionary<string, object>();
         private readonly List<ApiOperationLink> _links = new List<ApiOperationLink>();
         private readonly List<ResponseDescriptor> _responses = new List<ResponseDescriptor>();
+        private readonly List<IOperationExecutorBuilder> _handlers = new List<IOperationExecutorBuilder>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ApiOperationDescriptor" /> class.
@@ -40,6 +42,9 @@ namespace Blueprint
             this.IsExposed = true;
             this.ShouldAudit = true;
             this.RecordPerformanceMetrics = true;
+
+            this.RequiresReturnValue = true;
+            this.AllowMultipleHandlers = true;
 
             this.Name = apiOperationType.Name.Replace("Query", string.Empty).Replace("Command", string.Empty).ToPascalCase();
         }
@@ -129,6 +134,49 @@ namespace Blueprint
         public IReadOnlyList<ResponseDescriptor> Responses => this._responses;
 
         /// <summary>
+        /// The handlers that have been registered for this descriptor.
+        /// </summary>
+        public IReadOnlyList<IOperationExecutorBuilder> Handlers => this._handlers;
+
+        /// <summary>
+        /// Indicates whether this operation allows for multiple handlers. This may be turned off if only a single handler
+        /// makes sense for a given operation, for example in the context of a HTTP service.
+        /// </summary>
+        public bool AllowMultipleHandlers { get; set; }
+
+        /// <summary>
+        /// Indicates whether this operation requires a return value. This may be turned off if the host does not require a
+        /// result, for example for message publishing, where it does not matter if 0 handlers or multiple execute.
+        /// </summary>
+        public bool RequiresReturnValue { get; set; }
+
+        /// <summary>
+        /// Registers the given handler with this operation, identifying what could possible handle and execute
+        /// this operation.
+        /// </summary>
+        /// <remarks>
+        /// Multiple handlers <b>MAY</b> be registered against a single <see cref="ApiOperationDescriptor" />, although
+        /// this behaviour can be stopped by setting <see cref="AllowMultipleHandlers" /> to <c>false</c>.
+        /// </remarks>
+        /// <param name="builder">The handler to register.</param>
+        public void RegisterHandler(IOperationExecutorBuilder builder)
+        {
+            if (this.AllowMultipleHandlers == false && this._handlers.Count > 0)
+            {
+                throw new InvalidOperationException($@"Cannot add multiple handlers to the operation {this}.
+
+If multiple handlers should be enabled, and the host accepts that, {nameof(this.AllowMultipleHandlers)} can be set to true. If not then ensure you are not registering multiple handlers that handle this operation (or any interface it implements or class it inherits).
+
+The handlers found are:
+
+{this._handlers.Single()}
+{builder}");
+            }
+
+            this._handlers.Add(builder);
+        }
+
+        /// <summary>
         /// Adds a link for this descriptor.
         /// </summary>
         /// <param name="apiOperationLink">The link to add.</param>
@@ -137,7 +185,7 @@ namespace Blueprint
         {
             if (apiOperationLink.OperationDescriptor != this)
             {
-                throw new InvalidOperationException("The ApiOperationLink MUST have been created for this ApiOperationDescriptor");
+                throw new InvalidOperationException($"The ApiOperationLink MUST have been created for this ApiOperationDescriptor, but was instead created for the description {apiOperationLink.OperationDescriptor}");
             }
 
             this._links.Add(apiOperationLink);

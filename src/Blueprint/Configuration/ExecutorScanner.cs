@@ -52,40 +52,38 @@ namespace Blueprint.Configuration
             IServiceCollection services,
             List<ApiOperationDescriptor> operations)
         {
-            var allFound = new List<IOperationExecutorBuilder>();
-
             var problems = new List<string>();
 
-            foreach (var scanner in this._scanners)
+            foreach (var operation in operations)
             {
-                foreach (var found in scanner.FindHandlers(services, operations, operationScanner.ScannedAssemblies))
+                foreach (var scanner in this._scanners)
                 {
-                    var existing = allFound.Where(e => e.Operation == found.Operation).ToList();
+                    var handlers = scanner.FindHandlers(services, operation.OperationType, operationScanner.ScannedAssemblies);
 
-                    if (existing.Any())
+                    foreach (var handler in handlers)
                     {
-                        var all = string.Join("\n", existing.Concat(new[] { found }).Select(e => e.ToString()));
-
-                        problems.Add($"Multiple handlers have been found for the operation {found.Operation.Name}:\n\n{all} ");
+                        // Not ideal using exceptions here, done to avoid duplicating the exception messaging around multiple operations
+                        try
+                        {
+                            operation.RegisterHandler(handler);
+                        }
+                        catch (Exception e)
+                        {
+                            problems.Add(e.Message);
+                        }
                     }
-
-                    allFound.Add(found);
                 }
-            }
 
-            var missing = operations.Where(o => allFound.All(f => f.Operation != o)).ToList();
-
-            if (missing.Any())
-            {
-                throw new MissingApiOperationHandlerException(missing.ToArray());
+                if (operation.Handlers.Count == 0)
+                {
+                    problems.Add($"Could not find any handlers for the operation {operation}");
+                }
             }
 
             if (problems.Any())
             {
-                throw new InvalidOperationException(string.Join("\n", problems));
+                throw new InvalidOperationException($"Problems were found during handler scanning:\n\n{string.Join("\n", problems)}");
             }
-
-            services.AddSingleton(allFound);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Blueprint.Compiler.Frames;
+using Blueprint.Compiler.Model;
 
 namespace Blueprint.Middleware
 {
@@ -23,7 +24,14 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public void Build(MiddlewareBuilderContext context)
         {
-            context.ExecuteMethod.Frames.Add(new ReturnFrame(typeof(OperationResult)));
+            if (context.Descriptor.RequiresReturnValue)
+            {
+                context.ExecuteMethod.Frames.Add(new ReturnFrame(typeof(OperationResult)));
+            }
+            else
+            {
+                context.ExecuteMethod.Frames.Add(new ReturnFrame(Variable.StaticFrom<NoResultOperationResult>(nameof(NoResultOperationResult.Instance))));
+            }
         }
     }
 }

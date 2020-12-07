@@ -93,24 +93,24 @@ namespace Blueprint.Configuration
         /// Adds a single operation to this builder, a shorthand for using the method <see cref="OperationScanner.AddOperation{T}" /> through
         /// the <see cref="Operations"/> method.
         /// </summary>
-        /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <typeparam name="T">The operation type to register.</typeparam>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder WithOperation<T>(string source = null)
+        public BlueprintApiBuilder WithOperation<T>(Action<ApiOperationDescriptor> configure = null)
         {
-            return this.Operations(o => o.AddOperation<T>(source ?? $"WithOperation<{typeof(T).Name}>()"));
+            return this.Operations(o => o.AddOperation<T>($"WithOperation<{typeof(T).Name}>()", configure));
         }
 
         /// <summary>
         /// Adds a configured handler, plus the associated operation type.
         /// </summary>
         /// <param name="handler">The configured handler to register (as a singleton).</param>
-        /// <param name="source">The source of this handler / operation, to optionally help identify where it came from for diagnostics.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <typeparam name="T">The operation type.</typeparam>
         /// <returns>This builder.</returns>
-        public BlueprintApiBuilder WithHandler<T>(IApiOperationHandler<T> handler, string source = null)
+        public BlueprintApiBuilder WithHandler<T>(IApiOperationHandler<T> handler, Action<ApiOperationDescriptor> configure = null)
         {
-            this.Operations(o => o.AddOperation(typeof(T), source ?? $"WithHandler({handler.GetType().Name})"));
+            this.Operations(o => o.AddOperation(typeof(T), $"WithHandler({handler.GetType().Name})", configure));
             this.Services.AddSingleton(handler);
 
             return this;

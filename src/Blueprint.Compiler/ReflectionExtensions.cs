@@ -11,19 +11,27 @@ namespace Blueprint.Compiler
     {
         private static readonly Dictionary<Type, string> _aliases = new Dictionary<Type, string>
         {
-            {typeof(int), "int"},
-            {typeof(void), "void"},
-            {typeof(string), "string"},
-            {typeof(long), "long"},
-            {typeof(double), "double"},
-            {typeof(bool), "bool"},
-            {typeof(Task), "Task"},
-            {typeof(object), "object"},
-            {typeof(object[]), "object[]"},
+            { typeof(int), "int" },
+            { typeof(void), "void" },
+            { typeof(string), "string" },
+            { typeof(long), "long" },
+            { typeof(double), "double" },
+            { typeof(bool), "bool" },
+            { typeof(Task), "Task" },
+            { typeof(object), "object" },
+            { typeof(object[]), "object[]" },
         };
 
+        /// <summary>
+        /// Indicates whether the given method is async based on it's return type, whether it returns one of
+        /// <see cref="Task" /> or <see cref="ValueTask" /> (or their generic equivalents).
+        /// </summary>
+        /// <param name="method">The method to check.</param>
+        /// <returns>Whether it is async.</returns>
         public static bool IsAsync(this MethodInfo method)
         {
+            var _ = method ?? throw new ArgumentNullException(nameof(method));
+
             return method.ReturnType == typeof(Task) || method.ReturnType.Closes(typeof(Task<>)) ||
                    method.ReturnType == typeof(ValueTask) || method.ReturnType.Closes(typeof(ValueTask<>));
         }

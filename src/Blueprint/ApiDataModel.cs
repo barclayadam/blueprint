@@ -238,7 +238,7 @@ Operations will be found polymorphically, meaning an operation could be register
         /// <returns>Whether an operation was found.</returns>
         public bool TryFindOperation(Type operationType, out ApiOperationDescriptor descriptor)
         {
-            var found = this.Operations.SingleOrDefault(d => d.OperationType.IsAssignableFrom(operationType));
+            var found = this.Operations.SingleOrDefault(d => d.OperationType == operationType);
 
             if (found == null)
             {

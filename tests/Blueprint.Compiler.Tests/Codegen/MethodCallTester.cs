@@ -128,7 +128,6 @@ namespace Blueprint.Compiler.Tests.Codegen
                 .Should().BeSubsetOf(new [] { typeof(string), typeof(int) });
         }
 
-
         [Test]
         public void use_with_output_arguments_and_return_value()
         {

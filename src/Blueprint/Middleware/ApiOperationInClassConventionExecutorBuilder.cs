@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Blueprint.CodeGen;
@@ -13,28 +14,29 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBuilder
     {
+        private readonly Type _operationType;
         private readonly MethodInfo _method;
 
         /// <summary>
         /// Creates a new instance of the <see cref="ApiOperationInClassConventionExecutorBuilder" /> that represents the given <see cref="ApiOperationDescriptor"/>.
         /// </summary>
-        /// <param name="operation">The operation this builder handles.</param>
+        /// <param name="operationType">The operation this builder handles.</param>
         /// <param name="method">The method that is to be executed.</param>
-        public ApiOperationInClassConventionExecutorBuilder(ApiOperationDescriptor operation, MethodInfo method)
+        public ApiOperationInClassConventionExecutorBuilder(Type operationType, MethodInfo method)
         {
-            this.Operation = operation;
+            this._operationType = operationType;
             this._method = method;
         }
 
         /// <inheritdoc />
-        public ApiOperationDescriptor Operation { get; }
-
-        /// <inheritdoc />
-        public Variable Build(MiddlewareBuilderContext context)
+        public Variable Build(MiddlewareBuilderContext context, ExecutorReturnType executorReturnType)
         {
             // We rely on the compiler infrastructure to make the correct calls, to the correct type (i.e. the actual
             // operation), and to fill in the parameters of that method as required.
-            var handlerInvokeCall = new MethodCall(context.Descriptor.OperationType, this._method);
+            var handlerInvokeCall = new MethodCall(context.Descriptor.OperationType, this._method)
+            {
+                IgnoreReturnVariable = executorReturnType == ExecutorReturnType.NoReturn,
+            };
 
             // Note that although we know the handler type at compile time, we still specify it as a
             // parameter to logging so that it is output as a structured value (as it changes between
@@ -63,7 +65,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"{this.Operation.OperationType.Name}.{this._method.Name}";
+            return $"{this._operationType.Name}.{this._method.Name}";
         }
     }
 }

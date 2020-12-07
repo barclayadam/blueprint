@@ -17,7 +17,8 @@ namespace Blueprint.Compiler.Frames
         /// <param name="variable">A boolean variable.</param>
         /// <param name="inner">The (optional) set of frames to be the inner of this block. Note the preferred way of
         /// creating composite blocks is using inner list initialisation syntax.</param>
-        public IfBlock(Variable variable, params Frame[] inner) : this(variable.Usage, inner)
+        public IfBlock(Variable variable, params Frame[] inner)
+            : this(variable.Usage, inner)
         {
             if (variable.VariableType != typeof(bool))
             {
@@ -31,7 +32,8 @@ namespace Blueprint.Compiler.Frames
         /// <param name="condition">The code that will be placed in the if statement.</param>
         /// <param name="inner">The (optional) set of frames to be the inner of this block. Note the preferred way of
         /// creating composite blocks is using inner list initialisation syntax.</param>
-        public IfBlock(string condition, params Frame[] inner) : base(inner)
+        public IfBlock(string condition, params Frame[] inner)
+            : base(inner)
         {
             this._condition = condition;
         }

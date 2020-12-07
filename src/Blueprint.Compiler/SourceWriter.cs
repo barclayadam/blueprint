@@ -54,6 +54,14 @@ namespace Blueprint.Compiler
         }
 
         /// <inheritdoc />
+        public ISourceWriter Indent()
+        {
+            this._writer.Append(this._leadingSpaces);
+
+            return this;
+        }
+
+        /// <inheritdoc />
         public ISourceWriter Append(string text)
         {
             this._writer.Append(text);
@@ -142,8 +150,6 @@ namespace Blueprint.Compiler
             {
                 this.WriteLine("}" + extra);
             }
-
-            this.BlankLine();
 
             return this;
         }

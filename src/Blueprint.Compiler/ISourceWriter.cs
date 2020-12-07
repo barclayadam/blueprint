@@ -9,6 +9,15 @@
         ISourceWriter BlankLine();
 
         /// <summary>
+        /// Appends the current indentation level to this writer, which should only be used
+        /// in the case of directly writing to this writer through the <see cref="Append(string)"/> or
+        /// <see cref="Append(char)"/> methods, as <see cref="WriteLine"/> and <see cref="WriteLines"/> will
+        /// already handle automatic indentation.
+        /// </summary>
+        /// <returns>This source writer.</returns>
+        ISourceWriter Indent();
+
+        /// <summary>
         /// Writes a line with an opening '{' character at the current block level
         /// and increments the current block level.
         /// </summary>

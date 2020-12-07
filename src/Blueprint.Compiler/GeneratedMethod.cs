@@ -161,7 +161,7 @@ namespace Blueprint.Compiler
             {
                 this.AsyncMode = AsyncMode.AsyncTask;
 
-                if (this._allRegisteredFrames.All(x => !x.Is))
+                if (this._allRegisteredFrames.All(x => !x.IsAsync))
                 {
                     this.AsyncMode = AsyncMode.None;
                 }
@@ -169,7 +169,7 @@ namespace Blueprint.Compiler
                 {
                     var lastFrame = this._allRegisteredFrames.Last();
 
-                    if (this._allRegisteredFrames.Count(x => x.Is) == 1 && lastFrame.Is && lastFrame.CanReturnTask())
+                    if (this._allRegisteredFrames.Count(x => x.IsAsync) == 1 && lastFrame.IsAsync && lastFrame.CanReturnTask())
                     {
                         this.AsyncMode = AsyncMode.ReturnFromLastNode;
                     }
@@ -421,6 +421,13 @@ namespace Blueprint.Compiler
                 return this;
             }
 
+            public ISourceWriter Indent()
+            {
+                this._inner.Indent();
+
+                return this;
+            }
+
             public ISourceWriter Block(string text)
             {
                 this._inner.Block(text);
@@ -495,6 +502,11 @@ namespace Blueprint.Compiler
                 return this;
             }
 
+            public ISourceWriter Indent()
+            {
+                return this;
+            }
+
             public ISourceWriter Block(string extra = null)
             {
                 this.IndentationLevel++;
@@ -540,7 +552,7 @@ namespace Blueprint.Compiler
 
                     throw new ArgumentOutOfRangeException(
                         nameof(variableType),
-                        $"Do not know how to build a variable of type '{variableType.FullName}'. " +
+                        $"Could not find a variable of type '{variableType.FullName}' for method {this._method.GeneratedType.TypeName}.{this._method.MethodName}. " +
                         $"Searched in argument list, constructor parameters and sources {searchedSources}");
                 }
 

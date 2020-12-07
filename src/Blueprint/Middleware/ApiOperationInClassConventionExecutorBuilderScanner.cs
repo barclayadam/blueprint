@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,34 +19,31 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public IEnumerable<IOperationExecutorBuilder> FindHandlers(
             IServiceCollection services,
-            IEnumerable<ApiOperationDescriptor> operations,
+            Type operationType,
             IEnumerable<Assembly> scannedAssemblies)
         {
-            foreach (var operation in operations)
+            foreach (var method in operationType.GetMethods())
             {
-                foreach (var method in operation.OperationType.GetMethods())
+                if (_allowedMethodNames.Contains(method.Name))
                 {
-                    if (_allowedMethodNames.Contains(method.Name))
+                    var typedOperation = operationType
+                        .GetInterfaces()
+                        .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReturn<>));
+
+                    if (typedOperation != null)
                     {
-                        var typedOperation = operation.OperationType
-                            .GetInterfaces()
-                            .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReturn<>));
+                        var declaredReturnType = typedOperation.GetGenericArguments()[0];
+                        var isTaskWrapped = method.ReturnType.Closes(typeof(Task<>)) || method.ReturnType.Closes(typeof(ValueTask<>));
+                        var unwrappedReturnType = isTaskWrapped ? method.ReturnType.GetGenericArguments()[0] : method.ReturnType;
 
-                        if (typedOperation != null)
+                        if (declaredReturnType != unwrappedReturnType)
                         {
-                            var declaredReturnType = typedOperation.GetGenericArguments()[0];
-                            var isTaskWrapped = method.ReturnType.Closes(typeof(Task<>)) || method.ReturnType.Closes(typeof(ValueTask<>));
-                            var unwrappedReturnType = isTaskWrapped ? method.ReturnType.GetGenericArguments()[0] : method.ReturnType;
-
-                            if (declaredReturnType != unwrappedReturnType)
-                            {
-                                throw new InvalidReturnTypeException(
-                                    $"Operation {operation.OperationType.Name} declares a return type of {declaredReturnType}, but the method {method.Name} has an incompatible return type of {method.ReturnType.Name}");
-                            }
+                            throw new InvalidReturnTypeException(
+                                $"Operation {operationType.Name} declares a return type of {declaredReturnType}, but the method {method.Name} has an incompatible return type of {method.ReturnType.Name}");
                         }
-
-                        yield return new ApiOperationInClassConventionExecutorBuilder(operation, method);
                     }
+
+                    yield return new ApiOperationInClassConventionExecutorBuilder(operationType, method);
                 }
             }
         }

@@ -32,6 +32,9 @@ namespace Blueprint.Http
                 }
 
                 descriptor.SetFeatureData(new HttpOperationFeatureData(supportedMethod));
+
+                descriptor.AllowMultipleHandlers = false;
+                descriptor.RequiresReturnValue = true;
             }
         }
 

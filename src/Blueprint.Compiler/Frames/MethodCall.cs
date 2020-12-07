@@ -62,6 +62,12 @@ namespace Blueprint.Compiler.Frames
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to ignore the return variable of this <see cref="MethodCall" /> (if there
+        /// is one) and therefore NOT generate a variable assignment.
+        /// </summary>
+        public bool IgnoreReturnVariable { get; set; }
+
+        /// <summary>
         /// The output variable of this method call, which may be <c>null</c> if the method has
         /// a <c>void</c> return type.
         /// </summary>
@@ -138,7 +144,7 @@ namespace Blueprint.Compiler.Frames
         /// <inheritdoc />
         public override bool CanReturnTask()
         {
-            return this.Is;
+            return this.IsAsync;
         }
 
         /// <inheritdoc />
@@ -147,7 +153,7 @@ namespace Blueprint.Compiler.Frames
             var writer = new SourceWriter();
             this.AppendInvocationCode(writer);
 
-            return this.Is ? "await " + writer.Code() : writer.Code();
+            return this.IsAsync ? "await " + writer.Code() : writer.Code();
         }
 
         /// <inheritdoc />
@@ -175,12 +181,14 @@ namespace Blueprint.Compiler.Frames
             var isDisposable = shouldAssign && this.ReturnVariable.VariableType.CanBeCastTo<IDisposable>();
             var requiresUsingBlock = isDisposable && this.DisposalMode == DisposalMode.UsingBlock;
 
+            writer.Indent();
+
             if (requiresUsingBlock)
             {
                 writer.Append("using (");
             }
 
-            var callConvention = this.Is ? method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await " : string.Empty;
+            var callConvention = this.IsAsync ? method.AsyncMode == AsyncMode.ReturnFromLastNode ? "return " : "await " : string.Empty;
 
             if (shouldAssign)
             {
@@ -241,12 +249,12 @@ namespace Blueprint.Compiler.Frames
 
         private bool ShouldAssignVariableToReturnValue(GeneratedMethod method)
         {
-            if (this.ReturnVariable == null)
+            if (this.ReturnVariable == null || this.IgnoreReturnVariable)
             {
                 return false;
             }
 
-            if (this.Is && method.AsyncMode == AsyncMode.ReturnFromLastNode)
+            if (this.IsAsync && method.AsyncMode == AsyncMode.ReturnFromLastNode)
             {
                 return false;
             }

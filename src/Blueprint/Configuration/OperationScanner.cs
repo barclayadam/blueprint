@@ -34,7 +34,7 @@ namespace Blueprint.Configuration
             this._conventions.Add(new CommandOrQueryIsSupportedConvention());
         }
 
-        private delegate void RegisterOperation(Type operationType, string source);
+        private delegate void RegisterOperation(Type operationType, string source, Action<ApiOperationDescriptor> configure);
 
         /// <summary>
         /// The assemblies that have been registered to be scanned for operations.
@@ -63,10 +63,11 @@ namespace Blueprint.Configuration
         /// register, with an optional filter function to exclude found types.
         /// </summary>
         /// <param name="filter">The optional filter over found operations.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
-        public OperationScanner ScanCallingAssembly(Func<Type, bool> filter = null)
+        public OperationScanner ScanCallingAssembly(Func<Type, bool> filter = null, Action<ApiOperationDescriptor> configure = null)
         {
-            return this.Scan(Assembly.GetCallingAssembly(), filter);
+            return this.Scan(Assembly.GetCallingAssembly(), filter, configure);
         }
 
         /// <summary>
@@ -80,12 +81,14 @@ namespace Blueprint.Configuration
         /// </remarks>
         /// <param name="assemblyFilter">A filter to determine whether to scan a given assembly.</param>
         /// <param name="filter">A type filter to exclude types from the search.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <typeparam name="T">The type from which an <see cref="Assembly"/> is loaded and recursively
         /// scanned.</typeparam>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         public OperationScanner ScanReferencedAssembliesOf<T>(
             Func<AssemblyName, bool> assemblyFilter,
-            Func<Type, bool> filter = null)
+            Func<Type, bool> filter = null,
+            Action<ApiOperationDescriptor> configure = null)
         {
             void ScanRecursive(Assembly a, ISet<Assembly> seen)
             {
@@ -98,7 +101,7 @@ namespace Blueprint.Configuration
 
                 if (assemblyFilter(a.GetName()))
                 {
-                    this.Scan(a, filter);
+                    this.Scan(a, filter, configure);
                 }
 
                 foreach (var referenced in a.GetReferencedAssemblies())
@@ -118,12 +121,13 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="assemblies">The assemblies to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
-        public OperationScanner Scan(Assembly[] assemblies, Func<Type, bool> filter = null)
+        public OperationScanner Scan(Assembly[] assemblies, Func<Type, bool> filter = null, Action<ApiOperationDescriptor> configure = null)
         {
             foreach (var assembly in assemblies)
             {
-                this.Scan(assembly, filter);
+                this.Scan(assembly, filter, configure);
             }
 
             return this;
@@ -135,8 +139,9 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="assembly">The assembly to scan.</param>
         /// <param name="filter">The optional filter over found operations.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
-        public OperationScanner Scan(Assembly assembly, Func<Type, bool> filter = null)
+        public OperationScanner Scan(Assembly assembly, Func<Type, bool> filter = null, Action<ApiOperationDescriptor> configure = null)
         {
             if (this.ScannedAssemblies.Contains(assembly))
             {
@@ -147,7 +152,7 @@ namespace Blueprint.Configuration
 
             this._scanOperations.Add((add) =>
             {
-                this.DoScan(assembly, filter, add);
+                this.DoScan(assembly, filter, add, configure);
             });
 
             return this;
@@ -159,13 +164,14 @@ namespace Blueprint.Configuration
         /// <param name="types">The types to register.</param>
         /// <param name="source">The source of these operations, useful for tracking <em>where</em> an operation comes from. Used for
         /// diagnostics.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
         /// <see cref="AddOperation" />
-        public OperationScanner AddOperations(IEnumerable<Type> types, string source = "AddOperations(Type[])")
+        public OperationScanner AddOperations(IEnumerable<Type> types, string source = "AddOperations(Type[])", Action<ApiOperationDescriptor> configure = null)
         {
             foreach (var type in types)
             {
-                this.AddOperation(type, source);
+                this.AddOperation(type, source, configure);
             }
 
             return this;
@@ -176,11 +182,12 @@ namespace Blueprint.Configuration
         /// </summary>
         /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
         /// diagnostics.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <typeparam name="T">The type of operation to register.</typeparam>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
-        public OperationScanner AddOperation<T>(string source = null)
+        public OperationScanner AddOperation<T>(string source = null, Action<ApiOperationDescriptor> configure = null)
         {
-            this.AddOperation(typeof(T), source ?? $"AddOperation<{typeof(T).Name}>()");
+            this.AddOperation(typeof(T), source ?? $"AddOperation<{typeof(T).Name}>()", configure);
 
             return this;
         }
@@ -191,10 +198,11 @@ namespace Blueprint.Configuration
         /// <param name="type">The <see cref="Type"/> representing the operation to register.</param>
         /// <param name="source">The source of this operation, useful for tracking <em>where</em> an operation comes from. Used for
         /// diagnostics.</param>
+        /// <param name="configure">An optional action that can modify the created <see cref="ApiOperationDescriptor" />.</param>
         /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
-        public OperationScanner AddOperation(Type type, string source = null)
+        public OperationScanner AddOperation(Type type, string source = null, Action<ApiOperationDescriptor> configure = null)
         {
-            this._scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))"));
+            this._scanOperations.Add(a => a(type, source ?? $"AddOperation(typeof({type.Name}))", configure));
 
             return this;
         }
@@ -208,15 +216,8 @@ namespace Blueprint.Configuration
         {
             foreach (var scanOperation in this._scanOperations)
             {
-                scanOperation((t, source) => this.Register(dataModel, t, source));
+                scanOperation((t, source, configure) => this.Register(dataModel, t, source, configure));
             }
-        }
-
-        private static IEnumerable<Type> GetExportedTypesOfInterface(Assembly assembly, Type interfaceType)
-        {
-            var allExportedTypes = assembly.GetExportedTypes();
-
-            return allExportedTypes.Where(t => !t.IsAbstract && t.GetInterface(interfaceType.Name) != null);
         }
 
         private static void RegisterResponses(ApiOperationDescriptor descriptor)
@@ -238,7 +239,7 @@ namespace Blueprint.Configuration
                 new ResponseDescriptor(typeof(ValidationFailedOperationResult), 422, "Validation failure"));
         }
 
-        private void DoScan(Assembly assembly, Func<Type, bool> filter, RegisterOperation register)
+        private void DoScan(Assembly assembly, Func<Type, bool> filter, RegisterOperation register, Action<ApiOperationDescriptor> configure = null)
         {
             var source = $"Scan {assembly.FullName}";
 
@@ -264,7 +265,7 @@ namespace Blueprint.Configuration
                 {
                     if (globalFilters.IsSupported(type))
                     {
-                        register(type, source);
+                        register(type, source, configure);
 
                         break;
                     }
@@ -272,9 +273,11 @@ namespace Blueprint.Configuration
             }
         }
 
-        private void Register(ApiDataModel dataModel, Type type, string source)
+        private void Register(ApiDataModel dataModel, Type type, string source, Action<ApiOperationDescriptor> configure)
         {
             var apiOperationDescriptor = this.CreateApiOperationDescriptor(type, source);
+
+            configure?.Invoke(apiOperationDescriptor);
 
             dataModel.RegisterOperation(apiOperationDescriptor);
         }
