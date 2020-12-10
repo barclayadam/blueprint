@@ -14,6 +14,11 @@ namespace Blueprint.Validation
         Justification = "Only want ValidationException to be used in the specific way supported by the constructor.")]
     public class ValidationException : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidationException" /> class for a single
+        /// error message that applies at the form level.
+        /// </summary>
+        /// <param name="formLevelMessage">The form-level error message.</param>
         public ValidationException(string formLevelMessage)
             : this(formLevelMessage, new Dictionary<string, string> { [ValidationFailures.FormLevelPropertyName] = formLevelMessage })
         {
@@ -21,7 +26,7 @@ namespace Blueprint.Validation
         }
 
         /// <summary>
-        /// Initializes a new instance of the ValidationException class for a single
+        /// Initializes a new instance of the <see cref="ValidationException" /> class for a single
         /// property being invalid as a utility to avoid a lot of boilerplate.
         /// </summary>
         /// <param name="property">The property that failure applies to.</param>
@@ -34,11 +39,11 @@ namespace Blueprint.Validation
         }
 
         /// <summary>
-        /// Initializes a new instance of the ValidationException class.
+        /// Initializes a new instance of the <see cref="ValidationException" /> class.
         /// </summary>
         /// <param name="overallFailureMessage">The message of the exception.</param>
         /// <param name="validationResults">The validation failures.</param>
-        public ValidationException(string overallFailureMessage, Dictionary<string, string> validationResults)
+        public ValidationException(string overallFailureMessage, IReadOnlyDictionary<string, string> validationResults)
                 : base(overallFailureMessage)
         {
             Guard.NotNull(nameof(validationResults), validationResults);
@@ -52,7 +57,7 @@ namespace Blueprint.Validation
         /// </summary>
         /// <param name="overallFailureMessage">The message of the exception.</param>
         /// <param name="validationResults">The validation failures.</param>
-        public ValidationException(string overallFailureMessage, Dictionary<string, IEnumerable<string>> validationResults)
+        public ValidationException(string overallFailureMessage, IReadOnlyDictionary<string, IEnumerable<string>> validationResults)
             : base(overallFailureMessage)
         {
             Guard.NotNull(nameof(validationResults), validationResults);
@@ -63,6 +68,6 @@ namespace Blueprint.Validation
         /// <summary>
         /// Gets the validation failures that have caused this validation exception.
         /// </summary>
-        public Dictionary<string, IEnumerable<string>> ValidationResults { get; }
+        public IReadOnlyDictionary<string, IEnumerable<string>> ValidationResults { get; }
     }
 }

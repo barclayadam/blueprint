@@ -42,6 +42,6 @@ namespace Blueprint.Tasks
         /// Runs all enqueued and scheduled tasks that have been queued up with this task scheduler.
         /// </summary>
         /// <returns>A task representing this operation.</returns>
-        Task RunNowAsync();
+        ValueTask RunNowAsync();
     }
 }

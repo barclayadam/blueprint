@@ -5,13 +5,20 @@ using System.Text.Json.Serialization;
 
 namespace Blueprint.Http
 {
+    /// <summary>
+    /// A <see cref="JsonConverter" /> for <see cref="ValidationProblemDetails" />.
+    /// </summary>
     internal class ValidationProblemDetailsJsonConverter : JsonConverter<ValidationProblemDetails>
     {
         private static readonly JsonEncodedText _errors = JsonEncodedText.Encode("errors");
 
+        /// <inheritdoc/>
         public override ValidationProblemDetails Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var problemDetails = new ValidationProblemDetails();
+            // ValidationProblemDetails is immutable for the errors dictionary, but we know it uses by-ref so create
+            // a mutable dictionary that will be populated below.
+            var errors = new Dictionary<string, IEnumerable<string>>();
+            var problemDetails = new ValidationProblemDetails(errors);
 
             if (reader.TokenType != JsonTokenType.StartObject)
             {
@@ -22,10 +29,11 @@ namespace Blueprint.Http
             {
                 if (reader.ValueTextEquals(_errors.EncodedUtf8Bytes))
                 {
-                    var errors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(ref reader, options);
-                    foreach (var item in errors)
+                    var readErrors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(ref reader, options);
+
+                    foreach (var item in readErrors)
                     {
-                        problemDetails.Errors[item.Key] = item.Value;
+                        errors[item.Key] = item.Value;
                     }
                 }
                 else
@@ -42,6 +50,7 @@ namespace Blueprint.Http
             return problemDetails;
         }
 
+        /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, ValidationProblemDetails value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
@@ -49,10 +58,13 @@ namespace Blueprint.Http
 
             writer.WriteStartObject(_errors);
 
-            foreach (var kvp in value.Errors)
+            if (value.Errors != null)
             {
-                writer.WritePropertyName(options.DictionaryKeyPolicy.ConvertName(kvp.Key));
-                JsonSerializer.Serialize(writer, kvp.Value, kvp.Value?.GetType() ?? typeof(object), options);
+                foreach (var kvp in value.Errors)
+                {
+                    writer.WritePropertyName(options.DictionaryKeyPolicy.ConvertName(kvp.Key));
+                    JsonSerializer.Serialize(writer, kvp.Value, kvp.Value?.GetType() ?? typeof(object), options);
+                }
             }
 
             writer.WriteEndObject();

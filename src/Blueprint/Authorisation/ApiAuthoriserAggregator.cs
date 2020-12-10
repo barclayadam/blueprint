@@ -9,7 +9,7 @@ namespace Blueprint.Authorisation
 {
     public class ApiAuthoriserAggregator : IApiAuthoriserAggregator
     {
-        private static readonly ConcurrentDictionary<Type, IEnumerable<IApiAuthoriser>> _operationTypeAuthorisers = new ConcurrentDictionary<Type, IEnumerable<IApiAuthoriser>>();
+        private static readonly ConcurrentDictionary<Type, List<IApiAuthoriser>> _operationTypeAuthorisers = new ConcurrentDictionary<Type, List<IApiAuthoriser>>();
 
         private readonly IEnumerable<IApiAuthoriser> _apiAuthorisers;
         private readonly ILogger<ApiAuthoriserAggregator> _logger;
@@ -23,7 +23,7 @@ namespace Blueprint.Authorisation
             this._logger = logger;
         }
 
-        public async Task<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
+        public async ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
             if (this._logger.IsEnabled(LogLevel.Trace))
             {
@@ -55,7 +55,7 @@ namespace Blueprint.Authorisation
             return ExecutionAllowed.Yes;
         }
 
-        private IEnumerable<IApiAuthoriser> GetForOperation(ApiOperationDescriptor descriptor)
+        private List<IApiAuthoriser> GetForOperation(ApiOperationDescriptor descriptor)
         {
             return _operationTypeAuthorisers.GetOrAdd(descriptor.OperationType, t =>
             {

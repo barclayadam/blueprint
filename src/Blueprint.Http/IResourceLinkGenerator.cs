@@ -9,6 +9,6 @@ namespace Blueprint.Http
     /// </summary>
     public interface IResourceLinkGenerator
     {
-        Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource);
+        ValueTask AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource);
     }
 }

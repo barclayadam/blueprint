@@ -5,6 +5,7 @@ using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Utilities;
 
 namespace Blueprint.Middleware
 {
@@ -44,7 +45,7 @@ namespace Blueprint.Middleware
             context.AppendFrames(
                 LogFrame.Information(
                     "Executing API operation with handler {HandlerType}",
-                    $"\"{context.Descriptor.OperationType.Name}\""),
+                    ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType)),
                 handlerInvokeCall);
 
             // We have a void, or a Task (i.e. async with no return) so we will convert to a 'NoResult'

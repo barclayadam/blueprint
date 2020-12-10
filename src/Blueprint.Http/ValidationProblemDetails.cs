@@ -12,11 +12,21 @@ namespace Blueprint.Http
     public class ValidationProblemDetails : ProblemDetails
     {
         /// <summary>
+        /// Initializes a new instance of <see cref="ValidationProblemDetails"/>.
+        /// </summary>
+        internal ValidationProblemDetails()
+        {
+            this.Title = "One or more validation errors occurred";
+            this.Type = "validation_failed";
+            this.Status = 422;
+        }
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="ValidationProblemDetails" /> class
         /// with a dictionary mapping properties to a list of errors.
         /// </summary>
         /// <param name="errors">The errors to represent.</param>
-        public ValidationProblemDetails(IDictionary<string, IEnumerable<string>> errors)
+        public ValidationProblemDetails(IReadOnlyDictionary<string, IEnumerable<string>> errors)
             : this()
         {
             this.Errors = errors;
@@ -34,19 +44,9 @@ namespace Blueprint.Http
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ValidationProblemDetails"/>.
-        /// </summary>
-        internal ValidationProblemDetails()
-        {
-            this.Title = "One or more validation errors occurred";
-            this.Type = "validation_failed";
-            this.Status = 422;
-        }
-
-        /// <summary>
         /// Gets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
         /// </summary>
         [JsonPropertyName("errors")]
-        public IDictionary<string, IEnumerable<string>> Errors { get; } = new Dictionary<string, IEnumerable<string>>(StringComparer.Ordinal);
+        public IReadOnlyDictionary<string, IEnumerable<string>> Errors { get; }
     }
 }

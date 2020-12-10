@@ -30,7 +30,7 @@ namespace Blueprint.Middleware
         /// of property &lt;-&gt; property errors messages.
         /// </summary>
         /// <param name="errors">The errors of this failure result.</param>
-        public ValidationFailedOperationResult(Dictionary<string, IEnumerable<string>> errors)
+        public ValidationFailedOperationResult(IReadOnlyDictionary<string, IEnumerable<string>> errors)
         {
             this.Errors = errors;
         }
@@ -48,7 +48,7 @@ namespace Blueprint.Middleware
         /// <summary>
         /// A dictionary of errors describing the validation failures.
         /// </summary>
-        public Dictionary<string, IEnumerable<string>> Errors { get; private set; }
+        public IReadOnlyDictionary<string, IEnumerable<string>> Errors { get; private set; }
 
         /// <inheritdoc />
         public override Task ExecuteAsync(ApiOperationContext context)

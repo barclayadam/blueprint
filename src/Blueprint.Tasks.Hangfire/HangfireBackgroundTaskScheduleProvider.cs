@@ -18,9 +18,10 @@ namespace Blueprint.Tasks.Hangfire
     /// </summary>
     public class HangfireBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
+        private static readonly Dictionary<Type, string> _taskToQueue = new Dictionary<Type, string>();
+
         private readonly IBackgroundJobClient _jobClient;
         private readonly ILogger<HangfireBackgroundTaskScheduleProvider> _logger;
-        private readonly Dictionary<Type, string> _taskToQueue = new Dictionary<Type, string>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="HangfireBackgroundTaskScheduleProvider" /> class.
@@ -83,12 +84,12 @@ namespace Blueprint.Tasks.Hangfire
         {
             var taskType = envelope.Task.GetType();
 
-            if (!this._taskToQueue.TryGetValue(taskType, out var queue))
+            if (!_taskToQueue.TryGetValue(taskType, out var queue))
             {
                 var queueAttribute = taskType.GetAttributesIncludingInterface<QueueAttribute>().SingleOrDefault();
                 queue = queueAttribute == null ? EnqueuedState.DefaultQueue : queueAttribute.Queue;
 
-                this._taskToQueue[taskType] = queue;
+                _taskToQueue[taskType] = queue;
             }
 
             return queue;

@@ -9,6 +9,12 @@ namespace Blueprint.Http
         private readonly IApiLinkGenerator _linkGenerator;
         private readonly ILogger<EntityOperationResourceLinkGenerator> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntityOperationResourceLinkGenerator"/> class.
+        /// </summary>
+        /// <param name="apiAuthoriserAggregator"></param>
+        /// <param name="linkGenerator"></param>
+        /// <param name="logger"></param>
         public EntityOperationResourceLinkGenerator(
             IApiAuthoriserAggregator apiAuthoriserAggregator,
             IApiLinkGenerator linkGenerator,
@@ -23,7 +29,8 @@ namespace Blueprint.Http
             this._logger = logger;
         }
 
-        public async Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
+        /// <inheritdoc/>
+        public async ValueTask AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
         {
             Guard.NotNull(nameof(context), context);
             Guard.NotNull(nameof(linkableResource), linkableResource);
@@ -62,16 +69,11 @@ namespace Blueprint.Http
                     this._logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
                 }
 
-                linkableResource.AddLink(link.Rel, this.ConvertResourceDescriptorToLink(link, linkableResource));
+                linkableResource.AddLink(link.Rel, new Link
+                {
+                    Href = this._linkGenerator.CreateUrl(link, linkableResource),
+                });
             }
-        }
-
-        private Link ConvertResourceDescriptorToLink(ApiOperationLink link, object result)
-        {
-            return new Link
-            {
-                Href = this._linkGenerator.CreateUrl(link, result),
-            };
         }
     }
 }

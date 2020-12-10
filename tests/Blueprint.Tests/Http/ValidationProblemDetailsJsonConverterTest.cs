@@ -96,7 +96,11 @@ namespace Blueprint.Tests.Http
         {
             // Arrange
             var traceId = "|37dd3dd5-4a9619f953c40a16.";
-            var value = new ValidationProblemDetails
+            var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
+            {
+                { "key0", new [] { "error0" } },
+                { "Key1", new [] { "error1", "error2" } }
+            })
             {
                 Title = "Not found",
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
@@ -108,11 +112,6 @@ namespace Blueprint.Tests.Http
                     { "traceId", traceId },
                     { "some-data", new[] { "value1", "value2" } }
                 },
-                Errors =
-                {
-                    { "key0", new [] { "error0" } },
-                    { "Key1", new [] { "error1", "error2" } },
-                }
             };
             var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"detail\":\"{value.Detail}\",\"instance\":\"{JsonEncodedText.Encode(value.Instance)}\",\"traceId\":\"{traceId}\",\"some-data\":[\"value1\",\"value2\"],\"errors\":{{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}}}";
             var converter = new ValidationProblemDetailsJsonConverter();

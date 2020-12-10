@@ -17,12 +17,14 @@ namespace Blueprint.Tasks
     /// </summary>
     public class BackgroundTaskScheduler : IBackgroundTaskScheduler
     {
-        private readonly ApmBackgroundTaskScheduleProvider _backgroundTaskScheduleProvider;
+        private readonly IBackgroundTaskScheduleProvider _backgroundTaskScheduleProvider;
         private readonly IEnumerable<IBackgroundTaskPreprocessor> _backgroundTaskPreprocessors;
         private readonly IApmTool _apmTool;
         private readonly ILogger<BackgroundTaskScheduler> _logger;
 
-        private readonly List<ScheduledBackgroundTask> _tasks = new List<ScheduledBackgroundTask>();
+        // Note that we do not initialise this up front, but instead JIT. This helps reduce the number of allocations
+        // in the case of no tasks actually being scheduled (which is likely the majority of calls)
+        private List<ScheduledBackgroundTask> _tasks;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BackgroundTaskScheduler" /> class.
@@ -41,7 +43,7 @@ namespace Blueprint.Tasks
             Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
 
-            this._backgroundTaskScheduleProvider = new ApmBackgroundTaskScheduleProvider(backgroundTaskScheduleProvider, apmTool);
+            this._backgroundTaskScheduleProvider = backgroundTaskScheduleProvider;
             this._backgroundTaskPreprocessors = backgroundTaskPreprocessors;
             this._apmTool = apmTool;
             this._logger = logger;
@@ -50,6 +52,8 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public IScheduledBackgroundTask Enqueue(IBackgroundTask task)
         {
+            this._tasks ??= new List<ScheduledBackgroundTask>();
+
             var envelope = this.CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, null, this);
 
@@ -61,6 +65,8 @@ namespace Blueprint.Tasks
         /// <inheritdoc />
         public IScheduledBackgroundTask Schedule(IBackgroundTask task, TimeSpan delay)
         {
+            this._tasks ??= new List<ScheduledBackgroundTask>();
+
             var envelope = this.CreateTaskEnvelope(task);
             var scheduledTask = new ScheduledBackgroundTask(envelope, delay, this);
 
@@ -70,11 +76,11 @@ namespace Blueprint.Tasks
         }
 
         /// <inheritdoc />
-        public async Task RunNowAsync()
+        public ValueTask RunNowAsync()
         {
-            if (!this._tasks.Any())
+            if (this._tasks == null || this._tasks.Count == 0)
             {
-                return;
+                return default;
             }
 
             // Clearing tasks before executing so any more calls to execute tasks doesn't re-execute same tasks
@@ -84,12 +90,23 @@ namespace Blueprint.Tasks
 
             if (currentTasks.Count > 5)
             {
-                this._logger.LogWarning("Queuing larger than normal number of tasks {0}", currentTasks.Count);
+                this._logger.LogWarning(
+                    "Queuing a large number of tasks, considering reducing this number through consolidating to avoid potentially slow scheduling. Queuing {0} tasks",
+                    currentTasks.Count);
             }
 
-            foreach (var task in currentTasks)
+            return new ValueTask(this.PushAllAsync(currentTasks));
+        }
+
+        private async Task PushAllAsync(List<ScheduledBackgroundTask> tasks)
+        {
+            // We create this wrapper here and not in ctor so that in the case of no tasks being scheduled we are not
+            // allocating a new object.
+            var apmWrapper = new ApmBackgroundTaskScheduleProvider(this._backgroundTaskScheduleProvider, this._apmTool);
+
+            foreach (var task in tasks)
             {
-                await task.PushToProviderAsync(this._backgroundTaskScheduleProvider);
+                await task.PushToProviderAsync(apmWrapper);
             }
         }
 

@@ -14,30 +14,24 @@ namespace Blueprint.Http.Middleware
             ApiOperationContext context,
             OperationResult result)
         {
-            var logger = context.ServiceProvider.GetRequiredService<ILogger<LinkGeneratorMiddlewareBuilder>>();
-            var generators = registeredGenerators.ToList();
-
             if (result is OkResult okResult)
             {
-                okResult.Content = await AddResourceLinksAsync(logger, apiLinkGenerator, generators, context, okResult.Content);
+                var logger = context.ServiceProvider.GetRequiredService<ILogger<LinkGeneratorMiddlewareBuilder>>();
+
+                okResult.Content = await AddResourceLinksAsync(logger, apiLinkGenerator, registeredGenerators, context, okResult.Content);
             }
         }
 
-        private static async Task<object> AddResourceLinksAsync(
+        private static async ValueTask<object> AddResourceLinksAsync(
             ILogger<LinkGeneratorMiddlewareBuilder> logger,
             IApiLinkGenerator apiLinkGenerator,
-            List<IResourceLinkGenerator> generators,
+            IEnumerable<IResourceLinkGenerator> generators,
             ApiOperationContext context,
             object resource)
         {
             if (resource is ILinkableResource linkableResource)
             {
                 await AddLinksAsync(logger, apiLinkGenerator, generators, context, linkableResource);
-            }
-
-            if (logger.IsEnabled(LogLevel.Trace))
-            {
-                logger.LogTrace("Resource type is not an ILinkableResource. resource_type={0}", resource.GetType().Name);
             }
 
             var enumerableResult = resource as IEnumerable<object>;
@@ -63,7 +57,7 @@ namespace Blueprint.Http.Middleware
 
                 foreach (var obj in enumerableResult)
                 {
-                    if (obj is ApiResource apiResourceItem)
+                    if (obj is ILinkableResource apiResourceItem)
                     {
                         await AddLinksAsync(logger, apiLinkGenerator, generators, context, apiResourceItem);
                     }
@@ -84,10 +78,10 @@ namespace Blueprint.Http.Middleware
             return resource;
         }
 
-        private static async Task AddLinksAsync(
-            ILogger<LinkGeneratorMiddlewareBuilder> logger,
+        private static async ValueTask AddLinksAsync(
+            ILogger logger,
             IApiLinkGenerator apiLinkGenerator,
-            List<IResourceLinkGenerator> generators,
+            IEnumerable<IResourceLinkGenerator> generators,
             ApiOperationContext context,
             ILinkableResource result)
         {

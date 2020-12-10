@@ -5,6 +5,6 @@ namespace Blueprint
 {
     public interface IApiAuthoriserAggregator
     {
-        Task<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource);
+        ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource);
     }
 }

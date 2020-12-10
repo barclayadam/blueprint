@@ -20,8 +20,6 @@ namespace Blueprint.Sample.WebApi
 
             services.AddSingleton<IWeatherDataSource, WeatherDataSource>();
 
-            services.AddApplicationInsightsTelemetry();
-
             services.AddHangfire(h =>
             {
                 h.UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
@@ -32,7 +30,6 @@ namespace Blueprint.Sample.WebApi
                 .SetApplicationName("SampleWebApi")
                 .Operations(o => o.Scan(typeof(Startup).Assembly))
                 .AddTasksClient(t => t.UseHangfire())
-                .AddApplicationInsights()
                 .AddOpenApi()
                 .AddLogging()
                 .AddValidation()

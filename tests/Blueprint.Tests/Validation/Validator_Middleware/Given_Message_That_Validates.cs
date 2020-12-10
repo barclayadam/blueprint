@@ -101,8 +101,8 @@ namespace Blueprint.Tests.Validation.Validator_Middleware
             // Assert
             var validationResult = result.Should().BeOfType<ValidationFailedOperationResult>().Subject;
 
-            validationResult.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheProperty));
-            validationResult.Errors.Should().ContainKey(nameof(HasRequiredPropertyOperation.TheStringProperty));
+            validationResult.Errors.Should().Contain(k => k.Key == nameof(HasRequiredPropertyOperation.TheProperty));
+            validationResult.Errors.Should().Contain(k => k.Key == nameof(HasRequiredPropertyOperation.TheStringProperty));
         }
     }
 }

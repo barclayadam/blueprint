@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,18 +21,22 @@ namespace Blueprint.Http.Formatters
             left.Quality > right.Quality ? -1 : left.Quality == right.Quality ? 0 : 1;
 
         private readonly ILogger _logger;
-        private readonly IList<IOperationResultOutputFormatter> _formatters;
+        private readonly List<IOperationResultOutputFormatter> _formatters;
         private readonly bool _respectBrowserAcceptHeader;
         private readonly bool _returnHttpNotAcceptable;
 
-        public DefaultOutputFormatterSelector(IOptions<BlueprintHttpOptions> options, ILoggerFactory loggerFactory)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultOutputFormatterSelector"/> class.
+        /// </summary>
+        /// <param name="options">The configured HTTP options.</param>
+        /// <param name="logger">A logger for this class.</param>
+        public DefaultOutputFormatterSelector(IOptions<BlueprintHttpOptions> options, ILogger<DefaultOutputFormatterSelector> logger)
         {
             Guard.NotNull(nameof(options), options);
-            Guard.NotNull(nameof(loggerFactory), loggerFactory);
+            Guard.NotNull(nameof(logger), logger);
 
-            this._logger = loggerFactory.CreateLogger<DefaultOutputFormatterSelector>();
-
-            this._formatters = new ReadOnlyCollection<IOperationResultOutputFormatter>(options.Value.OutputFormatters);
+            this._logger = logger;
+            this._formatters = options.Value.OutputFormatters;
             this._respectBrowserAcceptHeader = options.Value.RespectBrowserAcceptHeader;
             this._returnHttpNotAcceptable = options.Value.ReturnHttpNotAcceptable;
         }

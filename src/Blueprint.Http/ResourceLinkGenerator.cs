@@ -10,17 +10,17 @@ namespace Blueprint.Http
     public abstract class ResourceLinkGenerator<T> : IResourceLinkGenerator where T : class, ILinkableResource
     {
         /// <inheritdoc />
-        public Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
+        public ValueTask AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, ILinkableResource linkableResource)
         {
             if (!(linkableResource is T asTypedResource))
             {
-                return Task.CompletedTask;
+                return default;
             }
 
             return this.AddLinksAsync(apiLinkGenerator, context, asTypedResource);
         }
 
         /// <inheritdoc cref="IResourceLinkGenerator.AddLinksAsync" />
-        protected abstract Task AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, T linkableResource);
+        protected abstract ValueTask AddLinksAsync(IApiLinkGenerator apiLinkGenerator, ApiOperationContext context, T linkableResource);
     }
 }
