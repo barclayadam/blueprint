@@ -6,6 +6,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Middleware
 {
@@ -15,6 +16,8 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBuilder
     {
+        private static readonly EventId _apiOperationExecutorLogEvent = new EventId(3, "OperationExecuting");
+
         private readonly Type _operationType;
         private readonly MethodInfo _method;
 
@@ -44,6 +47,7 @@ namespace Blueprint.Middleware
             // invocations)
             context.AppendFrames(
                 LogFrame.Information(
+                    _apiOperationExecutorLogEvent,
                     "Executing API operation with handler {HandlerType}",
                     ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType)),
                 handlerInvokeCall);

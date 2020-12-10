@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Middleware
 {
@@ -12,6 +14,8 @@ namespace Blueprint.Middleware
     /// </summary>
     public class ValidationMiddlewareBuilder : IMiddlewareBuilder
     {
+        private static readonly EventId _validationFailedLogEvent = new EventId(1, "ValidationFailed");
+
         /// <summary>
         /// Returns <c>true</c>.
         /// </summary>
@@ -114,9 +118,15 @@ namespace Blueprint.Middleware
                  */
                 var createResult = new ConstructorFrame<ValidationFailedOperationResult>(() => new ValidationFailedOperationResult((ValidationFailures)null));
 
+                var failureCount = $"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)}";
+
                 context.AppendFrames(
-                    new IfBlock($"{resultsCreator.Variable}.{nameof(ValidationFailures.Count)} > 0")
+                    new IfBlock($"{failureCount} > 0")
                     {
+                        LogFrame.Debug(
+                            _validationFailedLogEvent,
+                            "Validation failed with {ValidationFailureCount} failures, returning ValidationFailedOperationResult",
+                            new Variable<int>(failureCount)),
                         createResult,
                         new ReturnFrame(createResult.Variable),
                     });
