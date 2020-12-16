@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
@@ -38,13 +36,14 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             public Guid GuidProperty { get; set; }
 
             [FromCookie]
-            public IEnumerable<string> StringEnumerable { get; set; }
+            public Length Length { get; set; }
+        }
 
+        [RootLink("/invalid-cookie-type")]
+        public class InvalidArrayCookieOperation
+        {
             [FromCookie]
-            public string[] StringArray { get; set; }
-
-            [FromCookie]
-            public List<string> StringList { get; set; }
+            public Length[] Lengths { get; set; }
         }
 
         [Test]
@@ -70,6 +69,42 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                     [nameof(expected.GuidProperty)] = expected.GuidProperty.ToString(),
                     [nameof(expected.StringProperty)] = expected.StringProperty.ToString(),
                 });
+        }
+
+        [Test]
+        public async Task When_TypeConverter_Exists_Then_Populated()
+        {
+            // Arrange
+            var expected = new CookieTestOperation
+            {
+                Length = new Length
+                {
+                    Value = 154,
+                    Unit = Unit.cm,
+                },
+            };
+
+            // Act / Assert
+            await AssertCookies(
+                expected,
+                new Dictionary<string, string>
+                {
+                    [nameof(expected.Length)] = expected.Length.ToString(),
+                });
+        }
+
+        [Test]
+        public async Task When_Array_Like_Then_Exception()
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<InvalidArrayCookieOperation>(null);
+
+            // Act
+            Action executor = () => TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+
+            // Assert
+            executor.Should().ThrowExactly<InvalidOperationException>()
+                .WithMessage("Cannot create decoder for property InvalidArrayCookieOperation.Lengths as it is array-like and FromCookie does not support multiple values.");
         }
 
         private static async Task AssertCookies<TOperation>(

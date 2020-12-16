@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
@@ -69,31 +67,6 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                     [nameof(expected.GuidProperty)] = expected.GuidProperty.ToString(),
                     [nameof(expected.StringProperty)] = expected.StringProperty.ToString(),
                 });
-        }
-
-        [Test]
-        public async Task When_Array_Like_As_JSON_Arrays_Then_Populates()
-        {
-            // Arrange
-            var source = new List<string> { "arr1", "arr5" };
-            var asHeader = "[\"arr1\", \"arr5\"]";
-
-            var expected = new HeaderTestOperation
-            {
-                StringArray = source.ToArray(),
-                StringEnumerable = source,
-                StringList = source,
-            };
-
-            // Act / Assert
-            await AssertHeaders(
-                expected,
-                new Dictionary<string, string>
-                    {
-                        [nameof(expected.StringArray)] = asHeader,
-                        [nameof(expected.StringEnumerable)] = asHeader,
-                        [nameof(expected.StringList)] = asHeader,
-                    });
         }
 
         private static async Task AssertHeaders<TOperation>(

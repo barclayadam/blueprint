@@ -30,6 +30,10 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
             public Guid GuidProperty { get; set; }
 
+            public Length Length { get; set; }
+
+            public Length[] Lengths { get; set; }
+
             public IEnumerable<string> StringEnumerable { get; set; }
 
             public string[] StringArray { get; set; }
@@ -37,6 +41,16 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             public List<string> StringList { get; set; }
 
             public string AReadOnlyProperty => "Something read only";
+        }
+
+        [RootLink("/query-multi-values")]
+        public class QueryMultiValueOperation<T>
+        {
+            public IEnumerable<T> Enumerable { get; set; }
+
+            public T[] Array { get; set; }
+
+            public List<T> List { get; set; }
         }
 
         [Test]
@@ -62,25 +76,51 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [Test]
-        public async Task When_Array_Like_As_JSON_Arrays_Then_Populates()
+        public async Task When_TypeConverter_Exists_Then_Populated()
         {
             // Arrange
-            var source = new List<string> { "arr1", "arr5" };
-            var asQuery = "[\"arr1\", \"arr5\"]";
-
             var expected = new QueryTestOperation
             {
-                StringArray = source.ToArray(),
-                StringEnumerable = source,
-                StringList = source,
+                Length = new Length
+                {
+                    Value = 154,
+                    Unit = Unit.cm,
+                },
             };
 
             // Act / Assert
             await AssertPopulatedFromQueryString(
                 expected,
-                $"?{nameof(expected.StringArray)}={asQuery}&" +
-                $"{nameof(expected.StringEnumerable)}={asQuery}&" +
-                $"{nameof(expected.StringList)}={asQuery}");
+                $"?{nameof(expected.Length)}={expected.Length}");
+        }
+
+        [Test]
+        public async Task When_TypeConverter_Exists_Then_Array_Populated()
+        {
+            // Arrange
+            var lengths = new []
+            {
+                new Length
+                {
+                    Value = 14,
+                    Unit = Unit.cm,
+                },
+                new Length
+                {
+                    Value = 89,
+                    Unit = Unit.mm,
+                },
+            };
+
+            var expected = new QueryTestOperation
+            {
+                Lengths = lengths,
+            };
+
+            // Act / Assert
+            await AssertPopulatedFromQueryString(
+                expected,
+                $"?{nameof(expected.Lengths)}[]={lengths[0]}&{nameof(expected.Lengths)}[]={lengths[1]}");
         }
 
         [Test]
@@ -107,6 +147,32 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                 $"?{AsQuery(nameof(expected.StringArray))}&" +
                 $"{AsQuery(nameof(expected.StringEnumerable))}&" +
                 $"{AsQuery(nameof(expected.StringList))}");
+        }
+
+        [Test]
+        public async Task When_Integer_Array_Like_As_Separate_Values_Then_Populates()
+        {
+            // Arrange
+            var source = new List<int> { 1, 5, 199 };
+
+            string AsQuery(string key)
+            {
+                return $"{key}[]=1&{key}[]=5&{key}[]=199";
+            }
+
+            var expected = new QueryMultiValueOperation<int>()
+            {
+                Array = source.ToArray(),
+                Enumerable = source,
+                List = source,
+            };
+
+            // Act / Assert
+            await AssertPopulatedFromQueryString(
+                expected,
+                $"?{AsQuery(nameof(expected.Array))}&" +
+                $"{AsQuery(nameof(expected.Enumerable))}&" +
+                $"{AsQuery(nameof(expected.List))}");
         }
 
         private static async Task AssertPopulatedFromQueryString<TOperation>(TOperation expected, string queryString = null)

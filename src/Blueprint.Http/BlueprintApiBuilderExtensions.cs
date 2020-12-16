@@ -50,20 +50,27 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // "Owned" HTTP part sources
             apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies))));
+                HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(
+                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies)),
+                    false));
 
             apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers))));
+                HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(
+                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers)),
+                    true));
 
             apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query))));
+                HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(
+                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
+                    true));
 
             // Catch-all query string population source
             apiBuilder.AddMessageSource(
                 HttpPartMessagePopulationSource.CatchAll(
                     "fromQuery",
                     c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
-                    c => c.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod == "GET"));
+                    c => c.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod == "GET",
+                    true));
 
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<ValidationFailedOperationResult>, ValidationFailedOperationResultExecutor>();
             apiBuilder.Services.AddSingleton<IOperationResultExecutor<UnhandledExceptionOperationResult>, UnhandledExceptionOperationResultExecutor>();

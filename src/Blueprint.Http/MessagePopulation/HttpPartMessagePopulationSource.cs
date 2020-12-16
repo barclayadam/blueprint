@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
@@ -12,7 +11,6 @@ using Blueprint.ThirdParty;
 using Blueprint.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json.Linq;
 
 namespace Blueprint.Http.MessagePopulation
 {
@@ -31,13 +29,15 @@ namespace Blueprint.Http.MessagePopulation
         private readonly bool _isCatchAll;
         private readonly Type _partAttribute;
         private readonly GetSourceVariable _sourceCodeExpression;
+        private readonly bool _supportsMultiValues;
         private readonly Func<MiddlewareBuilderContext, bool> _applies;
         private readonly string _variablePrefix;
 
-        private HttpPartMessagePopulationSource(Type partAttribute, GetSourceVariable sourceCodeExpression)
+        private HttpPartMessagePopulationSource(Type partAttribute, GetSourceVariable sourceCodeExpression, bool supportsMultiValues)
         {
             this._partAttribute = partAttribute;
             this._sourceCodeExpression = sourceCodeExpression;
+            this._supportsMultiValues = supportsMultiValues;
             this._isCatchAll = false;
 
             this._variablePrefix = partAttribute.Name.Replace("Attribute", string.Empty).Camelize();
@@ -46,9 +46,11 @@ namespace Blueprint.Http.MessagePopulation
         private HttpPartMessagePopulationSource(
             string partName,
             GetSourceVariable sourceCodeExpression,
-            Func<MiddlewareBuilderContext, bool> applies)
+            Func<MiddlewareBuilderContext, bool> applies,
+            bool supportsMultiValues)
         {
             this._sourceCodeExpression = sourceCodeExpression;
+            this._supportsMultiValues = supportsMultiValues;
             this._applies = applies;
             this._isCatchAll = true;
 
@@ -74,11 +76,13 @@ namespace Blueprint.Http.MessagePopulation
         /// that have an applied attribute.
         /// </summary>
         /// <param name="sourceCodeExpression">Delegate to get the property to load data from.</param>
+        /// <param name="supportsMultiValues">Indicates whether the source of this part supports array-like values (i.e. ASP.NET parses
+        /// and creates a <see cref="StringValues" /> representation).</param>
         /// <typeparam name="T">The attribute that is searched for.</typeparam>
         /// <returns>A new <see cref="HttpPartMessagePopulationSource"/>.</returns>
-        public static HttpPartMessagePopulationSource Owned<T>(GetSourceVariable sourceCodeExpression)
+        public static HttpPartMessagePopulationSource Owned<T>(GetSourceVariable sourceCodeExpression, bool supportsMultiValues)
         {
-            return new HttpPartMessagePopulationSource(typeof(T), sourceCodeExpression);
+            return new HttpPartMessagePopulationSource(typeof(T), sourceCodeExpression, supportsMultiValues);
         }
 
         /// <summary>
@@ -90,28 +94,42 @@ namespace Blueprint.Http.MessagePopulation
         /// <param name="sourceCodeExpression">Delegate to get the property to load data from.</param>
         /// <param name="applies">Indicates whether this catch-all applies. If <c>false</c> is returned then
         /// NO code will be generated.</param>
+        /// <param name="supportsMultiValues">Indicates whether the source of this part supports array-like values (i.e. ASP.NET parses
+        /// and creates a <see cref="StringValues" /> representation).</param>
         /// <returns>A new <see cref="HttpPartMessagePopulationSource"/>.</returns>
         public static HttpPartMessagePopulationSource CatchAll(
             string partName,
             GetSourceVariable sourceCodeExpression,
-            Func<MiddlewareBuilderContext, bool> applies)
+            Func<MiddlewareBuilderContext, bool> applies,
+            bool supportsMultiValues)
         {
-            return new HttpPartMessagePopulationSource(partName, sourceCodeExpression, applies);
+            return new HttpPartMessagePopulationSource(partName, sourceCodeExpression, applies, supportsMultiValues);
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global Used in generated code
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object ConvertValue(string propName, StringValues value, Type propertyType)
+        public static List<T> ConvertValuesToList<T>(StringValues values)
         {
-            // Axios creates array queryString properties in the format: property[]=1&property[]=2 (Count > 1)
-            return value.Count > 1 ? ConvertValue(propName, propertyType, (string[])value) : ConvertValue(propName, propertyType, value[0]);
+            var list = new List<T>(values.Count);
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+
+            foreach (var value in values)
+            {
+                list.Add((T)converter.ConvertFrom(value));
+            }
+
+            return list;
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global Used in generated code
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object ConvertValue(string propName, object value, Type propertyType)
+        public static T[] ConvertValuesToArray<T>(StringValues values)
         {
-            return ConvertValue(propName, propertyType, value.ToString());
+            var array = new T[values.Count];
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+
+            for (var i = 0; i < values.Count; i++)
+            {
+                array[i] = (T)converter.ConvertFrom(values[i]);
+            }
+
+            return array;
         }
 
         /// <summary>
@@ -121,8 +139,14 @@ namespace Blueprint.Http.MessagePopulation
         /// </summary>
         /// <param name="property">The property that is to be set, used to determine it's type.</param>
         /// <param name="valueAccessor">A variable that is used to grab the data from route data.</param>
+        /// <param name="supportsMultiValues">Whether the source supports multi-values (i.e. <see cref="StringValues" />).</param>
+        /// <param name="sourceName">The name of the source, used in exceptions for unsupported property types.</param>
         /// <returns>An expression to be compiled-in that converts the given variable to the type of the property.</returns>
-        public static string GetConversionExpression(PropertyInfo property, string valueAccessor)
+        public static string GetConversionExpression(
+            PropertyInfo property,
+            string valueAccessor,
+            bool supportsMultiValues,
+            string sourceName)
         {
             var propertyType = property.PropertyType.GetNonNullableType();
 
@@ -159,10 +183,36 @@ namespace Blueprint.Http.MessagePopulation
                 return $"{typeof(short).FullNameInCode()}.{nameof(short.Parse)}({valueAccessor}.ToString())";
             }
 
-            var methodCall = $"{typeof(HttpPartMessagePopulationSource).FullNameInCode()}.{nameof(ConvertValue)}";
+            var propertyFullName = property.PropertyType.FullNameInCode();
+
+            // We do not have an array, let's use the TypeDescriptor directly in the code
+            if (IsArrayLike(propertyType, out var arrayItemType) == false)
+            {
+                var typeConverter = TypeDescriptor.GetConverter(propertyType);
+
+                if (typeConverter.CanConvertFrom(typeof(string)))
+                {
+                    return
+                        $"({propertyFullName}) {typeof(TypeDescriptor).FullNameInCode()}.{nameof(TypeDescriptor.GetConverter)}(typeof({propertyType.FullNameInCode()})).{nameof(TypeConverter.ConvertFrom)}({valueAccessor}.ToString())";
+                }
+
+                throw new InvalidOperationException(
+                    $@"Cannot create decoder for property {property.DeclaringType!.Name}.{property.Name} as it is not a handled primitive type and no TypeConverter exists.");
+            }
+
+            if (!supportsMultiValues)
+            {
+                throw new InvalidOperationException(
+                    $@"Cannot create decoder for property {property.DeclaringType!.Name}.{property.Name} as it is array-like and {sourceName} does not support multiple values.");
+            }
+
+            // We will call either ConvertValuesToArray or ConvertValuesToList depending on the source property type. If it's of type
+            // IEnumerable we will use ToArray
+            var methodCall = $"{typeof(HttpPartMessagePopulationSource).FullNameInCode()}.ConvertValues";
+            var conversionSuffix = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>) ? "ToList" : "ToArray";
 
             return
-                $"({property.PropertyType.FullNameInCode()}) {methodCall}(\"{property.Name}\", {valueAccessor}, typeof({property.PropertyType.FullNameInCode()}))";
+                $"({propertyFullName}) {methodCall}{conversionSuffix}<{arrayItemType.FullNameInCode()}>({valueAccessor})";
         }
 
         /// <summary>
@@ -173,9 +223,9 @@ namespace Blueprint.Http.MessagePopulation
         /// <returns>All properties with a custom attribute of the type this source represents.</returns>
         public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return this._isCatchAll ?
-                Enumerable.Empty<OwnedPropertyDescriptor>() :
-                operationDescriptor.Properties
+            return this._isCatchAll
+                ? Enumerable.Empty<OwnedPropertyDescriptor>()
+                : operationDescriptor.Properties
                     .Where(p => p.GetCustomAttributes(this._partAttribute).Any())
                     .Select(p => new OwnedPropertyDescriptor(p)
                     {
@@ -225,7 +275,7 @@ namespace Blueprint.Http.MessagePopulation
                 // the var output from that to `GetConversionExpression` as part of ternary. If the route data
                 // does not exist then we fallback to the value already on the operation
                 var outVariableName = $"{this._variablePrefix}{prop.Name}";
-                var conversionExpression = GetConversionExpression(prop, outVariableName);
+                var conversionExpression = GetConversionExpression(prop, outVariableName, this._supportsMultiValues, this._variablePrefix);
 
                 var indexProperty = sourceVariable.VariableType.GetProperties().SingleOrDefault(p => p.GetIndexParameters().Length == 1);
 
@@ -241,7 +291,7 @@ namespace Blueprint.Http.MessagePopulation
 
                 // We want to support the key naming scheme of key[] to indicate an array, therefore
                 // we add a null-coalesce to partKey[]
-                if (IsArrayLike(prop.PropertyType))
+                if (IsArrayLike(prop.PropertyType, out _))
                 {
                     source = $"{source} == {emptyCheckRhs} ? {sourceVariable}[\"{partKey}[]\"] : {source}";
                 }
@@ -254,8 +304,6 @@ namespace Blueprint.Http.MessagePopulation
                     $"{conversionExpression} : " +
                     $"{operationProperty}";
 
-                // var header = new DefaultHttpContext().Request.Cookies["aa"];
-                // var other = header != null
                 context.AppendFrames(
                     sourceVariableGetter,
                     new VariableSetterFrame(
@@ -263,6 +311,34 @@ namespace Blueprint.Http.MessagePopulation
                         tryConversionExpression),
                     new BlankLineFrame());
             }
+        }
+
+        private static bool IsArrayLike(Type type, out Type itemType)
+        {
+            var isList = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+
+            if (isList)
+            {
+                itemType = type.GetGenericArguments()[0];
+                return true;
+            }
+
+            var isIEnumerable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+
+            if (isIEnumerable)
+            {
+                itemType = type.GetGenericArguments()[0];
+                return true;
+            }
+
+            if (type.IsArray)
+            {
+                itemType = type.GetElementType();
+                return true;
+            }
+
+            itemType = null;
+            return false;
         }
 
         /// <summary>
@@ -282,54 +358,6 @@ namespace Blueprint.Http.MessagePopulation
             var attribute = prop.GetCustomAttributeData(this._partAttribute);
 
             return attribute?.GetConstructorArgument<string>(0) ?? prop.Name;
-        }
-
-        private static bool IsArrayLike(Type type)
-        {
-            var isList = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
-            var isIEnumerable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-
-            return type.IsArray || isIEnumerable || isList;
-        }
-
-        private static object ConvertValue(
-            string propName,
-            Type propertyType,
-            object value)
-        {
-            var isList = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>);
-            var isIEnumerable = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-
-            if (propertyType.IsArray || isIEnumerable || isList)
-            {
-                if (value is string[] strArray)
-                {
-                    if (isList)
-                    {
-                        return strArray.ToList();
-                    }
-
-                    return strArray;
-                }
-
-                var valueAsString = (string)value;
-
-                if (valueAsString.StartsWith("["))
-                {
-                    return JObject.Parse("{\"value\": " + value + "}")["value"].ToObject(propertyType);
-                }
-
-                return JObject.Parse("{\"value\": [\"" + value + "\"]}")["value"].ToObject(propertyType);
-            }
-
-            var typeConverter = TypeDescriptor.GetConverter(propertyType);
-
-            if (typeConverter.CanConvertFrom(typeof(string)))
-            {
-                return typeConverter.ConvertFrom(value);
-            }
-
-            throw new Exception($"Could not understand the value of query string key '{propName}'");
         }
     }
 }

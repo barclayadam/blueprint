@@ -90,7 +90,11 @@ namespace Blueprint.Http.MessagePopulation
                 // the var output from that to `GetConversionExpression` as part of ternary. If the route data
                 // does not exist then we fallback to the value already on the operation
                 var outVariableName = "routeValue" + routeProperty.Name;
-                var conversionExpression = HttpPartMessagePopulationSource.GetConversionExpression(routeProperty, outVariableName);
+                var conversionExpression = HttpPartMessagePopulationSource.GetConversionExpression(
+                    routeProperty,
+                    outVariableName,
+                    false,
+                    "Route");
 
                 // context.RouteData.TryGetValue("PropertyName", out var routeValuePropertyName) ? [conversion of routeValuePropertyName] : [operationProperty];
                 var tryConversionExpression =
