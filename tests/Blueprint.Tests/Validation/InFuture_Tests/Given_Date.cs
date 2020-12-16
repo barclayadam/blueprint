@@ -36,7 +36,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Now_Minus_One_Second_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddSeconds(-1);
+            var dateTime = DateTime.UtcNow.AddSeconds(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -49,7 +49,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Now_Plus_One_Second_Then_Valid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddSeconds(1);
+            var dateTime = DateTime.UtcNow.AddSeconds(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -62,7 +62,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Now_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow;
+            var dateTime = DateTime.UtcNow;
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -75,7 +75,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_The_Current_Time_Tomorrow_Then_Valid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddDays(1);
+            var dateTime = DateTime.UtcNow.AddDays(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -88,7 +88,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_The_Current_Time_Yesterday_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddDays(-1);
+            var dateTime = DateTime.UtcNow.AddDays(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -101,7 +101,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Today_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date;
+            var dateTime = DateTime.UtcNow.Date;
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -114,7 +114,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Tomorrow_Then_Valid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date.AddDays(1);
+            var dateTime = DateTime.UtcNow.Date.AddDays(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -127,7 +127,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_DateTime_Is_Yesterday_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date.AddDays(-1);
+            var dateTime = DateTime.UtcNow.Date.AddDays(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.DateTime);
@@ -166,7 +166,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Now_Minus_One_Second_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddSeconds(-1);
+            var dateTime = DateTime.UtcNow.AddSeconds(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -179,7 +179,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Now_Plus_One_Second_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddSeconds(1);
+            var dateTime = DateTime.UtcNow.AddSeconds(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -192,7 +192,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Now_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow;
+            var dateTime = DateTime.UtcNow;
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -205,7 +205,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_The_Current_Time_Tomorrow_Then_Valid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddDays(1);
+            var dateTime = DateTime.UtcNow.AddDays(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -218,7 +218,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_The_Current_Time_Yesterday_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.AddDays(-1);
+            var dateTime = DateTime.UtcNow.AddDays(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -231,7 +231,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Today_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date;
+            var dateTime = DateTime.UtcNow.Date;
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -244,7 +244,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Tomorrow_Then_Valid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date.AddDays(1);
+            var dateTime = DateTime.UtcNow.Date.AddDays(1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);
@@ -257,7 +257,7 @@ namespace Blueprint.Tests.Validation.InFuture_Tests
         public void When_Date_Is_Yesterday_Then_Invalid()
         {
             // Arrange
-            var dateTime = SystemTime.UtcNow.Date.AddDays(-1);
+            var dateTime = DateTime.UtcNow.Date.AddDays(-1);
 
             // Act
             var isInFuture = dateTime.IsInFuture(TemporalCheck.Date);

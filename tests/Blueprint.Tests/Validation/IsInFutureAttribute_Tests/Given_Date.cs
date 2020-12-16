@@ -14,7 +14,7 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
             var inFutureAttribute = new InFutureAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = inFutureAttribute.IsValid(SystemTime.UtcNow.AddDays(1));
+            var isValid = inFutureAttribute.IsValid(DateTime.UtcNow.AddDays(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -27,7 +27,7 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
             var inFutureAttribute = new InFutureAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = inFutureAttribute.IsValid(SystemTime.UtcNow.AddDays(-1));
+            var isValid = inFutureAttribute.IsValid(DateTime.UtcNow.AddDays(-1));
 
             // Assert
             Assert.IsFalse(isValid);
@@ -96,7 +96,7 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
             var inFutureAttribute = new InFutureAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = inFutureAttribute.IsValid(SystemTime.UtcNow.AddDays(1));
+            var isValid = inFutureAttribute.IsValid(DateTime.UtcNow.AddDays(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -122,7 +122,7 @@ namespace Blueprint.Tests.Validation.IsInFutureAttribute_Tests
             var inFutureAttribute = new InFutureAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = inFutureAttribute.IsValid(SystemTime.UtcNow.AddDays(-1));
+            var isValid = inFutureAttribute.IsValid(DateTime.UtcNow.AddDays(-1));
 
             // Assert
             Assert.IsFalse(isValid);

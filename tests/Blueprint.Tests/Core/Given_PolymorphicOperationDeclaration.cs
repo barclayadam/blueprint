@@ -107,6 +107,8 @@ namespace Blueprint.Tests.Core
 {
     public class OperationChild2ExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _ApiOperationHandlerExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(2, ""ApiOperationHandlerExecuting""), ""Executing API operation with handler {HandlerType}"");
+
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase> _operationBaseIApiOperationHandler;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2> _operationChild2IApiOperationHandler;
@@ -128,9 +130,9 @@ namespace Blueprint.Tests.Core
 
                 // OperationExecutorMiddlewareBuilder
                 using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationBaseIApiOperationHandler.GetType().Name);
+                _ApiOperationHandlerExecuting(_logger, _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationChild2IApiOperationHandler.GetType().Name);
+                _ApiOperationHandlerExecuting(_logger, _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
                 apmSpanOfHandler.Dispose();
 
@@ -159,9 +161,9 @@ namespace Blueprint.Tests.Core
 
                 // OperationExecutorMiddlewareBuilder
                 using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationBaseIApiOperationHandler.GetType().Name);
+                _ApiOperationHandlerExecuting(_logger, _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, ""Executing API operation with handler {HandlerType}"", _operationChild2IApiOperationHandler.GetType().Name);
+                _ApiOperationHandlerExecuting(_logger, _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
                 apmSpanOfHandler.Dispose();
 

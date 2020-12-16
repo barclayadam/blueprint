@@ -14,7 +14,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddDays(1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddDays(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -27,7 +27,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddDays(-1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddDays(-1));
 
             // Assert
             Assert.IsFalse(isValid);
@@ -68,7 +68,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddSeconds(1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddSeconds(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -81,7 +81,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.DateTime);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddSeconds(-1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddSeconds(-1));
 
             // Assert
             Assert.IsFalse(isValid);
@@ -122,7 +122,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddDays(1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddDays(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -135,7 +135,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddDays(-1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddDays(-1));
 
             // Assert
             Assert.IsFalse(isValid);
@@ -176,7 +176,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddSeconds(1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddSeconds(1));
 
             // Assert
             Assert.IsTrue(isValid);
@@ -189,7 +189,7 @@ namespace Blueprint.Tests.Validation.IsNotInPastAttribute_Tests
             var notInPastAttribute = new NotInPastAttribute(TemporalCheck.Date);
 
             // Act
-            var isValid = notInPastAttribute.IsValid(SystemTime.UtcNow.AddSeconds(-1));
+            var isValid = notInPastAttribute.IsValid(DateTime.UtcNow.AddSeconds(-1));
 
             // Assert
             Assert.IsTrue(isValid);
