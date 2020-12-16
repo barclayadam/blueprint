@@ -73,8 +73,10 @@ namespace Blueprint.CodeGen
                 _ => throw new ArgumentOutOfRangeException("Cannot log messages with more than 8 placeholders"),
             };
 
+            var genericArguments = argTypes.Count == 0 ? string.Empty : $"<{string.Join(", ", argTypes)}>";
+
             // LoggerMessage.Define<[args]>([level], [eventId], [message])
-            var initializer = $@"{typeof(LoggerMessage).FullNameInCode()}.{nameof(LoggerMessage.Define)}<{string.Join(", ", argTypes)}>(" +
+            var initializer = $@"{typeof(LoggerMessage).FullNameInCode()}.{nameof(LoggerMessage.Define)}{genericArguments}(" +
                               $"{typeof(LogLevel).FullNameInCode()}.{level}, " +
                               $"new {typeof(EventId).FullNameInCode()}({eventId.Id}, \"{eventId.Name}\"), " +
                               $"{SafeValue(this._message)})";
