@@ -5,6 +5,7 @@ using Blueprint.Http;
 using Blueprint.Utilities;
 using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -74,7 +75,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         [Test]
         [TestCaseSource(nameof(GetHttpConfiguration))]
-        public async Task When_Json_Body_Then_Populates(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        public async Task When_Json_Body_Then_Populates(Labelled<Action<BlueprintHttpBuilder>> configureHttp)
         {
             // Arrange
             var expected = new JsonOperation
@@ -105,7 +106,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         [Test]
         [TestCaseSource(nameof(GetHttpConfiguration))]
-        public async Task When_Json_Body_And_FromBody_Attribute_Then_Populates(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        public async Task When_Json_Body_And_FromBody_Attribute_Then_Populates(Labelled<Action<BlueprintHttpBuilder>> configureHttp)
         {
             // Arrange
             var expectedBody = new JsonOperation
@@ -144,7 +145,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         [Test]
         [TestCaseSource(nameof(GetHttpConfiguration))]
-        public async Task When_Malformed_JSON_Then_Throws_ApiException(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        public async Task When_Malformed_JSON_Then_Throws_ApiException(Labelled<Action<BlueprintHttpBuilder>> configureHttp)
         {
             // Arrange
             var handler = new TestApiOperationHandler<JsonOperation>(null);
@@ -166,7 +167,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         [Test]
         [TestCaseSource(nameof(GetHttpConfiguration))]
-        public async Task When_Route_Property_In_Json_Body_Then_Route_Value_Wins(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        public async Task When_Route_Property_In_Json_Body_Then_Route_Value_Wins(Labelled<Action<BlueprintHttpBuilder>> configureHttp)
         {
             // Arrange
             var expected = new JsonWithRouteOperation
@@ -203,7 +204,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         [Test]
         [TestCaseSource(nameof(GetHttpConfiguration))]
-        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_With_Multiple_Routes_Then_Sets(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_With_Multiple_Routes_Then_Sets(Labelled<Action<BlueprintHttpBuilder>> configureHttp)
         {
             // Arrange
             var expected = new MultipleRouteOperation { RouteProperty = "expectedValue" };
@@ -222,7 +223,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             handler.OperationPassed.RouteProperty.Should().Be(expected.RouteProperty);
         }
 
-        private static IEnumerable<Labelled<Action<BlueprintHttpOptions>>> GetHttpConfiguration()
+        private static IEnumerable<Labelled<Action<BlueprintHttpBuilder>>> GetHttpConfiguration()
         {
             yield return new ("System.Text",  _ => { });
             yield return new ("Newtonsoft",  o => { o.UseNewtonsoft(); });

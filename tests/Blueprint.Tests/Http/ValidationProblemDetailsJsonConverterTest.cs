@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using Blueprint.Http;
-using Blueprint.Http.Formatters;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,7 +12,7 @@ namespace Blueprint.Tests.Http
 {
     public class ValidationProblemDetailsJsonConverterTest
     {
-        private static JsonSerializerOptions JsonSerializerOptions => SystemTextJsonResultOutputFormatter.CreateOptions();
+        private static JsonSerializerOptions JsonSerializerOptions => BlueprintJsonOptions.DefaultSerializerOptions;
 
         [Test]
         public void Read_Works()

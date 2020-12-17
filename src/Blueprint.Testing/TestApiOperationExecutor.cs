@@ -43,7 +43,7 @@ namespace Blueprint.Testing
         public static TestApiOperationExecutor CreateHttp(
             Action<BlueprintApiBuilder> configure,
             Action<IServiceCollection> configureServices = null,
-            Action<BlueprintHttpOptions> configureHttp = null)
+            Action<BlueprintHttpBuilder> configureHttp = null)
         {
             return Create(b => b.Http(configureHttp), configure, configureServices);
         }

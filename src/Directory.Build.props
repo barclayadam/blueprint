@@ -71,8 +71,8 @@
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
 
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json">
-      <Link>stylecop.json</Link>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)Stylecop.json">
+      <Link>Stylecop.json</Link>
     </AdditionalFiles>
   </ItemGroup>
 

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Blueprint.Http.Formatters
@@ -62,25 +61,6 @@ namespace Blueprint.Http.Formatters
 
             await JsonSerializer.SerializeAsync(responseStream, context.Result, context.Result.GetType(), this._options);
             await responseStream.FlushAsync();
-        }
-
-        internal static JsonSerializerOptions CreateOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = false,
-
-                PropertyNameCaseInsensitive = true,
-
-                // Use camel casing for properties and dictionaries (dictionaries because
-                // we treat them similar to properties from perspective of client consumption)
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            };
-
-            options.Converters.Add(new JsonStringEnumConverter());
-
-            return options;
         }
     }
 }

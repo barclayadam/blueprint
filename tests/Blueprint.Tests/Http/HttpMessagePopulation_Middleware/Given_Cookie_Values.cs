@@ -94,7 +94,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [Test]
-        public async Task When_Array_Like_Then_Exception()
+        public void When_Array_Like_Then_Exception()
         {
             // Arrange
             var handler = new TestApiOperationHandler<InvalidArrayCookieOperation>(null);

@@ -9,6 +9,7 @@ using Blueprint.Http.Middleware;
 using Blueprint.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 // Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
@@ -23,28 +24,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Registers HTTP-specific functionality and handling to this API instance.
         /// </summary>
         /// <param name="apiBuilder">The builder to register with.</param>
-        /// <param name="configureOptions">An optional action that can configure <see cref="BlueprintHttpOptions" />, executed
+        /// <param name="configure">An optional action that can configure <see cref="BlueprintHttpBuilder" />, executed
         /// <c>after</c> the default configuration has been run.</param>
         /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder Http(this BlueprintApiBuilder apiBuilder, Action<BlueprintHttpOptions> configureOptions = null)
+        public static BlueprintApiBuilder Http(
+            this BlueprintApiBuilder apiBuilder,
+            Action<BlueprintHttpBuilder> configure = null)
         {
             apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
             apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
             apiBuilder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            apiBuilder.Services.AddOptions<BlueprintHttpOptions>()
-                .Configure(o =>
-                {
-                    var jsonSerializerOptions = SystemTextJsonResultOutputFormatter.CreateOptions();
+            apiBuilder.Services.AddOptions<BlueprintHttpOptions>();
+            apiBuilder.Services.AddOptions<BlueprintJsonOptions>();
 
-                    o.OutputFormatters.Add(new SystemTextJsonResultOutputFormatter(jsonSerializerOptions));
-                    o.BodyParsers.Add(new SystemTextJsonBodyParser(jsonSerializerOptions));
-
-                    o.BodyParsers.Add(new FormBodyParser());
-
-                    configureOptions?.Invoke(o);
-                });
+            apiBuilder.Services.Add(ServiceDescriptor.Transient<IConfigureOptions<BlueprintHttpOptions>, BlueprintHttpOptionsSetup>());
 
             apiBuilder.Services.AddSingleton<IOutputFormatterSelector, DefaultOutputFormatterSelector>();
 
@@ -89,6 +84,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddConvention(new HttpOperationScannerConvention()));
 
             apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
+
+            configure?.Invoke(new BlueprintHttpBuilder(apiBuilder.Services));
 
             return apiBuilder;
         }
