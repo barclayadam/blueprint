@@ -34,7 +34,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             GenerateMethodBody(x => x.Go<string>())
                 .Single()
-                .Should().Be("target.Go<System.String>();");
+                .Should().Be("target.Go<string>();");
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         {
             GenerateMethodBody(x => x.Go<string, int, bool>())
                 .Single()
-                .Should().Be("target.Go<System.String, System.Int32, System.Boolean>();");
+                .Should().Be("target.Go<string, int, bool>();");
         }
 
         [Test]
