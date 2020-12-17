@@ -38,6 +38,14 @@ namespace Blueprint.Compiler.Tests.Codegen
         }
 
         [Test]
+        public void call_a_sync_generic_method_with_nested_class()
+        {
+            GenerateMethodBody(x => x.Go<Nested>())
+                .Single()
+                .Should().Be("target.Go<Blueprint.Compiler.Tests.Codegen.MethodCallCodeGenerationTests.Nested>();");
+        }
+
+        [Test]
         public void call_a_sync_generic_method_with_multiple_arguments()
         {
             GenerateMethodBody(x => x.Go<string, int, bool>())
@@ -210,6 +218,8 @@ namespace Blueprint.Compiler.Tests.Codegen
                 .Select(l => l.Trim())
                 .ToArray();
         }
+
+        public class Nested {}
     }
 
     public class Blue

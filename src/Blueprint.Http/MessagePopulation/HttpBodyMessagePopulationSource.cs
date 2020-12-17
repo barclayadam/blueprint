@@ -1,20 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
+using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
-using Blueprint.Http.Infrastructure;
+using Blueprint.Compiler.Model;
+using Blueprint.Http.Formatters;
 using Blueprint.Middleware;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint.Http.MessagePopulation
 {
@@ -23,33 +19,86 @@ namespace Blueprint.Http.MessagePopulation
     /// </summary>
     public class HttpBodyMessagePopulationSource : IMessagePopulationSource
     {
-        private static readonly ApiExceptionFactory _invalidJson = new ApiExceptionFactory(
-            "The JSON payload is invalid",
-            "invalid_json",
-            (int)HttpStatusCode.BadRequest);
-
-        private static readonly JsonSerializer _bodyJsonSerializer = JsonSerializer.Create(JsonApiSerializerSettings.Value);
+        private static readonly MethodInfo _populateBodyMethod = typeof(HttpBodyMessagePopulationSource).GetMethod(nameof(PopulateFromMessageBody))!;
 
         /// <summary>
         /// Returns <c>0</c>.
         /// </summary>
         public int Priority => 0;
 
+        /// <summary>
+        /// Supporting method that will attempt to populate the given operation from the body of
+        /// a HTTP request by searching for an applicable <see cref="IBodyParser" /> that has been
+        /// specified in the <see cref="BlueprintHttpOptions.BodyParsers" /> property.
+        /// </summary>
+        /// <param name="httpContext">The current HTTP context.</param>
+        /// <param name="context">The operation context.</param>
+        /// <param name="log">A log to write to.</param>
+        /// <param name="options">The registered HTTP options.</param>
+        /// <param name="instance">The instance to populate.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <typeparam name="T">The type of operation being populated.</typeparam>
         // ReSharper disable once MemberCanBePrivate.Global Used in generated code
-        public static async Task PopulateFromMessageBody(HttpContext httpContext, ApiOperationContext context)
+        public static async Task<T> PopulateFromMessageBody<T>(
+            HttpContext httpContext,
+            ApiOperationContext context,
+            ILogger<HttpBodyMessagePopulationSource> log,
+            IOptions<BlueprintHttpOptions> options,
+            T instance)
         {
+            var type = typeof(T);
             var request = httpContext.Request;
 
-            if (request.Body != null && request.ContentType != null)
+            if (request.Body == null || request.ContentType == null)
             {
-                if (request.ContentType.Contains("application/x-www-form-urlencoded") || request.ContentType.Contains("multipart/form-data"))
+                return instance;
+            }
+
+            log?.AttemptingToParseBody(type);
+
+            var formatterContext = new BodyParserContext(
+                context,
+                httpContext,
+                instance,
+                type);
+
+            var parsers = options.Value.BodyParsers;
+            var formatter = (IBodyParser)null;
+
+            for (var i = 0; i < parsers.Count; i++)
+            {
+                if (parsers[i].CanRead(formatterContext))
                 {
-                    await PopulateFromFormAsync(request, context);
+                    formatter = parsers[i];
+                    log.BodyParserSelected(formatter, formatterContext);
+                    break;
                 }
-                else if (request.ContentType.Contains("application/json"))
-                {
-                    await PopulateFromJsonBodyAsync(request, context);
-                }
+
+                log.BodyParserRejected(parsers[i], formatterContext);
+            }
+
+            if (formatter == null)
+            {
+                // TODO: How to handle no body parsers matching?
+                log.NoBodyParserSelected(formatterContext);
+
+                return instance;
+            }
+
+            // TODO: Handle exceptions
+            try
+            {
+                return (T)await formatter.ReadAsync(formatterContext);
+            }
+            catch (Exception e)
+            {
+                log.BodyParsingException(type, e);
+
+                throw;
+            }
+            finally
+            {
+                log.DoneParsingBody(type, formatter);
             }
         }
 
@@ -61,7 +110,12 @@ namespace Blueprint.Http.MessagePopulation
         /// <returns>An empty enumeration.</returns>
         public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
         {
-            return Enumerable.Empty<OwnedPropertyDescriptor>();
+            return operationDescriptor.Properties
+                    .Where(p => p.GetCustomAttributes(typeof(FromBodyAttribute), false).Any())
+                    .Select(p => new OwnedPropertyDescriptor(p)
+                    {
+                        PropertyName = p.Name,
+                    });
         }
 
         /// <inheritdoc />
@@ -72,7 +126,7 @@ namespace Blueprint.Http.MessagePopulation
         {
             // We can bail early on any code generation as we know that all properties are fulfilled by
             // other sources
-            if (ownedProperties.Count == context.Descriptor.Properties.Length)
+            if (ownedProperties.Count == context.Descriptor.Properties.Length && ownedBySource.Count == 0)
             {
                 return;
             }
@@ -82,171 +136,53 @@ namespace Blueprint.Http.MessagePopulation
                 return;
             }
 
+            if (ownedBySource.Count > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Operation {context.Descriptor.OperationType} declares multiple properties with the {nameof(FromBodyAttribute)} which is not allowed. At most one property can be decorated with that attribute.");
+            }
+
             // If the request method is a GET then there will be no body, and therefore we do not need to attempt to
             // read the message body at all.
             if (httpData.HttpMethod != "GET")
             {
-                context.ExecuteMethod.Frames.Add(
-                    new MethodCall(typeof(HttpBodyMessagePopulationSource), nameof(PopulateFromMessageBody)));
-            }
-        }
+                var operationVariable = context.FindVariable(context.Descriptor.OperationType);
 
-        private static async Task PopulateFromFormAsync(HttpRequest request, ApiOperationContext context)
-        {
-            var operation = context.Operation;
-            var properties = context.Descriptor.Properties;
-
-            var form = await request.ReadFormAsync();
-
-            foreach (var item in form)
-            {
-                WriteStringValues(operation, properties, item.Key, item.Value, exception => { });
-            }
-
-            if (form.Files.Any())
-            {
-                var props = properties.Where(x => x.PropertyType.IsAssignableFrom(typeof(IFormFile))).ToList();
-                foreach (var file in form.Files)
+                if (ownedBySource.Any())
                 {
-                    var propertyToWrite = props.SingleOrDefault(x => string.Equals(x.Name, file.Name, StringComparison.OrdinalIgnoreCase));
-                    if (propertyToWrite == null)
-                    {
-                        continue;
-                    }
+                    // We have [FromBody] so that needs to be set, instead of populating the context.Operation property.
+                    var prop = ownedBySource.Single();
+                    var operationProperty = operationVariable.GetProperty(prop.Property.Name);
 
-                    propertyToWrite.SetValue(operation, file);
-                }
-            }
-        }
+                    var readCall = new MethodCall(
+                        typeof(HttpBodyMessagePopulationSource),
+                        _populateBodyMethod.MakeGenericMethod(operationProperty.VariableType));
 
-        private static async Task PopulateFromJsonBodyAsync(HttpRequest request, ApiOperationContext context)
-        {
-            var operation = context.Operation;
+                    readCall.TrySetArgument(new Variable(operationProperty.VariableType, $"new {operationProperty.VariableType.FullNameInCode()}()"));
 
-            var stream = request.Body;
-
-            if (request.Body != Stream.Null && !request.Body.CanSeek)
-            {
-                var buffer = new MemoryStream();
-
-                // Copy the request stream to the memory stream.
-                await stream.CopyToAsync(buffer);
-
-                // Rewind the memory stream.
-                buffer.Position = 0L;
-
-                // Replace the request stream by the memory stream.
-                request.Body = buffer;
-            }
-
-            var readerFactory = context.ServiceProvider.GetRequiredService<IHttpRequestStreamReaderFactory>();
-
-            // This is copied from JsonConvert.PopulateObject to avoid creating a new JsonSerializer on each
-            // execution.
-            using (var stringReader = readerFactory.CreateReader(request.Body, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(stringReader) { CloseInput = false })
-            {
-                try
-                {
-                    _bodyJsonSerializer.Populate(jsonReader, operation);
-                }
-                catch (JsonException e)
-                {
-                    throw _invalidJson.Create(e.Message);
-                }
-
-                if (await jsonReader.ReadAsync() && jsonReader.TokenType != JsonToken.Comment)
-                {
-                    throw _invalidJson.Create("Additional text found in JSON");
-                }
-            }
-        }
-
-        private static void WriteStringValues(
-            object operation,
-            IEnumerable<PropertyInfo> properties,
-            string key,
-            StringValues value,
-            Action<Exception> throwException)
-        {
-            if (value.Count > 1)
-            {
-                // Axios creates array queryString properties in the format: property[]=1&property[]=2
-                WriteValue(operation, properties, key, (string[])value, throwException);
-            }
-            else
-            {
-                WriteValue(operation, properties, key, value[0], throwException);
-            }
-        }
-
-        private static void WriteValue(
-            object operation,
-            IEnumerable<PropertyInfo> properties,
-            string key,
-            object value,
-            Action<Exception> throwException)
-        {
-            key = key.Replace("[]", string.Empty);
-
-            // PERF: No LINQ to avoid closure allocation
-            foreach (var property in properties)
-            {
-                if (!property.Name.Equals(key, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // TODO: typeof(IEnumerable).IsAssignableFrom(property.PropertyType) - support any enumerable
-                if (property.PropertyType.IsArray)
-                {
-                    try
-                    {
-                        if (value.GetType().IsArray)
-                        {
-                            property.SetValue(operation, value);
-                        }
-                        else
-                        {
-                            var valueAsString = (string)value;
-                            object propertyValue;
-
-                            if (valueAsString.StartsWith("["))
-                            {
-                                propertyValue = JObject.Parse("{\"value\": " + value + "}")["value"].ToObject(property.PropertyType);
-                            }
-                            else
-                            {
-                                propertyValue = JObject.Parse("{\"value\": [\"" + value + "\"]}")["value"].ToObject(property.PropertyType);
-                            }
-
-                            property.SetValue(operation, propertyValue);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        throwException(e);
-                    }
+                    context.AppendFrames(
+                        readCall,
+                        new VariableSetterFrame(operationProperty, readCall.ReturnVariable));
                 }
                 else
                 {
-                    var typeConverter = TypeDescriptor.GetConverter(property.PropertyType);
+                    var readCall = new MethodCall(
+                        typeof(HttpBodyMessagePopulationSource),
+                        _populateBodyMethod.MakeGenericMethod(context.Descriptor.OperationType));
 
-                    if (typeConverter.CanConvertFrom(typeof(string)))
-                    {
-                        try
-                        {
-                            property.SetValue(operation, typeConverter.ConvertFrom(value));
-                        }
-                        catch (Exception e)
-                        {
-                            throwException(e);
-                        }
-                    }
-                    else
-                    {
-                        throwException(new Exception($"Could not understand the value of query string key '{key}'"));
-                    }
+                    readCall.TrySetArgument(operationVariable);
+                    readCall.ReturnVariable.OverrideName("parseBodyResult");
+
+                    var setInOperation = new VariableSetterFrame(operationVariable, readCall.ReturnVariable);
+                    var setAmbient =
+                        new VariableSetterFrame(
+                            context.FindVariable(typeof(ApiOperationContext)).GetProperty(nameof(ApiOperationContext.Operation)),
+                            readCall.ReturnVariable);
+
+                    context.AppendFrames(
+                        readCall,
+                        setInOperation,
+                        setAmbient);
                 }
             }
         }

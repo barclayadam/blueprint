@@ -99,7 +99,7 @@ namespace Blueprint
         /// <summary>
         /// Gets the operation that is currently being executed.
         /// </summary>
-        public object Operation { get; }
+        public object Operation { get; set; }
 
         /// <summary>
         /// The <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and

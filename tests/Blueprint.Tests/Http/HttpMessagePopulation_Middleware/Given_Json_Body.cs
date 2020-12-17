@@ -42,6 +42,14 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [HttpPost]
+        [RootLink("/a-static-route")]
+        public class JsonOperationUsingFromBody
+        {
+            [FromBody]
+            public JsonOperation JsonOperation { get; set; }
+        }
+
+        [HttpPost]
         [RootLink("/route/{RouteProperty}")]
         public class JsonWithRouteOperation : JsonOperation
         {
@@ -65,7 +73,8 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [Test]
-        public async Task When_Json_Body_Then_Populates()
+        [TestCaseSource(nameof(GetHttpConfiguration))]
+        public async Task When_Json_Body_Then_Populates(Labelled<Action<BlueprintHttpOptions>> configureHttp)
         {
             // Arrange
             var expected = new JsonOperation
@@ -73,20 +82,18 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                 IntegerProperty = 761,
                 EnumProperty = OperationEnum.EnumOne,
                 GuidProperty = Guid.NewGuid(),
-                StringArray = new [] { "arr1", "arr2" },
-                StringEnumerable = new [] {"arr3", "arr4" },
+                StringArray = new[] { "arr1", "arr2" },
+                StringEnumerable = new[] { "arr3", "arr4" },
                 StringList = new List<string> { "arr5", "arr6" },
                 StringProperty = "a string",
                 NullableIntegerProperty = null,
-                StringIntegerDictionary = new Dictionary<string, int>
-                {
-                    { "one", 1 },
-                    { "twice", 12 }
-                }
+                StringIntegerDictionary = new Dictionary<string, int> { { "one", 1 }, { "twice", 12 } }
             };
 
             var handler = new TestApiOperationHandler<JsonOperation>(null);
-            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateHttp(
+                o => o.WithHandler(handler),
+                configureHttp: configureHttp);
             var context = GetContext(executor, expected);
 
             // Act
@@ -97,11 +104,51 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [Test]
-        public async Task When_Malformed_JSON_Then_Throws_ApiException()
+        [TestCaseSource(nameof(GetHttpConfiguration))]
+        public async Task When_Json_Body_And_FromBody_Attribute_Then_Populates(Labelled<Action<BlueprintHttpOptions>> configureHttp)
+        {
+            // Arrange
+            var expectedBody = new JsonOperation
+            {
+                IntegerProperty = 761,
+                EnumProperty = OperationEnum.EnumOne,
+                GuidProperty = Guid.NewGuid(),
+                StringArray = new[] { "arr1", "arr2" },
+                StringEnumerable = new[] { "arr3", "arr4" },
+                StringList = new List<string> { "arr5", "arr6" },
+                StringProperty = "a string",
+                NullableIntegerProperty = null,
+                StringIntegerDictionary = new Dictionary<string, int> { { "one", 1 }, { "twice", 12 } }
+            };
+
+            var handler = new TestApiOperationHandler<JsonOperationUsingFromBody>(null);
+            var executor = TestApiOperationExecutor.CreateHttp(
+                o => o.WithHandler(handler),
+                configureHttp: configureHttp);
+
+            var jsonBody = JsonConvert.SerializeObject(expectedBody);
+
+            var context = executor.HttpContextFor<JsonOperationUsingFromBody>();
+            context.GetHttpContext().Request.Body = jsonBody.AsUtf8Stream();
+            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
+
+            // Act
+            await executor.ExecuteAsync(context);
+
+            // Assert
+            handler.OperationPassed.Should().BeEquivalentTo(new JsonOperationUsingFromBody
+            {
+                JsonOperation = expectedBody,
+            });
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetHttpConfiguration))]
+        public async Task When_Malformed_JSON_Then_Throws_ApiException(Labelled<Action<BlueprintHttpOptions>> configureHttp)
         {
             // Arrange
             var handler = new TestApiOperationHandler<JsonOperation>(null);
-            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler), configureHttp: configureHttp);
 
             var context = executor.HttpContextFor<JsonOperation>();
             context.GetHttpContext().Request.Body = "{..}".AsUtf8Stream();
@@ -114,12 +161,12 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             await tryExecute.Should()
                 .ThrowApiExceptionAsync()
                 .WithType("invalid_json")
-                .WithTitle("The JSON payload is invalid")
-                .WithDetail("Invalid property identifier character: .. Path '', line 1, position 1.");
+                .WithTitle("The JSON payload is invalid");
         }
 
         [Test]
-        public async Task When_Route_Property_In_Json_Body_Then_Route_Value_Wins()
+        [TestCaseSource(nameof(GetHttpConfiguration))]
+        public async Task When_Route_Property_In_Json_Body_Then_Route_Value_Wins(Labelled<Action<BlueprintHttpOptions>> configureHttp)
         {
             // Arrange
             var expected = new JsonWithRouteOperation
@@ -128,22 +175,18 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
                 IntegerProperty = 761,
                 EnumProperty = OperationEnum.EnumOne,
                 GuidProperty = Guid.NewGuid(),
-                StringArray = new [] { "arr1", "arr2" },
-                StringEnumerable = new [] {"arr3", "arr4" },
+                StringArray = new[] { "arr1", "arr2" },
+                StringEnumerable = new[] { "arr3", "arr4" },
                 StringList = new List<string> { "arr5", "arr6" },
                 StringProperty = "a string",
                 NullableIntegerProperty = null,
-                StringIntegerDictionary = new Dictionary<string, int>
-                {
-                    { "one", 1 },
-                    { "twice", 12 }
-                }
+                StringIntegerDictionary = new Dictionary<string, int> { { "one", 1 }, { "twice", 12 } }
             };
 
             var expectedRouteValue = "theRouteValue";
 
             var handler = new TestApiOperationHandler<JsonWithRouteOperation>(null);
-            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler), configureHttp: configureHttp);
             var context = GetContext(executor, expected);
             context.GetRouteData().Values[nameof(JsonWithRouteOperation.RouteProperty)] = expectedRouteValue;
 
@@ -159,16 +202,14 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         }
 
         [Test]
-        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_With_Multiple_Routes_Then_Sets()
+        [TestCaseSource(nameof(GetHttpConfiguration))]
+        public async Task When_Route_Property_In_Json_Body_But_Not_RouteData_With_Multiple_Routes_Then_Sets(Labelled<Action<BlueprintHttpOptions>> configureHttp)
         {
             // Arrange
-            var expected = new MultipleRouteOperation
-            {
-                RouteProperty = "expectedValue"
-            };
+            var expected = new MultipleRouteOperation { RouteProperty = "expectedValue" };
 
             var handler = new TestApiOperationHandler<MultipleRouteOperation>(null);
-            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler));
+            var executor = TestApiOperationExecutor.CreateHttp(o => o.WithHandler(handler), configureHttp: configureHttp);
             var context = GetContext(executor, expected);
 
             // Act
@@ -179,6 +220,12 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             // Assert
             handler.OperationPassed.Should().BeEquivalentTo(expected);
             handler.OperationPassed.RouteProperty.Should().Be(expected.RouteProperty);
+        }
+
+        private static IEnumerable<Labelled<Action<BlueprintHttpOptions>>> GetHttpConfiguration()
+        {
+            yield return new ("System.Text",  _ => { });
+            yield return new ("Newtonsoft",  o => { o.UseNewtonsoft(); });
         }
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, T body)

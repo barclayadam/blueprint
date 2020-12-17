@@ -8,7 +8,7 @@
     "documentationRules": {
       "documentExposedElements": true,
       "documentInterfaces": true,
-      "documentInternalElements": true,
+      "documentInternalElements": false,
       "documentPrivateElements": false,
       "documentPrivateFields": false,
       "documentationCulture": "en-GB"

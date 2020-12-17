@@ -36,7 +36,12 @@ namespace Microsoft.Extensions.DependencyInjection
             apiBuilder.Services.AddOptions<BlueprintHttpOptions>()
                 .Configure(o =>
                 {
-                    o.OutputFormatters.Add(new SystemTextJsonResultOutputFormatter(SystemTextJsonResultOutputFormatter.CreateOptions()));
+                    var jsonSerializerOptions = SystemTextJsonResultOutputFormatter.CreateOptions();
+
+                    o.OutputFormatters.Add(new SystemTextJsonResultOutputFormatter(jsonSerializerOptions));
+                    o.BodyParsers.Add(new SystemTextJsonBodyParser(jsonSerializerOptions));
+
+                    o.BodyParsers.Add(new FormBodyParser());
 
                     configureOptions?.Invoke(o);
                 });

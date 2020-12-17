@@ -11,9 +11,14 @@ namespace Blueprint.Http
     public class BlueprintHttpOptions
     {
         /// <summary>
-        /// The list of output formatters available.
+        /// The list of available <see cref="IOperationResultOutputFormatter" />s.
         /// </summary>
         public List<IOperationResultOutputFormatter> OutputFormatters { get; } = new List<IOperationResultOutputFormatter>();
+
+        /// <summary>
+        /// The list of available <see cref="IBodyParser" />s.
+        /// </summary>
+        public List<IBodyParser> BodyParsers { get; } = new List<IBodyParser>();
 
         /// <summary>
         /// Gets or sets the flag which causes content negotiation to ignore Accept header

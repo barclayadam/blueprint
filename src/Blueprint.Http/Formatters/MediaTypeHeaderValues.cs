@@ -7,6 +7,12 @@ namespace Blueprint.Http.Formatters
 {
     internal static class MediaTypeHeaderValues
     {
+        public static readonly MediaTypeHeaderValue WwwFormUrlEncoded
+            = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded").CopyAsReadOnly();
+
+        public static readonly MediaTypeHeaderValue MultipartFormData
+            = MediaTypeHeaderValue.Parse("multipart/form-data").CopyAsReadOnly();
+
         public static readonly MediaTypeHeaderValue ApplicationJson
             = MediaTypeHeaderValue.Parse("application/json").CopyAsReadOnly();
 

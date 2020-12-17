@@ -82,7 +82,7 @@ namespace Blueprint.Http
         /// Gets the query that represents the query that will load the resource this
         /// event represents.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [global::Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public IQuery SelfQuery => this._selfQuery;
 

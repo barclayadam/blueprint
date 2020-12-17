@@ -286,7 +286,7 @@ namespace Blueprint.Compiler.Frames
 
                 for (var i = 0; i < genericArguments.Length; i++)
                 {
-                    sourceWriter.Append(genericArguments[i].FullName);
+                    sourceWriter.Append(genericArguments[i].FullNameInCode());
 
                     if (i != genericArguments.Length - 1)
                     {

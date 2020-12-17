@@ -1,8 +1,13 @@
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Blueprint.Http.Formatters
 {
@@ -10,18 +15,18 @@ namespace Blueprint.Http.Formatters
     /// An <see cref="IOperationResultOutputFormatter" /> that will use System.Text.Json to
     /// format responses as JSON.
     /// </summary>
-    public class SystemTextJsonResultOutputFormatter : IOperationResultOutputFormatter
+    public class NewtonsoftJsonResultOutputFormatter : IOperationResultOutputFormatter
     {
-        private readonly JsonSerializerOptions _options;
+        private readonly JsonSerializer _bodyJsonSerializer;
         private readonly List<MediaType> _supportedMediaTypes;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="SystemTextJsonResultOutputFormatter" /> class.
+        /// Initialises a new instance of the <see cref="NewtonsoftJsonResultOutputFormatter" /> class.
         /// </summary>
-        /// <param name="options">The JSON serializer options.</param>
-        public SystemTextJsonResultOutputFormatter(JsonSerializerOptions options)
+        /// <param name="settings">The JSON serializer settings.</param>
+        public NewtonsoftJsonResultOutputFormatter(JsonSerializerSettings settings)
         {
-            this._options = options;
+            this._bodyJsonSerializer = JsonSerializer.Create(settings);
 
             this._supportedMediaTypes = new List<MediaType>
             {
@@ -60,27 +65,35 @@ namespace Blueprint.Http.Formatters
 
             var responseStream = context.Response.Body;
 
-            await JsonSerializer.SerializeAsync(responseStream, context.Result, context.Result.GetType(), this._options);
+            var sb = new StringBuilder(256);
+            var sw = new StringWriter(sb, CultureInfo.InvariantCulture);
+
+            using var jsonWriter = new JsonTextWriter(sw)
+            {
+                Formatting = this._bodyJsonSerializer.Formatting,
+            };
+
+            this._bodyJsonSerializer.Serialize(jsonWriter, context.Result, null);
+
+            var jsonBytes = Encoding.UTF8.GetBytes(sw.ToString());
+
+            await responseStream.WriteAsync(jsonBytes, 0, jsonBytes.Length);
             await responseStream.FlushAsync();
         }
 
-        internal static JsonSerializerOptions CreateOptions()
+        internal static JsonSerializerSettings CreateSettings()
         {
-            var options = new JsonSerializerOptions
+            var settings = new JsonSerializerSettings
             {
-                WriteIndented = false,
-
-                PropertyNameCaseInsensitive = true,
-
-                // Use camel casing for properties and dictionaries (dictionaries because
-                // we treat them similar to properties from perspective of client consumption)
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Include,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
             };
 
-            options.Converters.Add(new JsonStringEnumConverter());
+            settings.Converters.Add(new StringEnumConverter());
 
-            return options;
+            return settings;
         }
     }
 }

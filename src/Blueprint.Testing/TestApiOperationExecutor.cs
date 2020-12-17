@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Configuration;
+using Blueprint.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,12 +37,15 @@ namespace Blueprint.Testing
         /// </summary>
         /// <param name="configure">An action that will configure the pipeline for the given test.</param>
         /// <param name="configureServices">Configures the used <see cref="IServiceCollection" />.</param>
+        /// <param name="configureHttp">An optional action that can configure <see cref="BlueprintHttpOptions" />, executed
+        /// <c>after</c> the default configuration has been run.</param>
         /// <returns>A new executor with the specified options combined with sensible defaults for tests.</returns>
         public static TestApiOperationExecutor CreateHttp(
             Action<BlueprintApiBuilder> configure,
-            Action<IServiceCollection> configureServices = null)
+            Action<IServiceCollection> configureServices = null,
+            Action<BlueprintHttpOptions> configureHttp = null)
         {
-            return Create(b => b.Http(), configure, configureServices);
+            return Create(b => b.Http(configureHttp), configure, configureServices);
         }
 
         /// <summary>
