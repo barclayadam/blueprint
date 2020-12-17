@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
-using Snapper;
 using Snapper.Attributes;
 
 namespace Blueprint.Tests.Core

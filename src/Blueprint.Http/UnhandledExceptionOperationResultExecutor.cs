@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
-using Blueprint.Apm;
 using Microsoft.Extensions.Configuration;
 
 namespace Blueprint.Http

@@ -1,6 +1,5 @@
 ﻿using Blueprint.Configuration;
 using Blueprint.Http;
-using Blueprint.Testing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NUnit.Framework;

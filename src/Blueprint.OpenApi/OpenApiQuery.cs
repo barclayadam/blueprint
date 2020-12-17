@@ -1,4 +1,3 @@
-using System.Linq;
 using Blueprint.Authorisation;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Http;
