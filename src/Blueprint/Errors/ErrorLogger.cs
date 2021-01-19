@@ -96,7 +96,7 @@ namespace Blueprint.Errors
             }
 
             // This is not a known and well-handled exception
-            this._logger.LogError(exception, "An unhandled exception has occurred");
+            this._logger.LogError(exception, "An unhandled exception has occurred: {Message}", exception.Message);
 
             if (_isTestMode)
             {
