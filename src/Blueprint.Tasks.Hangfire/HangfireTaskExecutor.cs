@@ -66,41 +66,8 @@ namespace Blueprint.Tasks.Hangfire
                     return;
                 }
 
-                // If this was not the last attempt then we will _not_ attempt to record this exception
-                // but will instead just throw to retry. This is designed to reduce intermittent noise
-                // of transient errors.
-                if (attempt != null && attempt < GetMaxAttempts())
-                {
-                    throw;
-                }
-
-                e.Data["RetryCount"] = attempt?.ToString();
-                e.Data["HangfireJobId"] = context.BackgroundJob.Id;
-
-                await this._errorLogger.LogAsync(e);
-
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Gets the maximum number of attempts allowed, which is the minimum <see cref="AutomaticRetryAttribute.Attempts" />
-        /// of all registered filters of type <see cref="AutomaticRetryAttribute"/>.
-        /// </summary>
-        /// <returns>Maximum number of retry attempts allowed.</returns>
-        private static int GetMaxAttempts()
-        {
-            int? attempts = null;
-
-            foreach (var att in GlobalJobFilters.Filters.OfType<AutomaticRetryAttribute>())
-            {
-                if (att.Attempts < (attempts ?? int.MaxValue))
-                {
-                    attempts = att.Attempts;
-                }
-            }
-
-            return attempts ?? 0;
         }
     }
 }
