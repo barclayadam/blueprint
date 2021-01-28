@@ -25,6 +25,7 @@ namespace Blueprint.OpenApi
         public PlainTextResult Invoke(
             HttpContext httpContext,
             OpenApiDocument openApiDocument,
+            ApiOperationContext context,
             IOptions<OpenApiOptions> options)
         {
             var openApiOptions = options.Value;
@@ -75,10 +76,29 @@ namespace Blueprint.OpenApi
                 };
             }
 
-            return new PlainTextResult(openApiDocument.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
+            // We use the feature data to cache the generated JSON and PlainTextResult, which can shave off ms on
+            // subsequent calls and potentially reduce memory by _a lot_
+            if (!context.Descriptor.TryGetFeatureData(out OpenApiJsonDocumentFeature openApiJson))
             {
-                ContentType = "application/json",
-            };
+                openApiJson = new OpenApiJsonDocumentFeature(new PlainTextResult(openApiDocument.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
+                {
+                    ContentType = "application/json",
+                });
+
+                context.Descriptor.SetFeatureData(openApiJson);
+            }
+
+            return openApiJson.JsonResult;
+        }
+
+        private class OpenApiJsonDocumentFeature
+        {
+            public OpenApiJsonDocumentFeature(PlainTextResult jsonResult)
+            {
+                this.JsonResult = jsonResult;
+            }
+
+            public PlainTextResult JsonResult { get; }
         }
     }
 }
