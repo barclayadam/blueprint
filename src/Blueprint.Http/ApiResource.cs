@@ -13,7 +13,7 @@ namespace Blueprint.Http
     /// to be consumed by clients, including resource type ($object), links ($links) and whether this
     /// represents a 'partial' response ($partial).
     /// </summary>
-    public class ApiResource : ILinkableResource, IHaveResourceKey
+    public abstract class ApiResource : ILinkableResource, IHaveResourceKey
     {
         private static readonly ConcurrentDictionary<Type, string> _typeNameCache = new ConcurrentDictionary<Type, string>();
 
@@ -84,10 +84,12 @@ namespace Blueprint.Http
         /// <exception cref="InvalidOperationException">If a link with the same relation type has already been added.</exception>
         public void AddLink(string rel, Link link)
         {
-            if (this._links.ContainsKey(rel))
+            if (this._links.TryGetValue(rel, out var existing))
             {
                 throw new InvalidOperationException(
-                    $"Cannot add multiple links with the same relation of '{rel}' to the api resource '{this.GetType().Name}'");
+                    $@"A link with the rel '{rel}' (link href is {link.Href}) has already been added to the API resource of type '{this.GetType().FullName}'. Existing link has href of {existing.Href}.
+
+Ensure that when adding links (see {nameof(LinkAttribute)}, {nameof(SelfLinkAttribute)} or {nameof(RootLinkAttribute)}) that no two exist for the same resource type (including the root) with the same rel value.");
             }
 
             // Allow exception to bubble if link already exists. Allow normal success path to be quicker instead
