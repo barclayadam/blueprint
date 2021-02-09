@@ -4,6 +4,7 @@ using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Middleware
@@ -75,9 +76,10 @@ namespace Blueprint.Middleware
             var invocationFrames = new Frame[]
             {
                 getInstanceFrame,
-                LogFrame.Information(
+                LogFrame.Debug(
                     _apiOperationExecutorLogEvent,
-                    "Executing API operation with handler {HandlerType}",
+                    "Executing API operation {OperationType} with handler {HandlerType}",
+                    ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType),
                     new Variable(typeof(string), $"{getInstanceFrame.InstanceVariable}.GetType().Name")),
                 handlerInvokeCall,
             };

@@ -46,9 +46,9 @@ namespace Blueprint.Middleware
             // parameter to logging so that it is output as a structured value (as it changes between
             // invocations)
             context.AppendFrames(
-                LogFrame.Information(
+                LogFrame.Debug(
                     _apiOperationExecutorLogEvent,
-                    "Executing API operation with handler {HandlerType}",
+                    "Executing API operation {OperationType} with inline handler",
                     ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType)),
                 handlerInvokeCall);
 
