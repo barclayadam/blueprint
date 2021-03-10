@@ -125,7 +125,7 @@ namespace Blueprint.Http
             {
                 foreach (var kvp in value.Extensions)
                 {
-                    writer.WritePropertyName(options.DictionaryKeyPolicy.ConvertName(kvp.Key));
+                    writer.WritePropertyName(options.DictionaryKeyPolicy?.ConvertName(kvp.Key) ?? kvp.Key);
                     JsonSerializer.Serialize(writer, kvp.Value, kvp.Value?.GetType() ?? typeof(object), options);
                 }
             }

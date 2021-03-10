@@ -10,7 +10,7 @@ namespace Blueprint.Http
     /// </summary>
     public class BlueprintJsonOptions
     {
-        private static JsonSerializerOptions CreateOptions()
+        internal static JsonSerializerOptions CreateOptions()
         {
             var options = new JsonSerializerOptions
             {

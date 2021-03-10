@@ -162,5 +162,38 @@ namespace Blueprint.Tests.Http
             var actual = Encoding.UTF8.GetString(stream.ToArray());
             actual.Should().Be(expected);
         }
+
+
+        [Test]
+        public void Write_WithNull_DictionaryKeyPolicy_Works()
+        {
+            // Arrange
+            var options = BlueprintJsonOptions.CreateOptions();
+            options.DictionaryKeyPolicy = null;
+
+            var value = new ProblemDetails
+            {
+                Title = "Not found",
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                Status = 404,
+                Extensions = new Dictionary<string, object>
+                {
+                    ["Key1"] = "Value1",
+                }
+            };
+            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"Key1\":\"Value1\"}}";
+            var converter = new ProblemDetailsJsonConverter();
+            var stream = new MemoryStream();
+
+            // Act
+            using (var writer = new Utf8JsonWriter(stream))
+            {
+                converter.Write(writer, value, options);
+            }
+
+            // Assert
+            var actual = Encoding.UTF8.GetString(stream.ToArray());
+            actual.Should().Be(expected);
+        }
     }
 }
