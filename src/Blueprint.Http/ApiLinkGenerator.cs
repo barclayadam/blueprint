@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 
@@ -98,8 +99,16 @@ namespace Blueprint.Http
                 return this._baseUri + link.UrlFormat;
             }
 
+            var relativeUrl = CreateRelativeUrlFromLink(link, result);
+
+            // We cannot create a full URL if the relative link is null
+            if (relativeUrl == null)
+            {
+                return null;
+            }
+
             // baseUri always has / at end, relative never has at start
-            return this._baseUri + CreateRelativeUrlFromLink(link, result);
+            return this._baseUri + relativeUrl;
         }
 
         /// <inheritdoc />
@@ -116,6 +125,12 @@ namespace Blueprint.Http
             }
 
             var routeUrl = CreateRelativeUrlFromLink(link, operation);
+
+            // We cannot create a full URL if the relative link is null
+            if (routeUrl == null)
+            {
+                return null;
+            }
 
             // Append any _extra_ properties to the generated URL. The shouldInclude check will return true if the property to
             // be written does NOT exist as a placeholder in the link and therefore would NOT have already been "consumed"
@@ -217,6 +232,13 @@ namespace Blueprint.Http
                     }
 
                     placeholderValue = property.GetValue(result);
+                }
+
+                // If we have a placeholder value then we must return null if it does not exist, otherwise we would build URLs
+                // like /users/null if using a "safe" representation
+                if (placeholderValue == null)
+                {
+                    return null;
                 }
 
                 if (placeholder.Format != null)

@@ -76,13 +76,23 @@ namespace Blueprint.Tests.ApiOperationLinkTests
             }
 
             [Test]
-            public void When_Url_With_Placeholder_Requring_Encoding_Then_CreateUrl_Replaces_With_Encoded_Property_In_PropValues()
+            public void When_Url_With_Placeholder_Requiring_Encoding_Then_CreateUrl_Replaces_With_Encoded_Property_In_PropValues()
             {
                 // Act
                 var link = new ApiOperationLink(descriptor, "/aUrl/{category}", "a.rel");
 
                 // Assert
                 linkGenerator.CreateUrl(link, new {category = "all dogs"}).Should().EndWith("aUrl/all%20dogs");
+            }
+
+            [Test]
+            public void When_Url_With_Placeholder_Then_Returns_Null_If_Property_Is_Null()
+            {
+                // Act
+                var link = new ApiOperationLink(descriptor, "/aUrl/{category}", "a.rel");
+
+                // Assert
+                linkGenerator.CreateUrl(link, new {category = (string)null}).Should().BeNull();
             }
 
             [Test]

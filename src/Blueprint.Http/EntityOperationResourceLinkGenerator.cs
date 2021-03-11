@@ -69,9 +69,17 @@ namespace Blueprint.Http
                     this._logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
                 }
 
+                var url = this._linkGenerator.CreateUrl(link, linkableResource);
+
+                // We could not generate this URL, a placeholder value could not be injected. We therefore skip it
+                if (url == null)
+                {
+                    break;
+                }
+
                 linkableResource.AddLink(link.Rel, new Link
                 {
-                    Href = this._linkGenerator.CreateUrl(link, linkableResource),
+                    Href = url,
                 });
             }
         }
