@@ -39,6 +39,15 @@ namespace Blueprint.Http
             var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
             var links = context.DataModel.GetLinksForResource(linkableResource.GetType());
 
+            if (links.Count == 0)
+            {
+                this._logger.LogDebug(
+                    "No links have been registered for linkable resource {0}",
+                    linkableResource.GetType());
+
+                return;
+            }
+
             // When trace is enabled, log all links we would be checking, else if debug just the count, otherwise nothing logged here
             if (traceLogEnabled)
             {
@@ -90,10 +99,10 @@ namespace Blueprint.Http
                 {
                     if (traceLogEnabled)
                     {
-                        this._logger.LogTrace("Cannot add link. operation_type={0}", entityOperationName);
+                        this._logger.LogTrace("Cannot add link, URL was not generated. operation_type={0}", entityOperationName);
                     }
 
-                    break;
+                    continue;
                 }
 
                 if (traceLogEnabled)
