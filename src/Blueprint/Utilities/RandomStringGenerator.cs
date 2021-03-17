@@ -95,7 +95,7 @@ namespace Blueprint.Utilities
 
         private char GetFromCharacterSet(int i)
         {
-            var characterSet = this._characterSets.ElementAt(i % this._characterSets.Count());
+            var characterSet = this._characterSets.ElementAt(i % this._characterSets.Count);
             var randomIndex = this._random.Next(0, characterSet.Length);
 
             return characterSet[randomIndex];

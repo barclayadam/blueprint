@@ -19,6 +19,7 @@ namespace Blueprint
         // Dictionary lookups, contains values from allLinks
         private readonly Dictionary<Type, List<ApiOperationLink>> _operationTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
         private readonly Dictionary<Type, List<ApiOperationLink>> _resourceTypeToLinks = new Dictionary<Type, List<ApiOperationLink>>();
+        private static readonly List<ApiOperationLink> _emptyLinkList = new List<ApiOperationLink>(0);
 
         /// <summary>
         /// Gets all registered links for this model, with a link representing the association between a resource and a different
@@ -156,17 +157,17 @@ namespace Blueprint
 
         /// <summary>
         /// Gets all registered links for the given resource type. Links can be associated with a resource so that they get
-        /// generated and returned in the $links properties of an <see cref="ApiResource"/> return value.
+        /// generated and returned in the $links properties of an <see cref="ILinkableResource"/> instance.
         /// </summary>
         /// <param name="resourceType">The resource type to load links for.</param>
         /// <returns>The (potentially empty) enumeration of registered links.</returns>
-        public IEnumerable<ApiOperationLink> GetLinksForResource(Type resourceType)
+        public IReadOnlyList<ApiOperationLink> GetLinksForResource(Type resourceType)
         {
             Guard.NotNull(nameof(resourceType), resourceType);
 
             if (!this._resourceTypeToLinks.ContainsKey(resourceType))
             {
-                return Enumerable.Empty<ApiOperationLink>();
+                return _emptyLinkList;
             }
 
             return this._resourceTypeToLinks[resourceType];

@@ -10,6 +10,8 @@ namespace Blueprint
         private static readonly Regex _parameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
         private static readonly Regex _queryStringRegex = new Regex("\\?.*", RegexOptions.Compiled);
 
+        private readonly string _description;
+
         /// <summary>
         /// Constructs a link that applies at a 'system' level, can be overriden by setting
         /// <see cref="ResourceType"/>.
@@ -57,6 +59,10 @@ namespace Blueprint
                 string.Empty);
 
             this.Placeholders = placeholders;
+
+            // Let's precalculate this as ApiOperationLinks are expected to stay around for lifetime of the application, so may as well
+            // pay this cost upfront.
+            this._description = $"{this.ResourceType?.Name ?? "Root"}#{this.Rel} => {this.OperationDescriptor.OperationType.Name}";
         }
 
         /// <summary>
@@ -77,10 +83,21 @@ namespace Blueprint
         /// </summary>
         public string UrlFormat { get; }
 
+        /// <summary>
+        /// The descriptor this link points to (i.e. the operation this link is for).
+        /// </summary>
         public ApiOperationDescriptor OperationDescriptor { get; }
 
+        /// <summary>
+        /// The <strong>rel</strong>ationship this link represents, which is the key that will be used
+        /// when populating the <see cref="ILinkableResource.Links" /> dictionary.
+        /// </summary>
         public string Rel { get; }
 
+        /// <summary>
+        /// The resource from which this link can be created, for example a `UserResource` value that
+        /// is returned from an operation. This <b>MUST</b> be an <see cref="ILinkableResource" />.
+        /// </summary>
         public Type ResourceType { get; set; }
 
         /// <summary>
@@ -102,7 +119,7 @@ namespace Blueprint
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{this.ResourceType?.Name ?? "Root"}#{this.Rel} => {this.OperationDescriptor.OperationType.Name}";
+            return this._description;
         }
     }
 }

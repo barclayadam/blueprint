@@ -25,10 +25,7 @@ namespace Blueprint.Authorisation
 
         public async ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
         {
-            if (this._logger.IsEnabled(LogLevel.Trace))
-            {
-                this._logger.LogTrace("Determining if current user can be shown link operation. type={0} resource_type={1}.", descriptor.OperationType.Name, resource.GetType().Name);
-            }
+            var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
 
             foreach (var checker in this.GetForOperation(descriptor))
             {
@@ -38,18 +35,26 @@ namespace Blueprint.Authorisation
                 {
                     // Base links could have many, potentially hundreds, of failures, which are completely
                     // normal, we will not log unless enabled
-                    if (this._logger.IsEnabled(LogLevel.Trace))
+                    if (traceLogEnabled)
                     {
-                        this._logger.LogTrace("Permission check failed. reason={0} authoriser={1}", result.Reason, checker.GetType());
+                        this._logger.LogTrace(
+                            "Link check failed. type={0} resource_type={1} reason={2} authoriser={3}",
+                            descriptor.OperationType.Name,
+                            resource.GetType().Name,
+                            result.Reason,
+                            checker.GetType());
                     }
 
                     return result;
                 }
             }
 
-            if (this._logger.IsEnabled(LogLevel.Trace))
+            if (traceLogEnabled)
             {
-                this._logger.LogTrace("Permission check succeeded");
+                this._logger.LogTrace(
+                    "Link check succeeded. type={0} resource_type={1}",
+                    descriptor.OperationType.Name,
+                    resource.GetType().Name);
             }
 
             return ExecutionAllowed.Yes;

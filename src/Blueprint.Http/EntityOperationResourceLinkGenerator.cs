@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +36,25 @@ namespace Blueprint.Http
             Guard.NotNull(nameof(context), context);
             Guard.NotNull(nameof(linkableResource), linkableResource);
 
+            var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
             var links = context.DataModel.GetLinksForResource(linkableResource.GetType());
+
+            // When trace is enabled, log all links we would be checking, else if debug just the count, otherwise nothing logged here
+            if (traceLogEnabled)
+            {
+                this._logger.LogTrace("Attempting to add {0} links for the linkable resource {1}.", links.Count, linkableResource.GetType());
+            }
+            else
+            {
+                if (this._logger.IsEnabled(LogLevel.Debug))
+                {
+                    this._logger.LogDebug(
+                        "Attempting to add {0} links for the linkable resource {1}. Links are: {2}",
+                        links.Count,
+                        linkableResource.GetType(),
+                        string.Join("; ", links.Select(l => l.ToString())));
+                }
+            }
 
             foreach (var link in links)
             {
@@ -44,7 +63,7 @@ namespace Blueprint.Http
 
                 if (!entityOperation.IsExposed)
                 {
-                    if (this._logger.IsEnabled(LogLevel.Trace))
+                    if (traceLogEnabled)
                     {
                         this._logger.LogTrace("Operation not exposed, excluding. operation_type={0}", entityOperationName);
                     }
@@ -56,7 +75,7 @@ namespace Blueprint.Http
 
                 if (result.IsAllowed == false)
                 {
-                    if (this._logger.IsEnabled(LogLevel.Trace))
+                    if (traceLogEnabled)
                     {
                         this._logger.LogTrace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
                     }
@@ -64,17 +83,22 @@ namespace Blueprint.Http
                     continue;
                 }
 
-                if (this._logger.IsEnabled(LogLevel.Trace))
-                {
-                    this._logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
-                }
-
                 var url = this._linkGenerator.CreateUrl(link, linkableResource);
 
                 // We could not generate this URL, a placeholder value could not be injected. We therefore skip it
                 if (url == null)
                 {
+                    if (traceLogEnabled)
+                    {
+                        this._logger.LogTrace("Cannot add link. operation_type={0}", entityOperationName);
+                    }
+
                     break;
+                }
+
+                if (traceLogEnabled)
+                {
+                    this._logger.LogTrace("All checks passed. Adding link. operation_type={0}", entityOperationName);
                 }
 
                 linkableResource.AddLink(link.Rel, new Link
