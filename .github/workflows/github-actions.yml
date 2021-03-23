@@ -25,6 +25,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Setup .NET SDK 5.0.x
       uses: actions/setup-dotnet@v1.7.2
