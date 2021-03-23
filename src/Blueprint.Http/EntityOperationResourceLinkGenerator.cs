@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -13,9 +12,9 @@ namespace Blueprint.Http
         /// <summary>
         /// Initializes a new instance of the <see cref="EntityOperationResourceLinkGenerator"/> class.
         /// </summary>
-        /// <param name="apiAuthoriserAggregator"></param>
-        /// <param name="linkGenerator"></param>
-        /// <param name="logger"></param>
+        /// <param name="apiAuthoriserAggregator">An authorisor aggregrator to check if links are allowed to be shown to a user.</param>
+        /// <param name="linkGenerator">A link generator to create the URLs of generated links.</param>
+        /// <param name="logger">The logger.</param>
         public EntityOperationResourceLinkGenerator(
             IApiAuthoriserAggregator apiAuthoriserAggregator,
             IApiLinkGenerator linkGenerator,
@@ -41,9 +40,12 @@ namespace Blueprint.Http
 
             if (links.Count == 0)
             {
-                this._logger.LogDebug(
-                    "No links have been registered for linkable resource {0}",
-                    linkableResource.GetType());
+                if (traceLogEnabled)
+                {
+                    this._logger.LogTrace(
+                        "No links have been registered for linkable resource {0}",
+                        linkableResource.GetType());
+                }
 
                 return;
             }
@@ -52,17 +54,6 @@ namespace Blueprint.Http
             if (traceLogEnabled)
             {
                 this._logger.LogTrace("Attempting to add {0} links for the linkable resource {1}.", links.Count, linkableResource.GetType());
-            }
-            else
-            {
-                if (this._logger.IsEnabled(LogLevel.Debug))
-                {
-                    this._logger.LogDebug(
-                        "Attempting to add {0} links for the linkable resource {1}. Links are: {2}",
-                        links.Count,
-                        linkableResource.GetType(),
-                        string.Join("; ", links.Select(l => l.ToString())));
-                }
             }
 
             foreach (var link in links)
@@ -86,7 +77,7 @@ namespace Blueprint.Http
                 {
                     if (traceLogEnabled)
                     {
-                        this._logger.LogTrace("Operation can not be executed, excluding. operation_type={0}", entityOperationName);
+                        this._logger.LogTrace("Operation is not allowed to be executed, excluding. operation_type={0}", entityOperationName);
                     }
 
                     continue;
