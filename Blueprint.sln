@@ -26,64 +26,67 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.Stackify", "src\Blueprint.Apm.Stackify\Blueprint.Apm.Stackify.csproj", "{8AA96541-267F-42FD-8399-37952881347F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EACE4109-A1D6-4FAE-846D-98A171871FF6}"
-ProjectSection(SolutionItems) = preProject
-	samples\Directory.Build.props = samples\Directory.Build.props
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9500564D-5E23-471A-BE6E-EA9051177CE1}"
-ProjectSection(SolutionItems) = preProject
-	tests\Directory.Build.props = tests\Directory.Build.props
-	tests\CustomDictionary.xml = tests\CustomDictionary.xml
-	tests\Rules.ruleset = tests\Rules.ruleset
-	tests\Stylecop.json = tests\Stylecop.json
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		tests\CustomDictionary.xml = tests\CustomDictionary.xml
+		tests\Directory.Build.props = tests\Directory.Build.props
+		tests\Rules.ruleset = tests\Rules.ruleset
+		tests\Stylecop.json = tests\Stylecop.json
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.WebApi", "samples\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj", "{8C575F82-1372-485C-83C1-67C359CF9273}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.Console.CounterApp", "samples\Blueprint.Sample.Console.CounterApp\Blueprint.Sample.Console.CounterApp.csproj", "{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1607A208-63F6-4816-BD68-CBAE9B703157}"
-ProjectSection(SolutionItems) = preProject
-	azure-pipelines.yml = azure-pipelines.yml
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\azure-pipelines.yml = .github\workflows\azure-pipelines.yml
+		.github\workflows\github-actions.yml = .github\workflows\github-actions.yml
+		sonar-project.properties = sonar-project.properties
+		.github\workflows\superlinter.yml = .github\workflows\superlinter.yml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{44E38BE8-9648-4112-920F-2A0EE10A6F8C}"
-ProjectSection(SolutionItems) = preProject
-	src\CustomDictionary.xml = src\CustomDictionary.xml
-	src\Directory.Build.props = src\Directory.Build.props
-	src\Rules.ruleset = src\Rules.ruleset
-	src\Stylecop.json = src\Stylecop.json
-	src\.editorconfig = src\.editorconfig
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
+		src\CustomDictionary.xml = src\CustomDictionary.xml
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Rules.ruleset = src\Rules.ruleset
+		src\Stylecop.json = src\Stylecop.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{B407234C-3957-4C16-A581-FBAC4436F75A}"
-ProjectSection(SolutionItems) = preProject
-	LICENSE.md = LICENSE.md
-	README.md = README.md
-	CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
-	Directory.Build.props = Directory.Build.props
-	NuGet.Config = NuGet.Config
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		Directory.Build.props = Directory.Build.props
+		LICENSE.md = LICENSE.md
+		NuGet.Config = NuGet.Config
+		README.md = README.md
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Compiler.Tests", "tests\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj", "{AFD34C5B-80F7-4190-B581-5AC0DE5FE197}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Http", "src\Blueprint.Http\Blueprint.Http.csproj", "{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Http", "src\Blueprint.Http\Blueprint.Http.csproj", "{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks", "src\Blueprint.Tasks\Blueprint.Tasks.csproj", "{92A00B44-2D35-4291-852D-14B9A1386908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tasks", "src\Blueprint.Tasks\Blueprint.Tasks.csproj", "{92A00B44-2D35-4291-852D-14B9A1386908}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Samples.TaskProcessor", "samples\Blueprint.Samples.TaskProcessor\Blueprint.Samples.TaskProcessor.csproj", "{B19A1330-860B-4F86-B639-EDD05885C270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Samples.TaskProcessor", "samples\Blueprint.Samples.TaskProcessor\Blueprint.Samples.TaskProcessor.csproj", "{B19A1330-860B-4F86-B639-EDD05885C270}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.OpenApi", "src\Blueprint.OpenApi\Blueprint.OpenApi.csproj", "{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.OpenApi", "src\Blueprint.OpenApi\Blueprint.OpenApi.csproj", "{F85FB069-29AD-48A2-AA7D-2C9F4109F23B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Tasks.AspNetCore", "src\Blueprint.Tasks.AspNetCore\Blueprint.Tasks.AspNetCore.csproj", "{BFC7A75B-7026-4C63-A1D8-FC084039661B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Tasks.AspNetCore", "src\Blueprint.Tasks.AspNetCore\Blueprint.Tasks.AspNetCore.csproj", "{BFC7A75B-7026-4C63-A1D8-FC084039661B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.Elastic", "src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj", "{7C99F27D-D717-4E09-87EA-3224C30B26FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.Elastic", "src\Blueprint.Apm.Elastic\Blueprint.Apm.Elastic.csproj", "{7C99F27D-D717-4E09-87EA-3224C30B26FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.OpenTracing", "src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj", "{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.OpenTracing", "src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj", "{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Apm.DataDog", "src\Blueprint.Apm.Datadog\Blueprint.Apm.DataDog.csproj", "{426F1FA9-1ACD-45C8-956F-77C4F0FFE21A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.DataDog", "src\Blueprint.Apm.Datadog\Blueprint.Apm.DataDog.csproj", "{426F1FA9-1ACD-45C8-956F-77C4F0FFE21A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blueprint.Benchmarks", "tests\Blueprint.Benchmarks\Blueprint.Benchmarks.csproj", "{8D8BA677-3EB2-4FD5-BC1A-4876E6BD06EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Benchmarks", "tests\Blueprint.Benchmarks\Blueprint.Benchmarks.csproj", "{8D8BA677-3EB2-4FD5-BC1A-4876E6BD06EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -188,19 +191,19 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F469E40C-B0F3-4645-9344-1F4F35717958} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
-		{8C575F82-1372-485C-83C1-67C359CF9273} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
-		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
-		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{7674DAD1-13EF-4D51-91EC-0B76BCB87E6D} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{C7A422DB-A037-4F15-BD0C-FADD08DEEADC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{6EC8053C-6A69-4103-9663-711E42E9EADB} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
-		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
-		{08F031E5-4B36-4C4D-8A85-A245025D3B55} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
-		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
-		{8AA96541-267F-42FD-8399-37952881347F} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
-		{2A11A316-1F23-4FED-B480-2DC55B9C4A31} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{1ADB1F40-BD86-43D4-84A3-23C524060314} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{F469E40C-B0F3-4645-9344-1F4F35717958} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
+		{7CC83E0F-C068-47B2-BFEC-F35B4B28DFAE} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{13F6F4DE-8A22-413C-A685-7413ACEAB2FC} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{08F031E5-4B36-4C4D-8A85-A245025D3B55} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{E548332B-DB5E-48C5-933F-5DDD6AA42BC1} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{2A11A316-1F23-4FED-B480-2DC55B9C4A31} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{8AA96541-267F-42FD-8399-37952881347F} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
+		{8C575F82-1372-485C-83C1-67C359CF9273} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
+		{DCBCA75F-2724-4E2D-A2DE-5CBCDAE2457A} = {EACE4109-A1D6-4FAE-846D-98A171871FF6}
 		{AFD34C5B-80F7-4190-B581-5AC0DE5FE197} = {9500564D-5E23-471A-BE6E-EA9051177CE1}
 		{E9F589F2-B7E6-4EEE-9B91-400A32A6FBAD} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}
 		{92A00B44-2D35-4291-852D-14B9A1386908} = {44E38BE8-9648-4112-920F-2A0EE10A6F8C}

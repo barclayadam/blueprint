@@ -1,0 +1,76 @@
+name: Build Blueprint
+
+# Build Variables
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  Prerelease: ci
+  BuildConfiguration: Release
+
+## CI Trigger on master branch
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '5.0.x', '3.1.x' ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET SDK ${{ matrix.dotnet }}
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+
+    #- name: SonarCloud Preparation
+    #  uses: sonarsource/sonarcloud-github-action@master
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: dotnet restore
+      run: dotnet restore
+
+    - name: dotnet build
+      run: dotnet build --configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-restore
+
+    - name: dotnet test
+      run: dotnet test --configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore --collect "Code coverage"
+
+    - name: dotnet pack
+      run: dotnet
+      with:
+        command: pack
+        outputDir: $(Build.ArtifactStagingDirectory)/.nupkgs
+        verbosityPack: minimal
+        nobuild: true
+      if: ${{ env['Build.Reason'] != 'PullRequest' }}
+
+    - name: dotnet push
+      run: dotnet
+      with:
+        command: push
+        packagesToPush: $(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg
+        nuGetFeedType: internal
+        publishVstsFeed: 91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c
+        allowPackageConflicts: true
+      if: ${{ env['Build.Reason'] != 'PullRequest' }}
+
+    #- name: Analyze with SonarCloud
+    #  uses: sonarsource/sonarcloud-github-action@master
+
+    #- name: Publish SonarCloud results
+    #  uses: actions/SonarCloudPublish@1
+    #  with:
+    #    pollingTimeoutSec: '300'
