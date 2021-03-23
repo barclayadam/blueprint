@@ -52,7 +52,7 @@ jobs:
       run: dotnet test --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
 
     - name: dotnet pack
-      run: dotnet pack --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
+      run: dotnet pack --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
       if: ${{ success() && github.event_name != 'pull_request' }}
 
     #- name: dotnet nuget push
