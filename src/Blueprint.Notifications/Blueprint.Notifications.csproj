@@ -4,10 +4,12 @@
     <Title>Blueprint - Notifications</Title>
     <Description>Blueprint: Notifications (email, sms etc.) abstraction</Description>
     <PackageTags>$(PackageBaseTags)</PackageTags>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NVelocity" Version="1.0.3" />
-
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
   </ItemGroup>
