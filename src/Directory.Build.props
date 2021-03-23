@@ -10,11 +10,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- edit this value to change the current MAJOR.MINOR version -->
-    <VersionPrefix>0.1</VersionPrefix>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <OutputType>Library</OutputType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <MSBuildWarningsAsMessages>NETSDK1069</MSBuildWarningsAsMessages>

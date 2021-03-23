@@ -1,4 +1,4 @@
-name: Build Blueprint
+name: Blueprint Build
 
 # Build Variables
 env:
