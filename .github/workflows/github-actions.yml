@@ -22,18 +22,18 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        dotnet-version: [ '5.0.x' ]
-        #dotnet-version: [ '5.0.x', '3.1.x' ]
-
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup .NET SDK ${{ matrix.dotnet }}
+    - name: Setup .NET SDK 5.0.x
       uses: actions/setup-dotnet@v1.7.2
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+        dotnet-version: '5.0.x'
+
+    - name: Setup .NET SDK 3.1.x
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: '3.1.x'
 
     #- name: SonarCloud Preparation
     #  uses: sonarsource/sonarcloud-github-action@master
@@ -51,14 +51,14 @@ jobs:
       run: dotnet test --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
 
     - name: dotnet pack
-      run: dotnet pack ./<project>/.nupkgs -v:minimal --no-build
+      run: dotnet pack ${{ github.workspace }}/.nupkgs -v:minimal --no-build
       if: ${{ success() && github.event_name != 'pull_request' }}
 
     #- name: dotnet nuget push
     #  run: dotnet nuget push ./<project>/.nupkgs/*.nupkg
     #  with:
     #    command: push
-    #    packagesToPush: $(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg
+    #    packagesToPush: ${{ github.workspace }}/.nupkgs/*.nupkg
     #    nuGetFeedType: internal
     #    publishVstsFeed: 91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c
     #    allowPackageConflicts: true
