@@ -44,10 +44,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.Console.Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1607A208-63F6-4816-BD68-CBAE9B703157}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\azure-pipelines.yml = .github\workflows\azure-pipelines.yml
+		azure-pipelines.yml = azure-pipelines.yml
 		.github\workflows\github-actions.yml = .github\workflows\github-actions.yml
 		sonar-project.properties = sonar-project.properties
-		.github\workflows\superlinter.yml = .github\workflows\superlinter.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{44E38BE8-9648-4112-920F-2A0EE10A6F8C}"
