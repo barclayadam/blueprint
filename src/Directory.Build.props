@@ -14,21 +14,6 @@
     <VersionPrefix>0.1</VersionPrefix>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition=" '$(Prerelease)' != '' ">
-      <PropertyGroup>
-        <!-- Prerelease version numbers are MAJOR.MINOR.0-pre-build###### -->
-        <VersionSuffix>$(Prerelease)-$(BUILD_BUILDID.PadLeft(6, '0'))</VersionSuffix>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <!-- Release version numbers are MAJOR.MINOR.# -->
-        <VersionPrefix>$(VersionPrefix).$(BUILD_BUILDID.PadLeft(1, '0'))</VersionPrefix>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -49,16 +34,8 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <!-- We embed the PDB files directly with the nuget package for now as we are publishing to
-         Azure DevOps which does not support Symbol (.snupkg) packages -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb;.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
-
-    <!--
-      Move to the below when we start to publish On NuGet:
-
-      <IncludeSymbols>true</IncludeSymbols>
-      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -69,6 +46,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MinVer" Version="2.5.0" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers"/>
 
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)Stylecop.json">
