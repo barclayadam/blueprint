@@ -44,29 +44,24 @@ jobs:
       run: dotnet restore
 
     - name: dotnet build
-      run: dotnet build --configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-restore
+      run: dotnet build --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-restore
 
     - name: dotnet test
-      run: dotnet test --configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore --collect "Code coverage"
+      run: dotnet test --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
 
     - name: dotnet pack
-      run: dotnet
-      with:
-        command: pack
-        outputDir: $(Build.ArtifactStagingDirectory)/.nupkgs
-        verbosityPack: minimal
-        nobuild: true
-      if: ${{ env['Build.Reason'] != 'PullRequest' }}
+      run: dotnet pack ./<project>/.nupkgs -v:minimal --no-build
+      if: ${{ success() && github.event_name != 'pull_request' }}
 
-    - name: dotnet push
-      run: dotnet
-      with:
-        command: push
-        packagesToPush: $(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg
-        nuGetFeedType: internal
-        publishVstsFeed: 91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c
-        allowPackageConflicts: true
-      if: ${{ env['Build.Reason'] != 'PullRequest' }}
+    #- name: dotnet nuget push
+    #  run: dotnet nuget push ./<project>/.nupkgs/*.nupkg
+    #  with:
+    #    command: push
+    #    packagesToPush: $(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg
+    #    nuGetFeedType: internal
+    #    publishVstsFeed: 91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c
+    #    allowPackageConflicts: true
+    #  if: ${{ success() && github.event_name != 'pull_request' }}
 
     #- name: Analyze with SonarCloud
     #  uses: sonarsource/sonarcloud-github-action@master
