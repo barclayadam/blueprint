@@ -1,0 +1,96 @@
+pool:
+  vmImage: 'windows-latest'
+
+# Build Variables
+variables:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  Prerelease: 'ci'
+  BuildConfiguration: 'Release'
+
+# CI Trigger on master branch
+trigger:
+  batch: false
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+# Trigger builds for PR's targeting master
+pr:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+      - '**/*.md'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 5.0.x'
+    inputs:
+      packageType: 'sdk'
+      version: '5.0.x'
+      includePreviewVersions: true
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET 3.0.x'
+    inputs:
+      packageType: 'sdk'
+      version: '3.0.x'
+
+  - task: SonarCloudPrepare@1
+    displayName: 'SonarQube Preparation'
+    inputs:
+      SonarCloud: 'SonarCloud'
+      organization: 'barclayadam'
+      scannerMode: 'MSBuild'
+      projectKey: barclayadam_blueprint
+      projectName: Blueprint
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
+    inputs:
+      command: 'restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      command: 'build'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test'
+    inputs:
+      command: 'test'
+      arguments: '--configuration $(BuildConfiguration) -p:Prerelease=$(Prerelease) --no-build --no-restore --collect "Code coverage"'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet pack'
+    inputs:
+      command: 'pack'
+      outputDir: '$(Build.ArtifactStagingDirectory)/.nupkgs'
+      verbosityPack: 'minimal'
+      nobuild: true
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet push'
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/.nupkgs/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '91817c8d-b32d-4cea-8df3-57127121c593/1252a847-6abc-49a4-80ad-001f8ee7fd4c'
+      allowPackageConflicts: true
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: SonarCloudAnalyze@1
+    displayName: 'SonarCloud analysis'
+
+  - task: SonarCloudPublish@1
+    displayName: 'Publish SonarCloud results'
+    inputs:
+      pollingTimeoutSec: '300'
