@@ -30,7 +30,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup .NET SDK ${{ matrix.dotnet }}
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
 
