@@ -28,7 +28,7 @@ jobs:
         if: ${{ success() && github.event_name != 'pull_request' }}
 
       - name: dotnet nuget push
-        run: dotnet nuget push "*.nupkg" --source "github" --api-key "$env:TOKEN"
+        run: dotnet nuget push "*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "$env:TOKEN"
         env:
           TOKEN: ${{ secrets.NUGET_TOKEN }}
         working-directory: ${{ github.workspace }}/.nupkgs
