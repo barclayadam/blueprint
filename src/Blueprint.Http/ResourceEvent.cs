@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using MediatR;
 using Newtonsoft.Json;
 
 namespace Blueprint.Http
@@ -18,7 +17,7 @@ namespace Blueprint.Http
     /// both internal and external to the API a way of reacting to events (i.e. by removing from cache if a
     /// <see cref="ResourceEventChangeType.Deleted" /> event is returned.
     /// </remarks>
-    public class ResourceEvent : INotification
+    public class ResourceEvent
     {
         private readonly DateTimeOffset _created;
 
