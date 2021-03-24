@@ -1,9 +1,7 @@
 [![Build Status][build-shield]][build-url]
-[![Tests][test-shield]][test-url]
 [![Coverage][coverage-shield]][coverage-url]
 [![Quality][quality-shield]][quality-url]
 [![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![Apache 2.0 License][license-shield]][license-url]
@@ -87,140 +85,124 @@ public class WeatherForecastQueryExecutorPipeline : Blueprint.Api.IOperationExec
         _errorLogger = errorLogger;
     }
 
-    public class WeatherForecastQueryExecutorPipeline : Blueprint.Api.IOperationExecutorPipeline
+    public async System.Threading.Tasks.Task<Blueprint.Api.OperationResult> ExecuteAsync(Blueprint.Api.ApiOperationContext context)
     {
-        private readonly Microsoft.Extensions.Logging.ILogger _logger;
-        private readonly Blueprint.Sample.WebApi.Data.IWeatherDataSource _weatherDataSource;
-        private readonly Blueprint.Api.IApiLinkGenerator _apiLinkGenerator;
-        private readonly Blueprint.Core.Errors.IErrorLogger _errorLogger;
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var weatherForecastQuery = (Blueprint.Sample.WebApi.Api.WeatherForecastQuery) context.Operation;
+        var httpContext = Blueprint.Api.Http.ApiOperationContextHttpExtensions.GetHttpContext(context);
+        var requestTelemetry = httpContext.Features.Get<Microsoft.ApplicationInsights.DataContracts.RequestTelemetry>();
 
-        public WeatherForecastQueryExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.Sample.WebApi.Data.IWeatherDataSource weatherDataSource, Blueprint.Api.IApiLinkGenerator apiLinkGenerator, Blueprint.Core.Errors.IErrorLogger errorLogger)
+        try
         {
-            _logger = loggerFactory.CreateLogger("Blueprint.Sample.WebApi.Api.WeatherForecastQueryExecutorPipeline");
-            _weatherDataSource = weatherDataSource;
-            _apiLinkGenerator = apiLinkGenerator;
-            _errorLogger = errorLogger;
+            // ApplicationInsightsMiddleware
+            if (requestTelemetry != null)
+            {
+                requestTelemetry.Name = "WeatherForecastInline";
+            }
+
+            // MessagePopulationMiddlewareBuilder
+             var fromCookieMyCookie = httpContext.Request.Cookies["MyCookie"];
+            weatherForecastQuery.MyCookie = fromCookieMyCookie != null ? fromCookieMyCookie.ToString() : weatherForecastQuery.MyCookie;
+
+            var fromCookieMyCookieNumber = httpContext.Request.Cookies["a-different-cookie-name"];
+            weatherForecastQuery.MyCookieNumber = fromCookieMyCookieNumber != null ? int.Parse(fromCookieMyCookieNumber.ToString()) : weatherForecastQuery.MyCookieNumber;
+
+            var fromHeaderMyHeader = httpContext.Request.Headers["X-Header-Key"];
+            weatherForecastQuery.MyHeader = fromHeaderMyHeader != Microsoft.Extensions.Primitives.StringValues.Empty ? fromHeaderMyHeader.ToString() : weatherForecastQuery.MyHeader;
+
+            var fromQueryCity = httpContext.Request.Query["City"];
+            weatherForecastQuery.City = fromQueryCity != Microsoft.Extensions.Primitives.StringValues.Empty ? fromQueryCity.ToString() : weatherForecastQuery.City;
+
+            var fromQueryDays = httpContext.Request.Query["Days"] == Microsoft.Extensions.Primitives.StringValues.Empty ? httpContext.Request.Query["Days[]"] : httpContext.Request.Query["Days"];
+            weatherForecastQuery.Days = fromQueryDays != Microsoft.Extensions.Primitives.StringValues.Empty ? (System.String[]) Blueprint.Api.Http.MessagePopulation.HttpPartMessagePopulationSource.ConvertValue("Days", fromQueryDays, typeof(System.String[])) : weatherForecastQuery.Days;
+
+            // ValidationMiddlewareBuilder
+            var validationFailures = new Blueprint.Api.Validation.ValidationFailures();
+            var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(weatherForecastQuery);
+            validationContext.MemberName = "City";
+            validationContext.DisplayName = "City";
+
+            // context.Descriptor.Properties[0] == WeatherForecastQuery.City
+            foreach (var attribute in context.Descriptor.PropertyAttributes[0])
+            {
+                if (attribute is System.ComponentModel.DataAnnotations.ValidationAttribute x)
+                {
+                    var result =  x.GetValidationResult(weatherForecastQuery.City, validationContext);
+                    if (result != System.ComponentModel.DataAnnotations.ValidationResult.Success)
+                    {
+                        validationFailures.AddFailure(result);
+                    }
+                }
+            }
+
+            if (validationFailures.Count > 0)
+            {
+                var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(validationFailures);
+                return validationFailedOperationResult;
+            }
+
+            // OperationExecutorMiddlewareBuilder
+            _logger.Log(Microsoft.Extensions.Logging.LogLevel.Debug, "Executing API operation. handler_type=WeatherForecastQuery");
+            var handlerResult = weatherForecastQuery.Invoke(_weatherDataSource);
+            Blueprint.Api.OperationResult operationResult = handlerResult;
+
+            // LinkGeneratorMiddlewareBuilder
+            var resourceLinkGeneratorIEnumerable = context.ServiceProvider.GetRequiredService<System.Collections.Generic.IEnumerable<Blueprint.Api.IResourceLinkGenerator>>();
+            await Blueprint.Api.Middleware.LinkGeneratorHandler.AddLinksAsync(_apiLinkGenerator, resourceLinkGeneratorIEnumerable, context, operationResult);
+
+            // BackgroundTaskRunnerMiddleware
+            var backgroundTaskScheduler = context.ServiceProvider.GetRequiredService<Blueprint.Tasks.IBackgroundTaskScheduler>();
+            await backgroundTaskScheduler.RunNowAsync();
+
+            // ReturnFrameMiddlewareBuilder
+            return operationResult;
         }
-
-        public async System.Threading.Tasks.Task<Blueprint.Api.OperationResult> ExecuteAsync(Blueprint.Api.ApiOperationContext context)
+        catch (Blueprint.Api.Validation.ValidationException e)
         {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var weatherForecastQuery = (Blueprint.Sample.WebApi.Api.WeatherForecastQuery) context.Operation;
-            var httpContext = Blueprint.Api.Http.ApiOperationContextHttpExtensions.GetHttpContext(context);
-            var requestTelemetry = httpContext.Features.Get<Microsoft.ApplicationInsights.DataContracts.RequestTelemetry>();
-            
-            try
+            var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(e.ValidationResults);
+            return validationFailedOperationResult;
+        }
+        catch (System.ComponentModel.DataAnnotations.ValidationException e)
+        {
+            var validationFailedOperationResult = Blueprint.Api.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
+            return validationFailedOperationResult;
+        }
+        catch (System.Exception e)
+        {
+            var userAuthorisationContext = context.UserAuthorisationContext;
+            var identifier = new Blueprint.Core.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
+
+            userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
+            e.Data["WeatherForecastQuery.City"] = weatherForecastQuery.City?.ToString();
+            e.Data["WeatherForecastQuery.MyHeader"] = weatherForecastQuery.MyHeader?.ToString();
+            e.Data["WeatherForecastQuery.MyCookie"] = weatherForecastQuery.MyCookie?.ToString();
+            e.Data["WeatherForecastQuery.MyCookieNumber"] = weatherForecastQuery.MyCookieNumber.ToString();
+
+            _errorLogger.Log(e, identifier);
+
+            if (requestTelemetry != null)
             {
-                // ApplicationInsightsMiddleware
-                if (requestTelemetry != null)
+                requestTelemetry.Success = false;
+            }
+
+            return new Blueprint.Api.UnhandledExceptionOperationResult(e);
+        }
+        finally
+        {
+            var userContext = context.UserAuthorisationContext;
+            if (requestTelemetry != null)
+            {
+                if (userContext != null && userContext.IsAnonymous == false)
                 {
-                    requestTelemetry.Name = "WeatherForecastInline";
+                    requestTelemetry.Context.User.AuthenticatedUserId = userContext.Id;
+                    requestTelemetry.Context.User.AccountId = userContext.AccountId;
                 }
 
-                // MessagePopulationMiddlewareBuilder
-                 var fromCookieMyCookie = httpContext.Request.Cookies["MyCookie"];
-                weatherForecastQuery.MyCookie = fromCookieMyCookie != null ? fromCookieMyCookie.ToString() : weatherForecastQuery.MyCookie;
-
-                var fromCookieMyCookieNumber = httpContext.Request.Cookies["a-different-cookie-name"];
-                weatherForecastQuery.MyCookieNumber = fromCookieMyCookieNumber != null ? int.Parse(fromCookieMyCookieNumber.ToString()) : weatherForecastQuery.MyCookieNumber;
-
-                var fromHeaderMyHeader = httpContext.Request.Headers["X-Header-Key"];
-                weatherForecastQuery.MyHeader = fromHeaderMyHeader != Microsoft.Extensions.Primitives.StringValues.Empty ? fromHeaderMyHeader.ToString() : weatherForecastQuery.MyHeader;
-
-                var fromQueryCity = httpContext.Request.Query["City"];
-                weatherForecastQuery.City = fromQueryCity != Microsoft.Extensions.Primitives.StringValues.Empty ? fromQueryCity.ToString() : weatherForecastQuery.City;
-
-                var fromQueryDays = httpContext.Request.Query["Days"] == Microsoft.Extensions.Primitives.StringValues.Empty ? httpContext.Request.Query["Days[]"] : httpContext.Request.Query["Days"];
-                weatherForecastQuery.Days = fromQueryDays != Microsoft.Extensions.Primitives.StringValues.Empty ? (System.String[]) Blueprint.Api.Http.MessagePopulation.HttpPartMessagePopulationSource.ConvertValue("Days", fromQueryDays, typeof(System.String[])) : weatherForecastQuery.Days;
-
-                // ValidationMiddlewareBuilder
-                var validationFailures = new Blueprint.Api.Validation.ValidationFailures();
-                var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(weatherForecastQuery);
-                validationContext.MemberName = "City";
-                validationContext.DisplayName = "City";
-
-                // context.Descriptor.Properties[0] == WeatherForecastQuery.City
-                foreach (var attribute in context.Descriptor.PropertyAttributes[0])
-                {
-                    if (attribute is System.ComponentModel.DataAnnotations.ValidationAttribute x)
-                    {
-                        var result =  x.GetValidationResult(weatherForecastQuery.City, validationContext);
-                        if (result != System.ComponentModel.DataAnnotations.ValidationResult.Success)
-                        {
-                            validationFailures.AddFailure(result);
-                        }
-                    }
-                }
-
-                if (validationFailures.Count > 0)
-                {
-                    var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(validationFailures);
-                    return validationFailedOperationResult;
-                }
-
-                // OperationExecutorMiddlewareBuilder
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Debug, "Executing API operation. handler_type=WeatherForecastQuery");
-                var handlerResult = weatherForecastQuery.Invoke(_weatherDataSource);
-                Blueprint.Api.OperationResult operationResult = handlerResult;
-
-                // LinkGeneratorMiddlewareBuilder
-                var resourceLinkGeneratorIEnumerable = context.ServiceProvider.GetRequiredService<System.Collections.Generic.IEnumerable<Blueprint.Api.IResourceLinkGenerator>>();
-                await Blueprint.Api.Middleware.LinkGeneratorHandler.AddLinksAsync(_apiLinkGenerator, resourceLinkGeneratorIEnumerable, context, operationResult);
-
-                // BackgroundTaskRunnerMiddleware
-                var backgroundTaskScheduler = context.ServiceProvider.GetRequiredService<Blueprint.Tasks.IBackgroundTaskScheduler>();
-                await backgroundTaskScheduler.RunNowAsync();
-
-                // ReturnFrameMiddlewareBuilder
-                return operationResult;
+                requestTelemetry.Success = requestTelemetry.Success ?? true;
             }
-            catch (Blueprint.Api.Validation.ValidationException e)
-            {
-                var validationFailedOperationResult = new Blueprint.Api.Middleware.ValidationFailedOperationResult(e.ValidationResults);
-                return validationFailedOperationResult;
-            }
-            catch (System.ComponentModel.DataAnnotations.ValidationException e)
-            {
-                var validationFailedOperationResult = Blueprint.Api.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
-                return validationFailedOperationResult;
-            }
-            catch (System.Exception e)
-            {
-                var userAuthorisationContext = context.UserAuthorisationContext;
-                var identifier = new Blueprint.Core.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
 
-                userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
-                e.Data["WeatherForecastQuery.City"] = weatherForecastQuery.City?.ToString();
-                e.Data["WeatherForecastQuery.MyHeader"] = weatherForecastQuery.MyHeader?.ToString();
-                e.Data["WeatherForecastQuery.MyCookie"] = weatherForecastQuery.MyCookie?.ToString();
-                e.Data["WeatherForecastQuery.MyCookieNumber"] = weatherForecastQuery.MyCookieNumber.ToString();
-
-                _errorLogger.Log(e, identifier);
-
-                if (requestTelemetry != null)
-                {
-                    requestTelemetry.Success = false;
-                }
-
-                return new Blueprint.Api.UnhandledExceptionOperationResult(e);
-            }
-            finally
-            {
-                var userContext = context.UserAuthorisationContext;
-                if (requestTelemetry != null)
-                {
-                    if (userContext != null && userContext.IsAnonymous == false)
-                    {
-                        requestTelemetry.Context.User.AuthenticatedUserId = userContext.Id;
-                        requestTelemetry.Context.User.AccountId = userContext.AccountId;
-                    }
-
-                    requestTelemetry.Success = requestTelemetry.Success ?? true;
-                }
-
-                stopwatch.Stop();
-                _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "Operation {0} finished in {1}ms", "Blueprint.Sample.WebApi.Api.WeatherForecastQuery", stopwatch.Elapsed.TotalMilliseconds);
-            }
+            stopwatch.Stop();
+            _logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "Operation {0} finished in {1}ms", "Blueprint.Sample.WebApi.Api.WeatherForecastQuery", stopwatch.Elapsed.TotalMilliseconds);
         }
     }
 }
@@ -325,18 +307,14 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
  was present in Lamar before being changed to using Expressions for compilation
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[build-shield]: https://img.shields.io/azure-devops/build/blueprint-api/blueprint/1?style=flat-square
+[build-shield]: https://img.shields.io/github/workflow/status/barclayadam/blueprint/Blueprint%20Build?style=flat-square
 [build-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
-[test-shield]: https://img.shields.io/azure-devops/tests/blueprint-api/blueprint/1?style=flat-square
-[test-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
-[coverage-shield]: https://img.shields.io/azure-devops/coverage/blueprint-api/blueprint/1?style=flat-square
-[coverage-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
+[coverage-shield]: https://img.shields.io/sonar/coverage/barclayadam_blueprint?server=https%3A%2F%2Fsonarcloud.io?style=flat-square
+[coverage-url]: https://sonarcloud.io/component_measures?id=barclayadam_blueprint&metric=Coverage
 [quality-shield]: https://sonarcloud.io/api/project_badges/measure?project=barclayadam_blueprint&metric=alert_status
 [quality-url]: https://sonarcloud.io/dashboard?id=barclayadam_blueprint
 [contributors-shield]: https://img.shields.io/github/contributors/barclayadam/blueprint.svg?style=flat-square
 [contributors-url]: https://github.com/barclayadam/blueprint/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/barclayadam/blueprint.svg?style=flat-square
-[forks-url]: https://github.com/barclayadam/blueprint/network/members
 [stars-shield]: https://img.shields.io/github/stars/barclayadam/blueprint.svg?style=flat-square
 [stars-url]: https://github.com/barclayadam/blueprint/stargazers
 [issues-shield]: https://img.shields.io/github/issues/barclayadam/blueprint.svg?style=flat-square
