@@ -17,9 +17,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
         /// <returns>This builder for further configuration.</returns>
-        public static BlueprintApiBuilder AddDataDog(this BlueprintApiBuilder pipelineBuilder)
+        public static BlueprintApiBuilder AddDatadog(this BlueprintApiBuilder pipelineBuilder)
         {
-            pipelineBuilder.Services.AddSingleton<IApmTool, DataDogApmTool>();
+            pipelineBuilder.Services.AddSingleton<IApmTool, DatadogApmTool>();
 
             return pipelineBuilder;
         }

@@ -7,7 +7,7 @@ namespace Blueprint.Apm.DataDog
     /// <summary>
     /// An <see cref="IApmTool" /> that integrates with DataDog APM.
     /// </summary>
-    public class DataDogApmTool : IApmTool
+    public class DatadogApmTool : IApmTool
     {
         /// <inheritdoc />
         public IApmSpan StartOperation(ApiOperationDescriptor operation, string spanKind, IDictionary<string, string> existingContext = null)
@@ -61,10 +61,10 @@ namespace Blueprint.Apm.DataDog
 
         private class OpenTracingSpan : IApmSpan
         {
-            private readonly DataDogApmTool _tool;
+            private readonly DatadogApmTool _tool;
             private readonly Scope _scope;
 
-            public OpenTracingSpan(DataDogApmTool tool, Scope scope)
+            public OpenTracingSpan(DatadogApmTool tool, Scope scope)
             {
                 this._tool = tool;
                 this._scope = scope;
