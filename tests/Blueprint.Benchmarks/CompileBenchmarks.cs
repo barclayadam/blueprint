@@ -4,7 +4,6 @@ using BenchmarkDotNet.Attributes;
 using Blueprint.Compiler;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Blueprint.Benchmarks
 {
@@ -17,7 +16,7 @@ namespace Blueprint.Benchmarks
         [GlobalSetup]
         public void SetupGenerator()
         {
-            generator = new AssemblyGenerator(new NullLogger<AssemblyGenerator>(), new DoNothingCompileStrategy());
+            generator = new AssemblyGenerator(new DoNothingCompileStrategy());
 
             for (var i = 0; i < 50; i++)
             {

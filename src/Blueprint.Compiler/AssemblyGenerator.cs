@@ -8,16 +8,14 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Compiler
 {
     /// <summary>
-    /// Use to compile C# code to in memory assemblies using the Roslyn compiler.
+    /// Used to compile C# code to in memory assemblies using the Roslyn compiler.
     /// </summary>
-    public class AssemblyGenerator : IAssemblyGenerator
+    public class AssemblyGenerator
     {
-        private readonly ILogger<AssemblyGenerator> _logger;
         private readonly ICompileStrategy _compileStrategy;
 
         private readonly List<Assembly> _referencedAssemblies = new List<Assembly>();
@@ -28,11 +26,9 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyGenerator" /> class.
         /// </summary>
-        /// <param name="logger">A logger for this class.</param>
         /// <param name="compileStrategy">The compilation strategy to use to actually build and load the assemblies.</param>
-        public AssemblyGenerator(ILogger<AssemblyGenerator> logger, ICompileStrategy compileStrategy)
+        public AssemblyGenerator(ICompileStrategy compileStrategy)
         {
-            this._logger = logger;
             this._compileStrategy = compileStrategy;
 
             this.ReferenceAssemblyContainingType<object>();
@@ -40,7 +36,11 @@ namespace Blueprint.Compiler
             this.ReferenceAssemblyContainingType<Task>();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Tells Roslyn to reference the given assembly and any of its dependencies
+        /// when compiling code.
+        /// </summary>
+        /// <param name="assembly">The assembly to reference.</param>
         public void ReferenceAssembly(Assembly assembly)
         {
             if (assembly == null)
@@ -56,7 +56,12 @@ namespace Blueprint.Compiler
             this._referencedAssemblies.Add(assembly);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Adds a file to this assembly with the specified name and code.
+        /// </summary>
+        /// <param name="fileName">The name of the file, which may contain</param>
+        /// <param name="code">The code of the file.</param>
+        /// <exception cref="ArgumentException">If a file of the same name already exists.</exception>
         public void AddFile(string fileName, string code)
         {
             if (this._files.Any(f => f.FileName == fileName))
@@ -104,8 +109,6 @@ namespace Blueprint.Compiler
 
                 syntaxTrees.Add(syntaxTree);
             }
-
-            this._logger.LogDebug("Generating compilation unit for {0}. Optimization level is {1}", assemblyName, rules.OptimizationLevel);
 
             var compilation = CSharpCompilation.Create(
                 assemblyName,
@@ -184,9 +187,34 @@ namespace Blueprint.Compiler
 
                         var allCode = string.Join("\n\n", this._files.Select(f => f.Code));
 
-                        throw new CompilationException(exceptionMessage.ToString()) {Failures = failures, Code = allCode,};
+                        throw new CompilationException(exceptionMessage.ToString())
+                        {
+                            Failures = failures,
+                            Code = allCode,
+                        };
                     }
                 });
+        }
+
+        private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
+        {
+            if (line <= 0 || line >= fileLines.Count)
+            {
+                return;
+            }
+
+            var lineToOutput = fileLines[line];
+            exceptionMessage.AppendLine(lineToOutput);
+        }
+
+        private static string AssemblyLocationOrNull(Assembly assembly)
+        {
+            if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
+            {
+                return null;
+            }
+
+            return assembly.Location;
         }
 
         private List<MetadataReference> GetAllReferences()
@@ -256,27 +284,6 @@ namespace Blueprint.Compiler
         private void ReferenceAssemblyContainingType<T>()
         {
             this.ReferenceAssembly(typeof(T).GetTypeInfo().Assembly);
-        }
-
-        private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
-        {
-            if (line <= 0 || line >= fileLines.Count)
-            {
-                return;
-            }
-
-            var lineToOutput = fileLines[line];
-            exceptionMessage.AppendLine(lineToOutput);
-        }
-
-        private static string AssemblyLocationOrNull(Assembly assembly)
-        {
-            if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
-            {
-                return null;
-            }
-
-            return assembly.Location;
         }
 
         private class SourceFile

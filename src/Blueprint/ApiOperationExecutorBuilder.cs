@@ -22,6 +22,10 @@ namespace Blueprint
         private readonly HashSet<Assembly> _references = new HashSet<Assembly>();
         private readonly List<IMiddlewareBuilder> _builders = new List<IMiddlewareBuilder>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiOperationExecutorBuilder"/> class.
+        /// </summary>
+        /// <param name="logger">A logger.</param>
         public ApiOperationExecutorBuilder(ILogger<ApiOperationExecutorBuilder> logger)
         {
             this._logger = logger;
@@ -34,9 +38,9 @@ namespace Blueprint
         /// <see cref="IApiOperationExecutor" /> that can be used to execute any operation that
         /// has been identified by the model of the options passed.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
+        /// <param name="options">The configured options.</param>
+        /// <param name="serviceProvider">The configured service provider.</param>
+        /// <returns>An executor built from the given options and data model.</returns>
         public CodeGennedExecutor Build(BlueprintApiOptions options, IServiceProvider serviceProvider)
         {
             var model = options.Model;
@@ -56,9 +60,9 @@ namespace Blueprint
             //    the existence of an existing DLL
 
             // 1. Try and find an already loaded assembly
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var loadedAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.GetName().Name == options.GenerationRules.AssemblyName)
+                if (loadedAssembly.GetName().Name == options.GenerationRules.AssemblyName)
                 {
                     // The assembly exists in the current domain, therefore it has either already been generated in this
                     // process OR it has previously been compiled and loaded as part of normal assembly loading (pre-compiled
@@ -66,7 +70,7 @@ namespace Blueprint
 
                     this._logger.LogInformation("Assembly {AssemblyName} already exists, using to create executor.", options.GenerationRules.AssemblyName);
 
-                    return CreateFromAssembly(options, serviceProvider, model, assembly);
+                    return CreateFromAssembly(options, serviceProvider, model, loadedAssembly);
                 }
             }
 
@@ -91,65 +95,64 @@ namespace Blueprint
             // to a temp folder or stored to the project output folder)
             this._logger.LogInformation("Building Blueprint API operation executor for {0} operations", options.Model.Operations.Count());
 
-            using (var serviceScope = serviceProvider.CreateScope())
+            using var serviceScope = serviceProvider.CreateScope();
+
+            foreach (var middleware in options.MiddlewareBuilders)
             {
-                foreach (var middleware in options.MiddlewareBuilders)
-                {
-                    this.Use(middleware);
-                }
-
-                var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
-
-                // Start the definition for a new generated assembly
-                var assembly = new GeneratedAssembly(options.GenerationRules);
-
-                foreach (var operation in model.Operations)
-                {
-                    this._references.Add(operation.OperationType.Assembly);
-                }
-
-                foreach (var a in this._references)
-                {
-                    this._logger.LogDebug("Referencing assembly {0}", a.FullName);
-
-                    assembly.ReferenceAssembly(a);
-                }
-
-                foreach (var operation in model.Operations)
-                {
-                    this._logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
-
-                    var typeName = NormaliseTypeName(operation);
-
-                    var pipelineExecutorType = assembly.AddType(
-                        operation.OperationType.Namespace,
-                        typeName,
-                        typeof(IOperationExecutorPipeline));
-
-                    // We need to set up a LoggerVariable once, to be shared between methods
-                    pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(typeName));
-
-                    var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
-                    var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
-
-                    this.Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
-                    this.Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
-
-                    typeToCreationMappings.Add(
-                        operation.OperationType,
-                        () => pipelineExecutorType.CompiledType);
-                }
-
-                this._logger.LogInformation("Compiling {0} pipeline executors", typeToCreationMappings.Count);
-                assembly.CompileAll(serviceProvider.GetRequiredService<IAssemblyGenerator>());
-                this._logger.LogInformation("Done compiling {0} pipeline executors", typeToCreationMappings.Count);
-
-                return new CodeGennedExecutor(
-                    serviceProvider,
-                    model,
-                    assembly,
-                    typeToCreationMappings);
+                this.Use(middleware);
             }
+
+            var typeToCreationMappings = new Dictionary<Type, Func<Type>>();
+
+            // Start the definition for a new generated assembly
+            var assembly = new GeneratedAssembly(options.GenerationRules);
+
+            foreach (var operation in model.Operations)
+            {
+                this._references.Add(operation.OperationType.Assembly);
+            }
+
+            foreach (var a in this._references)
+            {
+                this._logger.LogDebug("Referencing assembly {0}", a.FullName);
+
+                assembly.ReferenceAssembly(a);
+            }
+
+            foreach (var operation in model.Operations)
+            {
+                this._logger.LogDebug("Generating executor for {0}", operation.OperationType.FullName);
+
+                var typeName = NormaliseTypeName(operation);
+
+                var pipelineExecutorType = assembly.AddType(
+                    operation.OperationType.Namespace,
+                    typeName,
+                    typeof(IOperationExecutorPipeline));
+
+                // We need to set up a LoggerVariable once, to be shared between methods
+                pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(typeName));
+
+                var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
+                var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
+
+                this.Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
+                this.Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
+
+                typeToCreationMappings.Add(
+                    operation.OperationType,
+                    () => pipelineExecutorType.CompiledType);
+            }
+
+            this._logger.LogInformation("Compiling {0} pipeline executors", typeToCreationMappings.Count);
+            assembly.CompileAll(serviceProvider.GetRequiredService<ICompileStrategy>());
+            this._logger.LogInformation("Done compiling {0} pipeline executors", typeToCreationMappings.Count);
+
+            return new CodeGennedExecutor(
+                serviceProvider,
+                model,
+                assembly,
+                typeToCreationMappings);
         }
 
         private static CodeGennedExecutor CreateFromAssembly(BlueprintApiOptions options, IServiceProvider serviceProvider, ApiDataModel model, Assembly assembly)

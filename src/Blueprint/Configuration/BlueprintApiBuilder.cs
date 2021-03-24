@@ -207,7 +207,6 @@ namespace Blueprint.Configuration
             this.Services.AddSingleton(this.Services);
 
             // Compilation
-            this.Services.TryAddSingleton<IAssemblyGenerator, AssemblyGenerator>();
             this.Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(this._options, s));
 
             // Model / Links / Options

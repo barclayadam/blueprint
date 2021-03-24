@@ -74,17 +74,15 @@ namespace Blueprint.Compiler.Tests.Scenarios
 
             configuration(generatedType, method);
 
-            var generator = new AssemblyGenerator(new NullLogger<AssemblyGenerator>(), new InMemoryOnlyCompileStrategy(new NullLogger<InMemoryOnlyCompileStrategy>()));
-
             if (typeof(TObject).IsGenericType)
             {
                 foreach (var genericTypeArgument in typeof(TObject).GenericTypeArguments)
                 {
-                    generator.ReferenceAssembly(genericTypeArgument.Assembly);
+                    assembly.ReferenceAssembly(genericTypeArgument.Assembly);
                 }
             }
 
-            assembly.CompileAll(generator);
+            assembly.CompileAll(new InMemoryOnlyCompileStrategy(new NullLogger<InMemoryOnlyCompileStrategy>()));
 
             return new CodegenResult<TObject>(generatedType.CreateInstance<TObject>(), generatedType.SourceCode);
         }

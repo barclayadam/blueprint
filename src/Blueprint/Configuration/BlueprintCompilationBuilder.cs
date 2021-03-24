@@ -95,12 +95,5 @@ namespace Blueprint.Configuration
 
             return this;
         }
-
-        private BlueprintCompilationBuilder UseCompileStrategy<T>() where T : class, ICompileStrategy
-        {
-            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, T>();
-
-            return this;
-        }
     }
 }

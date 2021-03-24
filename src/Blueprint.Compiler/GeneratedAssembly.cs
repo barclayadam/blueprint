@@ -6,18 +6,34 @@ using System.Threading.Tasks;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A container of <see cref="GeneratedType" />s that can be collected together and compiled at runtime
+    /// to generate a new <see cref="Assembly" /> from runtime generated code.
+    /// </summary>
     public class GeneratedAssembly
     {
         private readonly GenerationRules _generationRules;
         private readonly HashSet<Assembly> _assemblies = new HashSet<Assembly>();
+        private readonly List<GeneratedType> _generatedTypes = new List<GeneratedType>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeneratedAssembly"/> class.
+        /// </summary>
+        /// <param name="generationRules">A set of rules that determine <em>how</em> an assembly is generated / compiled.</param>
         public GeneratedAssembly(GenerationRules generationRules)
         {
             this._generationRules = generationRules;
         }
 
-        public List<GeneratedType> GeneratedTypes { get; } = new List<GeneratedType>();
+        /// <summary>
+        /// A list of all <see cref="GeneratedTypes" /> that have been added to this assembly.
+        /// </summary>
+        public IReadOnlyList<GeneratedType> GeneratedTypes => this._generatedTypes;
 
+        /// <summary>
+        /// References the given assembly in the assembly when it is compiled.
+        /// </summary>
+        /// <param name="assembly">The assembly to reference.</param>
         public void ReferenceAssembly(Assembly assembly)
         {
             this._assemblies.Add(assembly);
@@ -28,6 +44,7 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <param name="namespace">The namespace of the type.</param>
         /// <param name="typeName">The name of the type / class.</param>
+        /// <param name="baseType">The base type of the new type, if any.</param>
         /// <returns>A new <see cref="GeneratedType" />.</returns>
         /// <exception cref="ArgumentException">If a type already exists.</exception>
         public GeneratedType AddType(string @namespace, string typeName, Type baseType)
@@ -48,13 +65,15 @@ namespace Blueprint.Compiler
                 generatedType.InheritsFrom(baseType);
             }
 
-            this.GeneratedTypes.Add(generatedType);
+            this._generatedTypes.Add(generatedType);
 
             return generatedType;
         }
 
-        public void CompileAll(IAssemblyGenerator generator)
+        public void CompileAll(ICompileStrategy compileStrategy)
         {
+            var generator = new AssemblyGenerator(compileStrategy);
+
             foreach (var assemblyReference in this._assemblies)
             {
                 generator.ReferenceAssembly(assemblyReference);
