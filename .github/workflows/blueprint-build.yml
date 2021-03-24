@@ -1,10 +1,7 @@
 name: Blueprint Build
 
-# Build Variables
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  Prerelease: ci
-  BuildConfiguration: Release
 
 ## CI Trigger on master branch
 on:
@@ -47,13 +44,13 @@ jobs:
       run: dotnet restore
 
     - name: dotnet build
-      run: dotnet build --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-restore
+      run: dotnet build --configuration Release -p:Prerelease=${{ env.Prerelease }} --no-restore
 
     - name: dotnet test
-      run: dotnet test --configuration ${{ env.BuildConfiguration }} -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
+      run: dotnet test --configuration Release -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
 
     - name: dotnet pack
-      run: dotnet pack --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
+      run: dotnet pack --configuration Release --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
       if: ${{ success() && github.event_name != 'pull_request' }}
 
     - name: dotnet nuget push

@@ -1,5 +1,8 @@
 name: Blueprint Release
 
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
 on:
   push:
     tags:
@@ -10,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: dotnet pack
-        run: dotnet pack --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/.nupkgs -verbosity:minimal
+        run: dotnet pack --configuration Release --output ${{ github.workspace }}/.nupkgs -verbosity:minimal
         if: ${{ success() && github.event_name != 'pull_request' }}
 
       - name: dotnet nuget push
