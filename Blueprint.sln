@@ -84,7 +84,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.Elastic", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.OpenTracing", "src\Blueprint.Apm.OpenTracing\Blueprint.Apm.OpenTracing.csproj", "{BD6B4F26-3A27-4592-9F86-9EBF5B6DA8F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.DataDog", "src\Blueprint.Apm.DataDog\Blueprint.Apm.DataDog.csproj", "{426F1FA9-1ACD-45C8-956F-77C4F0FFE21A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Apm.Datadog", "src\Blueprint.Apm.Datadog\Blueprint.Apm.Datadog.csproj", "{426F1FA9-1ACD-45C8-956F-77C4F0FFE21A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Benchmarks", "tests\Blueprint.Benchmarks\Blueprint.Benchmarks.csproj", "{8D8BA677-3EB2-4FD5-BC1A-4876E6BD06EB}"
 EndProject
