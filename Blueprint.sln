@@ -44,7 +44,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blueprint.Sample.Console.Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1607A208-63F6-4816-BD68-CBAE9B703157}"
 	ProjectSection(SolutionItems) = preProject
-		azure-pipelines.yml = azure-pipelines.yml
 		.github\workflows\blueprint-build.yml = .github\workflows\blueprint-build.yml
 		.github\workflows\blueprint-release.yml = .github\workflows\blueprint-release.yml
 		sonar-project.properties = sonar-project.properties
