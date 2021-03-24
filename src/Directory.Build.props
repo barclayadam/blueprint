@@ -38,6 +38,8 @@
     <CodeAnalysisDictionary>$(MSBuildThisFileDirectory)CustomDictionary.xml</CodeAnalysisDictionary>
 
     <DefineConstants>$(DefineConstants);JETBRAINS_ANNOTATIONS</DefineConstants>
+
+    <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
 
   <ItemGroup>
