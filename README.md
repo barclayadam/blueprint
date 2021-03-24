@@ -307,17 +307,17 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
  was present in Lamar before being changed to using Expressions for compilation
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[build-shield]: https://img.shields.io/github/workflow/status/barclayadam/blueprint/Blueprint%20Build?style=flat-square
+[build-shield]: https://img.shields.io/github/workflow/status/barclayadam/blueprint/Blueprint%20Build?style=flat
 [build-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
-[coverage-shield]: https://img.shields.io/sonar/coverage/barclayadam_blueprint?server=https%3A%2F%2Fsonarcloud.io?style=flat-square
+[coverage-shield]: https://img.shields.io/sonar/coverage/barclayadam_blueprint?server=https%3A%2F%2Fsonarcloud.io
 [coverage-url]: https://sonarcloud.io/component_measures?id=barclayadam_blueprint&metric=Coverage
 [quality-shield]: https://sonarcloud.io/api/project_badges/measure?project=barclayadam_blueprint&metric=alert_status
 [quality-url]: https://sonarcloud.io/dashboard?id=barclayadam_blueprint
-[contributors-shield]: https://img.shields.io/github/contributors/barclayadam/blueprint.svg?style=flat-square
+[contributors-shield]: https://img.shields.io/github/contributors/barclayadam/blueprint.svg?style=flat
 [contributors-url]: https://github.com/barclayadam/blueprint/graphs/contributors
-[stars-shield]: https://img.shields.io/github/stars/barclayadam/blueprint.svg?style=flat-square
+[stars-shield]: https://img.shields.io/github/stars/barclayadam/blueprint.svg?style=flat
 [stars-url]: https://github.com/barclayadam/blueprint/stargazers
-[issues-shield]: https://img.shields.io/github/issues/barclayadam/blueprint.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/barclayadam/blueprint.svg?style=flat
 [issues-url]: https://github.com/barclayadam/blueprint/issues
-[license-shield]: https://img.shields.io/github/license/barclayadam/blueprint.svg?style=flat-square
+[license-shield]: https://img.shields.io/github/license/barclayadam/blueprint.svg?style=flat
 [license-url]: https://github.com/barclayadam/blueprint/blob/master/LICENSE.md
