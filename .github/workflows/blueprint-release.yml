@@ -14,9 +14,10 @@ jobs:
         if: ${{ success() && github.event_name != 'pull_request' }}
 
       - name: dotnet nuget push
-        run: dotnet nuget push ${{ github.workspace }}/.nupkgs/*.nupkg --source "github" --api-key %TOKEN%
+        run: dotnet nuget push "*.nupkg" --source "github" --api-key %TOKEN%
         env:
           token: ${{ secrets.NUGET_TOKEN }}
+        working-directory: ${{ github.workspace }}/.nupkgs
         if: ${{ success() && github.event_name != 'pull_request' }}
 
       - name: Tagged Release
