@@ -22,8 +22,14 @@ jobs:
         with:
           dotnet-version: '5.0.x'
 
+      - name: dotnet restore
+        run: dotnet restore
+
+      - name: dotnet build
+        run: dotnet build --configuration Release --no-restore
+
       - name: dotnet pack
-        run: dotnet pack --configuration Release --output ${{ github.workspace }}/.nupkgs -verbosity:minimal
+        run: dotnet pack --configuration Release --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
         if: ${{ success() && github.event_name != 'pull_request' }}
 
       - name: dotnet nuget push

@@ -39,10 +39,10 @@ jobs:
       run: dotnet restore
 
     - name: dotnet build
-      run: dotnet build --configuration Release -p:Prerelease=${{ env.Prerelease }} --no-restore
+      run: dotnet build --configuration Release --no-restore
 
     - name: dotnet test
-      run: dotnet test --configuration Release -p:Prerelease=${{ env.Prerelease }} --no-build --no-restore --collect "Code coverage"
+      run: dotnet test --configuration Release --no-build --no-restore --collect "Code coverage"
 
     - name: dotnet pack
       run: dotnet pack --configuration Release --output ${{ github.workspace }}/.nupkgs -verbosity:minimal --no-build
