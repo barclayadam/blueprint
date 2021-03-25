@@ -163,7 +163,6 @@ namespace Blueprint.Tests.Http
             actual.Should().Be(expected);
         }
 
-
         [Test]
         public void Write_WithNull_DictionaryKeyPolicy_Works()
         {
