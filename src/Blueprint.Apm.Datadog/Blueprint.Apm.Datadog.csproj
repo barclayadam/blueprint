@@ -4,6 +4,7 @@
     <Title>Blueprint - OpenTracing APM Provider</Title>
     <Description>Blueprint: Integrates Datadog APM with Blueprint API projects</Description>
     <PackageTags>Datadog;APM;$(PackageBaseTags)</PackageTags>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Datadog.Trace" Version="1.17.0" />
