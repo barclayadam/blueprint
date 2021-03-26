@@ -97,8 +97,8 @@ namespace Blueprint.Tests.Http
             var traceId = "|37dd3dd5-4a9619f953c40a16.";
             var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
             {
-                { "key0", new [] { "error0" } },
-                { "Key1", new [] { "error1", "error2" } }
+                { "Property0", new [] { "error0" } },
+                { "Property1", new [] { "error1", "error2" } }
             })
             {
                 Title = "Not found",
@@ -106,13 +106,13 @@ namespace Blueprint.Tests.Http
                 Status = 404,
                 Detail = "Product not found",
                 Instance = "http://example.com/products/14",
-                Extensions = new Dictionary<string, object>()
+                Extensions = new Dictionary<string, object>
                 {
                     { "traceId", traceId },
                     { "some-data", new[] { "value1", "value2" } }
                 },
             };
-            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"detail\":\"{value.Detail}\",\"instance\":\"{JsonEncodedText.Encode(value.Instance)}\",\"traceId\":\"{traceId}\",\"some-data\":[\"value1\",\"value2\"],\"errors\":{{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}}}";
+            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"detail\":\"{value.Detail}\",\"instance\":\"{JsonEncodedText.Encode(value.Instance)}\",\"traceId\":\"{traceId}\",\"some-data\":[\"value1\",\"value2\"],\"errors\":{{\"property0\":[\"error0\"],\"property1\":[\"error1\",\"error2\"]}}}}";
             var converter = new ValidationProblemDetailsJsonConverter();
             var stream = new MemoryStream();
 
@@ -153,11 +153,11 @@ namespace Blueprint.Tests.Http
         }
 
         [Test]
-        public void Write_WithNull_DictionaryKeyPolicy_Works()
+        public void Write_WithNull_PropertyNamingPolicy_Works()
         {
             // Arrange
             var options = BlueprintJsonOptions.CreateOptions();
-            options.DictionaryKeyPolicy = null;
+            options.PropertyNamingPolicy = null;
 
             var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
             {
