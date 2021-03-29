@@ -5,6 +5,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![Apache 2.0 License][license-shield]][license-url]
+[![Gitpod][gitpod-shield]][gitpod-url]
 
 ### Blueprint
 
@@ -321,3 +322,5 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
 [issues-url]: https://github.com/barclayadam/blueprint/issues
 [license-shield]: https://img.shields.io/github/license/barclayadam/blueprint.svg?style=flat
 [license-url]: https://github.com/barclayadam/blueprint/blob/master/LICENSE.md
+[gitpod-url]: https://gitpod.io/#https://github.com/barclayadam/blueprint
+[gitpod-shield]: https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod?style=flat
