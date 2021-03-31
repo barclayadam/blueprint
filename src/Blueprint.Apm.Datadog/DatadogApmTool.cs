@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Datadog.Trace;
 
-namespace Blueprint.Apm.DataDog
+namespace Blueprint.Apm.Datadog
 {
     /// <summary>
-    /// An <see cref="IApmTool" /> that integrates with DataDog APM.
+    /// An <see cref="IApmTool" /> that integrates with Datadog APM.
     /// </summary>
     public class DatadogApmTool : IApmTool
     {

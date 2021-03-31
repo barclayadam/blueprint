@@ -1,5 +1,5 @@
 using Blueprint.Apm;
-using Blueprint.Apm.DataDog;
+using Blueprint.Apm.Datadog;
 using Blueprint.Configuration;
 
 // Match the DI container namespace so that Blueprint is immediately discoverable
@@ -7,12 +7,12 @@ using Blueprint.Configuration;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to add DataDog APM integration.
+    /// Extensions to <see cref="BlueprintApiBuilder" /> to add Datadog APM integration.
     /// </summary>
     public static class BlueprintBuilderExtensions
     {
         /// <summary>
-        /// Adds DataDog integration to this API, registering an <see cref="IApmTool" /> to allow
+        /// Adds Datadog integration to this API, registering an <see cref="IApmTool" /> to allow
         /// tracking dependencies, and middleware that will manage spans.
         /// </summary>
         /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
