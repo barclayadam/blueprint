@@ -218,22 +218,12 @@ public class WeatherForecastQueryExecutorPipeline : Blueprint.Api.IOperationExec
 
 To use Blueprint API in your ASP.NET app:
 
- 1. Add our Azure DevOps NuGet feed by adding the source `https://pkgs.dev.azure.com/blueprint-api/Blueprint/_packaging/Blueprint/nuget/v3/index.json`
-   to a `NuGet.config` file at your solution root folder:
-    ````xml
-    <?xml version="1.0" encoding="utf-8"?>
-    <configuration>
-      <packageSources>
-        <add key="blueprint-api" value="https://pkgs.dev.azure.com/blueprint-api/Blueprint/_packaging/Blueprint/nuget/v3/index.json" protocolVersion="3" />
-      </packageSources>
-    </configuration>
-    ````   
- 2. Add Blueprint.Api to your project (note we only currently have pre-release NuGet packages)
+ 1.  Add Blueprint.Api to your project
     ```sh
-    dotnet add package Blueprint.Api -v 0.1.0-*
-    dotnet add package Blueprint.Api.Http -v 0.1.0-*
+    dotnet add package Blueprint.Api
+    dotnet add package Blueprint.Api.Http 
     ```
- 3. Add Blueprint.Api to `Startup.ConfigureServices`
+ 2. Add Blueprint.Api to `Startup.ConfigureServices`
     ```c#
             public void ConfigureServices(IServiceCollection services)
             {
@@ -243,17 +233,15 @@ To use Blueprint API in your ASP.NET app:
                     .SetApplicationName("SampleWebApi")
                     .Operations(o => o.ScanForOperations(typeof(Startup).Assembly))
                     .AddHttp()
-                    .AddTasksClient(t => t.UseHangfire())
                     .AddApplicationInsights()
                     .Pipeline(m => m
                         .AddLogging()
                         .AddValidation()
                         .AddHateoasLinks()
-                        .AddResourceEvents<NullResourceEventRepository>()
                     ));
             }
     ```
-4. Add Blueprint.Api to `Startup.Configure`
+3. Add Blueprint.Api to `Startup.Configure`
     ```c#
             public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
             {
