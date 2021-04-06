@@ -56,17 +56,13 @@ namespace Blueprint.OpenApi
                 SerializerSettings = new JsonSerializerSettings
                 {
                     ContractResolver = new BlueprintContractResolver(this._apiDataModel, this._messagePopulationSources),
-
                     Converters =
                     {
                         new StringEnumConverter(),
                     },
                 },
-
                 SchemaType = SchemaType.OpenApi3,
-
                 FlattenInheritanceHierarchy = true,
-
                 SchemaNameGenerator = new BlueprintSchemaNameGenerator(),
             };
 
@@ -78,9 +74,9 @@ namespace Blueprint.OpenApi
 
             openApiOptions.ConfigureSettings?.Invoke(jsonSchemaGeneratorSettings);
 
-            var generator = openApiOptions.CreateGenerator == null ?
-                new BlueprintJsonSchemaGenerator(jsonSchemaGeneratorSettings) :
-                openApiOptions.CreateGenerator(this._serviceProvider, this._apiDataModel, jsonSchemaGeneratorSettings);
+            var generator = openApiOptions.CreateGenerator == null
+                ? new BlueprintJsonSchemaGenerator(jsonSchemaGeneratorSettings)
+                : openApiOptions.CreateGenerator(this._serviceProvider, this._apiDataModel, jsonSchemaGeneratorSettings);
 
             var openApiDocumentSchemaResolver = new OpenApiDocumentSchemaResolver(document, jsonSchemaGeneratorSettings);
 
@@ -149,15 +145,11 @@ namespace Blueprint.OpenApi
                         openApiOperation.Parameters.Add(new OpenApiParameter
                         {
                             Kind = isRoute ? OpenApiParameterKind.Path : ToKind(property),
-
                             Name = ownedPropertyDescriptor?.PropertyName ?? property.Name,
-
                             IsRequired = isRoute ||
                                          property.ToContextualProperty().Nullability == Nullability.NotNullable ||
                                          property.GetCustomAttributes<RequiredAttribute>().Any(),
-
                             Schema = generator.Generate(property.PropertyType),
-
                             Description = XmlDocsExtensions.GetXmlDocsSummary(property),
                         });
                     }
@@ -207,37 +199,42 @@ namespace Blueprint.OpenApi
                             }
                         }
 
-                        // Note below assignments are once-only. We always return a ProblemResult from HTTP,
-                        // so we can assume we only need to set the failure schema's once, and can
-                        // only return a single type for success.
-                        //
-                        // If we override Content then Examples are removed.
-                        if (response.Type == typeof(PlainTextResult))
+                        // We do not always specify a response type, for example in command that simply respond with a
+                        // 201 status code
+                        if (response.Type != null)
                         {
-                            if (!oaResponse.Content.ContainsKey("text/plain"))
+                            // Note below assignments are once-only. We always return a ProblemResult from HTTP,
+                            // so we can assume we only need to set the failure schema's once, and can
+                            // only return a single type for success.
+                            //
+                            // If we override Content then Examples are removed.
+                            if (response.Type == typeof(PlainTextResult))
                             {
-                                oaResponse.Content["text/plain"] = new OpenApiMediaType
+                                if (!oaResponse.Content.ContainsKey("text/plain"))
                                 {
-                                    Schema = new JsonSchema
+                                    oaResponse.Content["text/plain"] = new OpenApiMediaType
                                     {
-                                        Type = JsonObjectType.String,
-                                    },
-                                };
+                                        Schema = new JsonSchema
+                                        {
+                                            Type = JsonObjectType.String,
+                                        },
+                                    };
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (!oaResponse.Content.ContainsKey("application/json"))
+                            else
                             {
-                                // Assume for now we always return JSON
-                                oaResponse.Content["application/json"] = new OpenApiMediaType
+                                if (!oaResponse.Content.ContainsKey("application/json"))
                                 {
-                                    Schema = GetOrAddJsonSchema(
-                                        GetResponseType(response),
-                                        document,
-                                        generator,
-                                        openApiDocumentSchemaResolver),
-                                };
+                                    // Assume for now we always return JSON
+                                    oaResponse.Content["application/json"] = new OpenApiMediaType
+                                    {
+                                        Schema = GetOrAddJsonSchema(
+                                            GetResponseType(response),
+                                            document,
+                                            generator,
+                                            openApiDocumentSchemaResolver),
+                                    };
+                                }
                             }
                         }
 

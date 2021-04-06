@@ -220,25 +220,6 @@ namespace Blueprint.Configuration
             }
         }
 
-        private static void RegisterResponses(ApiOperationDescriptor descriptor)
-        {
-            var typedOperation = descriptor.OperationType
-                .GetInterfaces()
-                .SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReturn<>));
-
-            if (typedOperation != null)
-            {
-                descriptor.AddResponse(
-                    new ResponseDescriptor(typedOperation.GetGenericArguments()[0], 200, "OK"));
-            }
-
-            descriptor.AddResponse(
-                new ResponseDescriptor(typeof(UnhandledExceptionOperationResult), 500, "Unexpected error"));
-
-            descriptor.AddResponse(
-                new ResponseDescriptor(typeof(ValidationFailedOperationResult), 422, "Validation failure"));
-        }
-
         private void DoScan(Assembly assembly, Func<Type, bool> filter, RegisterOperation register, Action<ApiOperationDescriptor> configure = null)
         {
             var source = $"Scan {assembly.FullName}";
@@ -300,8 +281,6 @@ namespace Blueprint.Configuration
                         ResourceType = linkAttribute.ResourceType,
                     });
             }
-
-            RegisterResponses(descriptor);
 
             foreach (var c in this._conventions)
             {

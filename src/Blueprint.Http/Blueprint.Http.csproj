@@ -15,4 +15,17 @@
     <ProjectReference Include="..\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\Blueprint.Compiler\Blueprint.Compiler.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="StatusCodeResults.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>StatusCodeResults.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="StatusCodeResults.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>StatusCodeResults.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -1,0 +1,49 @@
+<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Net" #>
+using System.Net;
+
+namespace Blueprint.Http
+{
+    /// <summary>
+    /// <para>
+    /// A simple <see cref="HttpResult" /> that can be used when no content needs writing, only a status code and (optional)
+    /// headers.
+    /// </para>
+    /// <para>
+    /// It is recommended to declare return types as a specific subclass of this (i.e. <see cref="StatusCodeResult.Created" />)
+    /// to provide additional metadata with regards to expected responses to enable a more comprehensive and accurate OpenApi
+    /// document to be created.
+    /// </para>
+    /// </summary>
+    public partial class StatusCodeResult
+    {
+        <#
+    foreach (var code in Enum.GetNames(typeof(HttpStatusCode)))
+    {
+        #>
+/// <summary>
+        /// A <see cref="StatusCodeResult" /> for the status <see cref="HttpStatusCode.<#= code #>" />.
+        /// </summary>
+        public sealed class <#= code #> : StatusCodeResult
+        {
+            /// <summary>
+            /// The static instance of the <see cref="StatusCodeResult.<#= code #>" /> class.
+            /// </summary>
+            public static readonly <#= code #> Instance = new <#= code #>();
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="StatusCodeResult.<#= code #>" /> class.
+            /// </summary>
+            private <#= code #>()
+                : base(HttpStatusCode.<#= code #>)
+            {
+            }
+        }
+
+        <#
+    }
+        #>
+}
+}

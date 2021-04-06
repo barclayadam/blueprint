@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NUnit.Framework;
 using Snapper;
+using Snapper.Attributes;
 
 namespace Blueprint.Tests.OpenApi
 {
@@ -69,6 +70,46 @@ namespace Blueprint.Tests.OpenApi
             // Arrange
             var executor = TestApiOperationExecutor.CreateHttp(o => o
                 .WithOperation<HttpStatusCodeQuery>()
+                .AddOpenApi());
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_specific_StatusCodeResult_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<CreatedStatusCodeQuery>()
+                .AddOpenApi());
+
+            // Act
+            var context = executor.HttpContextFor<OpenApiQuery>();
+            var result = await executor.ExecuteAsync(context);
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            plaintextResult.Content.ShouldMatchSnapshot();
+        }
+
+        [Test]
+        public async Task When_base_StatusCodeResult_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<BaseStatusCodeQuery>()
                 .AddOpenApi());
 
             // Act
@@ -282,6 +323,24 @@ namespace Blueprint.Tests.OpenApi
             public ResourceWithHttpStatusCode Invoke()
             {
                 return new ResourceWithHttpStatusCode();
+            }
+        }
+
+        [RootLink("/resources/status-code")]
+        public class CreatedStatusCodeQuery : IQuery<StatusCodeResult.Created>
+        {
+            public StatusCodeResult.Created Invoke()
+            {
+                return StatusCodeResult.Created.Instance;
+            }
+        }
+
+        [RootLink("/resources/status-code")]
+        public class BaseStatusCodeQuery : IQuery<StatusCodeResult>
+        {
+            public StatusCodeResult Invoke()
+            {
+                return StatusCodeResult.Created.Instance;
             }
         }
 

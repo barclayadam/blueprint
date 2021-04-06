@@ -12,6 +12,27 @@ namespace Blueprint
         /// <summary>
         /// Initialises a new instance of the <see cref="ResponseDescriptor" /> class.
         /// </summary>
+        /// <param name="httpStatus">The HTTP status of this response.</param>
+        /// <param name="description">A description of this response.</param>
+        /// <param name="metadata">A set of extra metadata attributes for this response, useful for conveying
+        /// extra information from, for example, the XML tags describing errors, that could be further used in
+        /// OpenAPI generation.</param>
+        public ResponseDescriptor(
+            int httpStatus,
+            string description,
+            [CanBeNull] Dictionary<string, string> metadata = null)
+        {
+            Guard.GreaterThan(nameof(httpStatus), httpStatus, 0);
+            Guard.NotNullOrEmpty(nameof(description), description);
+
+            this.HttpStatus = httpStatus;
+            this.Description = description;
+            this.Metadata = metadata;
+        }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ResponseDescriptor" /> class.
+        /// </summary>
         /// <param name="type">The type of response.</param>
         /// <param name="httpStatus">The HTTP status of this response.</param>
         /// <param name="description">A description of this response.</param>
@@ -25,6 +46,8 @@ namespace Blueprint
             [CanBeNull] Dictionary<string, string> metadata = null)
         {
             Guard.NotNull(nameof(type), type);
+            Guard.GreaterThan(nameof(httpStatus), httpStatus, 0);
+            Guard.NotNullOrEmpty(nameof(description), description);
 
             this.Type = type;
             this.HttpStatus = httpStatus;
