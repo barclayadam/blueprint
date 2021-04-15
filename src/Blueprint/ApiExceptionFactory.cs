@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -76,6 +77,23 @@ namespace Blueprint
         public ApiException Create(string detail, IDictionary<string, object> extensionData = null)
         {
             return new ApiException(this.Title, this.Type, detail, this.HttpStatus)
+            {
+                Extensions = extensionData,
+            };
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ApiException" /> using the details this factory was created with, in addition
+        /// to the specified detail string.
+        /// </summary>
+        /// <param name="innerException">The Exception that led to this failure.</param>
+        /// <param name="detail">The instance-specific error message.</param>
+        /// <param name="extensionData">Extension details that will be serialised to the consumer, useful for storing additional
+        /// properties that a client can use to make decisions when handling this exception.</param>
+        /// <returns>A new <see cref="ApiException" />.</returns>
+        public ApiException Create(Exception innerException, string detail, IDictionary<string, object> extensionData = null)
+        {
+            return new ApiException(this.Title, this.Type, detail, this.HttpStatus, innerException)
             {
                 Extensions = extensionData,
             };
