@@ -4,7 +4,6 @@
     <Title>Blueprint - Application Insights Provider</Title>
     <Description>Blueprint: Integrates Application Insights with Blueprint API projects</Description>
     <PackageTags>AppInsights;APM;Application Insights;$(PackageBaseTags)</PackageTags>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
