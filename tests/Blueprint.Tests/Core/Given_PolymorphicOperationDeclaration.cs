@@ -151,37 +151,6 @@ namespace Blueprint.Tests.Core
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
         }
-
-        public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteNestedAsync(Blueprint.ApiOperationContext context)
-        {
-            var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
-            try
-            {
-
-                // OperationExecutorMiddlewareBuilder
-                using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
-                _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationBaseIApiOperationHandler.GetType().Name, null);
-                await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationChild2IApiOperationHandler.GetType().Name, null);
-                await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                apmSpanOfHandler.Dispose();
-
-                // ReturnFrameMiddlewareBuilder
-                return Blueprint.NoResultOperationResult.Instance;
-            }
-            catch (System.Exception e)
-            {
-                var userAuthorisationContext = context.UserAuthorisationContext;
-                var identifier = new Blueprint.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
-
-                userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
-
-                var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
-
-                context.ApmSpan?.RecordException(e);
-                return new Blueprint.UnhandledExceptionOperationResult(e);
-            }
-        }
     }
 }
 ");

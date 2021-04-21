@@ -134,10 +134,8 @@ namespace Blueprint
                 pipelineExecutorType.AllInjectedFields.Add(new LoggerVariable(typeName));
 
                 var executeMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteAsync));
-                var executeNestedMethod = pipelineExecutorType.MethodFor(nameof(IOperationExecutorPipeline.ExecuteNestedAsync));
 
-                this.Generate(options, serviceProvider, executeMethod, operation, model, serviceScope, false);
-                this.Generate(options, serviceProvider, executeNestedMethod, operation, model, serviceScope, true);
+                this.Generate(options, serviceProvider, executeMethod, operation, model, serviceScope);
 
                 typeToCreationMappings.Add(
                     operation.OperationType,
@@ -212,8 +210,7 @@ namespace Blueprint
             GeneratedMethod executeMethod,
             ApiOperationDescriptor operation,
             ApiDataModel model,
-            IServiceScope serviceScope,
-            bool isNested)
+            IServiceScope serviceScope)
         {
             var operationContextVariable = executeMethod.Arguments[0];
 
@@ -230,8 +227,7 @@ namespace Blueprint
                 operation,
                 model,
                 serviceScope.ServiceProvider,
-                instanceFrameProvider,
-                isNested);
+                instanceFrameProvider);
 
             // For the base Exception type we will add, as the first step, logging to the exception sinks. This frame DOES NOT
             // include a return frame, as we add that after all the other middleware builders have had chance to potentially add
@@ -256,11 +252,6 @@ namespace Blueprint
 
             foreach (var behaviour in this._builders)
             {
-                if (isNested && !behaviour.SupportsNestedExecution)
-                {
-                    continue;
-                }
-
                 if (behaviour.Matches(operation))
                 {
                     executeMethod.Frames.Add(new CommentFrame(behaviour.GetType().Name));

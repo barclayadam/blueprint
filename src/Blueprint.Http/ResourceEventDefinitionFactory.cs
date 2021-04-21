@@ -19,17 +19,6 @@ namespace Blueprint.Http
     /// <typeparam name="TResource">The type of resource that has been modified.</typeparam>
     public class ResourceEventDefinitionFactory<TResource>
     {
-        private readonly Func<IQuery<TResource>> _mapper;
-
-        /// <summary>
-        /// Initialises a new instance of the <see cref="ResourceEventDefinitionFactory{TResource,TDomain}" /> class.
-        /// </summary>
-        /// <param name="mapper">A mapper to construct a "self" API operation.</param>
-        public ResourceEventDefinitionFactory(Func<IQuery<TResource>> mapper)
-        {
-            this._mapper = mapper;
-        }
-
         /// <summary>
         /// Creates a new <see cref="ResourceEventDefinition{TResource, TDomain}" /> with a change type
         /// of <see cref="ResourceEventChangeType.Created" /> and an event sub id of <c>created</c>.
@@ -39,8 +28,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Created,
-                ResourceEvent<TResource>.CreateId("created"),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId("created"));
         }
 
         /// <summary>
@@ -53,8 +41,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Created,
-                ResourceEvent<TResource>.CreateId(eventSubId),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId(eventSubId));
         }
 
         /// <summary>
@@ -66,8 +53,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Updated,
-                ResourceEvent<TResource>.CreateId("updated"),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId("updated"));
         }
 
         /// <summary>
@@ -80,8 +66,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Updated,
-                ResourceEvent<TResource>.CreateId(eventSubId),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId(eventSubId));
         }
 
         /// <summary>
@@ -93,8 +78,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Deleted,
-                ResourceEvent<TResource>.CreateId("deleted"),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId("deleted"));
         }
 
         /// <summary>
@@ -107,8 +91,7 @@ namespace Blueprint.Http
         {
             return new ResourceEventDefinition<TResource>(
                 ResourceEventChangeType.Deleted,
-                ResourceEvent<TResource>.CreateId(eventSubId),
-                this._mapper);
+                ResourceEvent<TResource>.CreateId(eventSubId));
         }
     }
 
@@ -119,7 +102,7 @@ namespace Blueprint.Http
     /// <example>
     /// public static class UserEvents {
     ///     private static readonly ResourceEventFactoryFactory&lt;UserApiResource, User&gt; Factory =
-    ///         ResourceEventFactory.For((User u) => new GetUserQuery { Id = u.Id });
+    ///         ResourceEventFactory.For((User u) => UserApiResource.MapFrom(u));
     ///
     ///     public static readonly ResourceEventFactory&lt;UserApiResource, User&gt; Created = Factory.Created();
     ///     public static readonly ResourceEventFactory&lt;UserApiResource, User&gt; Updated = Factory.Updated("modified");
@@ -134,13 +117,13 @@ namespace Blueprint.Http
     /// this definition.</typeparam>
     public class ResourceEventDefinitionFactory<TResource, TDomain>
     {
-        private readonly Func<TDomain, IQuery<TResource>> _mapper;
+        private readonly Func<TDomain, TResource> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinitionFactory{TResource,TDomain}" /> class.
         /// </summary>
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
-        public ResourceEventDefinitionFactory(Func<TDomain, IQuery<TResource>> mapper)
+        public ResourceEventDefinitionFactory(Func<TDomain, TResource> mapper)
         {
             this._mapper = mapper;
         }

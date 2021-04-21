@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Blueprint.Http;
 using Blueprint.Sample.WebApi.Data;
 
@@ -25,6 +27,20 @@ namespace Blueprint.Sample.WebApi.Api
         public IEnumerable<WeatherForecast> Invoke(IWeatherDataSource weatherDataSource)
         {
             return weatherDataSource.Get(City);
+        }
+    }
+
+    [SelfLink(typeof(WeatherForecast), "forecast-inline/{City}/{Date}")]
+    public class WeatherForecastDayQuery : IQuery<WeatherForecast>
+    {
+        [Required]
+        public string City { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public WeatherForecast Invoke(IWeatherDataSource weatherDataSource)
+        {
+            return weatherDataSource.Get(City).SingleOrDefault(f => f.Date == Date);
         }
     }
 }

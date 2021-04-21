@@ -6,11 +6,6 @@ namespace Blueprint.Authorisation
     public class AuthenticationMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
-        /// Returns <c>false</c>.
-        /// </summary>
-        public bool SupportsNestedExecution => false;
-
-        /// <summary>
         /// Matches if the operation <see cref="ApiOperationDescriptor.AnonymousAccessAllowed" /> property
         /// is <c>false</c> (i.e. any authenticated operation will have this injected).
         /// </summary>

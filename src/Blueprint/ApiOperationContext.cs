@@ -118,22 +118,6 @@ namespace Blueprint
         /// </summary>
         public IApmSpan ApmSpan { get; set; }
 
-        /// <summary>
-        /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
-        /// existing context, used to execute another operation in the context of an existing one.
-        /// </summary>
-        public bool IsNested => this.Parent != null;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
-        /// which should be used with extreme care.
-        /// </summary>
-        /// <remarks>
-        /// This is typically used when running a child operation where the authorisation of the parent is enough to indicate
-        /// the child can be successfully executed.
-        /// </remarks>
-        public bool SkipAuthorisation { get; set; }
-
         public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
         public ClaimsIdentity ClaimsIdentity { get; set; }
@@ -143,35 +127,5 @@ namespace Blueprint
         /// to be used throughout the processing pipeline.
         /// </summary>
         public Dictionary<string, object> Data { get; private set; }
-
-        public ApiOperationContext CreateNested(Type type)
-        {
-            Guard.NotNull(nameof(type), type);
-
-            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, type, this.OperationCancelled);
-
-            this.PopulateNested(context);
-
-            return context;
-        }
-
-        public ApiOperationContext CreateNested(object operation)
-        {
-            Guard.NotNull(nameof(operation), operation);
-
-            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, operation, this.OperationCancelled);
-
-            this.PopulateNested(context);
-
-            return context;
-        }
-
-        private void PopulateNested(ApiOperationContext childContext)
-        {
-            childContext.Parent = this;
-            childContext.Data = this.Data;
-            childContext.ClaimsIdentity = this.ClaimsIdentity;
-            childContext.UserAuthorisationContext = this.UserAuthorisationContext;
-        }
     }
 }

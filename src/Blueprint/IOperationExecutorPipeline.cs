@@ -10,7 +10,5 @@ namespace Blueprint
     public interface IOperationExecutorPipeline
     {
         Task<OperationResult> ExecuteAsync(ApiOperationContext context);
-
-        Task<OperationResult> ExecuteNestedAsync(ApiOperationContext context);
     }
 }

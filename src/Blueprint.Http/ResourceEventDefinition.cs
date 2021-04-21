@@ -19,7 +19,7 @@ namespace Blueprint.Http
         /// <typeparam name="TDomain">A "domain" type that will be passed in to a mapper when creating an instance from
         /// this definition.</typeparam>
         /// <returns>A new factory.</returns>
-        public static ResourceEventDefinitionFactory<TResource, TDomain> For<TResource, TDomain>(Func<TDomain, IQuery<TResource>> mapper)
+        public static ResourceEventDefinitionFactory<TResource, TDomain> For<TResource, TDomain>(Func<TDomain, TResource> mapper)
         {
             return new ResourceEventDefinitionFactory<TResource, TDomain>(mapper);
         }
@@ -32,9 +32,9 @@ namespace Blueprint.Http
         /// <param name="mapper">The mapper used to construct self query operation instances.</param>
         /// <typeparam name="TResource">The resource type contained within the created resource events.</typeparam>
         /// <returns>A new factory.</returns>
-        public static ResourceEventDefinitionFactory<TResource> For<TResource>(Func<IQuery<TResource>> mapper)
+        public static ResourceEventDefinitionFactory<TResource> For<TResource>()
         {
-            return new ResourceEventDefinitionFactory<TResource>(mapper);
+            return new ResourceEventDefinitionFactory<TResource>();
         }
     }
 
@@ -52,7 +52,6 @@ namespace Blueprint.Http
     {
         private readonly ResourceEventChangeType _changeType;
         private readonly string _eventId;
-        private readonly Func<IQuery<TResource>> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinition{TResource}" /> class.
@@ -60,21 +59,21 @@ namespace Blueprint.Http
         /// <param name="changeType">The type of change.</param>
         /// <param name="eventId">The specific event type.</param>
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
-        public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId, Func<IQuery<TResource>> mapper)
+        public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId)
         {
             this._changeType = changeType;
             this._eventId = eventId;
-            this._mapper = mapper;
         }
 
         /// <summary>
         /// Creates a new <see cref="ResourceEvent{TResource}" /> from this definition.
         /// </summary>
+        /// <param name="data">The data / api resource of this event.</param>
         /// <param name="metadata">Optional metadata that will be attached to the created resource event.</param>
         /// <returns>A new resource event.</returns>
-        public ResourceEvent<TResource> New([CanBeNull] IDictionary<string, object> metadata = null)
+        public ResourceEvent<TResource> New(TResource data, [CanBeNull] IDictionary<string, object> metadata = null)
         {
-            var resourceEvent = new ResourceEvent<TResource>(this._changeType, this._eventId, this._mapper());
+            var resourceEvent = new ResourceEvent<TResource>(this._changeType, this._eventId, data);
 
             if (metadata != null)
             {
@@ -96,7 +95,7 @@ namespace Blueprint.Http
         public bool Matches(ResourceEvent @event)
         {
             return @event.ChangeType == this._changeType &&
-                   @event.EventId == this._eventId &&
+                   @event.Name == this._eventId &&
                    @event.ResourceObject == ApiResource.GetTypeName(typeof(TResource));
         }
     }
@@ -117,7 +116,7 @@ namespace Blueprint.Http
     {
         private readonly ResourceEventChangeType _changeType;
         private readonly string _eventId;
-        private readonly Func<TDomain, IQuery<TResource>> _mapper;
+        private readonly Func<TDomain, TResource> _mapper;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEventDefinition{TResource, TDomain}" /> class.
@@ -125,7 +124,7 @@ namespace Blueprint.Http
         /// <param name="changeType">The type of change.</param>
         /// <param name="eventId">The specific event type.</param>
         /// <param name="mapper">A mapper to construct a "self" API operation.</param>
-        public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId, Func<TDomain, IQuery<TResource>> mapper)
+        public ResourceEventDefinition(ResourceEventChangeType changeType, string eventId, Func<TDomain, TResource> mapper)
         {
             this._changeType = changeType;
             this._eventId = eventId;
@@ -155,6 +154,28 @@ namespace Blueprint.Http
         }
 
         /// <summary>
+        /// Creates a new <see cref="ResourceEvent{TResource}" /> from this definition, bypassing the mapper to provide
+        /// the resource directly.
+        /// </summary>
+        /// <param name="apiResource">The API resource to be returned as part of this event.</param>
+        /// <param name="metadata">Optional metadata that will be attached to the created resource event.</param>
+        /// <returns>A new resource event.</returns>
+        public ResourceEvent<TResource> New(TResource apiResource, [CanBeNull] IDictionary<string, object> metadata = null)
+        {
+            var resourceEvent = new ResourceEvent<TResource>(this._changeType, this._eventId, apiResource);
+
+            if (metadata != null)
+            {
+                foreach (var kvp in metadata)
+                {
+                    resourceEvent.WithMetadata(kvp.Key, kvp.Value);
+                }
+            }
+
+            return resourceEvent;
+        }
+
+        /// <summary>
         /// Checks whether the given <see cref="ResourceEvent" /> matches events that would be created by
         /// this definition.
         /// </summary>
@@ -163,7 +184,7 @@ namespace Blueprint.Http
         public bool Matches(ResourceEvent @event)
         {
             return @event.ChangeType == this._changeType &&
-                   @event.EventId == this._eventId &&
+                   @event.Name == this._eventId &&
                    @event.ResourceObject == ApiResource.GetTypeName(typeof(TResource));
         }
     }

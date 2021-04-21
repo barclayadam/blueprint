@@ -24,14 +24,12 @@ namespace Blueprint
             ApiOperationDescriptor descriptor,
             ApiDataModel model,
             IServiceProvider serviceProvider,
-            InstanceFrameProvider instanceFrameProvider,
-            bool isNested)
+            InstanceFrameProvider instanceFrameProvider)
         {
             this.ExecuteMethod = executeMethod;
             this.Descriptor = descriptor;
             this.Model = model;
             this.ServiceProvider = serviceProvider;
-            this.IsNested = isNested;
 
             this._instanceFrameProvider = instanceFrameProvider;
         }
@@ -66,11 +64,6 @@ namespace Blueprint
         /// Gets the service provider.
         /// </summary>
         public IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether or not we are building an executor for a child or not.
-        /// </summary>
-        public bool IsNested { get; }
 
         /// <summary>
         /// Gets the currently registered exception handlers.
