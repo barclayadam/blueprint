@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Blueprint.Http
@@ -20,30 +19,54 @@ namespace Blueprint.Http
     /// </remarks>
     public class ResourceEvent
     {
-        [CanBeNull]
-        private Dictionary<string, object> _metadata;
+        private readonly DateTimeOffset _created;
 
-        [CanBeNull]
-        private Dictionary<string, object> _secureData;
+        private readonly ResourceEventChangeType _changeType;
+        private readonly string _eventId;
+        private readonly Type _resourceType;
+        private readonly IQuery _selfQuery;
+
+        private readonly Dictionary<string, object> _metadata = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _secureData = new Dictionary<string, object>();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEvent" /> class.
         /// </summary>
         /// <param name="changeType">The type of change.</param>
-        /// <param name="name">The id of this specific event.</param>
+        /// <param name="eventId">The id of this specific event.</param>
         /// <param name="resourceType">The type of resource that has been modified.</param>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceEvent(ResourceEventChangeType changeType, string name, Type resourceType, [CanBeNull] object data)
+        /// <param name="selfQuery">An operation that, when executed, will load the associated resource.</param>
+        public ResourceEvent(ResourceEventChangeType changeType, string eventId, Type resourceType, IQuery selfQuery)
         {
             Guard.EnumDefined(nameof(changeType), changeType);
             Guard.NotNull(nameof(resourceType), resourceType);
+            Guard.NotNull(nameof(selfQuery), selfQuery);
 
-            this.ChangeType = changeType;
-            this.Name = name;
-            this.ResourceType = resourceType;
-            this.Created = SystemTime.UtcNow;
+            this._changeType = changeType;
+            this._eventId = eventId;
+            this._resourceType = resourceType;
+            this._selfQuery = selfQuery;
 
-            this.Data = data;
+            this._created = SystemTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ResourceEvent" /> class.
+        /// </summary>
+        /// <param name="changeType">The type of change.</param>
+        /// <param name="eventId">The id of this specific event.</param>
+        /// <param name="resource">The API resource this event applies to.</param>
+        public ResourceEvent(ResourceEventChangeType changeType, string eventId, ApiResource resource)
+        {
+            Guard.EnumDefined(nameof(changeType), changeType);
+            Guard.NotNull(nameof(resource), resource);
+
+            this._changeType = changeType;
+            this._eventId = eventId;
+            this._resourceType = resource.GetType();
+            this.Data = resource;
+
+            this._created = SystemTime.UtcNow;
         }
 
         /// <summary>
@@ -54,32 +77,39 @@ namespace Blueprint.Http
         public string Object => "event";
 
         /// <summary>
-        /// The type of this resource, which is needed as a separate property as <see cref="Data" /> may not always be populated (for
-        /// example in the case of deletions).
-        /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        public Type ResourceType { get; }
-
-        /// <summary>
-        /// Gets the name of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'.
+        /// Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'.
         /// </summary>
         /// <remarks>
-        /// The name <em>should</em> be a dot-delimited string with the first part being the resource type of
+        /// The id <em>should</em> be a dot-delimited string with the first part being the resource type of
         /// the object that has been altered.
         /// </remarks>
-        public string Name { get; }
+        public string EventId => this._eventId;
 
         /// <summary>
         /// Gets a the change type of this event, which is a higher-level version of the Type property,
         /// indicating whether the resource was updated, created or deleted.
         /// </summary>
-        public ResourceEventChangeType ChangeType { get; }
+        public ResourceEventChangeType ChangeType => this._changeType;
 
         /// <summary>
         /// Gets the created date of this event.
         /// </summary>
-        public DateTimeOffset Created { get; }
+        public DateTimeOffset Created => this._created;
+
+        /// <summary>
+        /// Gets the query that represents the query that will load the resource this
+        /// event represents.
+        /// </summary>
+        [global::Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public IQuery SelfQuery => this._selfQuery;
+
+        /// <summary>
+        /// Gets the type of resource represented.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Type ResourceType => this._resourceType;
 
         /// <summary>
         /// Gets the type of resource represented.
@@ -106,27 +136,31 @@ namespace Blueprint.Http
         /// being the value.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        [CanBeNull]
         public Dictionary<string, object> ChangedValues { get; set; }
 
         /// <summary>
         /// Gets the metadata dictionary of this resource event, a simple bag of key value pairs
         /// of useful information that can be stored free-form against an event.
         /// </summary>
-        [CanBeNull]
-        public IReadOnlyDictionary<string, object> Metadata => this._metadata;
+        public Dictionary<string, object> Metadata => this._metadata;
 
         /// <summary>
         /// Gets a dictionary of security-related data that will NOT be persisted anywhere.
         /// </summary>
-        [CanBeNull]
-        public IReadOnlyDictionary<string, object> SecureData => this._secureData;
+        public Dictionary<string, object> SecureData => this._secureData;
 
         /// <summary>
         /// Gets or sets the correlation id for this event, which can be used to tie it back to
         /// the initial request that resulted in an event.
         /// </summary>
         public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the operation that triggered the generation of this resource event.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public object Operation { get; set; }
 
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be
@@ -138,7 +172,6 @@ namespace Blueprint.Http
         /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
         public ResourceEvent WithMetadata(string key, object value)
         {
-            this._metadata ??= new Dictionary<string, object>();
             this._metadata[key] = value;
 
             return this;
@@ -154,7 +187,6 @@ namespace Blueprint.Http
         /// <returns>This <see cref="ResourceEvent"/> to support further chaining.</returns>
         public ResourceEvent WithSecureData(string key, object value)
         {
-            this._secureData ??= new Dictionary<string, object>();
             this._secureData[key] = value;
 
             return this;
@@ -167,19 +199,33 @@ namespace Blueprint.Http
     /// base.
     /// </summary>
     /// <typeparam name="TResource">The type of resource contained within the event.</typeparam>
-    public class ResourceEvent<TResource> : ResourceEvent
+    public class ResourceEvent<TResource> : ResourceEvent where TResource : ApiResource
     {
         /// <summary>
         /// Initialises a new instance of the <see cref="ResourceEvent{T}" /> class.
         /// </summary>
         /// <param name="changeType">The type of change.</param>
-        /// <param name="name">The specific event type.</param>
-        /// <param name="data">The api resource of this event.</param>
+        /// <param name="eventId">The specific event type.</param>
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
         public ResourceEvent(
             ResourceEventChangeType changeType,
-            string name,
-            TResource data)
-            : base(changeType, name, typeof(TResource), data)
+            string eventId,
+            IQuery<TResource> selfQuery)
+            : base(changeType, eventId, typeof(TResource), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ResourceEvent{T}" /> class.
+        /// </summary>
+        /// <param name="changeType">The type of change.</param>
+        /// <param name="eventId">The specific event type.</param>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceEvent(
+            ResourceEventChangeType changeType,
+            string eventId,
+            TResource resource)
+            : base(changeType, eventId, resource)
         {
         }
 
@@ -237,15 +283,15 @@ namespace Blueprint.Http
     /// A specific implementation of <see cref="ResourceEvent{T}" /> for events of change type <see cref="ResourceEventChangeType.Created" />.
     /// </summary>
     /// <typeparam name="TResource">The type of resource contained within the event.</typeparam>
-    public class ResourceCreated<TResource> : ResourceEvent<TResource>
+    public class ResourceCreated<TResource> : ResourceEvent<TResource> where TResource : ApiResource
     {
         /// <summary>
         /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
         /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
         /// </summary>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceCreated(TResource data)
-            : base(ResourceEventChangeType.Created, CreateId("created"), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        public ResourceCreated(IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Created, CreateId("created"), selfQuery)
         {
         }
 
@@ -256,9 +302,32 @@ namespace Blueprint.Http
         /// <param name="eventSubId">The name of this event, which is what gets put after `resourceTypeName.`, and
         /// should represent the action taken (for example 'timer.started' for a time entry would result in a full
         /// event name of `timeEntry.timer.started`).</param>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceCreated(string eventSubId, TResource data)
-            : base(ResourceEventChangeType.Created,  CreateId(eventSubId), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        public ResourceCreated(string eventSubId, IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Created,  CreateId(eventSubId), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
+        /// </summary>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceCreated(TResource resource)
+            : base(ResourceEventChangeType.Created, CreateId("created"), resource)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.created' with a ChangeType of 'created'.
+        /// </summary>
+        /// <param name="eventSubId">The name of this event, which is what gets put after `resourceTypeName.`, and
+        /// should represent the action taken (for example 'timer.started' for a time entry would result in a full
+        /// event name of `timeEntry.timer.started`).</param>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceCreated(string eventSubId, TResource resource)
+            : base(ResourceEventChangeType.Created,  CreateId(eventSubId), resource)
         {
         }
     }
@@ -267,15 +336,15 @@ namespace Blueprint.Http
     /// A specific implementation of <see cref="ResourceEvent{T}" /> for events of change type <see cref="ResourceEventChangeType.Updated" />.
     /// </summary>
     /// <typeparam name="TResource">The type of resource contained within the event.</typeparam>
-    public class ResourceUpdated<TResource> : ResourceEvent<TResource>
+    public class ResourceUpdated<TResource> : ResourceEvent<TResource> where TResource : ApiResource
     {
         /// <summary>
         /// Creates a new <see cref="ResourceCreated{TResource}" /> instance, creating a default
         /// event type of '`resourceTypeName`.updated' with a ChangeType of 'updated'.
         /// </summary>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceUpdated(TResource data)
-            : base(ResourceEventChangeType.Updated, CreateId("updated"), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        public ResourceUpdated(IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Updated, CreateId("updated"), selfQuery)
         {
         }
 
@@ -285,9 +354,31 @@ namespace Blueprint.Http
         /// </summary>
         /// <param name="eventSubId">The name of this event, which is what gets put after `resourceTypeName.`, and
         /// should represent the action taken (for example 'approved', or 'rate.updated').</param>
-        /// <param name="data">The api resource of this event.</param>
-        protected ResourceUpdated(string eventSubId, TResource data)
-            : base(ResourceEventChangeType.Updated,  CreateId(eventSubId), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        protected ResourceUpdated(string eventSubId, IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Updated,  CreateId(eventSubId), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{TResource}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.updated' with a ChangeType of 'updated'.
+        /// </summary>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceUpdated(TResource resource)
+            : base(ResourceEventChangeType.Updated, CreateId("updated"), resource)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceCreated{T}" /> instance, setting the event type
+        /// to '`resourceTypeName`.`eventName`' with a ChangeType of 'updated'.
+        /// </summary>
+        /// <param name="eventSubId">The name of this event, which is what gets put after `resourceTypeName.`, and
+        /// should represent the action taken (for example 'approved', or 'rate.updated').</param>
+        /// <param name="resource">The resource this event is for.</param>
+        protected ResourceUpdated(string eventSubId, TResource resource)
+            : base(ResourceEventChangeType.Updated,  CreateId(eventSubId), resource)
         {
         }
     }
@@ -296,15 +387,15 @@ namespace Blueprint.Http
     /// A specific implementation of <see cref="ResourceEvent{T}" /> for events of change type <see cref="ResourceEventChangeType.Deleted" />.
     /// </summary>
     /// <typeparam name="TResource">The type of resource contained within the event.</typeparam>
-    public class ResourceDeleted<TResource> : ResourceEvent<TResource>
+    public class ResourceDeleted<TResource> : ResourceEvent<TResource> where TResource : ApiResource
     {
         /// <summary>
         /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
         /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
         /// </summary>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceDeleted(TResource data)
-            : base(ResourceEventChangeType.Deleted, CreateId("deleted"), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        public ResourceDeleted(IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Deleted, CreateId("deleted"), selfQuery)
         {
         }
 
@@ -313,9 +404,30 @@ namespace Blueprint.Http
         /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
         /// </summary>
         /// <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
-        /// <param name="data">The api resource of this event.</param>
-        public ResourceDeleted(string eventName, TResource data)
-            : base(ResourceEventChangeType.Deleted, CreateId(eventName), data)
+        /// <param name="selfQuery">An operation that, when executed, will get the resource this event represents.</param>
+        public ResourceDeleted(string eventName, IQuery<TResource> selfQuery)
+            : base(ResourceEventChangeType.Deleted, CreateId(eventName), selfQuery)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
+        /// </summary>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceDeleted(TResource resource)
+            : base(ResourceEventChangeType.Deleted, CreateId("deleted"), resource)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ResourceDeleted{T}" /> instance, creating a default
+        /// event type of '`resourceTypeName`.deleted' with a ChangeType of 'deleted'.
+        /// </summary>
+        /// <param name="eventName">The name of this event, overriding the default of 'deleted'.</param>
+        /// <param name="resource">The resource this event is for.</param>
+        public ResourceDeleted(string eventName, TResource resource)
+            : base(ResourceEventChangeType.Deleted, CreateId(eventName), resource)
         {
         }
     }

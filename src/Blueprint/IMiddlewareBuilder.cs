@@ -3,6 +3,15 @@ namespace Blueprint
     public interface IMiddlewareBuilder
     {
         /// <summary>
+        /// Gets a value indicating whether or not this middleware builder is supported as part of nested executions.
+        /// </summary>
+        /// <remarks>
+        /// It is possible that some middleware components should <b>never</b> be executed within a child context (i.e. transaction
+        /// management or overall application performance management), in which case <c>false</c> should be returned and no code will be generated.
+        /// </remarks>
+        bool SupportsNestedExecution { get; }
+
+        /// <summary>
         /// Indicates whether this <see cref="IMiddlewareBuilder" /> should be applied to the given description.
         /// </summary>
         /// <remarks>

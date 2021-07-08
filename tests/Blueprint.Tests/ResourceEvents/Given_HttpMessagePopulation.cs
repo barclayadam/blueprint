@@ -17,7 +17,7 @@ namespace Blueprint.Tests.ResourceEvents
 
             public CreatedResourceEvent Invoke()
             {
-                return new CreatedResourceEvent(new AwesomeApiResource { Id = IdToCreate });
+                return new CreatedResourceEvent(new SelfQuery { Id = IdToCreate });
             }
         }
 
@@ -35,7 +35,7 @@ namespace Blueprint.Tests.ResourceEvents
 
         public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
         {
-            public CreatedResourceEvent(AwesomeApiResource data) : base(data)
+            public CreatedResourceEvent(IQuery<AwesomeApiResource> selfQuery) : base(selfQuery)
             {
             }
         }

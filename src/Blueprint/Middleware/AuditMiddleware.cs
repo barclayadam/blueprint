@@ -15,6 +15,11 @@ namespace Blueprint.Middleware
     /// </summary>
     public class AuditMiddleware : IMiddlewareBuilder
     {
+        /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
         [UsedImplicitly]
         public static void WriteSuccess(IAuditor auditor, ApiOperationContext context)
         {

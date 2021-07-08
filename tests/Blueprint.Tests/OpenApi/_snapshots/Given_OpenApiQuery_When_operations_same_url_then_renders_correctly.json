@@ -378,7 +378,7 @@
         "required": [
           "data",
           "$object",
-          "name",
+          "eventId",
           "changeType",
           "created",
           "resourceObject"
@@ -391,9 +391,9 @@
             "type": "string",
             "description": "Gets the object of this 'resource', which is \"event\"."
           },
-          "name": {
+          "eventId": {
             "type": "string",
-            "description": "Gets the name of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
+            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
           },
           "changeType": {
             "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",

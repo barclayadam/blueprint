@@ -403,7 +403,7 @@ namespace Blueprint.Tests.OpenApi
 
             public ResourceCreated<OpenApiResource> Invoke()
             {
-                return new ResourceCreated<OpenApiResource>(new OpenApiResource());
+                return new ResourceCreated<OpenApiResource>(new OpenApiGetQuery());
             }
         }
 
@@ -419,7 +419,7 @@ namespace Blueprint.Tests.OpenApi
 
             public ResourceUpdated<OpenApiResource> Invoke()
             {
-                return new ResourceUpdated<OpenApiResource>(new OpenApiResource());
+                return new ResourceUpdated<OpenApiResource>(new OpenApiGetQuery());
             }
         }
 

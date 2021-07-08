@@ -57,12 +57,15 @@ namespace Blueprint.Authorisation
 
             // Generates:
             //
-            // if (context.UserAuthorisationContext == null)
+            // if (!context.SkipAuthorisation)
             // {
-            //     throw new SecurityException("Access denied. Anonymous access is not allowed.");
-            // }
+            //     if (context.UserAuthorisationContext == null)
+            //     {
+            //         throw new SecurityException("Access denied. Anonymous access is not allowed.");
+            //     }
             //
-            // foreach (authorisers) { await a.EnforceAsync(); }
+            //     foreach (authorisers) { await a.EnforceAsync(); }
+            // }
 
             var authorisationContextVariable = context.FindVariable<IUserAuthorisationContext>();
 
@@ -88,7 +91,11 @@ namespace Blueprint.Authorisation
                 }
             }
 
-            context.AppendFrames(checkFrames.ToArray());
+            // We only run authorisation checks if SkipAuthorisation is false, which it will be by default
+            context.AppendFrames(
+                new IfBlock(
+                    $"{context.FindVariable<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
+                    checkFrames.ToArray()));
 
             context.RegisterFinallyFrames(new SetApmUserDetailsFrame());
         }

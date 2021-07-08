@@ -42,7 +42,7 @@ namespace Blueprint.Http
 
             return this._okResultOperationExecutor.WriteContentAsync(
                 httpContext,
-                problemDetails.Status.Value,
+                problemDetails.Status,
                 problemDetails);
         }
 

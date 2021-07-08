@@ -97,7 +97,9 @@ namespace Blueprint
             var pipelineType = this._operationTypeToPipelineType[context.Descriptor.OperationType]();
             var pipeline = (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(context.ServiceProvider, pipelineType);
 
-            return pipeline.ExecuteAsync(context);
+            return context.IsNested ?
+                pipeline.ExecuteNestedAsync(context) :
+                pipeline.ExecuteAsync(context);
         }
 
         /// <inheritdoc />

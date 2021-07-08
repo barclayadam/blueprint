@@ -106,10 +106,7 @@ namespace Blueprint.Http
                 writer.WriteString(_title, value.Title);
             }
 
-            if (value.Status != null)
-            {
-                writer.WriteNumber(_status, value.Status.Value);
-            }
+            writer.WriteNumber(_status, value.Status);
 
             if (value.Detail != null)
             {

@@ -485,7 +485,7 @@ namespace Blueprint.OpenApi
                 if (member.DeclaringType == typeof(ResourceEvent))
                 {
                     if (member.Name == nameof(ResourceEvent.Object) ||
-                        member.Name == nameof(ResourceEvent.Name) ||
+                        member.Name == nameof(ResourceEvent.EventId) ||
                         member.Name == nameof(ResourceEvent.ResourceObject) ||
                         member.Name == nameof(ResourceEvent.Data))
                     {

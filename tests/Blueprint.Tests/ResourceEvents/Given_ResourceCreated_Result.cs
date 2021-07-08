@@ -20,7 +20,7 @@ namespace Blueprint.Tests.ResourceEvents
 
             public CreatedResourceEvent Invoke()
             {
-                return new CreatedResourceEvent(new AwesomeApiResource { Id = IdToCreate });
+                return new CreatedResourceEvent(new SelfQuery { Id = IdToCreate });
             }
         }
 
@@ -41,7 +41,7 @@ namespace Blueprint.Tests.ResourceEvents
 
         public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
         {
-            public CreatedResourceEvent(AwesomeApiResource data) : base(data)
+            public CreatedResourceEvent(IQuery<AwesomeApiResource> selfQuery) : base(selfQuery)
             {
             }
         }
@@ -97,7 +97,7 @@ namespace Blueprint.Tests.ResourceEvents
 
                 @event.Created.UtcDateTime.Should().BeCloseTo(t.UtcNow);
                 @event.Object.Should().Be("event");
-                @event.Name.Should().Be("awesome.created");
+                @event.EventId.Should().Be("awesome.created");
                 @event.ChangeType.Should().Be(ResourceEventChangeType.Created);
                 @event.ResourceObject.Should().Be("awesome");
             }

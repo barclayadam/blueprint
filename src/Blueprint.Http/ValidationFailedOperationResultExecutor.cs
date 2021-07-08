@@ -28,7 +28,7 @@ namespace Blueprint.Http
 
             return this._okResultOperationExecutor.WriteContentAsync(
                 context.GetHttpContext(),
-                validationProblemDetails.Status.Value,
+                validationProblemDetails.Status,
                 validationProblemDetails);
         }
     }

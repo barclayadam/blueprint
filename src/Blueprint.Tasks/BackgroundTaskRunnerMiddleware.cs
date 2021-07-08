@@ -9,6 +9,11 @@ namespace Blueprint.Tasks
     public class BackgroundTaskRunnerMiddleware : IMiddlewareBuilder
     {
         /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
+        /// <summary>
         /// Returns <c>true</c>.
         /// </summary>
         /// <param name="operation">The operation to check.</param>

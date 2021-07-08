@@ -12,6 +12,11 @@ namespace Blueprint.Middleware
     public class MessagePopulationMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
+        /// Returns <c>false</c>.
+        /// </summary>
+        public bool SupportsNestedExecution => false;
+
+        /// <summary>
         /// Returns <c>true</c> if <paramref name="operation"/>.<see cref="ApiOperationDescriptor.OperationType"/> has any
         /// properties, <c>false</c> otherwise (as no properties == nothing to set).
         /// </summary>
