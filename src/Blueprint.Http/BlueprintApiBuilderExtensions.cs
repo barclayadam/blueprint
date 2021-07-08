@@ -97,7 +97,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             apiBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
-            apiBuilder.Pipeline(p => p.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.Execution));
+            apiBuilder.Pipeline(p => p.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.PostExecution));
 
             return apiBuilder;
         }
@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.Execution));
+            pipelineBuilder.Pipeline(p => p.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.PostExecution));
 
             return pipelineBuilder;
         }
