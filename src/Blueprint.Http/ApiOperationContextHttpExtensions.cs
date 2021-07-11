@@ -50,7 +50,7 @@ namespace Blueprint.Http
 
             throw new InvalidOperationException(
                 $"A HttpFeatureContext instance does not exist on this {nameof(ApiOperationContext)}. To use HTTP-specific features a HttpContext must exist, which " +
-                $"can be accomplished by using {nameof(ApplicationBuilderExtensions.UseBlueprintApi)} in your ASP.NET Core web application");
+                $"can be accomplished by using {nameof(EndpointRouteBuilderExtensions.MapBlueprintApi)} in your ASP.NET Core web application");
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Blueprint.Http
         }
 
         /// <summary>
-        /// Sets the Blueprint HTTP API base URI, as configured in <see cref="ApplicationBuilderExtensions.UseBlueprintApi" /> and potentially
+        /// Sets the Blueprint HTTP API base URI, as configured in <see cref="ApplicationBuilderExtensions.MapBlueprintApi" /> and potentially
         /// configured in <see cref="BlueprintHttpOptions" />.
         /// </summary>
         /// <param name="httpContext">The context to set store the uri in.</param>

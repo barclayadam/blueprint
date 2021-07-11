@@ -9,47 +9,58 @@ using Blueprint.Apm;
 using Blueprint.Compiler;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-// This is the recommendation from MS for extensions to IApplicationBuilder to aid discoverability
+// This is the recommendation from MS for extensions to IEndpointRouteBuilder to aid discoverability
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class ApplicationBuilderExtensions
+    public static class EndpointRouteBuilderExtensions
     {
-        public static void UseBlueprintApi(
-            this IApplicationBuilder applicationBuilder,
+        /// <summary>
+        /// Maps all Blueprint operation endpoints that have previously been registered with the dependency
+        /// injection host using <see cref="ServiceCollectionExtensions.AddBlueprintApi" />.
+        /// </summary>
+        /// <remarks>
+        /// Note that if the compilation of the pipelines fail this method does <b>not</b> throw that exception
+        /// but instead will register handlers that expose the compilation exception, that when combined with
+        /// the development exception page can present useful diagnostics for tracking down the compilation
+        /// error.
+        /// </remarks>
+        /// <param name="endpoints">The endpoint builder to register with.</param>
+        /// <param name="basePath">A base path to prepend to all routes.</param>
+        public static void MapBlueprintApi(
+            this IEndpointRouteBuilder endpoints,
             string basePath)
         {
             // Ensure ends with a slash, but only one
             basePath = basePath.TrimEnd('/') + '/';
 
-            var logger = applicationBuilder.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Compilation");
-            var routeBuilder = new RouteBuilder(applicationBuilder);
-            var apiDataModel = applicationBuilder.ApplicationServices.GetRequiredService<ApiDataModel>();
-            var inlineConstraintResolver = applicationBuilder.ApplicationServices.GetRequiredService<IInlineConstraintResolver>();
-            var apmTool = applicationBuilder.ApplicationServices.GetRequiredService<IApmTool>();
-            var httpOptions = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BlueprintHttpOptions>>();
+            var logger = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Compilation");
+            var apiDataModel = endpoints.ServiceProvider.GetRequiredService<ApiDataModel>();
+            var apmTool = endpoints.ServiceProvider.GetRequiredService<IApmTool>();
+            var httpOptions = endpoints.ServiceProvider.GetRequiredService<IOptions<BlueprintHttpOptions>>();
 
-            IRouter routeHandler;
+            RequestDelegate requestDelegate;
 
             try
             {
-                var apiOperationExecutor = applicationBuilder.ApplicationServices.GetRequiredService<IApiOperationExecutor>();
+                var apiOperationExecutor = endpoints.ServiceProvider.GetRequiredService<IApiOperationExecutor>();
 
-                routeHandler = new BlueprintApiRouter(
+                requestDelegate = new BlueprintApiRouter(
                     apiOperationExecutor,
                     apmTool,
-                    applicationBuilder.ApplicationServices,
-                    applicationBuilder.ApplicationServices.GetRequiredService<ILogger<BlueprintApiRouter>>(),
+                    endpoints.ServiceProvider,
+                    endpoints.ServiceProvider.GetRequiredService<ILogger<BlueprintApiRouter>>(),
                     httpOptions,
-                    basePath);
+                    basePath).RouteAsync;
             }
             catch (CompilationException e)
             {
@@ -64,7 +75,7 @@ namespace Microsoft.AspNetCore.Builder
                 //
                 // The consequence of this is that the app is NOT prevented from starting up and only when hitting an API endpoint
                 // would the exception be known to HTTP clients (the error is logged regardless)
-                routeHandler = new RouteHandler(context => throw new CompilationWrapperException(e));
+                requestDelegate = _ => throw new CompilationWrapperException(e);
             }
             catch (Exception e) when (e.InnerException is CompilationException ce)
             {
@@ -73,7 +84,7 @@ namespace Microsoft.AspNetCore.Builder
                 // Some DI projects wrap the CompilationException in their own (i.e. StructureMap, which throws a specific exception
                 // when trying to create an instance). This catch block attempts to handle those custom exceptions on the assumption that
                 // the inner exception would be the original CompilationException
-                routeHandler = new RouteHandler(context => throw new CompilationWrapperException(ce));
+                requestDelegate = _ => throw new CompilationWrapperException(ce);
             }
 
             // Ordering by 'indexOf {' means we put those URLs which are not placeholders
@@ -82,25 +93,17 @@ namespace Microsoft.AspNetCore.Builder
             {
                 var httpFeatureData = link.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>();
 
-                routeBuilder.Routes.Add(new Route(
-                    target: routeHandler,
-                    routeName: httpFeatureData.HttpMethod + "-" + link.UrlFormat,
-                    routeTemplate: basePath + link.RoutingUrl,
-                    defaults: new RouteValueDictionary(new { operation = link.OperationDescriptor }),
-                    constraints: new Dictionary<string, object>
-                    {
-                        ["httpMethod"] = new HttpMethodRouteConstraint(httpFeatureData.HttpMethod),
-                    },
-                    dataTokens: null,
-                    inlineConstraintResolver: inlineConstraintResolver));
-            }
+                var builder = endpoints.Map(RoutePatternFactory.Parse(basePath + link.RoutingUrl), requestDelegate);
 
-            applicationBuilder.UseRouter(routeBuilder.Build());
+                builder.WithDisplayName($"{httpFeatureData.HttpMethod} {link.OperationDescriptor.Name}");
+                builder.WithMetadata(new HttpMethodMetadata(new[] { httpFeatureData.HttpMethod }));
+                builder.WithMetadata(link.OperationDescriptor);
+            }
         }
 
         /// <summary>
         /// A wrapper around the core <see cref="CompilationException" /> that integrates it with the
-        /// ASP.Net <see cref="ICompilationException" /> to provide a nicer view of the compilation issues
+        /// ASP.Net <see cref="ICompilationException" /> feature to provide a nicer view of the compilation issues
         /// with full source code included.
         /// </summary>
         private class CompilationWrapperException : Exception, ICompilationException
@@ -143,7 +146,7 @@ namespace Microsoft.AspNetCore.Builder
             }
         }
 
-        private class BlueprintApiRouter : IRouter
+        private class BlueprintApiRouter
         {
             private readonly IApiOperationExecutor _apiOperationExecutor;
             private readonly IApmTool _apmTool;
@@ -168,93 +171,84 @@ namespace Microsoft.AspNetCore.Builder
                 this._basePath = basePath;
             }
 
-            public Task RouteAsync(RouteContext context)
+            public async Task RouteAsync(HttpContext httpContext)
             {
-                context.Handler = async httpContext =>
+                var endpoint = httpContext.GetEndpoint();
+                var routeData = httpContext.GetRouteData();
+                var httpRequest = httpContext.Request;
+
+                var operation = endpoint.Metadata.GetMetadata<ApiOperationDescriptor>();
+
+                using var apmTransaction = this._apmTool.StartOperation(
+                    operation,
+                    SpanKinds.Server);
+
+                apmTransaction.SetTag("span.kind", "server");
+
+                apmTransaction.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
+                apmTransaction.SetTag("http.request.headers.host", httpRequest.Host.Value);
+                apmTransaction.SetTag("http.url", httpRequest.GetDisplayUrl());
+
+                try
                 {
-                    var routeData = httpContext.GetRouteData();
-                    var httpRequest = httpContext.Request;
+                    var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
 
-                    var operation = (ApiOperationDescriptor)routeData.Values["operation"];
+                    if (httpFeatureData.HttpMethod != httpRequest.Method)
+                    {
+                        this._logger.LogInformation(
+                            "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
+                            httpRequest.GetDisplayUrl(),
+                            httpRequest.Method,
+                            httpFeatureData.HttpMethod);
 
-                    using var apmTransaction = this._apmTool.StartOperation(
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+
+                        return;
+                    }
+
+                    using var nestedContainer = this._rootServiceProvider.CreateScope();
+
+                    var apiContext = new ApiOperationContext(
+                        nestedContainer.ServiceProvider,
+                        this._apiOperationExecutor.DataModel,
                         operation,
-                        SpanKinds.Server);
-
-                    apmTransaction.SetTag("span.kind", "server");
-
-                    apmTransaction.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
-                    apmTransaction.SetTag("http.request.headers.host", httpRequest.Host.Value);
-                    apmTransaction.SetTag("http.url", httpRequest.GetDisplayUrl());
-
-                    try
+                        httpContext.RequestAborted)
                     {
-                        var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
+                        ApmSpan = apmTransaction,
+                    };
 
-                        if (httpFeatureData.HttpMethod != httpRequest.Method)
-                        {
-                            this._logger.LogInformation(
-                                "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
-                                httpRequest.GetDisplayUrl(),
-                                httpRequest.Method,
-                                httpFeatureData.HttpMethod);
-
-                            httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-
-                            return;
-                        }
-
-                        using var nestedContainer = this._rootServiceProvider.CreateScope();
-
-                        var apiContext = new ApiOperationContext(
-                            nestedContainer.ServiceProvider,
-                            this._apiOperationExecutor.DataModel,
-                            operation,
-                            httpContext.RequestAborted)
-                        {
-                            ApmSpan = apmTransaction,
-                        };
-
-                        apiContext.SetHttpFeatureContext(new HttpFeatureContext
-                        {
-                            HttpContext = httpContext,
-                            RouteData = routeData,
-                        });
-
-                        var request = httpContext.Request;
-                        var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
-
-                        httpContext.SetBaseUri(baseUri);
-
-                        apiContext.ClaimsIdentity = context.HttpContext.User.Identity as ClaimsIdentity;
-
-                        var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
-
-                        // We want to immediately execute the result to allow it to write to the HTTP response
-                        await result.ExecuteAsync(apiContext);
-                    }
-                    catch (Exception e)
+                    apiContext.SetHttpFeatureContext(new HttpFeatureContext
                     {
-                        // This is NOT an exception from the Pipeline as that is caught and pushed to the transaction
-                        // within PushExceptionToApmSpanFrame
-                        apmTransaction.RecordException(e);
+                        HttpContext = httpContext,
+                        RouteData = routeData,
+                    });
 
-                        throw;
-                    }
-                    finally
-                    {
-                        // We set the specific status code, but rely on the APM integration in the actual pipeline]
-                        // to have set the error correctly on the surrounding transaction.
-                        apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
-                    }
-                };
+                    var request = httpContext.Request;
+                    var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
 
-                return Task.CompletedTask;
-            }
+                    httpContext.SetBaseUri(baseUri);
 
-            public VirtualPathData GetVirtualPath(VirtualPathContext context)
-            {
-                throw new NotImplementedException();
+                    apiContext.ClaimsIdentity = httpContext.User.Identity as ClaimsIdentity;
+
+                    var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
+
+                    // We want to immediately execute the result to allow it to write to the HTTP response
+                    await result.ExecuteAsync(apiContext);
+                }
+                catch (Exception e)
+                {
+                    // This is NOT an exception from the Pipeline as that is caught and pushed to the transaction
+                    // within PushExceptionToApmSpanFrame
+                    apmTransaction.RecordException(e);
+
+                    throw;
+                }
+                finally
+                {
+                    // We set the specific status code, but rely on the APM integration in the actual pipeline]
+                    // to have set the error correctly on the surrounding transaction.
+                    apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
+                }
             }
         }
     }

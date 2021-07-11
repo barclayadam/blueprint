@@ -58,9 +58,8 @@ namespace Blueprint.Sample.WebApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapBlueprintApi("api/");
             });
-
-            app.UseBlueprintApi("api/");
         }
     }
 }

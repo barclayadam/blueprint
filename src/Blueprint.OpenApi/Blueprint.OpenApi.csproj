@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Title>Blueprint - OpenAPI</Title>
     <Description>Blueprint: Enables an /openapi endpoint for Blueprint API</Description>
     <PackageTags>OpenApi;Swagger;$(PackageBaseTags)</PackageTags>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
