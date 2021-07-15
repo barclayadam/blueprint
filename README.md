@@ -297,7 +297,7 @@ Adam Barclay - [@barclayadam](https://twitter.com/barclayadam)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [build-shield]: https://img.shields.io/github/workflow/status/barclayadam/blueprint/Blueprint%20Build?style=flat
-[build-url]: https://dev.azure.com/blueprint-api/Blueprint/_build
+[build-url]: https://github.com/barclayadam/blueprint/actions
 [coverage-shield]: https://img.shields.io/sonar/coverage/barclayadam_blueprint?server=https%3A%2F%2Fsonarcloud.io
 [coverage-url]: https://sonarcloud.io/component_measures?id=barclayadam_blueprint&metric=Coverage
 [quality-shield]: https://sonarcloud.io/api/project_badges/measure?project=barclayadam_blueprint&metric=alert_status
