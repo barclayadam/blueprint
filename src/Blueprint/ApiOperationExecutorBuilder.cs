@@ -239,7 +239,7 @@ namespace Blueprint
             context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new Frame[]
             {
                 new PushToErrorLoggerExceptionCatchFrame(context, e),
-                new PushExceptionToApmSpanFrame(e),
+                new PushExceptionToActivityFrame(e),
             });
 
             executeMethod.Sources.Add(apiOperationContextSource);

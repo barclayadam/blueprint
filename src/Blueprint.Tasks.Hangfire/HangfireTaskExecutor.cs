@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Blueprint.Errors;
-using Hangfire;
 using Hangfire.Server;
 
 namespace Blueprint.Tasks.Hangfire
@@ -54,7 +52,10 @@ namespace Blueprint.Tasks.Hangfire
                     task.Envelope,
                     s =>
                     {
-                        s.SetTag("hangfire.jobId", context.BackgroundJob.Id);
+                        s.SetTag("messaging.system", "hangfire");
+                        s.SetTag("messaging.destination_kind", "queue");
+                        s.SetTag("messaging.message_id", context.BackgroundJob.Id);
+
                         s.SetTag("hangfire.retryAttempt", (attempt ?? 1).ToString());
                     },
                     token);

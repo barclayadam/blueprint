@@ -11,6 +11,12 @@ namespace Blueprint.Middleware
     public interface IOperationExecutorBuilder
     {
         /// <summary>
+        /// Gets the name of this builder, useful for diagnostics and tracing and should be the unique
+        /// handler implementation (i.e. the actual IApiOperationHandler or equivalent).
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Performs the code generation for this builder, adding <see cref="Frame"/>s to call the appropriate
         /// handler and return the <see cref="Variable" /> that represents that execution.
         /// </summary>

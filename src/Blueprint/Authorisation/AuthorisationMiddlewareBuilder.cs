@@ -105,18 +105,18 @@ namespace Blueprint.Authorisation
             protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
             {
                 var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
-                var spanVariable = apiOperationContextVariable.GetProperty(nameof(ApiOperationContext.ApmSpan));
+                var activityVariable = apiOperationContextVariable.GetProperty(nameof(ApiOperationContext.Activity));
 
                 // It is possible that no span exists
-                writer.If($"{spanVariable} != null");
+                writer.If($"{activityVariable} != null");
 
                 // We set user data as tags. Individual APM tools may wish to react accordingly to these tags if there is some specific
                 // location user details need to be stored.
                 writer.WriteLine($"var userContext = {apiOperationContextVariable}.{nameof(ApiOperationContext.UserAuthorisationContext)};");
 
                 writer.If($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
-                writer.WriteLine($"{spanVariable}.SetTag(\"user.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
-                writer.WriteLine($"{spanVariable}.SetTag(\"user.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
+                writer.WriteLine($"{activityVariable}.SetTag(\"enduser.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
+                writer.WriteLine($"{activityVariable}.SetTag(\"enduser.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
                 writer.FinishBlock();
 
                 writer.FinishBlock();

@@ -32,6 +32,9 @@ namespace Blueprint.Middleware
             this._method = method;
         }
 
+        /// <inheritdoc/>
+        public string Name => this._operationType.Name;
+
         /// <inheritdoc />
         public Variable Build(MiddlewareBuilderContext context, ExecutorReturnType executorReturnType)
         {

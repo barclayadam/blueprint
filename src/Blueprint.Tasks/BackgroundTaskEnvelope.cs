@@ -25,10 +25,10 @@ namespace Blueprint.Tasks
         public IBackgroundTask Task { get; }
 
         /// <summary>
-        /// A simple string dictionary that APM tools use to inject &amp; extract state (i.e. Spans from
-        /// OpenTracing) to enable cross-process propagation.
+        /// A simple dictionary that can be used to store metadata about the task being executed, including
+        /// for example Activity propagation data.
         /// </summary>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IDictionary<string, string> ApmContext { get; set; }
+        public IDictionary<string, string> Headers { get; set; }
     }
 }

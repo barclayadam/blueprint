@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Blueprint.Sample.WebApi\Blueprint.Sample.WebApi.csproj" />
-    <ProjectReference Include="..\..\src\Blueprint.Apm.ApplicationInsights\Blueprint.Apm.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks\Blueprint.Tasks.csproj" />

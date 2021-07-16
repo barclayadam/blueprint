@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Blueprint.Apm;
 using Blueprint.Tasks;
 using Blueprint.Tasks.Hangfire;
 using FluentAssertions;
@@ -30,7 +29,7 @@ namespace Blueprint.Tests.Tasks.Hangfire.HangfireBackgroundTaskExecutor_Tests
             var parentId = Guid.NewGuid().ToString();
             var backgroundJobClient = new Mock<IBackgroundJobClient>();
             var backgroundTaskExecutor = new HangfireBackgroundTaskScheduleProvider(backgroundJobClient.Object, new NullLogger<HangfireBackgroundTaskScheduleProvider>());
-            var backgroundTaskScheduler = new BackgroundTaskScheduler(Enumerable.Empty<IBackgroundTaskPreprocessor>(), backgroundTaskExecutor, new NullApmTool(), new NullLogger<BackgroundTaskScheduler>());
+            var backgroundTaskScheduler = new BackgroundTaskScheduler(Enumerable.Empty<IBackgroundTaskPreprocessor>(), backgroundTaskExecutor, new NullLogger<BackgroundTaskScheduler>());
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<EnqueuedState>(s => s.Queue == EnqueuedState.DefaultQueue)))
                 .Returns(parentId).Verifiable();
             backgroundJobClient.Setup(c => c.Create(It.IsAny<Job>(), It.Is<AwaitingState>(s => s.ParentId == parentId && s.Options == hangfireOptions)))

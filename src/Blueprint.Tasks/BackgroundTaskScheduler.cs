@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blueprint.Apm;
 using Blueprint.Tasks.Provider;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +17,6 @@ namespace Blueprint.Tasks
     {
         private readonly IBackgroundTaskScheduleProvider _backgroundTaskScheduleProvider;
         private readonly IEnumerable<IBackgroundTaskPreprocessor> _backgroundTaskPreprocessors;
-        private readonly IApmTool _apmTool;
         private readonly ILogger<BackgroundTaskScheduler> _logger;
 
         // Note that we do not initialise this up front, but instead JIT. This helps reduce the number of allocations
@@ -30,21 +28,17 @@ namespace Blueprint.Tasks
         /// </summary>
         /// <param name="backgroundTaskPreprocessors">The registered background task preprocessors.</param>
         /// <param name="backgroundTaskScheduleProvider">The provider-specific implementation to delegate to.</param>
-        /// <param name="apmTool">The registered APM tool used to register a dependency with.</param>
         /// <param name="logger">The logger for this class.</param>
         public BackgroundTaskScheduler(
             IEnumerable<IBackgroundTaskPreprocessor> backgroundTaskPreprocessors,
             IBackgroundTaskScheduleProvider backgroundTaskScheduleProvider,
-            IApmTool apmTool,
             ILogger<BackgroundTaskScheduler> logger)
         {
             Guard.NotNull(nameof(backgroundTaskScheduleProvider), backgroundTaskScheduleProvider);
-            Guard.NotNull(nameof(apmTool), apmTool);
             Guard.NotNull(nameof(logger), logger);
 
             this._backgroundTaskScheduleProvider = backgroundTaskScheduleProvider;
             this._backgroundTaskPreprocessors = backgroundTaskPreprocessors;
-            this._apmTool = apmTool;
             this._logger = logger;
         }
 
@@ -99,13 +93,9 @@ namespace Blueprint.Tasks
 
         private async Task PushAllAsync(List<ScheduledBackgroundTask> tasks)
         {
-            // We create this wrapper here and not in ctor so that in the case of no tasks being scheduled we are not
-            // allocating a new object.
-            var apmWrapper = new ApmBackgroundTaskScheduleProvider(this._backgroundTaskScheduleProvider, this._apmTool);
-
             foreach (var task in tasks)
             {
-                await task.PushToProviderAsync(apmWrapper);
+                await task.PushToProviderAsync(this._backgroundTaskScheduleProvider);
             }
         }
 

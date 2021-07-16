@@ -59,6 +59,9 @@ namespace Blueprint.Middleware
         /// </summary>
         public Type ApiOperationHandlerType => this._apiOperationHandlerType;
 
+        /// <inheritdoc/>
+        public string Name => this._apiOperationHandlerType.Name;
+
         /// <inheritdoc />
         public Variable Build(MiddlewareBuilderContext context, ExecutorReturnType executorReturnType)
         {

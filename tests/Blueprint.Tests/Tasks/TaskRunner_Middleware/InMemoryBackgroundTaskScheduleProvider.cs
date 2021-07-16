@@ -8,9 +8,9 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
 {
     public class InMemoryBackgroundTaskScheduleProvider : IBackgroundTaskScheduleProvider
     {
-        private readonly List<BackgroundTaskEnvelope> enqueued = new List<BackgroundTaskEnvelope>();
-        private readonly List<(BackgroundTaskEnvelope, TimeSpan)> scheduled = new List<(BackgroundTaskEnvelope, TimeSpan)>();
-        private readonly List<(BackgroundTaskEnvelope, string, BackgroundTaskContinuationOptions)> childEnqueued = new List<(BackgroundTaskEnvelope, string, BackgroundTaskContinuationOptions)>();
+        private readonly List<BackgroundTaskEnvelope> enqueued = new();
+        private readonly List<(BackgroundTaskEnvelope, TimeSpan)> scheduled = new();
+        private readonly List<(BackgroundTaskEnvelope, string, BackgroundTaskContinuationOptions)> childEnqueued = new();
 
         public List<BackgroundTaskEnvelope> Enqueued => enqueued;
 

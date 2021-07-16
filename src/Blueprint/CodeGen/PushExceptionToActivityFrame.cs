@@ -1,24 +1,25 @@
 using System;
-using Blueprint.Apm;
+using System.Diagnostics;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Diagnostics;
 
 namespace Blueprint.CodeGen
 {
     /// <summary>
     /// A <see cref="SyncFrame" /> that can be added to exception handling blocks to push the
-    /// exception to the active span of the operation.
+    /// exception to the <see cref="Activity" /> of the <see cref="ApiOperationContext" />.
     /// </summary>
-    public class PushExceptionToApmSpanFrame : SyncFrame
+    public class PushExceptionToActivityFrame : SyncFrame
     {
         private readonly Variable _exceptionVariable;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="PushExceptionToApmSpanFrame" /> class.
+        /// Initialises a new instance of the <see cref="PushExceptionToActivityFrame" /> class.
         /// </summary>
         /// <param name="exceptionVariable">The <see cref="Variable" /> that represents the thrown exception.</param>
-        public PushExceptionToApmSpanFrame(Variable exceptionVariable)
+        public PushExceptionToActivityFrame(Variable exceptionVariable)
         {
             this._exceptionVariable = exceptionVariable;
         }
@@ -27,9 +28,9 @@ namespace Blueprint.CodeGen
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             var context = variables.FindVariable(typeof(ApiOperationContext));
-            var currentSpan = context.GetProperty(nameof(ApiOperationContext.ApmSpan));
+            var activityVariable = context.GetProperty(nameof(ApiOperationContext.Activity));
 
-            writer.WriteLine($"{currentSpan}?.{nameof(IApmSpan.RecordException)}({this._exceptionVariable});");
+            writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable});");
         }
     }
 }

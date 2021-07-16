@@ -7,6 +7,10 @@
   <ItemGroup>
     <PackageReference Include="HangFire.AspNetCore" Version="1.7.9" />
     <PackageReference Include="HangFire.SqlServer" Version="1.7.9" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc7" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.1.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Blueprint\Blueprint.csproj" />

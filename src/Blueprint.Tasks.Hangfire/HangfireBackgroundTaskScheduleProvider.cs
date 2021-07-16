@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Blueprint.Diagnostics;
 using Blueprint.Tasks.Provider;
 using Blueprint.Utilities;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 
 namespace Blueprint.Tasks.Hangfire
 {
@@ -61,28 +65,9 @@ namespace Blueprint.Tasks.Hangfire
                 queue => new AwaitingState(parentId, new EnqueuedState(queue), hangfireOptions)));
         }
 
-        private string CreateCore(BackgroundTaskEnvelope task, Func<string, IState> createState)
+        private static string GetQueueForTask(BackgroundTaskEnvelope task)
         {
-            var queue = this.GetQueueForTask(task);
-
-            if (this._logger.IsEnabled(LogLevel.Debug))
-            {
-                this._logger.LogDebug("Enqueuing task. task_type={0} queue={1}", task.GetType().Name, queue);
-            }
-
-            var id = this._jobClient.Create(
-                Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(
-                    new HangfireBackgroundTaskWrapper(task),
-                    null,
-                    CancellationToken.None)),
-                createState(queue));
-
-            return id;
-        }
-
-        private string GetQueueForTask(BackgroundTaskEnvelope envelope)
-        {
-            var taskType = envelope.Task.GetType();
+            var taskType = task.GetType();
 
             if (!_taskToQueue.TryGetValue(taskType, out var queue))
             {
@@ -93,6 +78,51 @@ namespace Blueprint.Tasks.Hangfire
             }
 
             return queue;
+        }
+
+        private string CreateCore(BackgroundTaskEnvelope task, Func<string, IState> createState)
+        {
+            var queue = GetQueueForTask(task);
+
+            if (this._logger.IsEnabled(LogLevel.Debug))
+            {
+                this._logger.LogDebug("Enqueuing task {TaskType} to {Queue}", task.GetType().Name, queue);
+            }
+
+            var hangfireBackgroundTaskEnvelope = new HangfireBackgroundTaskWrapper(task);
+
+            task.Headers = new Dictionary<string, string>();
+
+            using var activity = TaskExecutor.ActivitySource.StartActivity($"{hangfireBackgroundTaskEnvelope.Envelope.Task.GetType()} send", ActivityKind.Producer);
+
+            ActivityContext contextToInject = default;
+
+            if (activity != null)
+            {
+                contextToInject = activity.Context;
+            }
+            else if (Activity.Current != null)
+            {
+                contextToInject = Activity.Current.Context;
+            }
+
+            TaskExecutor.Propagator.Inject(
+                new PropagationContext(contextToInject, Baggage.Current),
+                task.Headers,
+                (c, k, v) => c[k] = v);
+
+            activity?.SetTag("messaging.system", "hangfire");
+            activity?.SetTag("messaging.destination", queue);
+            activity?.SetTag("messaging.destination_kind", "queue");
+
+            var id = this._jobClient.Create(
+                Job.FromExpression<HangfireTaskExecutor>(e => e.Execute(
+                        hangfireBackgroundTaskEnvelope,
+                        null,
+                        CancellationToken.None)),
+                createState(queue));
+
+            return id;
         }
     }
 }

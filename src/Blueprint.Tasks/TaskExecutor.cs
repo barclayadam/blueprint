@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Apm;
+using Blueprint.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 
 namespace Blueprint.Tasks
 {
@@ -13,24 +18,30 @@ namespace Blueprint.Tasks
     /// </summary>
     public class TaskExecutor
     {
+        /// <summary>
+        /// The <see cref="ActivitySource" /> used for task-related activities.
+        /// </summary>
+        public static readonly ActivitySource ActivitySource = BlueprintActivitySource.CreateChild(typeof(TaskExecutor), "Tasks");
+
+        /// <summary>
+        /// A propagator used to push Activity data through to consumers for correlation.
+        /// </summary>
+        public static readonly TextMapPropagator Propagator = new TraceContextPropagator();
+
         private readonly IApiOperationExecutor _apiOperationExecutor;
         private readonly IServiceProvider _rootServiceProvider;
-        private readonly IApmTool _apmTool;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="TaskExecutor" /> class.
         /// </summary>
         /// <param name="apiOperationExecutor">The API operation executor that can handle incoming background tasks.</param>
         /// <param name="rootServiceProvider">The root <see cref="IServiceProvider" /> of the application.</param>
-        /// <param name="apmTool">The APM integration.</param>
         public TaskExecutor(
             IApiOperationExecutor apiOperationExecutor,
-            IServiceProvider rootServiceProvider,
-            IApmTool apmTool)
+            IServiceProvider rootServiceProvider)
         {
             this._apiOperationExecutor = apiOperationExecutor;
             this._rootServiceProvider = rootServiceProvider;
-            this._apmTool = apmTool;
         }
 
         /// <summary>
@@ -38,16 +49,26 @@ namespace Blueprint.Tasks
         /// to a <see cref="IApiOperationExecutor" />.
         /// </summary>
         /// <param name="taskEnvelope">The task to be executed.</param>
-        /// <param name="configureSpan">An action that will be called with an <see cref="IApmSpan" /> for the service-specific
+        /// <param name="configureActivity">An action that will be called with an <see cref="Activity" /> for the service-specific
         /// provider to add tags.</param>
         /// <param name="token">A cancellation token that indicates this method should be aborted.</param>
         /// <returns>A <see cref="Task" /> representing the execution of the given task.</returns>
         public async Task Execute(
             BackgroundTaskEnvelope taskEnvelope,
-            Action<IApmSpan> configureSpan,
+            Action<Activity> configureActivity,
             CancellationToken token)
         {
             Guard.NotNull(nameof(taskEnvelope), taskEnvelope);
+
+            var parentContext = Propagator.Extract(default, taskEnvelope.Headers, ExtractTraceContextFromBasicProperties);
+            Baggage.Current = parentContext.Baggage;
+
+            using var activity = ActivitySource.StartActivity(taskEnvelope.Task.GetType().Name, ActivityKind.Consumer, parentContext.ActivityContext);
+
+            if (activity != null)
+            {
+                configureActivity(activity);
+            }
 
             using var nestedContainer = this._rootServiceProvider.CreateScope();
 
@@ -55,25 +76,29 @@ namespace Blueprint.Tasks
                 nestedContainer.ServiceProvider,
                 this._apiOperationExecutor.DataModel,
                 taskEnvelope.Task,
-                token);
-
-            using var span = this._apmTool.StartOperation(
-                apiContext.Descriptor,
-                SpanKinds.Consumer,
-                taskEnvelope.ApmContext);
-
-            configureSpan(span);
-
-            apiContext.ApmSpan = span;
+                token)
+            {
+                Activity = activity,
+            };
 
             var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 
             if (result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
             {
-                span.RecordException(unhandledExceptionOperationResult.Exception);
+                BlueprintActivitySource.RecordException(activity, unhandledExceptionOperationResult.Exception);
 
                 unhandledExceptionOperationResult.Rethrow();
             }
+        }
+
+        private static IEnumerable<string> ExtractTraceContextFromBasicProperties(IDictionary<string, string> props, string key)
+        {
+            if (props.TryGetValue(key, out var value))
+            {
+                return new[] { value };
+            }
+
+            return Enumerable.Empty<string>();
         }
     }
 }

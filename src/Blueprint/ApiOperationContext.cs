@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Claims;
 using System.Threading;
-using Blueprint.Apm;
 using Blueprint.Authorisation;
 
 namespace Blueprint
@@ -38,7 +38,7 @@ namespace Blueprint
             this.DataModel = dataModel;
             this.ServiceProvider = serviceProvider;
             this.Operation = operationDescriptor.CreateInstance();
-            this.ApmSpan = NullApmSpan.Instance;
+            this.Activity = Activity.Current;
 
             this.Data = new Dictionary<string, object>();
         }
@@ -76,7 +76,7 @@ namespace Blueprint
             this.DataModel = dataModel;
             this.ServiceProvider = serviceProvider;
             this.Operation = operation;
-            this.ApmSpan = NullApmSpan.Instance;
+            this.Activity = Activity.Current;
 
             this.Data = new Dictionary<string, object>();
         }
@@ -113,10 +113,10 @@ namespace Blueprint
         public ApiOperationContext Parent { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IApmSpan" /> for this context, which may be <c>null</c> if the host
+        /// Gets or sets the <see cref="Activity" /> for this context, which may be <c>null</c> if the host
         /// of an operation has not integrated with APM tooling.
         /// </summary>
-        public IApmSpan ApmSpan { get; set; }
+        public Activity? Activity { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an

@@ -5,7 +5,6 @@ using Blueprint.Tasks;
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("background-task")]
-    [Microsoft.AspNetCore.Authorization.Authorize()]
     public class AddBackgroundTaskCommand : ICommand
     {
         [Required]

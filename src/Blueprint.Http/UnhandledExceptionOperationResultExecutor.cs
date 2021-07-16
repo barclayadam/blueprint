@@ -33,7 +33,7 @@ namespace Blueprint.Http
             var httpContext = context.GetHttpContext();
             var problemDetails = this.ToProblemDetails(result.Exception);
 
-            var traceId = context.ApmSpan?.TraceId;
+            var traceId = context.Activity?.TraceId;
 
             if (traceId != null)
             {

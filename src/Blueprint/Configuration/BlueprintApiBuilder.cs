@@ -3,12 +3,9 @@ using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
-using Blueprint.Apm;
 using Blueprint.Caching;
-using Blueprint.Compiler;
 using Blueprint.Errors;
 using Blueprint.Middleware;
-using Blueprint.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -225,9 +222,6 @@ namespace Blueprint.Configuration
             this.Services.TryAddTransient<InstanceFrameProvider, MicrosoftDependencyInjectionInstanceFrameProvider>();
 
             // Random infrastructure
-            this.Services.TryAddScoped<IVersionInfoProvider, NulloVersionInfoProvider>();
-            this.Services.TryAddSingleton<IApmTool, NullApmTool>();
-
             this.Services.TryAddSingleton(ArrayPool<byte>.Shared);
             this.Services.TryAddSingleton(ArrayPool<char>.Shared);
 

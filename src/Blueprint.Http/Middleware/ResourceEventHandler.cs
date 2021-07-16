@@ -34,7 +34,7 @@ namespace Blueprint.Http.Middleware
 
                     context.UserAuthorisationContext?.PopulateMetadata(AddMetadata);
 
-                    resourceEvent.CorrelationId = context.ApmSpan.TraceId;
+                    resourceEvent.CorrelationId = context.Activity?.Id;
                     resourceEvent.Operation = context.Operation;
 
                     var metadataProviders = context.ServiceProvider.GetServices<IContextMetadataProvider>();

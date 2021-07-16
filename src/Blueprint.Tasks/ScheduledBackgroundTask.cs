@@ -40,7 +40,7 @@ namespace Blueprint.Tasks
             // same context as this one.
             var backgroundTaskEnvelope = new BackgroundTaskEnvelope(backgroundTask)
             {
-                ApmContext = this._taskEnvelope.ApmContext,
+                Headers = this._taskEnvelope.Headers,
             };
 
             var scheduledBackgroundTask = new ChildScheduledBackgroundTask(backgroundTaskEnvelope, options, this._scheduler);

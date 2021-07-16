@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint;
-using Blueprint.Apm;
 using Blueprint.Compiler;
+using Blueprint.Diagnostics;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,11 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class EndpointRouteBuilderExtensions
     {
+        /// <summary>
+        /// The <see cref="_activitySource" /> for HTTP related activities.
+        /// </summary>
+        private static readonly ActivitySource _activitySource = BlueprintActivitySource.CreateChild(typeof(EndpointRouteBuilderExtensions), "Http");
+
         /// <summary>
         /// Maps all Blueprint operation endpoints that have previously been registered with the dependency
         /// injection host using <see cref="ServiceCollectionExtensions.AddBlueprintApi" />.
@@ -45,7 +51,6 @@ namespace Microsoft.AspNetCore.Builder
 
             var logger = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Compilation");
             var apiDataModel = endpoints.ServiceProvider.GetRequiredService<ApiDataModel>();
-            var apmTool = endpoints.ServiceProvider.GetRequiredService<IApmTool>();
             var httpOptions = endpoints.ServiceProvider.GetRequiredService<IOptions<BlueprintHttpOptions>>();
 
             RequestDelegate requestDelegate;
@@ -56,7 +61,6 @@ namespace Microsoft.AspNetCore.Builder
 
                 requestDelegate = new BlueprintApiRouter(
                     apiOperationExecutor,
-                    apmTool,
                     endpoints.ServiceProvider,
                     endpoints.ServiceProvider.GetRequiredService<ILogger<BlueprintApiRouter>>(),
                     httpOptions,
@@ -149,7 +153,6 @@ namespace Microsoft.AspNetCore.Builder
         private class BlueprintApiRouter
         {
             private readonly IApiOperationExecutor _apiOperationExecutor;
-            private readonly IApmTool _apmTool;
             private readonly IServiceProvider _rootServiceProvider;
             private readonly ILogger<BlueprintApiRouter> _logger;
             private readonly IOptions<BlueprintHttpOptions> _httpOptions;
@@ -157,14 +160,12 @@ namespace Microsoft.AspNetCore.Builder
 
             public BlueprintApiRouter(
                 IApiOperationExecutor apiOperationExecutor,
-                IApmTool apmTool,
                 IServiceProvider rootServiceProvider,
                 ILogger<BlueprintApiRouter> logger,
                 IOptions<BlueprintHttpOptions> httpOptions,
                 string basePath)
             {
                 this._apiOperationExecutor = apiOperationExecutor;
-                this._apmTool = apmTool;
                 this._rootServiceProvider = rootServiceProvider;
                 this._logger = logger;
                 this._httpOptions = httpOptions;
@@ -179,15 +180,13 @@ namespace Microsoft.AspNetCore.Builder
 
                 var operation = endpoint.Metadata.GetMetadata<ApiOperationDescriptor>();
 
-                using var apmTransaction = this._apmTool.StartOperation(
-                    operation,
-                    SpanKinds.Server);
+                // If we have an activity set the DisplayName to the operation type
+                if (Activity.Current != null)
+                {
+                    Activity.Current.DisplayName = operation.Name;
+                }
 
-                apmTransaction.SetTag("span.kind", "server");
-
-                apmTransaction.SetTag("http.method", httpRequest.Method?.ToUpperInvariant() ?? "UNKNOWN");
-                apmTransaction.SetTag("http.request.headers.host", httpRequest.Host.Value);
-                apmTransaction.SetTag("http.url", httpRequest.GetDisplayUrl());
+                using var operationActivity = _activitySource.StartActivity($"{operation.Name}Pipeline");
 
                 try
                 {
@@ -196,9 +195,9 @@ namespace Microsoft.AspNetCore.Builder
                     if (httpFeatureData.HttpMethod != httpRequest.Method)
                     {
                         this._logger.LogInformation(
-                            "Request does not match required HTTP method. url={0} request_method={1} operation_method={2}",
-                            httpRequest.GetDisplayUrl(),
+                            "Request {Method} {Url} does not match required HTTP method {RequiredMethod}",
                             httpRequest.Method,
+                            httpRequest.GetDisplayUrl(),
                             httpFeatureData.HttpMethod);
 
                         httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
@@ -214,7 +213,7 @@ namespace Microsoft.AspNetCore.Builder
                         operation,
                         httpContext.RequestAborted)
                     {
-                        ApmSpan = apmTransaction,
+                        Activity = operationActivity,
                     };
 
                     apiContext.SetHttpFeatureContext(new HttpFeatureContext
@@ -239,15 +238,9 @@ namespace Microsoft.AspNetCore.Builder
                 {
                     // This is NOT an exception from the Pipeline as that is caught and pushed to the transaction
                     // within PushExceptionToApmSpanFrame
-                    apmTransaction.RecordException(e);
+                    BlueprintActivitySource.RecordException(operationActivity, e);
 
                     throw;
-                }
-                finally
-                {
-                    // We set the specific status code, but rely on the APM integration in the actual pipeline]
-                    // to have set the error correctly on the surrounding transaction.
-                    apmTransaction.SetTag("http.status_code", httpContext.Response.StatusCode.ToString());
                 }
             }
         }

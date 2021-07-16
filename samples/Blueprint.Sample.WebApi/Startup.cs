@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Blueprint.Sample.WebApi
 {
@@ -22,13 +24,24 @@ namespace Blueprint.Sample.WebApi
 
             services.AddHangfire(h =>
             {
-                h.UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"));
+                h
+                    .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"))
+                    .UseRecommendedSerializerSettings();
             });
+
+            services.AddOpenTelemetryTracing(
+                builder => builder
+                    .SetResourceBuilder(ResourceBuilder.CreateEmpty().AddService("web-api"))
+                    .AddAspNetCoreInstrumentation()
+                    .AddBlueprintInstrumentation()
+                    .AddJaegerExporter()
+                    .AddConsoleExporter()
+            );
 
             services.AddBlueprintApi(b => b
                 .Http()
                 .SetApplicationName("SampleWebApi")
-                .Operations(o => o.Scan(typeof(Startup).Assembly))
+                .Operations(o => o.Scan(typeof(WebApi.Startup).Assembly))
                 .AddTasksClient(t => t.UseHangfire())
                 .AddOpenApi()
                 .AddLogging()
