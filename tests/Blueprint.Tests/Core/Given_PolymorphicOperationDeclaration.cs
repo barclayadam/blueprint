@@ -128,12 +128,14 @@ namespace Blueprint.Tests.Core
             {
 
                 // OperationExecutorMiddlewareBuilder
-                using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
+                using var activityOfoperationBaseTestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity(""operationBaseTestApiOperationHandler"", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
+                activityOfoperationBaseTestApiOperationHandler?.Dispose();
+                using var activityOfoperationChild2TestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity(""operationChild2TestApiOperationHandler"", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                apmSpanOfHandler.Dispose();
+                activityOfoperationChild2TestApiOperationHandler?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
@@ -147,7 +149,7 @@ namespace Blueprint.Tests.Core
 
                 var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
 
-                context.ApmSpan?.RecordException(e);
+                Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
         }
@@ -159,12 +161,14 @@ namespace Blueprint.Tests.Core
             {
 
                 // OperationExecutorMiddlewareBuilder
-                using var apmSpanOfHandler = context.ApmSpan.StartSpan(""internal"", ""Handler"", ""exec"");
+                using var activityOfoperationBaseTestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity(""operationBaseTestApiOperationHandler"", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
+                activityOfoperationBaseTestApiOperationHandler?.Dispose();
+                using var activityOfoperationChild2TestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity(""operationChild2TestApiOperationHandler"", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, ""OperationChild2"", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                apmSpanOfHandler.Dispose();
+                activityOfoperationChild2TestApiOperationHandler?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
@@ -178,7 +182,7 @@ namespace Blueprint.Tests.Core
 
                 var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
 
-                context.ApmSpan?.RecordException(e);
+                Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
         }

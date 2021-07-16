@@ -9,14 +9,14 @@ namespace Blueprint.Diagnostics
     /// <summary>
     /// A <see cref="SyncFrame" /> that provides compile-time integration with the registered APM tool.
     /// </summary>
-    public class ActivitySpanFrame : SyncFrame
+    public class StartActivityFrame : SyncFrame
     {
         private readonly ActivityKind _spanKind;
         private readonly string _operationName;
 
         private readonly Variable _activityVariable;
 
-        private ActivitySpanFrame(
+        private StartActivityFrame(
             ActivityKind spanKind,
             string operationName)
         {
@@ -25,7 +25,7 @@ namespace Blueprint.Diagnostics
 
             this._activityVariable = new Variable(
                 typeof(Activity),
-                "activityOf" + operationName.Replace(" ", string.Empty).Replace("-", string.Empty),
+                "activityOf" + operationName.Replace(" ", string.Empty).Replace("-", string.Empty).Replace("`", string.Empty),
                 this);
         }
 
@@ -35,8 +35,8 @@ namespace Blueprint.Diagnostics
         /// </summary>
         /// <param name="activityKind">The span kind (<see cref="ActivityKind" />).</param>
         /// <param name="operationName">The name of the operation.</param>
-        /// <returns>A new <see cref="ActivitySpanFrame" />.</returns>
-        public static ActivitySpanFrame Start(
+        /// <returns>A new <see cref="StartActivityFrame" />.</returns>
+        public static StartActivityFrame Start(
             ActivityKind activityKind,
             string operationName)
         {
@@ -44,10 +44,10 @@ namespace Blueprint.Diagnostics
         }
 
         /// <summary>
-        /// Returns a <see cref="Frame" /> that will Dispose / complete the span this<see cref="ActivitySpanFrame" /> has
+        /// Returns a <see cref="Frame" /> that will Dispose / complete the span this<see cref="StartActivityFrame" /> has
         /// created, therefore marking the section as done and to record the time it took.
         /// </summary>
-        /// <returns>A new <see cref="Frame" /> to end the span created by this <see cref="ActivitySpanFrame" />.</returns>
+        /// <returns>A new <see cref="Frame" /> to end the span created by this <see cref="StartActivityFrame" />.</returns>
         public Frame Complete()
         {
             return new EndApmFrame(this._activityVariable);

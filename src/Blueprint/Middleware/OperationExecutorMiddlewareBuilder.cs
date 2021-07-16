@@ -45,7 +45,7 @@ namespace Blueprint.Middleware
             var allHandlers = context.Descriptor.Handlers;
             var handler = allHandlers.Single();
 
-            var apmFrame = ActivitySpanFrame.Start(ActivityKind.Internal, handler.Name);
+            var apmFrame = StartActivityFrame.Start(ActivityKind.Internal, Variable.DefaultArgName(handler.HandlerType));
             context.AppendFrames(apmFrame);
 
             var returnVariable = handler.Build(context, ExecutorReturnType.Return);
@@ -85,7 +85,7 @@ Handlers found:
 
             foreach (var handler in context.Descriptor.Handlers)
             {
-                var apmFrame = ActivitySpanFrame.Start(ActivityKind.Internal, handler.Name);
+                var apmFrame = StartActivityFrame.Start(ActivityKind.Internal, Variable.DefaultArgName(handler.HandlerType));
                 context.AppendFrames(apmFrame);
 
                 handler.Build(context, ExecutorReturnType.NoReturn);
