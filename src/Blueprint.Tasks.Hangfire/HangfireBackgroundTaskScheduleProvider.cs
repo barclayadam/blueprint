@@ -65,7 +65,7 @@ namespace Blueprint.Tasks.Hangfire
                 queue => new AwaitingState(parentId, new EnqueuedState(queue), hangfireOptions)));
         }
 
-        private static string GetQueueForTask(BackgroundTaskEnvelope task)
+        private static string GetQueueForTask(IBackgroundTask task)
         {
             var taskType = task.GetType();
 
@@ -82,7 +82,7 @@ namespace Blueprint.Tasks.Hangfire
 
         private string CreateCore(BackgroundTaskEnvelope task, Func<string, IState> createState)
         {
-            var queue = GetQueueForTask(task);
+            var queue = GetQueueForTask(task.Task);
 
             if (this._logger.IsEnabled(LogLevel.Debug))
             {
