@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Diagnostics;
 using Blueprint.Tasks.Provider;
 using Blueprint.Utilities;
 using Hangfire;
