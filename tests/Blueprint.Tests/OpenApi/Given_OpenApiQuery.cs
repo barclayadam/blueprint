@@ -368,11 +368,11 @@ namespace Blueprint.Tests.OpenApi
         }
 
         [RootLink("/resources/paged")]
-        public class PagedOpenApiGetQuery : IQuery<PagedApiResource<OpenApiResource>>
+        public class PagedOpenApiGetQuery : IQuery<ListApiResource<OpenApiResource>>
         {
-            public PagedApiResource<OpenApiResource> Invoke()
+            public ListApiResource<OpenApiResource> Invoke()
             {
-                return new PagedApiResource<OpenApiResource>(new [] { new OpenApiResource() });
+                return new ListApiResource<OpenApiResource>(new [] { new OpenApiResource() });
             }
         }
 
