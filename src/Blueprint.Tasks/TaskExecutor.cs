@@ -76,10 +76,7 @@ namespace Blueprint.Tasks
                 nestedContainer.ServiceProvider,
                 this._apiOperationExecutor.DataModel,
                 taskEnvelope.Task,
-                token)
-            {
-                Activity = activity,
-            };
+                token);
 
             var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 

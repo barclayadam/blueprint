@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Configuration;
+using Blueprint.Diagnostics;
 using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -249,6 +251,10 @@ namespace Blueprint
             {
                 executeMethod.Sources.Add(source);
             }
+
+            var startActivityFrame = ActivityFrame.Start(ActivityKind.Internal, operation.Name + (isNested ? "NestedPipeline" : "Pipeline"));
+            executeMethod.Frames.Add(startActivityFrame);
+            executeMethod.Frames.Add(new VariableSetterFrame(new Variable<Activity>($"{operationContextVariable}.{nameof(ApiOperationContext.Activity)}"), startActivityFrame.ActivityVariable));
 
             executeMethod.Frames.Add(castFrame);
             executeMethod.Frames.Add(new ErrorHandlerFrame(context));

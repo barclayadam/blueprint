@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint;
 using Blueprint.Compiler;
-using Blueprint.Diagnostics;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -25,11 +24,6 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class EndpointRouteBuilderExtensions
     {
-        /// <summary>
-        /// The <see cref="_activitySource" /> for HTTP related activities.
-        /// </summary>
-        private static readonly ActivitySource _activitySource = BlueprintActivitySource.CreateChild(typeof(EndpointRouteBuilderExtensions), "Http");
-
         /// <summary>
         /// Maps all Blueprint operation endpoints that have previously been registered with the dependency
         /// injection host using <see cref="ServiceCollectionExtensions.AddBlueprintApi" />.
@@ -186,62 +180,46 @@ namespace Microsoft.AspNetCore.Builder
                     Activity.Current.DisplayName = operation.Name;
                 }
 
-                using var operationActivity = _activitySource.StartActivity($"{operation.Name}Pipeline");
+                var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
 
-                try
+                if (httpFeatureData.HttpMethod != httpRequest.Method)
                 {
-                    var httpFeatureData = operation.GetFeatureData<HttpOperationFeatureData>();
+                    this._logger.LogInformation(
+                        "Request {Method} {Url} does not match required HTTP method {RequiredMethod}",
+                        httpRequest.Method,
+                        httpRequest.GetDisplayUrl(),
+                        httpFeatureData.HttpMethod);
 
-                    if (httpFeatureData.HttpMethod != httpRequest.Method)
-                    {
-                        this._logger.LogInformation(
-                            "Request {Method} {Url} does not match required HTTP method {RequiredMethod}",
-                            httpRequest.Method,
-                            httpRequest.GetDisplayUrl(),
-                            httpFeatureData.HttpMethod);
+                    httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
 
-                        httpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-
-                        return;
-                    }
-
-                    using var nestedContainer = this._rootServiceProvider.CreateScope();
-
-                    var apiContext = new ApiOperationContext(
-                        nestedContainer.ServiceProvider,
-                        this._apiOperationExecutor.DataModel,
-                        operation,
-                        httpContext.RequestAborted)
-                    {
-                        Activity = operationActivity,
-                    };
-
-                    apiContext.SetHttpFeatureContext(new HttpFeatureContext
-                    {
-                        HttpContext = httpContext,
-                        RouteData = routeData,
-                    });
-
-                    var request = httpContext.Request;
-                    var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
-
-                    httpContext.SetBaseUri(baseUri);
-
-                    apiContext.ClaimsIdentity = httpContext.User.Identity as ClaimsIdentity;
-
-                    var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
-
-                    // We want to immediately execute the result to allow it to write to the HTTP response
-                    await result.ExecuteAsync(apiContext);
+                    return;
                 }
-                catch (Exception e)
+
+                using var nestedContainer = this._rootServiceProvider.CreateScope();
+
+                var apiContext = new ApiOperationContext(
+                    nestedContainer.ServiceProvider,
+                    this._apiOperationExecutor.DataModel,
+                    operation,
+                    httpContext.RequestAborted);
+
+                apiContext.SetHttpFeatureContext(new HttpFeatureContext
                 {
-                    // This is NOT an exception from the Pipeline as that is caught and pushed to the transaction
-                    // within PushExceptionToApmSpanFrame
-                    BlueprintActivitySource.RecordException(operationActivity, e);
+                    HttpContext = httpContext,
+                    RouteData = routeData,
+                });
 
-                    throw;
-                }
+                var request = httpContext.Request;
+                var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
+
+                httpContext.SetBaseUri(baseUri);
+
+                apiContext.ClaimsIdentity = httpContext.User.Identity as ClaimsIdentity;
+
+                var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
+
+                // We want to immediately execute the result to allow it to write to the HTTP response
+                await result.ExecuteAsync(apiContext);
             }
         }
     }

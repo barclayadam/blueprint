@@ -27,19 +27,21 @@ namespace Blueprint.Tests.Core
 
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteAsync(Blueprint.ApiOperationContext context)
         {
+            using var activityOfOperationChild2Pipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2Pipeline", System.Diagnostics.ActivityKind.Internal);
+            context.Activity = activityOfOperationChild2Pipeline;
             var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
             try
             {
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfoperationBaseTestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("operationBaseTestApiOperationHandler", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfoperationBaseTestApiOperationHandler?.Dispose();
-                using var activityOfoperationChild2TestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("operationChild2TestApiOperationHandler", System.Diagnostics.ActivityKind.Internal);
+                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
+                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfoperationChild2TestApiOperationHandler?.Dispose();
+                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
@@ -60,19 +62,21 @@ namespace Blueprint.Tests.Core
 
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteNestedAsync(Blueprint.ApiOperationContext context)
         {
+            using var activityOfOperationChild2NestedPipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2NestedPipeline", System.Diagnostics.ActivityKind.Internal);
+            context.Activity = activityOfOperationChild2NestedPipeline;
             var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
             try
             {
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfoperationBaseTestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("operationBaseTestApiOperationHandler", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfoperationBaseTestApiOperationHandler?.Dispose();
-                using var activityOfoperationChild2TestApiOperationHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("operationChild2TestApiOperationHandler", System.Diagnostics.ActivityKind.Internal);
+                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
+                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfoperationChild2TestApiOperationHandler?.Dispose();
+                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
