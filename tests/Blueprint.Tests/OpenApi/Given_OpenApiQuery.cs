@@ -12,12 +12,10 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NUnit.Framework;
-using Snapper;
-using Snapper.Attributes;
+using VerifyNUnit;
 
 namespace Blueprint.Tests.OpenApi
 {
-    [UpdateSnapshots]
     public class Given_OpenApiQuery
     {
         [Test]
@@ -61,7 +59,7 @@ namespace Blueprint.Tests.OpenApi
             openApiDocument.Components.Schemas.Should().BeEmpty();
             openApiDocument.Paths.Should().BeEmpty();
 
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -81,7 +79,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -101,7 +99,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -121,7 +119,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -141,7 +139,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -161,7 +159,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -181,7 +179,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -201,7 +199,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -223,7 +221,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         [Test]
@@ -244,7 +242,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         // If a linked operation exists that would not have a body a "Collection was modified; enumeration operation may not execute."
@@ -268,7 +266,7 @@ namespace Blueprint.Tests.OpenApi
             var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
 
             openApiDocument.Paths.Should().NotBeEmpty();
-            plaintextResult.Content.ShouldMatchSnapshot();
+            await Verifier.Verify(plaintextResult);
         }
 
         /// <summary>

@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -10,14 +12,56 @@
     }
   ],
   "paths": {
-    "/resources/{AnId}": {
-      "post": {
+    "/resources/basic": {
+      "get": {
         "tags": [
           "OpenApi"
         ],
-        "summary": "The OpenApiPostCommand summary",
+        "summary": "",
         "description": "",
-        "operationId": "OpenApiPost",
+        "operationId": "BasicOpenApiGet",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/{AnId}/as-plaintext": {
+      "put": {
+        "tags": [
+          "OpenApi"
+        ],
+        "summary": "The OpenApiPlaintextResponse summary",
+        "description": "",
+        "operationId": "OpenApiPlaintextResponse",
         "parameters": [
           {
             "name": "AnId",
@@ -28,42 +72,15 @@
               "title": "String",
               "type": "string"
             }
-          },
-          {
-            "name": "ACookieValue",
-            "in": "cookie",
-            "description": "With some more documentation.",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
-            "name": "AHeaderValue",
-            "in": "header",
-            "description": "With some documentation.",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OpenApiPostCommand"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResourceCreatedOfOpen"
+                  "type": "string"
                 }
               }
             }
@@ -94,98 +111,8 @@
   },
   "components": {
     "schemas": {
-      "OpenApiPostCommand": {
-        "id": "OpenApiPostCommand",
-        "type": "object",
-        "description": "The OpenApiPostCommand summary",
-        "additionalProperties": false,
-        "required": [
-          "anotherBodyParameter"
-        ],
-        "properties": {
-          "aBodyParameter": {
-            "type": "string",
-            "nullable": true
-          },
-          "anotherBodyParameter": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      },
-      "ResourceCreatedOfOpen": {
-        "id": "ResourceCreatedOfOpen",
-        "type": "object",
-        "description": "A specific implementation of ResourceEvent`1 for events of change type Created.",
-        "additionalProperties": false,
-        "required": [
-          "data",
-          "$object",
-          "eventId",
-          "changeType",
-          "created",
-          "resourceObject"
-        ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/Open"
-          },
-          "$object": {
-            "type": "string",
-            "description": "Gets the object of this 'resource', which is \"event\"."
-          },
-          "eventId": {
-            "type": "string",
-            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
-          },
-          "changeType": {
-            "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ResourceEventChangeType"
-              }
-            ]
-          },
-          "created": {
-            "type": "string",
-            "description": "Gets the created date of this event.",
-            "format": "date-time"
-          },
-          "resourceObject": {
-            "type": "string",
-            "description": "Gets the type of resource represented."
-          },
-          "href": {
-            "type": "string",
-            "description": "Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware\ncomponent from the resource type and id definition object.",
-            "nullable": true
-          },
-          "changedValues": {
-            "type": "object",
-            "description": "Gets or sets a dictionary of previous values, used to identify what has actually changed\nbetween two resources, keyed on the property name with the previous value of the resource\nbeing the value.",
-            "nullable": true,
-            "additionalProperties": {}
-          },
-          "metadata": {
-            "type": "object",
-            "description": "Gets the metadata dictionary of this resource event, a simple bag of key value pairs\nof useful information that can be stored free-form against an event.",
-            "nullable": true,
-            "additionalProperties": {}
-          },
-          "secureData": {
-            "type": "object",
-            "description": "Gets a dictionary of security-related data that will NOT be persisted anywhere.",
-            "nullable": true,
-            "additionalProperties": {}
-          },
-          "correlationId": {
-            "type": "string",
-            "description": "Gets or sets the correlation id for this event, which can be used to tie it back to\nthe initial request that resulted in an event.",
-            "nullable": true
-          }
-        }
-      },
       "Open": {
+        "id": "Open",
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -213,7 +140,14 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "x-links": [
+          {
+            "rel": "plaintext-rel",
+            "operationId": "OpenApiPlaintextResponse",
+            "method": "PUT"
+          }
+        ]
       },
       "Link": {
         "type": "object",
@@ -230,20 +164,6 @@
             "type": "string"
           }
         }
-      },
-      "ResourceEventChangeType": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Created",
-          "Updated",
-          "Deleted"
-        ],
-        "enum": [
-          "Created",
-          "Updated",
-          "Deleted"
-        ]
       },
       "ProblemDetails": {
         "id": "ProblemDetails",
@@ -339,7 +259,15 @@
             }
           }
         }
+      },
+      "OpenApiPlaintextResponseCommand": {
+        "type": "object",
+        "description": "The OpenApiPlaintextResponse summary",
+        "additionalProperties": false
       }
     }
   }
+},
+  ContentType: application/json,
+  StatusCode: OK
 }

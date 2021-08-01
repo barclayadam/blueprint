@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -10,21 +12,144 @@
     }
   ],
   "paths": {
-    "/resources/status-code": {
+    "/resources/{AnId}": {
       "get": {
         "tags": [
           "OpenApi"
         ],
-        "summary": "",
-        "description": "",
-        "operationId": "BaseStatusCode",
+        "summary": "The OpenApiGetQuery summary",
+        "description": "Some more remarks about this query.",
+        "operationId": "OpenApiGet",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ImplicitlyFromQuery",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "DifferentNameForQuery",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ACookieValue",
+            "in": "cookie",
+            "description": "With some more documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AHeaderValue",
+            "in": "header",
+            "description": "With some documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "500": {
-            "description": "Unexpected error",
+          "404": {
+            "description": null,
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "AnotherSpecificProblemDetail": {
+                    "value": {
+                      "status": 404,
+                      "title": "Missing data (will be 404).",
+                      "type": "another_specific_problem_detail"
+                    }
+                  },
+                  "OtherMissingData": {
+                    "value": {
+                      "status": 404,
+                      "title": "Missing data again (will be 404)",
+                      "type": "other_missing_data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": null,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "SomeErrorType": {
+                    "value": {
+                      "status": 400,
+                      "title": "Invalid op (will be 400).",
+                      "type": "some_error_type"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "When needed (will be 403).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "When needed (will be 401).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": null,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Open"
                 }
               }
             }
@@ -87,6 +212,53 @@
           }
         }
       },
+      "Open": {
+        "id": "Open",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$object",
+          "$links",
+          "$partial"
+        ],
+        "properties": {
+          "$object": {
+            "type": "string",
+            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
+          },
+          "$links": {
+            "type": "object",
+            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "$partial": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
+          },
+          "aProperty": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "type"
+        ],
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
       "ValidationProblemDetails": {
         "id": "ValidationProblemDetails",
         "type": "object",
@@ -142,4 +314,7 @@
       }
     }
   }
+},
+  ContentType: application/json,
+  StatusCode: OK
 }

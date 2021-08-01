@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -10,4 +12,7 @@
     }
   ],
   "components": {}
+},
+  ContentType: application/json,
+  StatusCode: OK
 }

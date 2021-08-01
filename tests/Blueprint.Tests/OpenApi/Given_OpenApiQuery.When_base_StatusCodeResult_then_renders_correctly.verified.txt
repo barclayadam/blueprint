@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -10,79 +12,15 @@
     }
   ],
   "paths": {
-    "/resources/basic": {
+    "/resources/status-code": {
       "get": {
         "tags": [
           "OpenApi"
         ],
         "summary": "",
         "description": "",
-        "operationId": "BasicOpenApiGet",
+        "operationId": "BaseStatusCode",
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Open"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation failure",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/resources/{AnId}/as-plaintext": {
-      "put": {
-        "tags": [
-          "OpenApi"
-        ],
-        "summary": "The OpenApiPlaintextResponse summary",
-        "description": "",
-        "operationId": "OpenApiPlaintextResponse",
-        "parameters": [
-          {
-            "name": "AnId",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -109,60 +47,6 @@
   },
   "components": {
     "schemas": {
-      "Open": {
-        "id": "Open",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "$object",
-          "$links",
-          "$partial"
-        ],
-        "properties": {
-          "$object": {
-            "type": "string",
-            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
-          },
-          "$links": {
-            "type": "object",
-            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "$partial": {
-            "type": "boolean",
-            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
-          },
-          "aProperty": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "x-links": [
-          {
-            "rel": "plaintext-rel",
-            "operationId": "OpenApiPlaintextResponse",
-            "method": "PUT"
-          }
-        ]
-      },
-      "Link": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "href",
-          "type"
-        ],
-        "properties": {
-          "href": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          }
-        }
-      },
       "ProblemDetails": {
         "id": "ProblemDetails",
         "type": "object",
@@ -257,12 +141,10 @@
             }
           }
         }
-      },
-      "OpenApiPlaintextResponseCommand": {
-        "type": "object",
-        "description": "The OpenApiPlaintextResponse summary",
-        "additionalProperties": false
       }
     }
   }
+},
+  ContentType: application/json,
+  StatusCode: OK
 }

@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -163,6 +165,58 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "OpenApi"
+        ],
+        "summary": "The OpenApiPutCommand summary",
+        "description": "",
+        "operationId": "OpenApiPut",
+        "parameters": [
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUpdatedOfOpen"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -239,7 +293,14 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "x-links": [
+          {
+            "rel": "update",
+            "operationId": "OpenApiPut",
+            "method": "PUT"
+          }
+        ]
       },
       "Link": {
         "type": "object",
@@ -309,7 +370,101 @@
             }
           }
         }
+      },
+      "OpenApiPutCommand": {
+        "type": "object",
+        "description": "The OpenApiPutCommand summary",
+        "additionalProperties": false
+      },
+      "ResourceUpdatedOfOpen": {
+        "id": "ResourceUpdatedOfOpen",
+        "type": "object",
+        "description": "A specific implementation of ResourceEvent`1 for events of change type Updated.",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "$object",
+          "eventId",
+          "changeType",
+          "created",
+          "resourceObject"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Open"
+          },
+          "$object": {
+            "type": "string",
+            "description": "Gets the object of this 'resource', which is \"event\"."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
+          },
+          "changeType": {
+            "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResourceEventChangeType"
+              }
+            ]
+          },
+          "created": {
+            "type": "string",
+            "description": "Gets the created date of this event.",
+            "format": "date-time"
+          },
+          "resourceObject": {
+            "type": "string",
+            "description": "Gets the type of resource represented."
+          },
+          "href": {
+            "type": "string",
+            "description": "Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware\ncomponent from the resource type and id definition object.",
+            "nullable": true
+          },
+          "changedValues": {
+            "type": "object",
+            "description": "Gets or sets a dictionary of previous values, used to identify what has actually changed\nbetween two resources, keyed on the property name with the previous value of the resource\nbeing the value.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Gets the metadata dictionary of this resource event, a simple bag of key value pairs\nof useful information that can be stored free-form against an event.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "secureData": {
+            "type": "object",
+            "description": "Gets a dictionary of security-related data that will NOT be persisted anywhere.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Gets or sets the correlation id for this event, which can be used to tie it back to\nthe initial request that resulted in an event.",
+            "nullable": true
+          }
+        }
+      },
+      "ResourceEventChangeType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ],
+        "enum": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ]
       }
     }
   }
+},
+  ContentType: application/json,
+  StatusCode: OK
 }

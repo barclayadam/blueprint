@@ -1,3 +1,5 @@
+﻿{
+  Content:
 {
   "openapi": "3.0.0",
   "info": {
@@ -10,21 +12,21 @@
     }
   ],
   "paths": {
-    "/resources/paged": {
+    "/resources/status-code": {
       "get": {
         "tags": [
           "OpenApi"
         ],
         "summary": "",
         "description": "",
-        "operationId": "PagedOpenApiGet",
+        "operationId": "HttpStatusCode",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedOpen"
+                  "$ref": "#/components/schemas/ResourceWithHttpStatusCode"
                 }
               }
             }
@@ -55,18 +57,15 @@
   },
   "components": {
     "schemas": {
-      "PagedOpen": {
-        "id": "PagedOpen",
+      "ResourceWithHttpStatusCode": {
+        "id": "ResourceWithHttpStatusCode",
         "type": "object",
         "additionalProperties": false,
         "required": [
           "$object",
           "$links",
           "$partial",
-          "values",
-          "total",
-          "pageSize",
-          "currentPage"
+          "code"
         ],
         "properties": {
           "$object": {
@@ -84,23 +83,8 @@
             "type": "boolean",
             "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
           },
-          "values": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Open"
-            }
-          },
-          "total": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "currentPage": {
-            "type": "integer",
-            "format": "int32"
+          "code": {
+            "$ref": "#/components/schemas/HttpStatusCode"
           }
         }
       },
@@ -120,35 +104,145 @@
           }
         }
       },
-      "Open": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "$object",
-          "$links",
-          "$partial"
+      "HttpStatusCode": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "Ambiguous",
+          "MovedPermanently",
+          "Moved",
+          "Found",
+          "Redirect",
+          "SeeOther",
+          "RedirectMethod",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "RedirectKeepVerb",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
         ],
-        "properties": {
-          "$object": {
-            "type": "string",
-            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
-          },
-          "$links": {
-            "type": "object",
-            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Link"
-            }
-          },
-          "$partial": {
-            "type": "boolean",
-            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
-          },
-          "aProperty": {
-            "type": "string",
-            "nullable": true
-          }
-        }
+        "enum": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "Ambiguous",
+          "MovedPermanently",
+          "Moved",
+          "Found",
+          "Redirect",
+          "SeeOther",
+          "RedirectMethod",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "RedirectKeepVerb",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
+        ]
       },
       "ProblemDetails": {
         "id": "ProblemDetails",
@@ -247,4 +341,7 @@
       }
     }
   }
+},
+  ContentType: application/json,
+  StatusCode: OK
 }
