@@ -195,7 +195,11 @@ namespace Blueprint.Compiler
                     }
                     else
                     {
-                        this.Frames.Insert(this.Frames.IndexOf(firstUsage), variable.Creator);
+                        var indexOf = this.Frames.IndexOf(firstUsage);
+
+                        // TODO: This is a little nasty, dumping the creator frame at the start of the method. It _should_ work in many cases
+                        // but is far from ideal
+                        this.Frames.Insert(indexOf == -1 ? 0 : indexOf, variable.Creator);
                     }
 
                     this._allRegisteredFrames.Add(variable.Creator);

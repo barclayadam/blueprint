@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
-using Blueprint.Compiler.Frames;
+﻿using Blueprint.Compiler.Frames;
 
 namespace Blueprint.Http.Middleware
 {
+    /// <summary>
+    /// A middleware that will call out to the <see cref="LinkGeneratorHandler" /> to append links to a result of
+    /// an operation.
+    /// </summary>
     public class LinkGeneratorMiddlewareBuilder : IMiddlewareBuilder
     {
         /// <summary>
@@ -10,18 +13,18 @@ namespace Blueprint.Http.Middleware
         /// </summary>
         public bool SupportsNestedExecution => true;
 
+        /// <inheritdoc/>
         public bool Matches(ApiOperationDescriptor operation)
         {
             return true;
         }
 
+        /// <inheritdoc/>
         public void Build(MiddlewareBuilderContext context)
         {
-            var getGenerators = context.VariableFromContainer<IEnumerable<IResourceLinkGenerator>>();
-
-            context.AppendFrames(
-                getGenerators,
-                new MethodCall(typeof(LinkGeneratorHandler), nameof(LinkGeneratorHandler.AddLinksAsync)));
+            context.AppendFrames(new ConditionalFrame(
+                (v, _) => v.TryFindVariable(typeof(OperationResult)) != null,
+                new MethodCall(typeof(LinkGeneratorHandler), nameof(LinkGeneratorHandler.AddLinksAsync))));
         }
     }
 }
