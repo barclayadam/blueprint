@@ -14,14 +14,17 @@ namespace Blueprint.CodeGen
     public class PushExceptionToActivityFrame : SyncFrame
     {
         private readonly Variable _exceptionVariable;
+        private readonly bool _escaped;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="PushExceptionToActivityFrame" /> class.
         /// </summary>
         /// <param name="exceptionVariable">The <see cref="Variable" /> that represents the thrown exception.</param>
-        public PushExceptionToActivityFrame(Variable exceptionVariable)
+        /// <param name="escaped">Whether the exception event is recorded at a point where it is known that the exception is escaping the scope of the span. </param>
+        public PushExceptionToActivityFrame(Variable exceptionVariable, bool escaped = true)
         {
             this._exceptionVariable = exceptionVariable;
+            this._escaped = escaped;
         }
 
         /// <inheritdoc />
@@ -30,7 +33,7 @@ namespace Blueprint.CodeGen
             var context = variables.FindVariable(typeof(ApiOperationContext));
             var activityVariable = context.GetProperty(nameof(ApiOperationContext.Activity));
 
-            writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable});");
+            writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable}, {this._escaped.ToString().ToLowerInvariant()});");
         }
     }
 }

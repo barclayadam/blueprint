@@ -13,7 +13,7 @@ namespace Blueprint.CodeGen
     /// A frame that is output when catching all unhandled exceptions, logging as much information about
     /// the operation, request, exception and user through the use of <see cref="IErrorLogger" />.
     /// </summary>
-    public class PushToErrorLoggerExceptionCatchFrame : SyncFrame
+    internal class PushToErrorLoggerExceptionCatchFrame : SyncFrame
     {
         private readonly MiddlewareBuilderContext _context;
 
@@ -46,7 +46,7 @@ namespace Blueprint.CodeGen
 
             var operationTypeKey = ReflectionUtilities.PrettyTypeName(this._context.Descriptor.OperationType);
 
-            // 2. For every property of the operation output a value to the exception.Data dictionary. ALl properties that are
+            // 2. For every property of the operation output a value to the exception.Data dictionary. All properties that are
             // not considered sensitive
             foreach (var prop in this._context.Descriptor.Properties)
             {
