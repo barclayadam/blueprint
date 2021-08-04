@@ -23,6 +23,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
 
+    <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
