@@ -130,8 +130,8 @@ namespace Blueprint.Configuration
 
         public static void TryAddAuthorisationServices(IServiceCollection services)
         {
-            services.TryAddSingleton<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
-            services.TryAddSingleton<IClaimInspector, ClaimInspector>();
+            services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
+            services.TryAddScoped<IClaimInspector, ClaimInspector>();
 
             // It is expected that this is overriden, for example by AddHttp
             services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
