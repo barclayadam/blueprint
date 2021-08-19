@@ -140,8 +140,8 @@ namespace Blueprint.Configuration
             // be grabbed from default DI container by it's type (as is required by the code gen)
             void AddAuthoriser<T>() where T : class, IApiAuthoriser
             {
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IApiAuthoriser), typeof(T)));
-                services.TryAddSingleton<T, T>();
+                services.TryAddEnumerable(ServiceDescriptor.Scoped(typeof(IApiAuthoriser), typeof(T)));
+                services.TryAddScoped<T, T>();
             }
 
             AddAuthoriser<ClaimsRequiredApiAuthoriser>();
