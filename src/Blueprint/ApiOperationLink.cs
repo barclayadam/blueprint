@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Blueprint
@@ -114,6 +115,110 @@ namespace Blueprint
         public bool HasPlaceholders()
         {
             return this.Placeholders.Count > 0;
+        }
+
+        /// <summary>
+        /// Creates a relative URL (i.e. just the pathname) from this link.
+        /// </summary>
+        /// <param name="value">An object that will be used to grab values to populate placeholders with.</param>
+        /// <returns>A relative URL.</returns>
+        /// <exception cref="InvalidOperationException">If we cannot load placeholders values from the given values argument.</exception>
+        public string CreateRelativeUrl(object value)
+        {
+            // We can short-circuit in the case of no placeholders
+            if (!this.HasPlaceholders())
+            {
+                return this.UrlFormat;
+            }
+
+            if (value == null)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to construct relative URL for link {this._description} with a null values object as it has placeholders");
+            }
+
+            var builtUrl = new StringBuilder();
+            var currentIndex = 0;
+
+            foreach (var placeholder in this.Placeholders)
+            {
+                // Grab the static bit of the URL _before_ this placeholder.
+                builtUrl.Append(this.UrlFormat.Substring(currentIndex, placeholder.Index - currentIndex));
+
+                // Now skip over the actual placeholder for the next iteration
+                currentIndex = placeholder.Index + placeholder.Length;
+
+                object placeholderValue;
+
+                if (this.OperationDescriptor.OperationType == value.GetType())
+                {
+                    // Do not have to deal with "alternate" names, we know the original name is correct
+                    placeholderValue = placeholder.Property.GetValue(value);
+                }
+                else
+                {
+                    // We cannot use the existing PropertyInfo on placeholder because the type is different, even though they are the same name
+                    var property = value
+                        .GetType()
+                        .GetProperty(placeholder.AlternatePropertyName ?? placeholder.Property.Name, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+
+                    if (property == null)
+                    {
+                        if (placeholder.AlternatePropertyName != null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Cannot find property '{placeholder.AlternatePropertyName}' (specified as alternate name) on type '{value.GetType()}'");
+                        }
+
+                        throw new InvalidOperationException(
+                            $"Cannot find property '{placeholder.Property.Name}' on type '{value.GetType()}'");
+                    }
+
+                    placeholderValue = property.GetValue(value);
+                }
+
+                // If we have a placeholder value then we must return null if it does not exist, otherwise we would build URLs
+                // like /users/null if using a "safe" representation
+                if (placeholderValue == null)
+                {
+                    return null;
+                }
+
+                if (placeholder.Format != null)
+                {
+                    builtUrl.Append(Uri.EscapeDataString(string.Format(placeholder.FormatSpecifier, placeholderValue)));
+                }
+                else
+                {
+                    // We do not have a format so just ToString the result. We pick a few common types to cast directly to avoid indirect
+                    // call to ToString when doing it as (object).ToString()
+                    switch (placeholderValue)
+                    {
+                        case string s:
+                            builtUrl.Append(Uri.EscapeDataString(s));
+                            break;
+                        case Guid g:
+                            builtUrl.Append(Uri.EscapeDataString(g.ToString()));
+                            break;
+                        case int i:
+                            builtUrl.Append(Uri.EscapeDataString(i.ToString()));
+                            break;
+                        case long l:
+                            builtUrl.Append(Uri.EscapeDataString(l.ToString()));
+                            break;
+                        default:
+                            builtUrl.Append(Uri.EscapeDataString(placeholderValue.ToString()));
+                            break;
+                    }
+                }
+            }
+
+            if (currentIndex < this.UrlFormat.Length)
+            {
+                builtUrl.Append(this.UrlFormat.Substring(currentIndex));
+            }
+
+            return builtUrl.ToString();
         }
 
         /// <inheritdoc/>

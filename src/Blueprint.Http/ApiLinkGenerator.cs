@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 
@@ -69,16 +68,21 @@ namespace Blueprint.Http
             }
 
             // baseUri always has / at end, relative never has at start
-            var routeUrl = CreateRelativeUrlFromLink(selfLink, idDefinition);
+            var relativeUrl = selfLink.CreateRelativeUrl(idDefinition);
+
+            var fullUri = new StringBuilder(this._baseUri.Length + relativeUrl.Length);
+
+            fullUri.Append(this._baseUri);
+            fullUri.Append(relativeUrl);
 
             if (queryString != null)
             {
-                AppendAsQueryString(routeUrl, queryString.GetType().GetProperties(), queryString, p => true);
+                AppendAsQueryString(fullUri, queryString.GetType().GetProperties(), queryString, p => true);
             }
 
             return new Link
             {
-                Href = this._baseUri + routeUrl,
+                Href = fullUri.ToString(),
                 Type = ApiResource.GetTypeName(typeof(T)),
             };
         }
@@ -86,20 +90,13 @@ namespace Blueprint.Http
         /// <inheritdoc />
         public string CreateUrl(ApiOperationLink link, object result = null)
         {
-            // This duplicates the checks in CreateRelativeUrlFromLink for the purpose of not creating a new instance
-            // of StringBuilder unnecessarily
-            if (result == null)
-            {
-                return this._baseUri + link.UrlFormat;
-            }
-
             // We can short-circuit in the (relatively uncommon case) of no placeholders
             if (!link.HasPlaceholders())
             {
                 return this._baseUri + link.UrlFormat;
             }
 
-            var relativeUrl = CreateRelativeUrlFromLink(link, result);
+            var relativeUrl = link.CreateRelativeUrl(result);
 
             // We cannot create a full URL if the relative link is null
             if (relativeUrl == null)
@@ -124,22 +121,35 @@ namespace Blueprint.Http
                 throw new InvalidOperationException($"No links exist for the operation {operationType.FullName}.");
             }
 
-            var routeUrl = CreateRelativeUrlFromLink(link, operation);
+            var relativeUrl = link.CreateRelativeUrl(operation);
 
             // We cannot create a full URL if the relative link is null
-            if (routeUrl == null)
+            if (relativeUrl == null)
             {
                 return null;
             }
 
+            var fullUri = new StringBuilder(this._baseUri.Length + relativeUrl.Length);
+
+            fullUri.Append(this._baseUri);
+            fullUri.Append(relativeUrl);
+
             // Append any _extra_ properties to the generated URL. The shouldInclude check will return true if the property to
             // be written does NOT exist as a placeholder in the link and therefore would NOT have already been "consumed"
-            AppendAsQueryString(routeUrl, properties, operation, p => link.Placeholders.All(ph => ph.Property != p));
+            AppendAsQueryString(
+                fullUri,
+                properties,
+                operation,
+                p => link.Placeholders.All(ph => ph.Property != p));
 
-            return this._baseUri + routeUrl;
+            return fullUri.ToString();
         }
 
-        private static void AppendAsQueryString(StringBuilder routeUrl, PropertyInfo[] properties, object values, Func<PropertyInfo, bool> shouldInclude)
+        private static void AppendAsQueryString(
+            StringBuilder routeUrl,
+            PropertyInfo[] properties,
+            object values,
+            Func<PropertyInfo, bool> shouldInclude)
         {
             var addedQs = false;
 
@@ -162,12 +172,12 @@ namespace Blueprint.Http
 
                 if (!addedQs)
                 {
-                    routeUrl.Append("?");
+                    routeUrl.Append('?');
                     addedQs = true;
                 }
                 else
                 {
-                    routeUrl.Append("&");
+                    routeUrl.Append('&');
                 }
 
                 routeUrl.Append(property.Name);
@@ -179,103 +189,6 @@ namespace Blueprint.Http
         private static object GetDefaultValue(Type t)
         {
             return t.IsValueType ? Activator.CreateInstance(t) : null;
-        }
-
-        private static StringBuilder CreateRelativeUrlFromLink(ApiOperationLink link, object result)
-        {
-            if (result == null)
-            {
-                return new StringBuilder(link.UrlFormat);
-            }
-
-            // We can short-circuit in the (relatively uncommon case) of no placeholders
-            if (!link.HasPlaceholders())
-            {
-                return new StringBuilder(link.UrlFormat);
-            }
-
-            var builtUrl = new StringBuilder();
-            var currentIndex = 0;
-
-            foreach (var placeholder in link.Placeholders)
-            {
-                // Grab the static bit of the URL _before_ this placeholder.
-                builtUrl.Append(link.UrlFormat.Substring(currentIndex, placeholder.Index - currentIndex));
-
-                // Now skip over the actual placeholder for the next iteration
-                currentIndex = placeholder.Index + placeholder.Length;
-
-                object placeholderValue;
-
-                if (link.OperationDescriptor.OperationType == result.GetType())
-                {
-                    // Do not have to deal with "alternate" names, we know the original name is correct
-                    placeholderValue = placeholder.Property.GetValue(result);
-                }
-                else
-                {
-                    // We cannot use the existing PropertyInfo on placeholder because the type is different, even though they are the same name
-                    var property = result
-                        .GetType()
-                        .GetProperty(placeholder.AlternatePropertyName ?? placeholder.Property.Name, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-
-                    if (property == null)
-                    {
-                        if (placeholder.AlternatePropertyName != null)
-                        {
-                            throw new InvalidOperationException(
-                                $"Cannot find property '{placeholder.AlternatePropertyName}' (specified as alternate name) on type '{result.GetType()}'");
-                        }
-
-                        throw new InvalidOperationException(
-                            $"Cannot find property '{placeholder.Property.Name}' on type '{result.GetType()}'");
-                    }
-
-                    placeholderValue = property.GetValue(result);
-                }
-
-                // If we have a placeholder value then we must return null if it does not exist, otherwise we would build URLs
-                // like /users/null if using a "safe" representation
-                if (placeholderValue == null)
-                {
-                    return null;
-                }
-
-                if (placeholder.Format != null)
-                {
-                    builtUrl.Append(Uri.EscapeDataString(string.Format(placeholder.FormatSpecifier, placeholderValue)));
-                }
-                else
-                {
-                    // We do not have a format so just ToString the result. We pick a few common types to cast directly to avoid indirect
-                    // call to ToString when doing it as (object).ToString()
-                    switch (placeholderValue)
-                    {
-                        case string s:
-                            builtUrl.Append(Uri.EscapeDataString(s));
-                            break;
-                        case Guid g:
-                            builtUrl.Append(Uri.EscapeDataString(g.ToString()));
-                            break;
-                        case int i:
-                            builtUrl.Append(Uri.EscapeDataString(i.ToString()));
-                            break;
-                        case long l:
-                            builtUrl.Append(Uri.EscapeDataString(l.ToString()));
-                            break;
-                        default:
-                            builtUrl.Append(Uri.EscapeDataString(placeholderValue.ToString()));
-                            break;
-                    }
-                }
-            }
-
-            if (currentIndex < link.UrlFormat.Length)
-            {
-                builtUrl.Append(link.UrlFormat.Substring(currentIndex));
-            }
-
-            return builtUrl;
         }
     }
 }
