@@ -71,7 +71,8 @@ namespace Blueprint.Sample.WebApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapBlueprintApi("api/");
+                endpoints.MapBlueprintApi("api/")
+                    .RequireHost("localhost:49454");
             });
         }
     }

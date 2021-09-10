@@ -36,7 +36,8 @@ namespace Microsoft.AspNetCore.Builder
         /// </remarks>
         /// <param name="endpoints">The endpoint builder to register with.</param>
         /// <param name="basePath">A base path to prepend to all routes.</param>
-        public static void MapBlueprintApi(
+        /// <returns>A builder that allows adding metadata / conventions to all mapped endpoints.</returns>
+        public static IEndpointConventionBuilder MapBlueprintApi(
             this IEndpointRouteBuilder endpoints,
             string basePath)
         {
@@ -85,6 +86,8 @@ namespace Microsoft.AspNetCore.Builder
                 requestDelegate = _ => throw new CompilationWrapperException(ce);
             }
 
+            var builders = new List<IEndpointConventionBuilder>();
+
             // Ordering by 'indexOf {' means we put those URLs which are not placeholders
             // first (e.g. /users/{id} and /users/me will put /users/me first) because those without would return -1
             foreach (var link in apiDataModel.Links.OrderBy(l => l.UrlFormat.IndexOf('{')))
@@ -96,7 +99,11 @@ namespace Microsoft.AspNetCore.Builder
                 builder.WithDisplayName($"{httpFeatureData.HttpMethod} {link.OperationDescriptor.Name}");
                 builder.WithMetadata(new HttpMethodMetadata(new[] { httpFeatureData.HttpMethod }));
                 builder.WithMetadata(link.OperationDescriptor);
+
+                builders.Add(builder);
             }
+
+            return new BlueprintEndpointRouteBuilder(builders);
         }
 
         /// <summary>
