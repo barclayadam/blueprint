@@ -192,10 +192,7 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string queryString)
         {
-            var context = executor.HttpContextFor<T>();
-            context.GetHttpContext().Request.QueryString = new QueryString(queryString);
-
-            return context;
+            return executor.HttpContextFor<T>(ctx => ctx.Request.QueryString = new QueryString(queryString));
         }
     }
 }

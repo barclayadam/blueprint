@@ -128,12 +128,12 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             TestApiOperationExecutor executor,
             Dictionary<string, string> cookies)
         {
-            var context = executor.HttpContextFor<T>();
-            var cookiesAsHeader = cookies.Select(c => $"{c.Key}={c.Value}").ToArray();
+            return executor.HttpContextFor<T>(ctx =>
+            {
+                var cookiesAsHeader = cookies.Select(c => $"{c.Key}={c.Value}").ToArray();
 
-            context.GetHttpContext().Request.Headers["Cookie"] = cookiesAsHeader;
-
-            return context;
+                ctx.Request.Headers["Cookie"] = cookiesAsHeader;
+            });
         }
     }
 }

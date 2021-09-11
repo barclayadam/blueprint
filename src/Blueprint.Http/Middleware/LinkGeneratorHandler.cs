@@ -36,7 +36,7 @@ namespace Blueprint.Http.Middleware
 
             var enumerableResult = resource as IEnumerable<object>;
 
-            if (resource is IListApiResource pagedResult)
+            if (resource is IApiResourceCollection pagedResult)
             {
                 enumerableResult = pagedResult.GetEnumerable();
             }

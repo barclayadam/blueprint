@@ -168,8 +168,11 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
 
         private static ApiOperationContext GetContext<T>(TestApiOperationExecutor executor, string routeKey, string routeValue)
         {
-            var context = executor.HttpContextFor<T>();
-            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
+            var context = executor.HttpContextFor<T>(ctx =>
+            {
+                ctx.Request.Headers["Content-Type"] = "application/json";
+            });
+
             context.GetRouteData().Values[routeKey] = routeValue;
 
             return context;

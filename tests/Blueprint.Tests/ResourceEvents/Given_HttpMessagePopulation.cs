@@ -55,9 +55,7 @@ namespace Blueprint.Tests.ResourceEvents
                 .AddResourceEvents<NullResourceEventRepository>());
 
             // Act
-            var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });
-
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
 
             // Assert
             result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");

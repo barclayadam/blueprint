@@ -33,10 +33,8 @@ namespace Blueprint.Tests.Http
             var executor = TestApiOperationExecutor
                 .CreateHttp(o => o.WithOperation<HttpOperation>());
 
-            var context = executor.HttpContextFor<HttpOperation>();
-
             // Act
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<HttpOperation>();
 
             // Assert
             result.ShouldBeOperationResultType<NoResultOperationResult>();

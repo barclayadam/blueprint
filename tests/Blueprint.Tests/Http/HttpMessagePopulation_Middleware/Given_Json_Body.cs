@@ -233,11 +233,11 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
         {
             var jsonBody = JsonConvert.SerializeObject(body);
 
-            var context = executor.HttpContextFor<T>();
-            context.GetHttpContext().Request.Body = jsonBody.AsUtf8Stream();
-            context.GetHttpContext().Request.Headers["Content-Type"] = "application/json";
-
-            return context;
+            return executor.HttpContextFor<T>(ctx =>
+            {
+                ctx.Request.Body = jsonBody.AsUtf8Stream();
+                ctx.Request.Headers["Content-Type"] = "application/json";
+            });
         }
     }
 }

@@ -90,14 +90,13 @@ namespace Blueprint.Tests.Http.HttpMessagePopulation_Middleware
             TestApiOperationExecutor executor,
             Dictionary<string, string> headers)
         {
-            var context = executor.HttpContextFor<T>();
-
-            foreach (var h in headers)
+            return executor.HttpContextFor<T>(ctx =>
             {
-                context.GetHttpContext().Request.Headers[h.Key] = h.Value;
-            }
-
-            return context;
+                foreach (var h in headers)
+                {
+                    ctx.Request.Headers[h.Key] = h.Value;
+                }
+            });
         }
     }
 }

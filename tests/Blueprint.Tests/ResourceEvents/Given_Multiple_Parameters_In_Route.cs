@@ -10,6 +10,26 @@ namespace Blueprint.Tests.ResourceEvents
 {
     public class Given_Multiple_Parameters_In_Route
     {
+        [Test]
+        public async Task When_HttpMessagePopulation_Operation_Then_Properties_Are_Populated()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<CreationOperation>()
+                .WithOperation<SelfQuery>()
+                .AddResourceEvents<NullResourceEventRepository>());
+
+            // Act
+            var result = await executor.ExecuteAsync(new CreationOperation
+            {
+                IdToCreate = "1234",
+                EmailToCreate = "test@email.com",
+            });
+
+            // Assert
+            result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
+            result.ShouldBeContent<CreatedResourceEvent>().Data.Email.Should().Be("test@email.com");
+        }
         [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
         {
@@ -56,29 +76,6 @@ namespace Blueprint.Tests.ResourceEvents
             public string Id { get; set; }
 
             public string Email { get; set; }
-        }
-
-        [Test]
-        public async Task When_HttpMessagePopulation_Operation_Then_Properties_Are_Populated()
-        {
-            // Arrange
-            var executor = TestApiOperationExecutor.CreateHttp(o => o
-                .WithOperation<CreationOperation>()
-                .WithOperation<SelfQuery>()
-                .AddResourceEvents<NullResourceEventRepository>());
-
-            // Act
-            var context = executor.HttpContextFor(new CreationOperation
-            {
-                IdToCreate = "1234",
-                EmailToCreate = "test@email.com",
-            });
-
-            var result = await executor.ExecuteAsync(context);
-
-            // Assert
-            result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
-            result.ShouldBeContent<CreatedResourceEvent>().Data.Email.Should().Be("test@email.com");
         }
     }
 }

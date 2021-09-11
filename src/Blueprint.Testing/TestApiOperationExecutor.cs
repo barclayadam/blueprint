@@ -195,6 +195,34 @@ namespace Blueprint.Testing
             return this.DataModel.CreateOperationContext(this._serviceProvider, operation, token);
         }
 
+        public async Task<OperationResult> ExecuteAsync<T>()
+        {
+            using var serviceScope = this._serviceProvider.CreateScope();
+            var apiOperationContext = this.BuildContext<T>(serviceScope.ServiceProvider, CancellationToken.None);
+            var result = await this._executor.ExecuteAsync(apiOperationContext);
+
+            if (result is UnhandledExceptionOperationResult e)
+            {
+                e.Rethrow();
+            }
+
+            return result;
+        }
+
+        public async Task<OperationResult> ExecuteAsync(object operation)
+        {
+            using var serviceScope = this._serviceProvider.CreateScope();
+            var apiOperationContext = this.BuildContext(serviceScope.ServiceProvider, operation, CancellationToken.None);
+            var result = await this._executor.ExecuteAsync(apiOperationContext);
+
+            if (result is UnhandledExceptionOperationResult e)
+            {
+                e.Rethrow();
+            }
+
+            return result;
+        }
+
         /// <inheritdoc />
         public async Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
@@ -211,7 +239,10 @@ namespace Blueprint.Testing
         /// <inheritdoc />
         public async Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default)
         {
-            var result = await this._executor.ExecuteWithNewScopeAsync(operation, token);
+            using var serviceScope = this._serviceProvider.CreateScope();
+            var apiOperationContext = this.BuildContext(serviceScope.ServiceProvider, operation, token);
+
+            var result = await this._executor.ExecuteAsync(apiOperationContext);
 
             if (result is UnhandledExceptionOperationResult e)
             {
@@ -224,6 +255,28 @@ namespace Blueprint.Testing
         public async Task<OperationResult> ExecuteWithNoUnwrapAsync(object operation, CancellationToken token = default)
         {
             return await this._executor.ExecuteWithNewScopeAsync(operation, token);
+        }
+
+        private ApiOperationContext BuildContext(IServiceProvider services, object operation, CancellationToken token)
+        {
+            var needsHttpContext = this._executor.DataModel.TryFindOperation(operation.GetType(), out var descriptor) &&
+                                   descriptor.TryGetFeatureData<HttpOperationFeatureData>(out _);
+
+            return needsHttpContext
+                ? this.HttpContextFor(operation, token: token)
+                : this.DataModel.CreateOperationContext(services, operation, token);
+        }
+
+        private ApiOperationContext BuildContext<T>(IServiceProvider services, CancellationToken token)
+        {
+            var operationType = typeof(T);
+
+            var needsHttpContext = this._executor.DataModel.TryFindOperation(operationType, out var descriptor) &&
+                                   descriptor.TryGetFeatureData<HttpOperationFeatureData>(out _);
+
+            return needsHttpContext
+                ? this.HttpContextFor<T>(token: token)
+                : this.DataModel.CreateOperationContext(services, operationType, token);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Blueprint.Http
     /// An <see cref="ApiResource" /> that contains a list of other resources.
     /// </summary>
     /// <typeparam name="T">The type of the API resource represented.</typeparam>
-    public class ListApiResource<T> : ApiResource, IListApiResource
+    public class ListApiResource<T> : ApiResource, IApiResourceCollection
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ListApiResource{T}"/> class.

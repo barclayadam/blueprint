@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace Blueprint.Http
     /// both internal and external to the API a way of reacting to events (i.e. by removing from cache if a
     /// <see cref="ResourceEventChangeType.Deleted" /> event is returned.
     /// </remarks>
-    public class ResourceEvent
+    public class ResourceEvent : IApiResourceCollection
     {
         private readonly DateTimeOffset _created;
 
@@ -190,6 +191,12 @@ namespace Blueprint.Http
             this._secureData[key] = value;
 
             return this;
+        }
+
+        /// <inheritdoc/>
+        IEnumerable<object> IApiResourceCollection.GetEnumerable()
+        {
+            yield return this.Data;
         }
     }
 

@@ -55,7 +55,7 @@ namespace Blueprint.Http.Middleware
                         return;
                     }
 
-                    resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.SelfQuery);
+                    resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.Data ?? resourceEvent.SelfQuery);
 
                     // If we do not already have Data use the "SelfQuery" to populate using a nested query
                     if (resourceEvent.Data == null)

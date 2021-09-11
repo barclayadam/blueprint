@@ -23,8 +23,7 @@ namespace Blueprint.Tests.Tasks.TaskRunner_Middleware
                 .AddLogging());
 
             // Act
-            var context = executor.ContextFor(new TaskOperation { ToReturn = toReturn });
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync(new TaskOperation { ToReturn = toReturn });
 
             // Assert
             var okResult = result.ShouldBeOperationResultType<OkResult>();

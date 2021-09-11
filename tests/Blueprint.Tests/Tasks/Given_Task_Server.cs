@@ -22,8 +22,7 @@ namespace Blueprint.Tests.Tasks
                 o => o.WithOperation<TestBackgroundTask>());
 
             // Act
-            var context = executor.ContextFor(testBackgroundTask);
-            await executor.ExecuteAsync(context);
+            await executor.ExecuteAsync(testBackgroundTask);
 
             // Assert
             testBackgroundTask.HasExecuted.Should().BeTrue();

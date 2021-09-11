@@ -28,10 +28,8 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-
-            var result1 = await executor.ExecuteAsync(context);
-            var result2 = await executor.ExecuteAsync(context);
+            var result1 = await executor.ExecuteAsync<OpenApiQuery>();
+            var result2 = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult1 = result1.ShouldBeOperationResultType<PlainTextResult>();
@@ -48,8 +46,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -71,8 +68,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -91,8 +87,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -111,8 +106,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -131,8 +125,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -151,8 +144,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -171,8 +163,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -191,8 +182,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -213,8 +203,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -234,8 +223,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
@@ -258,8 +246,7 @@ namespace Blueprint.Tests.OpenApi
                 .AddOpenApi());
 
             // Act
-            var context = executor.HttpContextFor<OpenApiQuery>();
-            var result = await executor.ExecuteAsync(context);
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
 
             // Assert
             var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();

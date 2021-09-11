@@ -12,6 +12,25 @@ namespace Blueprint.Tests.ResourceEvents
 {
     public class Given_Permissioned_GetById
     {
+        [Test]
+        public async Task When_Child_Operation_Has_Authorisation_Then_Skips_And_Allows()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(
+                o => o
+                    .WithOperation<CreationOperation>()
+                    .WithOperation<SelfQuery>()
+                    .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+                    .AddAuthorisation()
+                    .AddResourceEvents<NullResourceEventRepository>(),
+                s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>());
+
+            // Act
+            var result = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
+
+            // Assert
+            result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
+        }
         [AllowAnonymous]
         [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
@@ -52,27 +71,6 @@ namespace Blueprint.Tests.ResourceEvents
         public class AwesomeApiResource : ApiResource
         {
             public string Id { get; set; }
-        }
-
-        [Test]
-        public async Task When_Child_Operation_Has_Authorisation_Then_Skips_And_Allows()
-        {
-            // Arrange
-            var executor = TestApiOperationExecutor.CreateHttp(
-                o => o
-                    .WithOperation<CreationOperation>()
-                    .WithOperation<SelfQuery>()
-                    .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
-                    .AddAuthorisation()
-                    .AddResourceEvents<NullResourceEventRepository>(),
-                s => s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>());
-
-            // Act
-            var context = executor.HttpContextFor(new CreationOperation { IdToCreate = "1234" });
-            var result = await executor.ExecuteAsync(context);
-
-            // Assert
-            result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
         }
     }
 }
