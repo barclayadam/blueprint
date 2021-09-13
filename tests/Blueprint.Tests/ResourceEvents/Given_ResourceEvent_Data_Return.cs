@@ -10,7 +10,7 @@ namespace Blueprint.Tests.ResourceEvents
     public class Given_ResourceEvent_Data_Return
     {
         [Test]
-        public async Task When_ApiResource_Returned_With_SelfQuery_Registered_Then_Href_Populated()
+        public async Task When_ApiResource_Returned_With_Then_Href_Populated()
         {
             // Arrange
             var executor = TestApiOperationExecutor
@@ -35,7 +35,7 @@ namespace Blueprint.Tests.ResourceEvents
         }
 
         [Test]
-        public async Task When_ApiResource_Returned_Then_SelfLink_Populated()
+        public async Task When_ApiResource_Returned_With_HateoasLinks_Added_First_Then_Links_Populated()
         {
             // Arrange
             var executor = TestApiOperationExecutor
@@ -43,6 +43,32 @@ namespace Blueprint.Tests.ResourceEvents
                     .Http()
                     .AddHateoasLinks()
                     .AddResourceEvents<NullResourceEventRepository>()
+                    .WithOperation<ResourceSelfOperation>()
+                    .WithOperation<ResourceCreationOperation>()
+                    .WithOperation<ResourceLinkWithoutIdOperation>()
+                    .WithOperation<ResourceLinkWithIdOperation>()
+                );
+
+            // Act
+            var result = await executor.ExecuteAsync<ResourceCreationOperation>();
+
+            // Assert
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
+            var content = okResult.Content.Should().BeOfType<ResourceCreated<ResourceToReturn>>().Subject;
+
+            // 2 + self
+            content.Data.Links.Should().HaveCount(3);
+        }
+
+        [Test]
+        public async Task When_ApiResource_Returned_With_HateoasLinks_Added_After_Then_Links_Populated()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor
+                .CreateStandalone(o => o
+                    .Http()
+                    .AddResourceEvents<NullResourceEventRepository>()
+                    .AddHateoasLinks()
                     .WithOperation<ResourceSelfOperation>()
                     .WithOperation<ResourceCreationOperation>()
                     .WithOperation<ResourceLinkWithoutIdOperation>()

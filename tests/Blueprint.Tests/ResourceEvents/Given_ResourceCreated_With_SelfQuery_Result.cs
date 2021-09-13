@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace Blueprint.Tests.ResourceEvents
 {
-    public class Given_ResourceCreated_Result
+    public class Given_ResourceCreated_With_SelfQuery_Result
     {
         [Test]
         public async Task When_ResourceCreated_And_Self_Query_Exists_Populates_Data()
@@ -29,6 +29,59 @@ namespace Blueprint.Tests.ResourceEvents
             // Assert
             result1.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
             result2.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("9876");
+        }
+
+        [Test]
+        public async Task When_ResourceCreated_Then_Href_Populated()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<CreationOperation>()
+                .WithOperation<SelfQuery>()
+                .AddResourceEvents<NullResourceEventRepository>());
+
+            // Act
+            var result1 = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
+
+            // Assert
+            var evt = result1.ShouldBeContent<CreatedResourceEvent>();
+            evt.Href.Should().EndWith("/resources/1234");
+        }
+
+        [Test]
+        public async Task When_LinkGeneration_Middleware_Added_After_Then_Links_Populated()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<CreationOperation>()
+                .WithOperation<SelfQuery>()
+                .AddResourceEvents<NullResourceEventRepository>()
+                .AddHateoasLinks());
+
+            // Act
+            var result1 = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
+
+            // Assert
+            var evt = result1.ShouldBeContent<CreatedResourceEvent>();
+            evt.Data.Links["self"].Href.Should().EndWith("/resources/1234");
+        }
+
+        [Test]
+        public async Task When_LinkGeneration_Middleware_Added_First_Then_Links_Populated()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<CreationOperation>()
+                .WithOperation<SelfQuery>()
+                .AddHateoasLinks()
+                .AddResourceEvents<NullResourceEventRepository>());
+
+            // Act
+            var result1 = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
+
+            // Assert
+            var evt = result1.ShouldBeContent<CreatedResourceEvent>();
+            evt.Data.Links["self"].Href.Should().EndWith("/resources/1234");
         }
 
         [Test]

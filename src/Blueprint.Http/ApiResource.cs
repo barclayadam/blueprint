@@ -86,6 +86,13 @@ namespace Blueprint.Http
         {
             if (this._links.TryGetValue(rel, out var existing))
             {
+                // Check if they are equivalent and bail if so, just make this operation idempotent and
+                // do not throw exception
+                if (existing == link)
+                {
+                    return;
+                }
+
                 throw new InvalidOperationException(
                     $@"A link with the rel '{rel}' (link href is {link.Href}) has already been added to the API resource of type '{this.GetType().FullName}'. Existing link has href of {existing.Href}.
 
