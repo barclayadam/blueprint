@@ -90,6 +90,7 @@
       },
       "Link": {
         "type": "object",
+        "description": "A link from one resource to another, that indicates what operations may be available\nfor a given ILinkableResource being returned from the API.",
         "additionalProperties": false,
         "required": [
           "href",
@@ -97,10 +98,12 @@
         ],
         "properties": {
           "href": {
-            "type": "string"
+            "type": "string",
+            "description": "The URL of this link."
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "The type of resource this link will return."
           }
         }
       },
