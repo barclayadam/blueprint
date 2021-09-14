@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Blueprint.Http;
 using FluentAssertions;
 using NUnit.Framework;
+using VerifyNUnit;
 
 namespace Blueprint.Tests.ResourceEvents
 {
@@ -45,6 +47,44 @@ namespace Blueprint.Tests.ResourceEvents
 
             // Assert
             rehydrated.Should().BeEquivalentTo(resourceEvent);
+        }
+
+        [Test]
+        public async Task Can_serialise_to_JSON()
+        {
+            // Arrange
+            var resourceEvent = new ResourceEvent<MyResource>(
+                ResourceEventChangeType.Created,
+                "createdInTest",
+                new MyResource("test-1234", "My named resource"))
+            {
+                Metadata = new Dictionary<string, object>
+                {
+                    ["stringKey"] = "value1",
+                    ["numberKey"] = 1,
+                    ["booleanKey"] = true,
+                },
+
+                SecureData = new Dictionary<string, object>
+                {
+                    ["key1"] = "value1",
+                },
+
+                ChangedValues = new Dictionary<string, object>
+                {
+                    ["key1"] = "changed-value1",
+                },
+
+                CorrelationId = "my-correlation-id",
+            };
+
+            var prettyPrintOptions = new JsonSerializerOptions(JsonSerializerOptions) { WriteIndented = true };
+
+            // Act
+            var asJson = JsonSerializer.Serialize(resourceEvent, prettyPrintOptions);
+
+            // Assert
+            await Verifier.Verify(asJson);
         }
 
         [Test]

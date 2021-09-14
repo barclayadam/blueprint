@@ -38,6 +38,7 @@ namespace Blueprint.Http
 
     internal class JsonConverterForResourceEventOfT<T> : JsonConverter<ResourceEvent<T>> where T : ApiResource
     {
+        private static readonly JsonEncodedText _object = JsonEncodedText.Encode("$object");
         private static readonly JsonEncodedText _eventId = JsonEncodedText.Encode("eventId");
         private static readonly JsonEncodedText _changeType = JsonEncodedText.Encode("changeType");
         private static readonly JsonEncodedText _created = JsonEncodedText.Encode("created");
@@ -77,6 +78,7 @@ namespace Blueprint.Http
         {
             writer.WriteStartObject();
 
+            writer.WriteString(_object, value.Object);
             writer.WriteString(_eventId, value.EventId);
             writer.WriteString(_changeType, value.ChangeType.ToString());
             writer.WriteString(_created, value.Created);

@@ -1,0 +1,26 @@
+﻿{
+  "$object": "event",
+  "eventId": "createdInTest",
+  "changeType": "Created",
+  "created": "2021-09-14T19:26:27.629002+00:00",
+  "resourceObject": "my",
+  "correlationId": "my-correlation-id",
+  "data": {
+    "id": "test-1234",
+    "name": "My named resource",
+    "$object": "my",
+    "$links": {},
+    "$partial": false
+  },
+  "changedValues": {
+    "key1": "changed-value1"
+  },
+  "metadata": {
+    "stringKey": "value1",
+    "numberKey": 1,
+    "booleanKey": true
+  },
+  "secureData": {
+    "key1": "value1"
+  }
+}
