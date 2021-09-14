@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Title>Blueprint - Tasks</Title>
     <Description>Blueprint: Background task processing based on Blueprint API</Description>
     <PackageTags>Tasks;Background;$(PackageBaseTags)</PackageTags>
