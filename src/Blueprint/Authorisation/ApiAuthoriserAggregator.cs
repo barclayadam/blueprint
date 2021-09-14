@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -9,8 +6,6 @@ namespace Blueprint.Authorisation
 {
     public class ApiAuthoriserAggregator : IApiAuthoriserAggregator
     {
-        private static readonly ConcurrentDictionary<Type, List<IApiAuthoriser>> _operationTypeAuthorisers = new ConcurrentDictionary<Type, List<IApiAuthoriser>>();
-
         private readonly IEnumerable<IApiAuthoriser> _apiAuthorisers;
         private readonly ILogger<ApiAuthoriserAggregator> _logger;
 
@@ -27,8 +22,13 @@ namespace Blueprint.Authorisation
         {
             var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
 
-            foreach (var checker in this.GetForOperation(descriptor))
+            foreach (var checker in this._apiAuthorisers)
             {
+                if (!checker.AppliesTo(descriptor))
+                {
+                    continue;
+                }
+
                 var result = await checker.CanShowLinkAsync(operationContext, descriptor, resource);
 
                 if (result.IsAllowed == false)
@@ -58,14 +58,6 @@ namespace Blueprint.Authorisation
             }
 
             return ExecutionAllowed.Yes;
-        }
-
-        private List<IApiAuthoriser> GetForOperation(ApiOperationDescriptor descriptor)
-        {
-            return _operationTypeAuthorisers.GetOrAdd(descriptor.OperationType, t =>
-            {
-                return this._apiAuthorisers.Where(checker => checker.AppliesTo(descriptor)).ToList();
-            });
         }
     }
 }
