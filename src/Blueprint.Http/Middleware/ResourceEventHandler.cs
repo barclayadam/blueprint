@@ -28,8 +28,6 @@ namespace Blueprint.Http.Middleware
                 {
                     var logger = context.ServiceProvider.GetRequiredService<ILogger<ResourceEventHandlerMiddlewareBuilder>>();
 
-                    logger.LogDebug("ResourceEvent found. Loading resource {ResourceType}", resourceEvent.ResourceType);
-
                     void AddMetadata(string k, object v) => resourceEvent.Metadata[k] = v;
 
                     context.UserAuthorisationContext?.PopulateMetadata(AddMetadata);
@@ -44,23 +42,28 @@ namespace Blueprint.Http.Middleware
                         await p.PopulateMetadataAsync(context, AddMetadata);
                     }
 
-                    var selfLink = context.DataModel.GetLinkFor(resourceEvent.ResourceType, "self");
-
-                    if (selfLink == null)
+                    // If we do not already have Data use the "SelfQuery" to populate using a nested query if possible
+                    if (resourceEvent.Data == null && resourceEvent.SelfQuery != null)
                     {
-                        logger.LogWarning(
-                            "No self link exists. Link and payload will not be populated for resource {ResourceType}",
-                            resourceEvent.ResourceType);
-
-                        return;
+                        await TryPopulateResourceEventData(context, resourceEvent);
                     }
 
-                    resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.Data ?? resourceEvent.SelfQuery);
-
-                    // If we do not already have Data use the "SelfQuery" to populate using a nested query
-                    if (resourceEvent.Data == null)
+                    if (resourceEvent.Data != null)
                     {
-                        await PopulateResourceEventData(resourceEventRepository, context, resourceEvent);
+                        var selfLink = context.DataModel.GetLinkFor(resourceEvent.Data.GetType(), "self");
+
+                        if (selfLink == null)
+                        {
+                            logger.LogWarning(
+                                "No self link exists. Link and payload will not be populated for resource {ResourceType}",
+                                resourceEvent.Data.GetType());
+                        }
+                        else
+                        {
+                            resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.Data);
+                        }
+
+                        await TryPopulateChangedValuesAsync(resourceEventRepository, resourceEvent);
                     }
 
                     await resourceEventRepository.AddAsync(resourceEvent);
@@ -68,8 +71,7 @@ namespace Blueprint.Http.Middleware
             }
         }
 
-        private static async Task PopulateResourceEventData(
-            IResourceEventRepository resourceEventRepository,
+        private static async Task TryPopulateResourceEventData(
             ApiOperationContext context,
             ResourceEvent resourceEvent)
         {
@@ -78,11 +80,16 @@ namespace Blueprint.Http.Middleware
             {
                 resourceEvent.Data = await GetByIdAsync(context, resourceEvent.SelfQuery);
             }
+        }
 
-            if (resourceEvent.ChangeType == ResourceEventChangeType.Updated)
+        private static async Task TryPopulateChangedValuesAsync(
+            IResourceEventRepository resourceEventRepository,
+            ResourceEvent resourceEvent)
+        {
+            if (resourceEvent.ChangeType == ResourceEventChangeType.Updated && resourceEvent.Data != null)
             {
                 var previousResource =
-                    await resourceEventRepository.GetCurrentDataAsync(resourceEvent.Href, resourceEvent.ResourceType);
+                    await resourceEventRepository.GetCurrentDataAsync(resourceEvent.Href, resourceEvent.Data.GetType());
 
                 // There are cases where the old resource will not exist because resources being saved was a new
                 // introduction after being in prod for over a year

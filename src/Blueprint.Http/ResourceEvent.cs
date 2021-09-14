@@ -34,8 +34,7 @@ namespace Blueprint.Http
 
             this.ChangeType = changeType;
             this.EventId = eventId;
-            this.ResourceType = resourceType;
-            this.ResourceObject = ApiResource.GetTypeName(this.ResourceType);
+            this.ResourceObject = ApiResource.GetTypeName(resourceType);
             this.SelfQuery = selfQuery;
 
             this.Created = SystemTime.UtcNow;
@@ -55,8 +54,7 @@ namespace Blueprint.Http
 
             this.ChangeType = changeType;
             this.EventId = eventId;
-            this.ResourceType = data.GetType();
-            this.ResourceObject = ApiResource.GetTypeName(this.ResourceType);
+            this.ResourceObject = ApiResource.GetTypeName(data.GetType());
             this.Data = data;
 
             this.Created = SystemTime.UtcNow;
@@ -100,13 +98,6 @@ namespace Blueprint.Http
         [global::Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public IQuery SelfQuery { get; }
-
-        /// <summary>
-        /// Gets the type of resource represented.
-        /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        public Type ResourceType { get; }
 
         /// <summary>
         /// Gets the type of resource represented.
