@@ -23,7 +23,7 @@ namespace Blueprint.Http
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
 
-                // Web defaults don't use the relex JSON escaping encoder.
+                // Web defaults don't use the relax JSON escaping encoder.
                 //
                 // Because these options are for producing content that is written directly to the request
                 // (and not embedded in an HTML page for example), we can use UnsafeRelaxedJsonEscaping.
@@ -31,6 +31,7 @@ namespace Blueprint.Http
             };
 
             options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new JsonConverterFactoryForResourceEventOfT());
 
             return options;
         }
