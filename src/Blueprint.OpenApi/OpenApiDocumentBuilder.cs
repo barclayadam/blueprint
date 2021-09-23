@@ -482,6 +482,14 @@ namespace Blueprint.OpenApi
                     }
                 }
 
+                if (member.DeclaringType.IsOfGenericType(typeof(ListApiResource<>)))
+                {
+                    if (member.Name == nameof(ListApiResource<object>.Values))
+                    {
+                        baseProperty.Required = Required.Always;
+                    }
+                }
+
                 if (member.DeclaringType == typeof(ResourceEvent))
                 {
                     if (member.Name == nameof(ResourceEvent.Object) ||

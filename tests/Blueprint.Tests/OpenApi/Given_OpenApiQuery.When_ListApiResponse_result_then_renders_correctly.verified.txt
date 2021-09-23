@@ -12,21 +12,21 @@
     }
   ],
   "paths": {
-    "/resources/paged": {
+    "/resources/list": {
       "get": {
         "tags": [
           "OpenApi"
         ],
         "summary": "",
         "description": "",
-        "operationId": "PagedOpenApiGet",
+        "operationId": "ListOpenApiGet",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedOpen"
+                  "$ref": "#/components/schemas/ListOfOpen"
                 }
               }
             }
@@ -57,34 +57,19 @@
   },
   "components": {
     "schemas": {
-      "PagedOpen": {
-        "id": "PagedOpen",
+      "ListOfOpen": {
+        "id": "ListOfOpen",
         "type": "object",
-        "description": "A specialisation of ListApiResource`1 that represents a list of resources\nthat can be paged on the server.",
+        "description": "An ApiResource that contains a list of other resources.",
         "additionalProperties": false,
         "required": [
-          "values",
-          "total",
           "$object",
           "$links",
           "$partial",
-          "total",
-          "pageSize",
-          "currentPage"
+          "values",
+          "total"
         ],
         "properties": {
-          "values": {
-            "type": "array",
-            "description": "The values of this list.",
-            "items": {
-              "$ref": "#/components/schemas/Open"
-            }
-          },
-          "total": {
-            "type": "integer",
-            "description": "The total number of Api resources (i.e. how many resources exist if they were not paged).",
-            "format": "int64"
-          },
           "$object": {
             "type": "string",
             "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
@@ -100,15 +85,36 @@
             "type": "boolean",
             "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
           },
-          "pageSize": {
-            "type": "integer",
-            "description": "The size of the page requested.",
-            "format": "int32"
+          "values": {
+            "type": "array",
+            "description": "The values of this list.",
+            "items": {
+              "$ref": "#/components/schemas/Open"
+            }
           },
-          "currentPage": {
+          "total": {
             "type": "integer",
-            "description": "The 1-based index of the page requested.",
-            "format": "int32"
+            "description": "The total count of values in this list.",
+            "format": "int64"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "description": "A link from one resource to another, that indicates what operations may be available\nfor a given ILinkableResource being returned from the API.",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "type"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The URL of this link."
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of resource this link will return."
           }
         }
       },
@@ -139,25 +145,6 @@
           "aProperty": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "Link": {
-        "type": "object",
-        "description": "A link from one resource to another, that indicates what operations may be available\nfor a given ILinkableResource being returned from the API.",
-        "additionalProperties": false,
-        "required": [
-          "href",
-          "type"
-        ],
-        "properties": {
-          "href": {
-            "type": "string",
-            "description": "The URL of this link."
-          },
-          "type": {
-            "type": "string",
-            "description": "The type of resource this link will return."
           }
         }
       },

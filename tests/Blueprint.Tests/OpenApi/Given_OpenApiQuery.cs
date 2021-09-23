@@ -174,6 +174,25 @@ namespace Blueprint.Tests.OpenApi
         }
 
         [Test]
+        public async Task When_ListApiResponse_result_then_renders_correctly()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<ListOpenApiGetQuery>()
+                .AddOpenApi());
+
+            // Act
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            await Verifier.Verify(plaintextResult);
+        }
+
+        [Test]
         public async Task When_POST_operation_then_renders_correctly()
         {
             // Arrange
@@ -352,12 +371,21 @@ namespace Blueprint.Tests.OpenApi
             }
         }
 
-        [RootLink("/resources/paged")]
-        public class PagedOpenApiGetQuery : IQuery<ListApiResource<OpenApiResource>>
+        [RootLink("/resources/list")]
+        public class ListOpenApiGetQuery : IQuery<ListApiResource<OpenApiResource>>
         {
             public ListApiResource<OpenApiResource> Invoke()
             {
                 return new ListApiResource<OpenApiResource>(new [] { new OpenApiResource() });
+            }
+        }
+
+        [RootLink("/resources/paged")]
+        public class PagedOpenApiGetQuery : IQuery<PagedApiResource<OpenApiResource>>
+        {
+            public PagedApiResource<OpenApiResource> Invoke()
+            {
+                return new PagedApiResource<OpenApiResource>(new [] { new OpenApiResource() }, 1234, 15,4);
             }
         }
 
