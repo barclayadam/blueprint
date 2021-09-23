@@ -10,9 +10,11 @@ namespace Blueprint.Tests.ResourceEvents
     public class Given_ResourceEvent_Data_Return
     {
         [Test]
-        public async Task When_ApiResource_Returned_With_Then_Href_Populated()
+        public async Task When_ResourceCreated_ApiResource_Returned_With_Then_Href_Populated()
         {
             // Arrange
+            using var t = SystemTime.PauseForThread();
+
             var executor = TestApiOperationExecutor
                 .CreateStandalone(o => o
                     .Http()
@@ -29,9 +31,49 @@ namespace Blueprint.Tests.ResourceEvents
 
             // Assert
             var okResult = result.ShouldBeOperationResultType<OkResult>();
-            var content = okResult.Content.Should().BeOfType<ResourceCreated<ResourceToReturn>>().Subject;
+            var @event = okResult.Content.Should().BeOfType<ResourceCreated<ResourceToReturn>>().Subject;
 
-            content.Href.Should().EndWith($"/resources/{ResourceCreationOperation.IdToCreate}");
+            @event.Created.UtcDateTime.Should().BeCloseTo(t.UtcNow);
+            @event.Object.Should().Be("event");
+            @event.EventId.Should().Be("toReturn.created");
+            @event.ChangeType.Should().Be(ResourceEventChangeType.Created);
+            @event.ResourceObject.Should().Be("toReturn");
+            @event.Href.Should().Be($"https://api.blueprint-testing.com/api/resources/{ResourceCreationOperation.IdToCreate}");
+        }
+
+        [Test]
+        public async Task When_ResourceDeleted_ApiResource_Returned_With_Then_Href_Populated()
+        {
+            // Arrange
+            using var t = SystemTime.PauseForThread();
+
+            var executor = TestApiOperationExecutor
+                .CreateStandalone(o => o
+                    .Http()
+                    .AddHateoasLinks()
+                    .AddResourceEvents<NullResourceEventRepository>()
+                    .WithOperation<ResourceSelfOperation>()
+                    .WithOperation<ResourceDeletionOperation>()
+                    .WithOperation<ResourceLinkWithoutIdOperation>()
+                    .WithOperation<ResourceLinkWithIdOperation>()
+                );
+
+            // Act
+            var result = await executor.ExecuteAsync(new ResourceDeletionOperation
+            {
+                Id = "87457",
+            });
+
+            // Assert
+            var okResult = result.ShouldBeOperationResultType<OkResult>();
+            var @event = okResult.Content.Should().BeOfType<ResourceDeleted<ResourceToReturn>>().Subject;
+
+            @event.Created.UtcDateTime.Should().BeCloseTo(t.UtcNow);
+            @event.Object.Should().Be("event");
+            @event.EventId.Should().Be("toReturn.deleted");
+            @event.ChangeType.Should().Be(ResourceEventChangeType.Deleted);
+            @event.ResourceObject.Should().Be("toReturn");
+            @event.Href.Should().Be("https://api.blueprint-testing.com/api/resources/87457");
         }
 
         [Test]
@@ -110,6 +152,18 @@ namespace Blueprint.Tests.ResourceEvents
             public ResourceEvent<ResourceToReturn> Invoke()
             {
                 return new ResourceCreated<ResourceToReturn>(new ResourceToReturn { Id = IdToCreate, });
+            }
+        }
+
+        [Link(typeof(ResourceToReturn), "/resources/{Id}")]
+        [HttpDelete]
+        public class ResourceDeletionOperation : ICommand<ResourceEvent<ResourceToReturn>>
+        {
+            public string Id { get; set; }
+
+            public ResourceEvent<ResourceToReturn> Invoke()
+            {
+                return new ResourceDeleted<ResourceToReturn>(new ResourceToReturn { Id = this.Id, });
             }
         }
 

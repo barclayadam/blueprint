@@ -45,24 +45,24 @@ namespace Blueprint.Http.Middleware
                     // If we do not already have Data use the "SelfQuery" to populate using a nested query if possible
                     if (resourceEvent.Data == null && resourceEvent.SelfQuery != null)
                     {
-                        await TryPopulateResourceEventData(context, resourceEvent);
+                        await TryPopulateResourceEventDataAsync(context, resourceEvent);
+                    }
+
+                    var selfLink = context.DataModel.GetLinkFor(resourceEvent.ResourceType, "self");
+
+                    if (selfLink == null)
+                    {
+                        logger.LogWarning(
+                            "No self link exists. Href property of the resource event of type {ResourceType} will not be populated",
+                            resourceEvent.ResourceType);
+                    }
+                    else
+                    {
+                        resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.Data ?? resourceEvent.SelfQuery);
                     }
 
                     if (resourceEvent.Data != null)
                     {
-                        var selfLink = context.DataModel.GetLinkFor(resourceEvent.Data.GetType(), "self");
-
-                        if (selfLink == null)
-                        {
-                            logger.LogWarning(
-                                "No self link exists. Link and payload will not be populated for resource {ResourceType}",
-                                resourceEvent.Data.GetType());
-                        }
-                        else
-                        {
-                            resourceEvent.Href = apiLinkGenerator.CreateUrl(selfLink, resourceEvent.Data);
-                        }
-
                         await TryPopulateChangedValuesAsync(resourceEventRepository, resourceEvent);
                     }
 
@@ -71,7 +71,7 @@ namespace Blueprint.Http.Middleware
             }
         }
 
-        private static async Task TryPopulateResourceEventData(
+        private static async Task TryPopulateResourceEventDataAsync(
             ApiOperationContext context,
             ResourceEvent resourceEvent)
         {

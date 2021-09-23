@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -46,13 +47,16 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceEvent<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent);
+            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
         }
 
         [Test]
         public async Task Can_serialise_to_JSON()
         {
             // Arrange
+            using var t = SystemTime.PauseForThread();
+            t.SetUtcNow(new DateTime(2021, 07, 07));
+
             var resourceEvent = new ResourceEvent<MyResource>(
                 ResourceEventChangeType.Created,
                 "createdInTest",
@@ -100,7 +104,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceCreated<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent);
+            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
         }
 
         [Test]
@@ -116,7 +120,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceUpdated<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent);
+            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
         }
 
         [Test]
@@ -132,7 +136,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceDeleted<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent);
+            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
         }
 
         private class MyResource : ApiResource

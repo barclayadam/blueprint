@@ -34,6 +34,7 @@ namespace Blueprint.Http
 
             this.ChangeType = changeType;
             this.EventId = eventId;
+            this.ResourceType = resourceType;
             this.ResourceObject = ApiResource.GetTypeName(resourceType);
             this.SelfQuery = selfQuery;
 
@@ -54,7 +55,8 @@ namespace Blueprint.Http
 
             this.ChangeType = changeType;
             this.EventId = eventId;
-            this.ResourceObject = ApiResource.GetTypeName(data.GetType());
+            this.ResourceType = data.GetType();
+            this.ResourceObject = ApiResource.GetTypeName(this.ResourceType);
             this.Data = data;
 
             this.Created = SystemTime.UtcNow;
@@ -156,6 +158,14 @@ namespace Blueprint.Http
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public object Operation { get; set; }
+
+        /// <summary>
+        /// The type this resource event represents, internal to allow only using locally and to not confuse
+        /// clients given we will <b>not</b> deserialise this value.
+        /// </summary>
+        [global::Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        internal Type ResourceType { get; }
 
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be
