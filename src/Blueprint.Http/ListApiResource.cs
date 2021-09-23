@@ -19,13 +19,21 @@ namespace Blueprint.Http
 
             // NB: It's important to consume values which could be a LINQ query as otherwise modifications
             // in middleware could be lost if the values are enumerated multiple times
-            this.Values = values.ToList();
+            var asList = values.ToList();
+
+            this.Values = asList;
+            this.Total = asList.Count;
         }
 
         /// <summary>
         /// The values of this list.
         /// </summary>
         public IEnumerable<T> Values { get; }
+
+        /// <summary>
+        /// The total count of values in this list.
+        /// </summary>
+        public long Total { get; }
 
         /// <inheritdoc/>
         public IEnumerable<object> GetEnumerable()
