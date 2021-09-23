@@ -80,6 +80,8 @@ namespace Blueprint.Tests.ResourceEvents
                 },
 
                 CorrelationId = "my-correlation-id",
+
+                Href = "https://www.my-api.com/my-resource/test-1234"
             };
 
             var prettyPrintOptions = new JsonSerializerOptions(JsonSerializerOptions) { WriteIndented = true };

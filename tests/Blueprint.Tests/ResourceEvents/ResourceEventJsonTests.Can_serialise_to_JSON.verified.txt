@@ -4,6 +4,7 @@
   "changeType": "Created",
   "created": "2021-07-07T00:00:00+01:00",
   "resourceObject": "my",
+  "href": "https://www.my-api.com/my-resource/test-1234",
   "correlationId": "my-correlation-id",
   "data": {
     "id": "test-1234",
