@@ -165,7 +165,7 @@ namespace Blueprint.Http
         /// </summary>
         [global::Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
-        internal Type ResourceType { get; }
+        internal Type ResourceType { get; set; }
 
         /// <summary>
         /// Adds the given key value pair to this event's <see cref="Metadata" /> dictionary, which can be

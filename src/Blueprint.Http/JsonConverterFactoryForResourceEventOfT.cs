@@ -61,6 +61,9 @@ namespace Blueprint.Http
             // Ignore the fact that we have no empty constructors. We fill in all the properties anyway
             var resourceEvent = (ResourceEvent<T>)FormatterServices.GetSafeUninitializedObject(typeToConvert);
 
+            // We do not serialise this to JSON, but given this is a typed read we can set in behind the scenes here
+            resourceEvent.ResourceType = typeof(T);
+
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 ReadValue(ref reader, resourceEvent, options);

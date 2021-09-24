@@ -106,7 +106,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceCreated<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
+            rehydrated.Should().BeEquivalentTo(resourceEvent);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceUpdated<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
+            rehydrated.Should().BeEquivalentTo(resourceEvent);
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace Blueprint.Tests.ResourceEvents
             var rehydrated = JsonSerializer.Deserialize<ResourceDeleted<MyResource>>(asJson, JsonSerializerOptions);
 
             // Assert
-            rehydrated.Should().BeEquivalentTo(resourceEvent, o => o.Excluding(e => e.ResourceType));
+            rehydrated.Should().BeEquivalentTo(resourceEvent);
         }
 
         private class MyResource : ApiResource
