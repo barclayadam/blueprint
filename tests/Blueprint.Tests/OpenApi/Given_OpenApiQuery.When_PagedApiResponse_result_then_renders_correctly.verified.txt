@@ -68,7 +68,6 @@
           "$object",
           "$links",
           "$partial",
-          "total",
           "pageSize",
           "currentPage"
         ],
@@ -82,7 +81,7 @@
           },
           "total": {
             "type": "integer",
-            "description": "The total number of Api resources (i.e. how many resources exist if they were not paged).",
+            "description": "The total count of values in this list.",
             "format": "int64"
           },
           "$object": {

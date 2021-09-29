@@ -25,11 +25,6 @@ namespace Blueprint.Http
         }
 
         /// <summary>
-        /// The total number of Api resources (i.e. how many resources exist if they were not paged).
-        /// </summary>
-        public long Total { get; }
-
-        /// <summary>
         /// The size of the page requested.
         /// </summary>
         public int PageSize { get; }

@@ -33,7 +33,9 @@ namespace Blueprint.Http
         /// <summary>
         /// The total count of values in this list.
         /// </summary>
-        public long Total { get; }
+        // Note that we use internal set to allow PagedApiResource to set this to the total of all items, not just
+        // of the page.
+        public long Total { get; internal set; }
 
         /// <inheritdoc/>
         public IEnumerable<object> GetEnumerable()
