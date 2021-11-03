@@ -509,22 +509,6 @@ namespace Blueprint.Utilities
                     }
                 }
 
-                if (!string.IsNullOrEmpty(assembly.CodeBase))
-                {
-                    var withoutFileScheme = assembly.CodeBase.Replace("file:///", string.Empty);
-                    var directoryName = Path.GetDirectoryName(withoutFileScheme);
-
-                    if (directoryName != null)
-                    {
-                        path = Path.Combine(directoryName, assemblyName.Name + ".xml");
-
-                        if (File.Exists(path))
-                        {
-                            return path;
-                        }
-                    }
-                }
-
                 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 if (!string.IsNullOrEmpty(baseDirectory))
                 {

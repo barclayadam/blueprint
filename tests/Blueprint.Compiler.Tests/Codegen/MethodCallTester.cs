@@ -27,7 +27,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.ReturnVariable.Should().NotBeNull();
 
             @call.ReturnVariable.VariableType.Should().Be(typeof(ErrorMessage));
-            @call.ReturnVariable.Usage.Should().Be(Variable.DefaultArgName(typeof(ErrorMessage)));
+            @call.ReturnVariable.Usage.Should().Be(Variable.DefaultName(typeof(ErrorMessage)));
             @call.ReturnVariable.Creator.Should().BeSameAs(@call);
         }
 
@@ -67,7 +67,7 @@ namespace Blueprint.Compiler.Tests.Codegen
             @call.ReturnVariable.Should().NotBeNull();
 
             @call.ReturnVariable.VariableType.Should().Be(typeof(ErrorMessage));
-            @call.ReturnVariable.Usage.Should().Be(Variable.DefaultArgName(typeof(ErrorMessage)));
+            @call.ReturnVariable.Usage.Should().Be(Variable.DefaultName(typeof(ErrorMessage)));
             @call.ReturnVariable.Creator.Should().BeSameAs(@call);
         }
 

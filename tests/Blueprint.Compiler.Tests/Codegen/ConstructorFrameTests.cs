@@ -2,6 +2,7 @@ using System;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Tests.Scenarios;
+using Blueprint.Compiler.Util;
 using FluentAssertions;
 using NUnit.Framework;
 

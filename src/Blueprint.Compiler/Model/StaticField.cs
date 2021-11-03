@@ -1,4 +1,5 @@
 ﻿using System;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Model
 {
@@ -7,7 +8,7 @@ namespace Blueprint.Compiler.Model
         private readonly string _initializer;
 
         public StaticField(Type argType, string initializer)
-            : this(argType, DefaultArgName(argType), initializer)
+            : this(argType, DefaultName(argType), initializer)
         {
         }
 

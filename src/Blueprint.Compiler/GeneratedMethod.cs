@@ -281,7 +281,7 @@ namespace Blueprint.Compiler
 
         private void WriteReturnStatement(ISourceWriter writer)
         {
-            if ((this.AsyncMode == AsyncMode.ReturnCompletedTask || this.AsyncMode == AsyncMode.None) && this.ReturnType == typeof(Task))
+            if (this.AsyncMode == AsyncMode.None && this.ReturnType == typeof(Task))
             {
                 writer.WriteLine("return Task.CompletedTask;");
             }

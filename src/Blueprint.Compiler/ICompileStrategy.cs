@@ -5,6 +5,11 @@ using Microsoft.CodeAnalysis.Emit;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A strategy for compiling code in to an assembly.
+    /// </summary>
+    /// <seealso cref="InMemoryOnlyCompileStrategy" />
+    /// <seealso cref="ToFileCompileStrategy" />
     public interface ICompileStrategy
     {
         /// <summary>

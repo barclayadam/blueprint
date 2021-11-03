@@ -80,7 +80,7 @@ namespace Blueprint.Middleware
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return (this.Property != null ? this.Property.GetHashCode() : 0);
+            return this.Property != null ? this.Property.GetHashCode() : 0;
         }
     }
 }

@@ -20,11 +20,13 @@ namespace Blueprint.Compiler.Frames
 
         private Variable _target;
 
-        public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
+        public MethodCall(Type handlerType, string methodName)
+            : this(handlerType, handlerType.GetMethod(methodName))
         {
         }
 
-        public MethodCall(Type handlerType, MethodInfo methodInfo) : base(methodInfo.IsAsync())
+        public MethodCall(Type handlerType, MethodInfo methodInfo)
+            : base(methodInfo.IsAsync())
         {
             this._handlerType = handlerType;
             this._methodInfo = methodInfo;
@@ -43,7 +45,7 @@ namespace Blueprint.Compiler.Frames
                 {
                     var name = returnType.IsSimple() || returnType == typeof(object) || returnType == typeof(object[])
                         ? "result_of_" + methodInfo.Name
-                        : Variable.DefaultArgName(returnType);
+                        : Variable.DefaultName(returnType);
 
                     this.ReturnVariable = new Variable(returnType, name, this);
                 }

@@ -26,7 +26,8 @@ namespace Blueprint.Validation
 
         private class BlueprintValidatorFrame : AttributeBasedValidatorFrame<BlueprintValidationAttribute>
         {
-            public BlueprintValidatorFrame(OperationProperty property) : base(true, property)
+            public BlueprintValidatorFrame(OperationProperty property)
+                : base(true, property)
             {
             }
 

@@ -1,11 +1,12 @@
 ﻿using System;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Model
 {
     public class InjectedField : Variable
     {
         public InjectedField(Type argType)
-            : this(argType, DefaultArgName(argType))
+            : this(argType, DefaultName(argType))
         {
         }
 
@@ -28,7 +29,5 @@ namespace Blueprint.Compiler.Model
         {
             writer.WriteLine($"{this.Usage} = {this.ArgumentName};");
         }
-
-
     }
 }

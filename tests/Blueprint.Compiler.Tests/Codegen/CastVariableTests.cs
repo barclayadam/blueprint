@@ -1,4 +1,5 @@
 ﻿using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using FluentAssertions;
 using NUnit.Framework;
 

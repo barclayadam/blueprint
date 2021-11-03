@@ -8,7 +8,8 @@ namespace Blueprint.Compiler.Frames
         /// <summary>
         /// Initialises a new instance of the <see cref="SyncFrame" /> class.
         /// </summary>
-        protected SyncFrame() : base(false)
+        protected SyncFrame()
+            : base(false)
         {
         }
     }

@@ -12,6 +12,12 @@ namespace Blueprint.Compiler
     {
         private readonly List<Frame> _frames = new List<Frame>();
 
+        /// <inheritdoc />
+        public int Count => this._frames.Count;
+
+        /// <inheritdoc />
+        public Frame this[int index] => this._frames[index];
+
         /// <summary>
         /// Adds the specified <see cref="Frame" /> to this collection.
         /// </summary>
@@ -118,7 +124,6 @@ namespace Blueprint.Compiler
         /// <param name="configure">Optional, any additional configuration for the constructor frame.</param>
         /// <typeparam name="T"></typeparam>
         /// <returns>This frame collection.</returns>
-        /// <exception cref="NotImplementedException"></exception>
         public FramesCollection CallConstructor<T>(Expression<Func<T>> constructor, Action<ConstructorFrame<T>> configure = null)
         {
             var frame = new ConstructorFrame<T>(constructor);
@@ -131,7 +136,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Add a frame to the end by its type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of frame to add.</typeparam>
         /// <returns>This frame collection.</returns>
         public FramesCollection Append<T>() where T : Frame, new()
         {
@@ -141,7 +146,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Append one or more frames to the end.
         /// </summary>
-        /// <param name="frames"></param>
+        /// <param name="frames">The <see cref="Frame" />s to add.</param>
         /// <returns>This frame collection.</returns>
         public FramesCollection Append(params Frame[] frames)
         {
@@ -185,11 +190,5 @@ namespace Blueprint.Compiler
         {
             return ((IEnumerable)this._frames).GetEnumerator();
         }
-
-        /// <inheritdoc />
-        public int Count => this._frames.Count;
-
-        /// <inheritdoc />
-        public Frame this[int index] => this._frames[index];
     }
 }

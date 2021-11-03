@@ -8,7 +8,8 @@ namespace Blueprint.Compiler.Frames
         /// <summary>
         /// Initialises a new instance of the <see cref="AsyncFrame" /> class.
         /// </summary>
-        protected AsyncFrame() : base(true)
+        protected AsyncFrame()
+            : base(true)
         {
         }
     }

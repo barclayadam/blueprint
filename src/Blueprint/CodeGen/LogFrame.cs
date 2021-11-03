@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Blueprint.Utilities;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,7 @@ namespace Blueprint.CodeGen
             var argsWithLoggerAndException = new[]
             {
                 typeof(ILogger),
-            }.Concat(argTypes).ConcatSingle(typeof(Exception)).ToArray();
+            }.Concat(argTypes).Concat(new [] { typeof(Exception) }).ToArray();
 
             var actionType = argsWithLoggerAndException.Length switch
             {

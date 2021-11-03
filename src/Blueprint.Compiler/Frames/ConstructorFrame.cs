@@ -11,7 +11,8 @@ namespace Blueprint.Compiler.Frames
 {
     public class ConstructorFrame : SyncFrame
     {
-        public ConstructorFrame(ConstructorInfo ctor) : this(ctor.DeclaringType, ctor)
+        public ConstructorFrame(ConstructorInfo ctor)
+            : this(ctor.DeclaringType, ctor)
         {
         }
 
@@ -129,11 +130,13 @@ namespace Blueprint.Compiler.Frames
 
     public class ConstructorFrame<T> : ConstructorFrame
     {
-        public ConstructorFrame(ConstructorInfo ctor) : base(typeof(T), ctor)
+        public ConstructorFrame(ConstructorInfo ctor)
+            : base(typeof(T), ctor)
         {
         }
 
-        public ConstructorFrame(Expression<Func<T>> expression) : base(typeof(T), ConstructorFinderVisitor<T>.Find(expression))
+        public ConstructorFrame(Expression<Func<T>> expression)
+            : base(typeof(T), ConstructorFinderVisitor<T>.Find(expression))
         {
         }
 

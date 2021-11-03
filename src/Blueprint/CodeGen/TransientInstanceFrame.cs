@@ -2,6 +2,7 @@
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.CodeGen

@@ -11,7 +11,8 @@ namespace Blueprint.Compiler.Frames
     {
         private readonly List<Frame> _inner;
 
-        protected CompositeFrame(params Frame[] inner) : base(inner.Any(x => x.IsAsync))
+        protected CompositeFrame(params Frame[] inner)
+            : base(inner.Any(x => x.IsAsync))
         {
             this._inner = inner.ToList();
         }

@@ -88,7 +88,7 @@ namespace Blueprint.Compiler.Tests.Compilation
                          ^^^^^^^
         }");
 
-            compilationException.Code.ShouldContainIgnoringNewlines(@"using System.Threading.Tasks;
+            compilationException.SourceCode.ShouldContainIgnoringNewlines(@"using System.Threading.Tasks;
 
 namespace Tests
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Model
 {

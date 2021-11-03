@@ -9,6 +9,7 @@ using Blueprint.CodeGen;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Blueprint.Configuration;
 using Blueprint.Diagnostics;
 using Blueprint.Utilities;

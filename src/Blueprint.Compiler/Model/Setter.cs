@@ -1,14 +1,17 @@
 ﻿using System;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Model
 {
     public class Setter : Variable
     {
-        public Setter(Type variableType) : base(variableType)
+        public Setter(Type variableType)
+            : base(variableType)
         {
         }
 
-        public Setter(Type variableType, string name) : base(variableType, name)
+        public Setter(Type variableType, string name)
+            : base(variableType, name)
         {
             this.PropName = name;
         }
