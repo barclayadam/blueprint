@@ -77,7 +77,17 @@ namespace Blueprint.Http
                 var key = reader.GetString();
                 reader.Read();
                 value.Extensions ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                value.Extensions[key] = JsonSerializer.Deserialize(ref reader, typeof(object), options);
+
+                value.Extensions[key] = reader.TokenType switch
+                {
+                    JsonTokenType.String => reader.GetString(),
+                    JsonTokenType.Number => reader.GetDouble(),
+                    JsonTokenType.True => true,
+                    JsonTokenType.False => false,
+                    JsonTokenType.Null => null,
+
+                    _ => JsonSerializer.Deserialize(ref reader, typeof(object), options)
+                };
             }
         }
 
