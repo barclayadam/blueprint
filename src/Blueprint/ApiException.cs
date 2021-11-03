@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Blueprint
 {
@@ -11,6 +10,8 @@ namespace Blueprint
     [Serializable]
     public class ApiException : Exception
     {
+        private static readonly IDictionary<string, object> _emptyExtensions = new Dictionary<string, object>();
+
         /// <summary>
         /// Initialises a new instance of the <see cref="ApiException" /> class.
         /// </summary>
@@ -28,6 +29,7 @@ namespace Blueprint
             this.Title = title;
             this.Type = type;
             this.HttpStatus = httpStatus;
+            this.Extensions = extensions ?? _emptyExtensions;
         }
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace Blueprint
             this.Title = title;
             this.Type = type;
             this.HttpStatus = httpStatus;
+            this.Extensions = extensions ?? _emptyExtensions;
         }
 
         /// <summary>
@@ -83,7 +86,6 @@ namespace Blueprint
         /// The round-tripping behavior for <see cref="Extensions"/> is determined by the implementation of the Input \ Output formatters.
         /// In particular, complex types or collection types may not round-trip to the original type when using the built-in JSON or XML formatters.
         /// </remarks>
-        [CanBeNull]
-        public IDictionary<string, object> Extensions { get; set; }
+        public IDictionary<string, object> Extensions { get; }
     }
 }

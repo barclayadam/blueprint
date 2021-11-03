@@ -76,10 +76,7 @@ namespace Blueprint
         /// <returns>A new <see cref="ApiException" />.</returns>
         public ApiException Create(string detail, IDictionary<string, object> extensionData = null)
         {
-            return new ApiException(this.Title, this.Type, detail, this.HttpStatus)
-            {
-                Extensions = extensionData,
-            };
+            return new ApiException(this.Title, this.Type, detail, this.HttpStatus, extensionData);
         }
 
         /// <summary>
@@ -93,10 +90,7 @@ namespace Blueprint
         /// <returns>A new <see cref="ApiException" />.</returns>
         public ApiException Create(Exception innerException, string detail, IDictionary<string, object> extensionData = null)
         {
-            return new ApiException(this.Title, this.Type, detail, this.HttpStatus, innerException)
-            {
-                Extensions = extensionData,
-            };
+            return new ApiException(this.Title, this.Type, detail, this.HttpStatus, innerException, extensionData);
         }
     }
 }
