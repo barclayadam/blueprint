@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 
 namespace Blueprint.Diagnostics
@@ -11,6 +13,12 @@ namespace Blueprint.Diagnostics
     /// </summary>
     public static class BlueprintActivitySource
     {
+        private const string TagExceptionEventName = "exception";
+        private const string TagExceptionType = "exception.type";
+        private const string TagExceptionMessage = "exception.message";
+        private const string TagExceptionStacktrace = "exception.stacktrace";
+        private const string TagExceptionEscaped = "exception.escaped";
+
         private static readonly AssemblyName _assemblyName = typeof(BlueprintActivitySource).Assembly.GetName();
         private static readonly Version _version = _assemblyName.Version;
 
@@ -27,7 +35,7 @@ namespace Blueprint.Diagnostics
         }
 
         /// <summary>
-        /// Records an <see cref="Exception" /> against the given <see cref="Activity" />
+        /// Records an <see cref="Exception" /> against the given <see cref="Activity" /> as an event.
         /// </summary>
         /// <param name="activity">The <see cref="Activity" /> to record the exception to.</param>
         /// <param name="exception">The exception to record.</param>
@@ -39,24 +47,49 @@ namespace Blueprint.Diagnostics
                 return;
             }
 
-            var activityTagsCollection = new ActivityTagsCollection
+            var tags = new ActivityTagsCollection
             {
-                ["exception.type"] = exception.GetType(),
-                ["exception.message"] = exception.Message,
-                ["exception.stacktrace"] = exception.ToString(),
+                [TagExceptionType] = exception.GetType().FullName,
+                [TagExceptionStacktrace] = ToInvariantString(exception),
             };
+
+            if (!string.IsNullOrWhiteSpace(exception.Message))
+            {
+                tags.Add(TagExceptionMessage, exception.Message);
+            }
 
             if (escaped == true)
             {
-                activityTagsCollection.Add("exception.escaped", "true");
+                tags.Add(TagExceptionEscaped, "true");
             }
 
             foreach (var key in exception.Data.Keys.OfType<string>())
             {
-                activityTagsCollection.Add(key, exception.Data[key]);
+                tags.Add(key, exception.Data[key]);
             }
 
-            activity?.AddEvent(new ActivityEvent("exception", tags: activityTagsCollection));
+            activity?.AddEvent(new ActivityEvent(TagExceptionEventName, tags: tags));
+        }
+
+        /// <summary>
+        /// Returns a culture-independent string representation of the given <paramref name="exception"/> object,
+        /// appropriate for diagnostics tracing.
+        /// </summary>
+        /// <param name="exception">Exception to convert to string.</param>
+        /// <returns>Exception as string with no culture.</returns>
+        private static string ToInvariantString(Exception exception)
+        {
+            var originalUiCulture = Thread.CurrentThread.CurrentUICulture;
+
+            try
+            {
+                Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+                return exception.ToString();
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentUICulture = originalUiCulture;
+            }
         }
     }
 }
