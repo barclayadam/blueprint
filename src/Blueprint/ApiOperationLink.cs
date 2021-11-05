@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -118,19 +119,26 @@ namespace Blueprint
         }
 
         /// <summary>
-        /// Creates a relative URL (i.e. just the pathname) from this link.
+        /// Creates a relative URL (i.e. just the pathname) from this link, with any non-placeholder properties <b>not</b>
+        /// being included.
         /// </summary>
         /// <param name="value">An object that will be used to grab values to populate placeholders with.</param>
         /// <returns>A relative URL.</returns>
         /// <exception cref="InvalidOperationException">If we cannot load placeholders values from the given values argument.</exception>
         public string CreateRelativeUrl(object value)
         {
-            // We can short-circuit in the case of no placeholders
-            if (!this.HasPlaceholders())
-            {
-                return this.UrlFormat;
-            }
+            return this.CreateRelativeUrl(value, false);
+        }
 
+        /// <summary>
+        /// Creates a relative URL (i.e. just the pathname) from this link.
+        /// </summary>
+        /// <param name="value">An object that will be used to grab values to populate placeholders with.</param>
+        /// <param name="includeExtraPropertiesAsQueryString">Whether to included any properties from the <paramref name="value"/> that are not placeholders as query string parameters.</param>
+        /// <returns>A relative URL.</returns>
+        /// <exception cref="InvalidOperationException">If we cannot load placeholders values from the given values argument.</exception>
+        public string CreateRelativeUrl(object value, bool includeExtraPropertiesAsQueryString)
+        {
             if (value == null)
             {
                 throw new InvalidOperationException(
@@ -218,6 +226,11 @@ namespace Blueprint
                 builtUrl.Append(this.UrlFormat.Substring(currentIndex));
             }
 
+            if (includeExtraPropertiesAsQueryString)
+            {
+                this.AppendExtraAsQueryString(builtUrl, value.GetType().GetProperties(), value);
+            }
+
             return builtUrl.ToString();
         }
 
@@ -225,6 +238,51 @@ namespace Blueprint
         public override string ToString()
         {
             return this._description;
+        }
+
+        private void AppendExtraAsQueryString(
+            StringBuilder routeUrl,
+            PropertyInfo[] properties,
+            object values)
+        {
+            var addedQs = false;
+
+            // Now, for every property that has a value but has NOT been placed in to the route will be added as a query string
+            foreach (var property in properties)
+            {
+                // This property has already been handled by the route generation generation above
+                if (this.Placeholders.Any(p => p.Property == property))
+                {
+                    continue;
+                }
+
+                var value = property.GetValue(values, null);
+
+                // Ignore default values, they are unnecessary to pass back through the URL
+                if (value == null || Equals(GetDefaultValue(property.PropertyType), value))
+                {
+                    continue;
+                }
+
+                if (!addedQs)
+                {
+                    routeUrl.Append('?');
+                    addedQs = true;
+                }
+                else
+                {
+                    routeUrl.Append('&');
+                }
+
+                routeUrl.Append(property.Name);
+                routeUrl.Append('=');
+                routeUrl.Append(Uri.EscapeDataString(value.ToString()));
+            }
+        }
+
+        private static object GetDefaultValue(Type t)
+        {
+            return t.IsValueType ? Activator.CreateInstance(t) : null;
         }
     }
 }

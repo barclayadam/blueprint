@@ -112,8 +112,6 @@ namespace Blueprint.Http
         public string CreateUrl(object operation)
         {
             var operationType = operation.GetType();
-            var operationDescriptor = this._apiDataModel.FindOperation(operationType);
-            var properties = operationDescriptor.Properties;
             var link = this._apiDataModel.GetLinksForOperation(operationType).FirstOrDefault();
 
             if (link == null)
@@ -121,7 +119,7 @@ namespace Blueprint.Http
                 throw new InvalidOperationException($"No links exist for the operation {operationType.FullName}.");
             }
 
-            var relativeUrl = link.CreateRelativeUrl(operation);
+            var relativeUrl = link.CreateRelativeUrl(operation, true);
 
             // We cannot create a full URL if the relative link is null
             if (relativeUrl == null)
@@ -129,20 +127,7 @@ namespace Blueprint.Http
                 return null;
             }
 
-            var fullUri = new StringBuilder(this._baseUri.Length + relativeUrl.Length);
-
-            fullUri.Append(this._baseUri);
-            fullUri.Append(relativeUrl);
-
-            // Append any _extra_ properties to the generated URL. The shouldInclude check will return true if the property to
-            // be written does NOT exist as a placeholder in the link and therefore would NOT have already been "consumed"
-            AppendAsQueryString(
-                fullUri,
-                properties,
-                operation,
-                p => link.Placeholders.All(ph => ph.Property != p));
-
-            return fullUri.ToString();
+            return this._baseUri + relativeUrl;
         }
 
         private static void AppendAsQueryString(
