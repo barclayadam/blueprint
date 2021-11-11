@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint.Http
 {
@@ -21,10 +21,10 @@ namespace Blueprint.Http
         /// </summary>
         /// <param name="configuration">The configuration of the application.</param>
         /// <param name="okResultOperationExecutor">The <see cref="OkResultOperationExecutor"/> writing is delegated to.</param>
-        public UnhandledExceptionOperationResultExecutor(IConfiguration configuration, OkResultOperationExecutor okResultOperationExecutor)
+        public UnhandledExceptionOperationResultExecutor(IOptions<BlueprintHttpOptions> configuration, OkResultOperationExecutor okResultOperationExecutor)
         {
             this._okResultOperationExecutor = okResultOperationExecutor;
-            this._shouldExposeErrorMessage = Convert.ToBoolean(configuration["Api:ExposeErrorMessage"] ?? "false");
+            this._shouldExposeErrorMessage = configuration.Value.ExposeExceptionDetailsInErrorResponses;
         }
 
         /// <inheritdoc />
@@ -83,7 +83,7 @@ namespace Blueprint.Http
                         Status = (int)HttpStatusCode.InternalServerError,
                         Type = "unknown_error",
                         Title = this._shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
-                        Detail = this._shouldExposeErrorMessage ? exception.ToString() : null,
+                        Detail = this._shouldExposeErrorMessage ? exception.StackTrace : null,
                     };
             }
         }

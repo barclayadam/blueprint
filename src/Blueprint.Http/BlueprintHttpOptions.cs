@@ -16,6 +16,13 @@ namespace Blueprint.Http
         public List<IOperationResultOutputFormatter> OutputFormatters { get; } = new List<IOperationResultOutputFormatter>();
 
         /// <summary>
+        /// Whether to expose exception details when formatting unhandled exceptions in the pipeline. If this
+        /// is <c>true</c> we will populate a formatted <see cref="ProblemDetails" /> instance with the exception message
+        /// and stack trace, otherwise a generic message will be used and no stack trace will be present.
+        /// </summary>
+        public bool ExposeExceptionDetailsInErrorResponses { get; set; }
+
+        /// <summary>
         /// The list of available <see cref="IBodyParser" />s.
         /// </summary>
         public List<IBodyParser> BodyParsers { get; } = new List<IBodyParser>();
