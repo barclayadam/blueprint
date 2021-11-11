@@ -33,11 +33,10 @@ namespace Blueprint.Http
             var httpContext = context.GetHttpContext();
             var problemDetails = this.ToProblemDetails(result.Exception);
 
-            var traceId = context.Activity?.Id;
-
-            if (traceId != null)
+            if (context.Activity != null)
             {
-                problemDetails.AddExtension("traceId", traceId);
+                problemDetails.AddExtension("traceId", context.Activity?.TraceId.ToString());
+                problemDetails.AddExtension("traceParentId", context.Activity?.ParentId);
             }
 
             return this._okResultOperationExecutor.WriteContentAsync(
