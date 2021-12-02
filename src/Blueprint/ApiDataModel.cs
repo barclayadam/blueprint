@@ -114,10 +114,14 @@ namespace Blueprint
                     this._resourceTypeToLinks[link.ResourceType] = new List<ApiOperationLink>();
                 }
 
-                if (this._resourceTypeToLinks[link.ResourceType].Any(l => l.Rel == link.Rel))
+                var existingLink = this._resourceTypeToLinks[link.ResourceType].SingleOrDefault(l => l.Rel == link.Rel);
+
+                if (existingLink != null)
                 {
                     throw new InvalidOperationException(
-                        $"Duplicate link found for resource type {link.ResourceType.Name} with rel {link.Rel}");
+                        $"Duplicate link found for resource type {link.ResourceType.Name} with rel {link.Rel}. Existing link is for the operation: \n\n" +
+                        $"  {existingLink.OperationDescriptor.OperationType.FullName}: {existingLink.UrlFormat}\n\n" +
+                        "Every link must be a unique pairing of resource type (i.e. UserApiResource) and rel (i.e. \"self\" or \"activate\"");
                 }
 
                 this._resourceTypeToLinks[link.ResourceType].Add(link);
