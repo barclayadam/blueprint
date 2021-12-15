@@ -21,13 +21,22 @@ namespace Blueprint.OpenApi
         /// existing resources and to, in particular, add app-specific settings such as authentication
         /// and generation information (i.e. <see cref="OpenApiDocument.Info" />.
         /// </summary>
+        [CanBeNull]
         public Action<OpenApiDocument> PostConfigure { get; set; }
+
+        /// <summary>
+        /// Called for every <see cref="OpenApiOperation" /> that is generated, with the <see cref="ApiOperationDescriptor" />
+        /// that it was generated from, allowing post-creation modifications.
+        /// </summary>
+        [CanBeNull]
+        public Action<OpenApiOperation, ApiOperationDescriptor> ConfigureOperation { get; set; }
 
         /// <summary>
         /// Called to enable the modification of the <see cref="JsonSchemaGeneratorSettings" /> used during
         /// the creation of the OpenAPI document. Note that the settings have already been configured and
         /// you risk modifying / breaking functionality if you completely change parts of the settings.
         /// </summary>
+        [CanBeNull]
         public Action<JsonSchemaGeneratorSettings> ConfigureSettings { get; set; }
 
         /// <summary>

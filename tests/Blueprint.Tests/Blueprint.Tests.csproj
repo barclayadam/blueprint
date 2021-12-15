@@ -29,4 +29,9 @@
     <Content Remove="BlueprintSqlSchema.sql" />
     <EmbeddedResource Include="BlueprintSqlSchema.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="OpenApi\Given_OpenApiQuery.When_ConfigureOperation_provided_then_can_modify_all_operations.verified.txt">
+      <DependentUpon>Given_OpenApiQuery.cs</DependentUpon>
+    </None>
+  </ItemGroup>
 </Project>

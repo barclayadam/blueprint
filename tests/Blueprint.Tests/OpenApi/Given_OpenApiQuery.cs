@@ -252,6 +252,32 @@ namespace Blueprint.Tests.OpenApi
             await Verifier.Verify(plaintextResult);
         }
 
+        [Test]
+        public async Task When_ConfigureOperation_provided_then_can_modify_all_operations()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<OpenApiGetQuery>()
+                .WithOperation<OpenApiPutCommand>()
+                .AddOpenApi(d =>
+                {
+                    d.ConfigureOperation = (o, a) =>
+                    {
+                        o.Tags.Add(a.OperationType.FullName);
+                    };
+                }));
+
+            // Act
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            await Verifier.Verify(plaintextResult);
+        }
+
         // If a linked operation exists that would not have a body a "Collection was modified; enumeration operation may not execute."
         // exception thrown prior to 14/05/2020
         [Test]

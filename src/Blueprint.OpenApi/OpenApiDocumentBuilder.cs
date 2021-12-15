@@ -261,6 +261,8 @@ namespace Blueprint.OpenApi
                         }
                     }
 
+                    this._options.Value.ConfigureOperation?.Invoke(openApiOperation, operation);
+
                     openApiPathItem[ToOpenApiOperationMethod(httpData.HttpMethod)] = openApiOperation;
                 }
             }
