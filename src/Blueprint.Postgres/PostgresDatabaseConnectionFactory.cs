@@ -5,11 +5,19 @@ using Npgsql;
 
 namespace Blueprint.Postgres
 {
+    /// <summary>
+    /// A <see cref="IDatabaseConnectionFactory" /> for Postgres.
+    /// </summary>
     public class PostgresDatabaseConnectionFactory : IDatabaseConnectionFactory
     {
         private readonly string _connectionString;
         private readonly ILogger<PostgresDatabaseConnectionFactory> _logger;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="PostgresDatabaseConnectionFactory"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string to the Postgres database instance.</param>
+        /// <param name="logger">A logger that will be used to log when a connection is opened.</param>
         public PostgresDatabaseConnectionFactory(string connectionString, ILogger<PostgresDatabaseConnectionFactory> logger)
         {
             Guard.NotNull(nameof(connectionString), connectionString);
@@ -19,6 +27,7 @@ namespace Blueprint.Postgres
             this._logger = logger;
         }
 
+        /// <inheritdoc/>
         public IDbConnection Open()
         {
             if (this._logger.IsEnabled(LogLevel.Trace))
