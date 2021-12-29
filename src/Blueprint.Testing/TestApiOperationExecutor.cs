@@ -199,6 +199,15 @@ namespace Blueprint.Testing
             return this.DataModel.CreateOperationContext(this._serviceProvider, operation, token);
         }
 
+        /// <summary>
+        /// Executes an operation, using a new DI scope and API context and a new instance of the
+        /// operation of the given type.
+        /// </summary>
+        /// <remarks>
+        /// This is a convenience method that assumes no data needs to be set on the operation.
+        /// </remarks>
+        /// <typeparam name="T">The type of operation to execute.</typeparam>
+        /// <returns>The result of executing the operation.</returns>
         public async Task<OperationResult> ExecuteAsync<T>()
         {
             using var serviceScope = this._serviceProvider.CreateScope();
@@ -213,6 +222,12 @@ namespace Blueprint.Testing
             return result;
         }
 
+        /// <summary>
+        /// Executes an operation, using a new DI scope and API context and a the given
+        /// operation instance.
+        /// </summary>
+        /// <param name="operation">The operation to execute.</param>
+        /// <returns>The result of executing the operation.</returns>
         public async Task<OperationResult> ExecuteAsync(object operation)
         {
             using var serviceScope = this._serviceProvider.CreateScope();
@@ -256,6 +271,13 @@ namespace Blueprint.Testing
             return result;
         }
 
+        /// <summary>
+        /// Executes, with a new DI and API scope, the given operation but that will <strong>not</strong> unwrap the operation
+        /// and rethrow exceptions.
+        /// </summary>
+        /// <param name="operation">The operation to execute.</param>
+        /// <param name="token">An optional cancellation token.</param>
+        /// <returns>The result of executing the given  operation.</returns>
         public async Task<OperationResult> ExecuteWithNoUnwrapAsync(object operation, CancellationToken token = default)
         {
             return await this._executor.ExecuteWithNewScopeAsync(operation, token);

@@ -39,6 +39,7 @@ namespace Blueprint.Testing
         /// </remarks>
         /// <param name="context">The context to configure.</param>
         /// <param name="url">The URL to set for this context's request.</param>
+        /// <returns>A <see cref="HttpContext" /> configured to match the specified API context and URI.</returns>
         public static HttpContext ConfigureHttp(this ApiOperationContext context, string url)
         {
             var httpContext = new DefaultHttpContext();

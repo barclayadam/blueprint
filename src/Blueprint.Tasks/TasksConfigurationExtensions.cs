@@ -18,7 +18,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder to add the task client to.</param>
         /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
         /// <returns>This builder for further configuration.</returns>
-        /// <seealso cref="BackgroundTasks" />
         public static BlueprintApiBuilder AddTasksClient(
             this BlueprintApiBuilder builder,
             Action<BlueprintTasksClientBuilder> configureTasks)
@@ -38,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <remarks>
         /// Note that by default we DO NOT register recurring task support.
         /// </remarks>
-        /// <param name="builder">The builder to add the task server to.</param>
+        /// <param name="apiBuilder">The builder to add the task server to.</param>
         /// <param name="configureTasks">A builder callback to configure the provider implementation for tasks.</param>
         /// <returns>A <see cref="BlueprintApiBuilder" /> for configuration.</returns>
         /// <seealso cref="AddTasksClient" />

@@ -15,7 +15,7 @@ namespace Blueprint.Testing
         /// <inheritdoc />
         public void Add<T>(string category, object key, T value)
         {
-            this._items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, __) => value);
+            this._items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, _) => value);
         }
 
         /// <inheritdoc />
@@ -24,6 +24,11 @@ namespace Blueprint.Testing
             return this._items.ContainsKey(GenerateStorageKey<T>(key));
         }
 
+        /// <summary>
+        /// Gets all cached values of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of value that has been cached.</typeparam>
+        /// <returns>All cached items of the given type.</returns>
         public IEnumerable<T> GetItems<T>()
         {
             return this._items.Values.OfType<T>();
