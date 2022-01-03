@@ -1,4 +1,7 @@
-﻿using Blueprint;
+﻿using System.Linq;
+using Blueprint;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Hosting
@@ -24,7 +27,11 @@ namespace Microsoft.Extensions.Hosting
             // which will force the compilation of the DLL and then exit the application.
             if (BlueprintEnvironment.IsPrecompiling)
             {
-                host.Services.GetService(typeof(IApiOperationExecutor));
+                var executor = host.Services.GetRequiredService<IApiOperationExecutor>();
+
+                host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Blueprint.Precompilation").LogInformation(
+                    "Successfully pre-compiled {OperationCount} operations.",
+                    executor.DataModel.Operations.Count());
             }
             else
             {

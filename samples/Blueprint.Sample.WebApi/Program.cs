@@ -7,7 +7,7 @@ namespace Blueprint.Sample.WebApi
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().RunBlueprint();
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>
