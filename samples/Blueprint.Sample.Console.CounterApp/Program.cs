@@ -25,7 +25,6 @@ namespace Blueprint.Sample.Console.CounterApp
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             new HostBuilder()
                 .UseConsoleLifetime()
-                .UseDotNetCore2Environment()
                 .ConfigureHostConfiguration(config =>
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());

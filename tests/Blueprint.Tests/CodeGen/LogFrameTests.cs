@@ -110,8 +110,8 @@ public class LogFrameTests
             
             if (parameters[^1].GetType() != typeof(object[]))
             {
-                types = types.ConcatSingle(typeof(object[]));
-                parameters = parameters.ConcatSingle(Array.Empty<object>());
+                types = types.Concat(new[] { typeof(object[]) }).ToArray();
+                parameters = parameters.Concat(new [] { Array.Empty<object>() }).ToArray();
             }
             
             var method = typeof(LogFrame).GetMethod(name, BindingFlags.Static | BindingFlags.Public, null, types, null);
