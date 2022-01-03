@@ -96,7 +96,7 @@ namespace Blueprint.Compiler
                     .AllInjectedFields
                     .Select(x => x.VariableType.Namespace)
                     .Concat(new[] { typeof(Task).Namespace })
-                    .Concat(generatedType.Namespaces)
+                    .Concat(generatedType.UsingNamespaces)
                     .Distinct()
                     .ToList();
 
@@ -121,7 +121,7 @@ namespace Blueprint.Compiler
 
                 var code = writer.Code();
 
-                generatedType.SourceCode = code;
+                generatedType.GeneratedSourceCode = code;
                 generator.AddFile($"{generatedType.Namespace.Replace(".", "/")}/{generatedType.TypeName}.cs", code);
             }
 

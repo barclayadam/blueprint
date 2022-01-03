@@ -7,6 +7,9 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// Represents a type / class that is being constructed.
+    /// </summary>
     public class GeneratedType : IVariableSource
     {
         private readonly IList<Type> _interfaces = new List<Type>();
@@ -25,35 +28,87 @@ namespace Blueprint.Compiler
         /// </summary>
         public GeneratedAssembly GeneratedAssembly { get; }
 
-        public IList<Setter> Setters { get; } = new List<Setter>();
+        /// <summary>
+        /// A list of properties of this type.
+        /// </summary>
+        public IList<Property> Properties { get; } = new List<Property>();
 
+        /// <summary>
+        /// The namespace this type belongs to.
+        /// </summary>
         public string Namespace { get; set; }
 
+        /// <summary>
+        /// The name of this generated name.
+        /// </summary>
         public string TypeName { get; }
 
-        public Type BaseType { get; private set; }
+        /// <summary>
+        /// The base type of this, if any.
+        /// </summary>
+        public Type? BaseType { get; private set; }
 
-        public InjectedField[] BaseConstructorArguments { get; private set; } = new InjectedField[0];
+        /// <summary>
+        /// A set of <see cref="InjectedField" />s that represent the constructor arguments of the
+        /// base class of this type, if any.
+        /// </summary>
+        public InjectedField[]? BaseConstructorArguments { get; private set; } = Array.Empty<InjectedField>();
 
-        public HashSet<string> Namespaces { get; } = new HashSet<string>();
+        /// <summary>
+        /// A set of namespaces that this type uses and that will be output as a set of <c>using</c> statements.
+        /// </summary>
+        public HashSet<string> UsingNamespaces { get; } = new ();
 
-        public HashSet<InjectedField> AllInjectedFields { get; } = new HashSet<InjectedField>();
+        /// <summary>
+        /// All fields that are injected in to this type through one of it's constructors.
+        /// </summary>
+        public HashSet<InjectedField> AllInjectedFields { get; } = new ();
 
-        public HashSet<StaticField> AllStaticFields { get; } = new HashSet<StaticField>();
+        /// <summary>
+        /// All static fields of this type.
+        /// </summary>
+        public HashSet<StaticField> AllStaticFields { get; } = new ();
 
+        /// <summary>
+        /// The interfaces this type implements.
+        /// </summary>
         public IEnumerable<Type> Interfaces => this._interfaces;
 
+        /// <summary>
+        /// The set of methods added to this type.
+        /// </summary>
         public IEnumerable<GeneratedMethod> Methods => this._methods;
 
-        public string SourceCode { get; set; }
+        /// <summary>
+        /// The generated source code of this type (set when the type has been "compiled").
+        /// </summary>
+        /// <seealso cref="Blueprint.Compiler.GeneratedAssembly.CompileAll" />
+        public string? GeneratedSourceCode { get; set; }
 
-        public Type CompiledType { get; private set; }
+        /// <summary>
+        /// The runtime type, set once the type has been "compiled" and the generated assembly
+        /// loaded in to the current app domain.
+        /// </summary>
+        /// <seealso cref="Blueprint.Compiler.GeneratedAssembly.CompileAll" />
+        public Type? CompiledType { get; private set; }
 
+        /// <summary>
+        /// Marks this type as inheriting from the specified type parameter.
+        /// </summary>
+        /// <typeparam name="T">The type to inherit from.</typeparam>
+        /// <returns>This <see cref="GeneratedType" />.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the base type has more than one public constructor.</exception>
         public GeneratedType InheritsFrom<T>()
         {
             return this.InheritsFrom(typeof(T));
         }
 
+        /// <summary>
+        /// Marks this type as inheriting from the specified type parameter.
+        /// </summary>
+        /// <param name="baseType">The type to inherit from.</param>
+        /// <returns>This <see cref="GeneratedType" />.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the base type has more than one public constructor.</exception>
         public GeneratedType InheritsFrom(Type baseType)
         {
             var ctors = baseType.GetConstructors();
@@ -89,11 +144,18 @@ namespace Blueprint.Compiler
             return this;
         }
 
+        /// <summary>
+        /// Marks this type as implementing the given interface, adding a <see cref="GeneratedMethod" /> for each method
+        /// declared in the interface (without a body).
+        /// </summary>
+        /// <param name="type">The interface to implement.</param>
+        /// <returns>This <see cref="GeneratedType" />.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the given type is not an interface.</exception>
         public GeneratedType Implements(Type type)
         {
-            if (!type.GetTypeInfo().IsInterface)
+            if (!type.IsInterface)
             {
-                throw new ArgumentOutOfRangeException(nameof(type), "Must be an interface type");
+                throw new ArgumentOutOfRangeException(nameof(type), $"The type {type} must be an interface");
             }
 
             this._interfaces.Add(type);
@@ -106,21 +168,56 @@ namespace Blueprint.Compiler
             return this;
         }
 
+        /// <summary>
+        /// Marks this type as implementing the given interface, adding a <see cref="GeneratedMethod" /> for each method
+        /// declared in the interface (without a body).
+        /// </summary>
+        /// <typeparam name="T">The interface to implement.</typeparam>
+        /// <returns>This <see cref="GeneratedType" />.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the given type is not an interface.</exception>
         public GeneratedType Implements<T>()
         {
             return this.Implements(typeof(T));
         }
 
+        /// <summary>
+        /// Adds a new generated method to this type.
+        /// </summary>
+        /// <param name="method">The method to add.</param>
         public void AddMethod(GeneratedMethod method)
         {
             this._methods.Add(method);
         }
 
-        public GeneratedMethod MethodFor(string methodName)
+        /// <summary>
+        /// Finds an existing <see cref="GeneratedMethod" /> with the given name.
+        /// </summary>
+        /// <param name="methodName">The method's name.</param>
+        /// <returns>A <see cref="GeneratedMethod" /> that already exists.</returns>
+        public GeneratedMethod? MethodFor(string methodName)
         {
-            return this._methods.FirstOrDefault(x => x.MethodName == methodName);
+            var ofGivenName = this._methods.Where(x => x.MethodName == methodName).ToArray();
+
+            if (!ofGivenName.Any())
+            {
+                throw new ArgumentException($"No method with the name {methodName} exists on the generated type {this.Namespace}.{this.TypeName}.");
+            }
+
+            if (ofGivenName.Length > 1)
+            {
+                throw new ArgumentException($"More than one method with the name {methodName} exists on the generated type {this.Namespace}.{this.TypeName}.");
+            }
+
+            return ofGivenName.Single();
         }
 
+        /// <summary>
+        /// Adds a new <see cref="GeneratedMethod" /> of the given name that returns <c>void</c> and has the given
+        /// list of <see cref="Argument" />s.
+        /// </summary>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="args">The arguments of the added method.</param>
+        /// <returns>The newly added <see cref="GeneratedMethod" />.</returns>
         public GeneratedMethod AddVoidMethod(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(this, name, typeof(void), args);
@@ -129,6 +226,14 @@ namespace Blueprint.Compiler
             return method;
         }
 
+        /// <summary>
+        /// Adds a new <see cref="GeneratedMethod" /> of the given name that returns <typeparamref name="TReturn" /> and has the given
+        /// list of <see cref="Argument" />s.
+        /// </summary>
+        /// <typeparam name="TReturn">The type returned from the added method.</typeparam>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="args">The arguments of the added method.</param>
+        /// <returns>The newly added <see cref="GeneratedMethod" />.</returns>
         public GeneratedMethod AddMethodThatReturns<TReturn>(string name, params Argument[] args)
         {
             var method = new GeneratedMethod(this, name, typeof(TReturn), args);
@@ -137,6 +242,10 @@ namespace Blueprint.Compiler
             return method;
         }
 
+        /// <summary>
+        /// Writes the C# of this <see cref="GeneratedType" /> to the given <see cref="ISourceWriter" />.
+        /// </summary>
+        /// <param name="writer">The writer to write this type to.</param>
         public void Write(ISourceWriter writer)
         {
             // We MUST generate the methods first, because during the writing of a method
@@ -154,12 +263,12 @@ namespace Blueprint.Compiler
 
             if (this.AllStaticFields.Any())
             {
-                this.WriteFieldDeclarations(writer, this.AllStaticFields);
+                WriteFieldDeclarations(writer, this.AllStaticFields);
             }
 
             if (this.AllInjectedFields.Any())
             {
-                this.WriteFieldDeclarations(writer, this.AllInjectedFields);
+                WriteFieldDeclarations(writer, this.AllInjectedFields);
                 this.WriteConstructorMethod(writer, this.AllInjectedFields);
             }
 
@@ -168,6 +277,11 @@ namespace Blueprint.Compiler
             writer.FinishBlock();
         }
 
+        /// <summary>
+        /// Gets the assemblies that this type references, which is the base type's assembly plus all
+        /// implemented interface assemblies.
+        /// </summary>
+        /// <returns>A set of assemblies that <strong>must</strong> be referenced by the resulting assembly.</returns>
         public IEnumerable<Assembly> AssemblyReferences()
         {
             if (this.BaseType != null)
@@ -181,6 +295,14 @@ namespace Blueprint.Compiler
             }
         }
 
+        /// <summary>
+        /// Once a type has been part of a compilation will create an instance, casting it to the
+        /// specified type.
+        /// </summary>
+        /// <param name="arguments">Any constructor arguments.</param>
+        /// <typeparam name="T">The type to cast the resulting instance to.</typeparam>
+        /// <returns>A new instance of the type generated from this <see cref="GeneratedType" />.</returns>
+        /// <exception cref="InvalidOperationException">If this type has yet to be compiled.</exception>
         public T CreateInstance<T>(params object[] arguments)
         {
             if (this.CompiledType == null)
@@ -189,21 +311,6 @@ namespace Blueprint.Compiler
             }
 
             return (T)Activator.CreateInstance(this.CompiledType, arguments);
-        }
-
-        public void ApplySetterValues(object builtObject)
-        {
-            if (builtObject.GetType() != this.CompiledType)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(builtObject),
-                    "This can only be applied to objects of the generated type");
-            }
-
-            foreach (var setter in this.Setters)
-            {
-                setter.SetInitialValue(builtObject);
-            }
         }
 
         /// <inheritdoc />
@@ -222,6 +329,7 @@ namespace Blueprint.Compiler
             }
         }
 
+        /// <inheritdoc/>
         Variable IVariableSource.TryFindVariable(IMethodVariables variables, Type variableType)
         {
             foreach (var v in this.AllInjectedFields)
@@ -232,20 +340,43 @@ namespace Blueprint.Compiler
                 }
             }
 
-            foreach (var v in this.BaseConstructorArguments)
+            if (this.BaseConstructorArguments != null)
             {
-                if (v.VariableType == variableType)
+                foreach (var v in this.BaseConstructorArguments)
                 {
-                    return v;
+                    if (v.VariableType == variableType)
+                    {
+                        return v;
+                    }
                 }
             }
 
             return null;
         }
 
+        private static void WriteFieldDeclarations(ISourceWriter writer, HashSet<StaticField> args)
+        {
+            foreach (var field in args)
+            {
+                field.WriteDeclaration(writer);
+            }
+
+            writer.BlankLine();
+        }
+
+        private static void WriteFieldDeclarations(ISourceWriter writer, HashSet<InjectedField> args)
+        {
+            foreach (var field in args)
+            {
+                field.WriteDeclaration(writer);
+            }
+
+            writer.BlankLine();
+        }
+
         private void WriteSetters(ISourceWriter writer)
         {
-            foreach (var setter in this.Setters)
+            foreach (var setter in this.Properties)
             {
                 writer.BlankLine();
                 setter.WriteDeclaration(writer);
@@ -260,7 +391,7 @@ namespace Blueprint.Compiler
             var ctorArgs = string.Join(", ", tempQualifier);
             var declaration = $"public {this.TypeName}({ctorArgs})";
 
-            if (this.BaseConstructorArguments.Any())
+            if (this.BaseConstructorArguments?.Any() == true)
             {
                 var tempQualifier1 = this.BaseConstructorArguments.Select(x => x.ArgumentName);
                 declaration = $"{declaration} : base({string.Join(", ", tempQualifier1)})";
@@ -274,26 +405,6 @@ namespace Blueprint.Compiler
             }
 
             writer.FinishBlock();
-        }
-
-        private void WriteFieldDeclarations(ISourceWriter writer, HashSet<StaticField> args)
-        {
-            foreach (var field in args)
-            {
-                field.WriteDeclaration(writer);
-            }
-
-            writer.BlankLine();
-        }
-
-        private void WriteFieldDeclarations(ISourceWriter writer, HashSet<InjectedField> args)
-        {
-            foreach (var field in args)
-            {
-                field.WriteDeclaration(writer);
-            }
-
-            writer.BlankLine();
         }
 
         private void WriteDeclaration(ISourceWriter writer)

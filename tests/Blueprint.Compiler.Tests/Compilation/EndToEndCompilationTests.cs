@@ -25,7 +25,7 @@ namespace Blueprint.Compiler.Tests.Compilation
                 .As<INumberGenerator>()
                 .Generate(3).Should().Be(6);
 
-            adder.SourceCode.Should().Contain("public class Adder : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
+            adder.GeneratedSourceCode.Should().Contain("public class Adder : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace Blueprint.Compiler.Tests.Compilation
                 .As<INumberGenerator>()
                 .Generate(3).Should().Be(9);
 
-            multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
+            multiplier.GeneratedSourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.INumberGenerator");
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Blueprint.Compiler.Tests.Compilation
                 .As<NumberGenerator>()
                 .Generate(3).Should().Be(9);
 
-            multiplier.SourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator");
+            multiplier.GeneratedSourceCode.Should().Contain("public class Multiplier : Blueprint.Compiler.Tests.Compilation.NumberGenerator");
         }
 
         [Test]

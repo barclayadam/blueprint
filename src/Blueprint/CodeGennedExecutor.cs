@@ -33,7 +33,7 @@ namespace Blueprint
 
                 foreach (var t in assembly.GeneratedTypes)
                 {
-                    this._sourceCodeMappings[t.CompiledType] = t.SourceCode;
+                    this._sourceCodeMappings[t.CompiledType] = t.GeneratedSourceCode;
                 }
             }
         }
