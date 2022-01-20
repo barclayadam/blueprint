@@ -6,6 +6,8 @@ using Blueprint.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Testing
@@ -96,6 +98,8 @@ namespace Blueprint.Testing
 
                 configure(builder);
             });
+
+            collection.AddSingleton<IHostEnvironment>(new HostingEnvironment());
 
             configureServices?.Invoke(collection);
 
