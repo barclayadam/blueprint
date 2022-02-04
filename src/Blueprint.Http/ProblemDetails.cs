@@ -18,6 +18,7 @@ namespace Blueprint.Http
         /// "about:blank".
         /// </summary>
         [JsonPropertyName("type")]
+        [CanBeNull]
         public string Type { get; set; }
 
         /// <summary>
@@ -26,6 +27,7 @@ namespace Blueprint.Http
         /// see [RFC7231], Section 3.4).
         /// </summary>
         [JsonPropertyName("title")]
+        [CanBeNull]
         public string Title { get; set; }
 
         /// <summary>
@@ -38,12 +40,14 @@ namespace Blueprint.Http
         /// A human-readable explanation specific to this occurrence of the problem.
         /// </summary>
         [JsonPropertyName("detail")]
+        [CanBeNull]
         public string Detail { get; set; }
 
         /// <summary>
         /// A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.
         /// </summary>
         [JsonPropertyName("instance")]
+        [CanBeNull]
         public string Instance { get; set; }
 
         /// <summary>

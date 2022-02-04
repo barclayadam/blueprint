@@ -80,6 +80,18 @@ namespace Blueprint
         }
 
         /// <summary>
+        /// Creates a new <see cref="ApiException" /> using the details this factory was created with, with optional
+        /// extension data.
+        /// </summary>
+        /// <param name="extensionData">Extension details that will be serialised to the consumer, useful for storing additional
+        /// properties that a client can use to make decisions when handling this exception.</param>
+        /// <returns>A new <see cref="ApiException" />.</returns>
+        public ApiException Create(IDictionary<string, object> extensionData = null)
+        {
+            return new ApiException(this.Title, this.Type, null, this.HttpStatus, extensionData);
+        }
+
+        /// <summary>
         /// Creates a new <see cref="ApiException" /> using the details this factory was created with, in addition
         /// to the specified detail string.
         /// </summary>
@@ -91,6 +103,19 @@ namespace Blueprint
         public ApiException Create(Exception innerException, string detail, IDictionary<string, object> extensionData = null)
         {
             return new ApiException(this.Title, this.Type, detail, this.HttpStatus, innerException, extensionData);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ApiException" /> using the details this factory was created with, in addition to
+        /// the exception that caused this failure and optional extension data,.
+        /// </summary>
+        /// <param name="innerException">The Exception that led to this failure.</param>
+        /// <param name="extensionData">Extension details that will be serialised to the consumer, useful for storing additional
+        /// properties that a client can use to make decisions when handling this exception.</param>
+        /// <returns>A new <see cref="ApiException" />.</returns>
+        public ApiException Create(Exception innerException, IDictionary<string, object> extensionData = null)
+        {
+            return new ApiException(this.Title, this.Type, null, this.HttpStatus, innerException, extensionData);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Blueprint
 {
@@ -24,10 +25,11 @@ namespace Blueprint
         /// <param name="extensions">An optional dictionary of key value pairs to be serialised with this exception
         /// for additional details, see <see cref="Extensions" />.</param>
         public ApiException(string title, string type, string detail, int httpStatus, IDictionary<string, object> extensions = null)
-            : base(detail)
+            : base(detail ?? title ?? type)
         {
             this.Title = title;
             this.Type = type;
+            this.Detail = detail;
             this.HttpStatus = httpStatus;
             this.Extensions = extensions ?? _emptyExtensions;
         }
@@ -45,10 +47,11 @@ namespace Blueprint
         /// <param name="extensions">An optional dictionary of key value pairs to be serialised with this exception
         /// for additional details, see <see cref="Extensions" />.</param>
         public ApiException(string title, string type, string detail, int httpStatus, Exception inner, IDictionary<string, object> extensions = null)
-            : base(detail, inner)
+            : base(detail ?? title ?? type, inner)
         {
             this.Title = title;
             this.Type = type;
+            this.Detail = detail;
             this.HttpStatus = httpStatus;
             this.Extensions = extensions ?? _emptyExtensions;
         }
@@ -64,6 +67,7 @@ namespace Blueprint
         /// (e.g., using HTML [W3C.REC-html5-20141028]).  When this member is not present, its value is assumed to be
         /// "about:blank".
         /// </summary>
+        [CanBeNull]
         public string Type { get; }
 
         /// <summary>
@@ -71,12 +75,14 @@ namespace Blueprint
         /// of the problem, except for purposes of localization (e.g., using proactive content negotiation;
         /// see[RFC7231], Section 3.4).
         /// </summary>
+        [CanBeNull]
         public string Title { get; }
 
         /// <summary>
         /// A human-readable explanation specific to this occurrence of the problem.
         /// </summary>
-        public string Detail => this.Message;
+        [CanBeNull]
+        public string Detail { get; }
 
         /// <summary>
         /// Extension data that MAY contain additional, problem type specific details. Extension members appear in the same
