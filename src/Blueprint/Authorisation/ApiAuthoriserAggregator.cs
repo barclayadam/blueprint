@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Authorisation
@@ -18,7 +19,7 @@ namespace Blueprint.Authorisation
             this._logger = logger;
         }
 
-        public async ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource)
+        public async ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, [CanBeNull] object resource)
         {
             var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
 
@@ -40,7 +41,7 @@ namespace Blueprint.Authorisation
                         this._logger.LogTrace(
                             "Link check failed. type={0} resource_type={1} reason={2} authoriser={3}",
                             descriptor.OperationType.Name,
-                            resource.GetType().Name,
+                            resource?.GetType().Name,
                             result.Reason,
                             checker.GetType());
                     }
@@ -54,7 +55,7 @@ namespace Blueprint.Authorisation
                 this._logger.LogTrace(
                     "Link check succeeded. type={0} resource_type={1}",
                     descriptor.OperationType.Name,
-                    resource.GetType().Name);
+                    resource?.GetType().Name);
             }
 
             return ExecutionAllowed.Yes;
