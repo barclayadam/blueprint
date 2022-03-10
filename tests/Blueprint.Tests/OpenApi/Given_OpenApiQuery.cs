@@ -449,7 +449,7 @@ namespace Blueprint.Tests.OpenApi
         /// <summary>
         /// The OpenApiPutCommand summary
         /// </summary>
-        [Link(typeof(OpenApiResource), "/resources/{AnId}", Rel = "update")]
+        [Link(typeof(OpenApiResource), "/resources/{AnId:AProperty}", Rel = "update")]
         [HttpPut]
         public class OpenApiPutCommand : ICommand<ResourceUpdated<OpenApiResource>>
         {
@@ -465,7 +465,7 @@ namespace Blueprint.Tests.OpenApi
         /// <summary>
         /// The OpenApiPlaintextResponse summary
         /// </summary>
-        [Link(typeof(OpenApiResource), "/resources/{AnId}/as-plaintext", Rel = "plaintext-rel")]
+        [Link(typeof(OpenApiResource), "/resources/{AnId:AProperty}/as-plaintext", Rel = "plaintext-rel")]
         [HttpPut]
         public class OpenApiPlaintextResponseCommand : ICommand<PlainTextResult>
         {

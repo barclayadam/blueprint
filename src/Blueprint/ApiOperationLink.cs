@@ -4,9 +4,25 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace Blueprint
 {
+    /// <summary>
+    /// An exception that will be thrown if the format of an <see cref="ApiOperationLink" /> is invalid.
+    /// </summary>
+    public class OperationLinkFormatException : Exception
+    {
+        /// <summary>
+        /// Initialises a new instance of the <see cref="OperationLinkFormatException"/> class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        public OperationLinkFormatException(string message)
+            : base(message)
+        {
+        }
+    }
+
     public class ApiOperationLink
     {
         private static readonly Regex _parameterRegex = new Regex("{(?<propName>.*?)(:(?<alternatePropName>.*?))?(\\((?<format>.*)\\))?}", RegexOptions.Compiled);
@@ -45,8 +61,8 @@ namespace Blueprint
 
                         if (property == null)
                         {
-                            throw new InvalidOperationException(
-                                $"Property {propertyName} does not exist on operation type {operationDescriptor.OperationType.Name}.");
+                            throw new OperationLinkFormatException(
+                                $"URL {urlFormat} is invalid. Property {propertyName} does not exist on operation type {operationDescriptor.OperationType.Name}");
                         }
 
                         placeholders.Add(new ApiOperationLinkPlaceholder(
@@ -65,6 +81,55 @@ namespace Blueprint
             // Let's precalculate this as ApiOperationLinks are expected to stay around for lifetime of the application, so may as well
             // pay this cost upfront.
             this._description = $"{this.ResourceType?.Name ?? "Root"}#{this.Rel} => {this.OperationDescriptor.OperationType.Name}";
+        }
+
+        /// <summary>
+        /// Constructs a link that applies at a resource level.
+        /// </summary>
+        /// <param name="operationDescriptor">The operation this link represents.</param>
+        /// <param name="urlFormat">The URL from which this link is accessed, may be templated.</param>
+        /// <param name="rel">The <strong>rel</strong>ationship this link represents.</param>
+        /// <param name="resourceType">he resource from which this link can be created, for example a `UserResource` value that
+        /// is returned from an operation. This <b>MUST</b> be an <see cref="ILinkableResource" />.</param>
+        public ApiOperationLink(ApiOperationDescriptor operationDescriptor, string urlFormat, string rel, [CanBeNull] Type resourceType)
+            : this(operationDescriptor, urlFormat, rel)
+        {
+            this.ResourceType = resourceType;
+
+            if (resourceType != null)
+            {
+                if (resourceType.IsAssignableTo(typeof(ILinkableResource)) == false)
+                {
+                    throw new OperationLinkFormatException(
+                        $"Resource type {resourceType.Name} is not assignable to {nameof(ILinkableResource)}, cannot add a link for {operationDescriptor.Name}");
+                }
+
+                foreach (var placeholder in this.Placeholders)
+                {
+                    var prop = resourceType.GetProperty(placeholder.Property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+                    if (prop != null)
+                    {
+                        continue;
+                    }
+
+                    if (placeholder.AlternatePropertyName == null)
+                    {
+                        throw new OperationLinkFormatException(
+                            $"Link {urlFormat} for operation {operationDescriptor.Name} specifies placeholder {placeholder.Property.Name} that cannot be found on resource {resourceType.Name}");
+                    }
+
+                    var alternateProperty = resourceType.GetProperty(
+                        placeholder.AlternatePropertyName,
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+                    if (alternateProperty == null)
+                    {
+                        throw new OperationLinkFormatException(
+                            $"Link {urlFormat} for operation {operationDescriptor.Name} specifies placeholder {placeholder.OriginalText}. Cannot find alternate property {placeholder.AlternatePropertyName} on resource {resourceType.Name}");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -100,7 +165,8 @@ namespace Blueprint
         /// The resource from which this link can be created, for example a `UserResource` value that
         /// is returned from an operation. This <b>MUST</b> be an <see cref="ILinkableResource" />.
         /// </summary>
-        public Type ResourceType { get; set; }
+        [CanBeNull]
+        public Type ResourceType { get; }
 
         /// <summary>
         /// Gets a value indicating whether this is a 'root' link, one that does not belong to

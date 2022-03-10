@@ -1,4 +1,5 @@
 ﻿using System;
+using Blueprint.Http;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
@@ -20,6 +21,11 @@ namespace Blueprint.Tests.ApiOperationLinkTests
             public string SortBy { get; set; }
 
             public int? Page { get; set; }
+        }
+        
+        private class LinkGeneratorTestsResource : ApiResource
+        {
+            public int Id { get; set; }
         }
 
         [Test]
@@ -156,6 +162,54 @@ namespace Blueprint.Tests.ApiOperationLinkTests
         }
 
         [Test]
+        public void When_Url_With_Invalid_Placeholder_Then_Exception_thrown()
+        {
+            // Act
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
+            Action tryCreate = () => new ApiOperationLink(descriptor, "/aUrl/{cannotBeFound}", "a.rel");
+
+            // Assert
+            tryCreate.Should().ThrowExactly<OperationLinkFormatException>()
+                .WithMessage("URL /aUrl/{cannotBeFound} is invalid. Property cannotBeFound does not exist on operation type LinkGeneratorTestsOperation");
+        }
+        
+        [Test]
+        public void When_ResourceType_is_not_ILinkableResource_then_exception()
+        {
+            // Act
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
+            Action tryCreate = () => new ApiOperationLink(descriptor, "/aUrl/{clientId:doesNotExist}", "a.rel", typeof(string));
+
+            // Assert
+            tryCreate.Should().ThrowExactly<OperationLinkFormatException>()
+                .WithMessage("Resource type string is not assignable to ILinkableResource, cannot add a link for LinkGeneratorTestsOperation");
+        }
+        
+        [Test]
+        public void When_Url_With_Placeholder_With_Missing_Property_In_ResourceType_Then_Exception_Thrown()
+        {
+            // Act
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
+            Action tryCreate = () => new ApiOperationLink(descriptor, "/aUrl/{clientId}", "a.rel", typeof(LinkGeneratorTestsResource));
+
+            // Assert
+            tryCreate.Should().ThrowExactly<OperationLinkFormatException>()
+                .WithMessage("Link /aUrl/{clientId} for operation LinkGeneratorTestsOperation specifies placeholder ClientId that cannot be found on resource LinkGeneratorTestsResource");
+        }
+        
+        [Test]
+        public void When_Url_With_Invalid_Alternate_Placeholder_Then_Exception_Thrown()
+        {
+            // Act
+            var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
+            Action tryCreate = () => new ApiOperationLink(descriptor, "/aUrl/{clientId:doesNotExist}", "a.rel", typeof(LinkGeneratorTestsResource));
+
+            // Assert
+            tryCreate.Should().ThrowExactly<OperationLinkFormatException>()
+                .WithMessage("Link /aUrl/{clientId:doesNotExist} for operation LinkGeneratorTestsOperation specifies placeholder {clientId:doesNotExist}. Cannot find alternate property doesNotExist on resource LinkGeneratorTestsResource");
+        }
+
+        [Test]
         public void When_Url_With_Placeholder_Requiring_Encoding_Then_CreateUrl_Replaces_With_Encoded_Property_In_PropValues()
         {
             // Act
@@ -229,8 +283,11 @@ namespace Blueprint.Tests.ApiOperationLinkTests
             var descriptor = new ApiOperationDescriptor(typeof(LinkGeneratorTestsOperation), "tests");
             var link = new ApiOperationLink(descriptor, "/clients/{clientId}/users", "a.rel");
 
+            // Act
+            var url = link.CreateRelativeUrl(new LinkGeneratorTestsOperation { ClientId = 12, SortBy = "name", Page = 2 }, true);
+
             // Assert
-            link.CreateRelativeUrl(new LinkGeneratorTestsOperation { ClientId = 12, SortBy = "name", Page = 2 }, true).Should().Be("clients/12/users?SortBy=name&Page=2");
+            url.Should().Be("clients/12/users?SortBy=name&Page=2");
         }
 
         [Test]
