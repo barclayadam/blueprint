@@ -210,10 +210,6 @@ namespace Blueprint.Configuration
             this.Services.AddSingleton(this._options);
             this.Services.AddSingleton(this._options.Model);
 
-            // Logging
-            this.Services.TryAddSingleton<IErrorLogger, ErrorLogger>();
-            this.Services.TryAddSingleton<IExceptionFilter, BasicExceptionFilter>();
-
             // Cache
             this.Services.TryAddSingleton<ICache, Cache>();
             this.Services.TryAddSingleton(MemoryCache.Default);

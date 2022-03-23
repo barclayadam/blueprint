@@ -240,8 +240,6 @@ namespace Blueprint
             // more frames to perform other operations on unknown Exception
             context.RegisterUnhandledExceptionHandler(typeof(Exception), e => new Frame[]
             {
-                new PushToErrorLoggerExceptionCatchFrame(context, e),
-
                 // Exceptions do not escape from a pipeline because we always convert to a result type
                 new PushExceptionToActivityFrame(e, false),
             });
