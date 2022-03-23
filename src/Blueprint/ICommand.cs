@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace Blueprint
 {
     /// <summary>
@@ -5,6 +7,7 @@ namespace Blueprint
     /// or delete). Usually represented as a POST, PATCH or DELETE HTTP operation and, unless explicitly coded
     /// for not typically safe to re-execute.
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
     public interface ICommand
     {
     }
