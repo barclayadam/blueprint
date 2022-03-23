@@ -226,14 +226,6 @@ namespace Microsoft.AspNetCore.Builder
 
                 var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 
-                // Many tools, to correctly report an exception for a trace, wants the top-level Activity to record an exception and not
-                // just children. This may end up duplicating the exception in some tools, so we _may_ want to consider turning off exception
-                // tracking for these HTTP pipelines. Some consideration is needed
-                if (Activity.Current != null && result is UnhandledExceptionOperationResult unhandledExceptionOperationResult)
-                {
-                    BlueprintActivitySource.RecordException(Activity.Current, unhandledExceptionOperationResult.Exception, false);
-                }
-
                 // We want to immediately execute the result to allow it to write to the HTTP response
                 await result.ExecuteAsync(apiContext);
             }
