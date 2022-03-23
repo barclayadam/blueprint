@@ -55,7 +55,7 @@ namespace Blueprint.Tests.ResourceEvents
         {
             // Arrange
             using var t = SystemTime.PauseForThread();
-            t.SetUtcNow(new DateTime(2021, 07, 07));
+            t.SetUtcNow(new DateTime(2021, 07, 07, 0, 0, 0, DateTimeKind.Utc));
 
             var resourceEvent = new ResourceEvent<MyResource>(
                 ResourceEventChangeType.Created,

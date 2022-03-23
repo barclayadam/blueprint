@@ -109,6 +109,11 @@ namespace Blueprint
             /// <param name="dateTime">The date to set</param>
             public void SetUtcNow(DateTime dateTime)
             {
+                if (dateTime.Kind != DateTimeKind.Utc)
+                {
+                    throw new ArgumentException("DateTime must have kind of UTC", nameof(dateTime));
+                }
+
                 this.UtcNow = dateTime;
             }
 
