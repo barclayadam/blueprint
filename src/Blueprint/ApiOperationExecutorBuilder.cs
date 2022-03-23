@@ -254,7 +254,6 @@ namespace Blueprint
 
             var startActivityFrame = ActivityFrame.Start(ActivityKind.Internal, operation.Name + (isNested ? "NestedPipeline" : "Pipeline"));
             executeMethod.Frames.Add(startActivityFrame);
-            executeMethod.Frames.Add(new VariableSetterFrame(new Variable<Activity>($"{operationContextVariable}.{nameof(ApiOperationContext.Activity)}"), startActivityFrame.ActivityVariable));
 
             executeMethod.Frames.Add(castFrame);
             executeMethod.Frames.Add(new ErrorHandlerFrame(context));
