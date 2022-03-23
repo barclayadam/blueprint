@@ -8,9 +8,9 @@ using Blueprint.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.MessagePopulation
+namespace Blueprint.Tests.Diagnostics
 {
-    public class Given_Activity_And_Operation_Properties
+    public class Activity_Properties_As_Tags_Tests
     {
         [Test]
         public async Task When_Executed_Then_Activity_Tags_Set()

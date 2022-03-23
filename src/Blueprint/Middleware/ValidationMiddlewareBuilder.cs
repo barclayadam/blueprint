@@ -3,9 +3,11 @@ using System.Linq;
 using Blueprint.CodeGen;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Diagnostics;
 using Blueprint.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 
 namespace Blueprint.Middleware
 {
@@ -132,13 +134,16 @@ namespace Blueprint.Middleware
                     });
             }
 
+            var apiOperationContext = context.FindVariable(typeof(ApiOperationContext));
+            var activityVariable = apiOperationContext.GetProperty(nameof(ApiOperationContext.Activity));
+
             // Always need to register extra exception handlers because the operation handler itself may do additional validation
             // and throw an exception to indicate a problem, even if the operation itself is _not_ validated
-            context.RegisterUnhandledExceptionHandler(typeof(ValidationException), RegisterBlueprintExceptionHandler);
-            context.RegisterUnhandledExceptionHandler(typeof(System.ComponentModel.DataAnnotations.ValidationException), RegisterDataAnnotationsExceptionHandler);
+            context.RegisterUnhandledExceptionHandler(typeof(ValidationException), e => RegisterBlueprintExceptionHandler(activityVariable, e));
+            context.RegisterUnhandledExceptionHandler(typeof(System.ComponentModel.DataAnnotations.ValidationException), e => RegisterDataAnnotationsExceptionHandler(activityVariable, e));
         }
 
-        private static IEnumerable<Frame> RegisterBlueprintExceptionHandler(Variable exception)
+        private static IEnumerable<Frame> RegisterBlueprintExceptionHandler(Variable activityVariable, Variable exception)
         {
             /*
              * var validationResult = new Blueprint.Api.Middleware.ValidationResult(e.ValidationResults);
@@ -151,11 +156,12 @@ namespace Blueprint.Middleware
                 Parameters = { [0] = validationFailures },
             };
 
+            yield return new ActivityStatusFrame(activityVariable, Status.Ok);
             yield return createResult;
             yield return new ReturnFrame(createResult.Variable);
         }
 
-        private static IEnumerable<Frame> RegisterDataAnnotationsExceptionHandler(Variable exception)
+        private static IEnumerable<Frame> RegisterDataAnnotationsExceptionHandler(Variable activityVariable, Variable exception)
         {
             /*
              * var validationResult = Blueprint.Api.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
@@ -166,6 +172,7 @@ namespace Blueprint.Middleware
                 Arguments = { [0] = exception },
             };
 
+            yield return new ActivityStatusFrame(activityVariable, Status.Ok);
             yield return createResponse;
             yield return new ReturnFrame(createResponse.ReturnVariable);
         }

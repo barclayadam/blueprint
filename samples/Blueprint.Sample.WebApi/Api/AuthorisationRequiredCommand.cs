@@ -1,5 +1,5 @@
-﻿using System.Security;
-using Blueprint.Authorisation;
+﻿using Blueprint.Authorisation;
+using Blueprint.Errors;
 
 namespace Blueprint.Sample.WebApi.Api
 {
@@ -9,7 +9,7 @@ namespace Blueprint.Sample.WebApi.Api
     {
         public void Invoke()
         {
-            throw new SecurityException("Unable to process, you are not authorised even though you passed basic tests");
+            throw new UnauthorizedException("Unable to process, you are not authorised even though you passed basic tests");
         }
     }
 }

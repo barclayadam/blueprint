@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint;
 using Blueprint.Compiler;
-using Blueprint.Diagnostics;
 using Blueprint.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -209,7 +208,10 @@ namespace Microsoft.AspNetCore.Builder
                     nestedContainer.ServiceProvider,
                     this._apiOperationExecutor.DataModel,
                     operation,
-                    httpContext.RequestAborted);
+                    httpContext.RequestAborted)
+                {
+                    ClaimsIdentity = httpContext.User.Identity as ClaimsIdentity,
+                };
 
                 apiContext.SetHttpFeatureContext(new HttpFeatureContext
                 {
@@ -221,8 +223,6 @@ namespace Microsoft.AspNetCore.Builder
                 var baseUri = $"{request.Scheme}://{this._httpOptions.Value.PublicHost ?? request.Host.Value}{request.PathBase}/{this._basePath}";
 
                 httpContext.SetBaseUri(baseUri);
-
-                apiContext.ClaimsIdentity = httpContext.User.Identity as ClaimsIdentity;
 
                 var result = await this._apiOperationExecutor.ExecuteAsync(apiContext);
 

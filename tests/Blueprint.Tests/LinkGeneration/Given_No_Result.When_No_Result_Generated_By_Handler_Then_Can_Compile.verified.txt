@@ -29,6 +29,8 @@ namespace Blueprint.Tests.LinkGeneration
             try
             {
 
+                // ValidationMiddlewareBuilder
+
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
@@ -44,9 +46,41 @@ namespace Blueprint.Tests.LinkGeneration
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
             }
+            catch (Blueprint.Validation.ValidationException e)
+            {
+                if (context.Activity != null)
+                {
+                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                }
+                var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(e.ValidationResults);
+                return validationFailedOperationResult;
+            }
+            catch (System.ComponentModel.DataAnnotations.ValidationException e)
+            {
+                if (context.Activity != null)
+                {
+                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                }
+                var validationFailedOperationResult = Blueprint.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
+                return validationFailedOperationResult;
+            }
             catch (System.Exception e)
             {
                 Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
+                if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
+                {
+                    if (context.Activity != null)
+                    {
+                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                    }
+                }
+                else
+                {
+                    if (context.Activity != null)
+                    {
+                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);
+                    }
+                }
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
         }
@@ -58,6 +92,8 @@ namespace Blueprint.Tests.LinkGeneration
             try
             {
 
+                // ValidationMiddlewareBuilder
+
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationHandlerExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
@@ -73,9 +109,41 @@ namespace Blueprint.Tests.LinkGeneration
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
             }
+            catch (Blueprint.Validation.ValidationException e)
+            {
+                if (context.Activity != null)
+                {
+                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                }
+                var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(e.ValidationResults);
+                return validationFailedOperationResult;
+            }
+            catch (System.ComponentModel.DataAnnotations.ValidationException e)
+            {
+                if (context.Activity != null)
+                {
+                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                }
+                var validationFailedOperationResult = Blueprint.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
+                return validationFailedOperationResult;
+            }
             catch (System.Exception e)
             {
                 Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
+                if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
+                {
+                    if (context.Activity != null)
+                    {
+                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
+                    }
+                }
+                else
+                {
+                    if (context.Activity != null)
+                    {
+                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);
+                    }
+                }
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
         }

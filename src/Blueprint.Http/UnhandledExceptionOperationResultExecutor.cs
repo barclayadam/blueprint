@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Security;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 
@@ -57,14 +56,6 @@ namespace Blueprint.Http
                         Type = apiException.Type,
                         Detail = apiException.Detail,
                         Extensions = apiException.Extensions,
-                    };
-
-                case SecurityException _:
-                    return new ProblemDetails
-                    {
-                        Status = (int)HttpStatusCode.Unauthorized,
-                        Type = "security_failure",
-                        Title = exception.Message,
                     };
 
                 default:

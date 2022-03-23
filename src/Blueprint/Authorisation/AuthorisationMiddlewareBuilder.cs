@@ -42,7 +42,7 @@ namespace Blueprint.Authorisation
                     throw new ForbiddenException(result);
                 }
 
-                throw new SecurityException(result.Message);
+                throw new UnauthorizedException(result.Message);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Blueprint.Authorisation
             checkFrames.Add(
                 new IfBlock($"{authorisationContextVariable} == null")
                 {
-                    new ThrowExceptionFrame<SecurityException>(AccessDeniedExceptionMessage),
+                    new ThrowExceptionFrame<UnauthorizedException>(AccessDeniedExceptionMessage),
                 });
 
             foreach (var checker in context.ServiceProvider.GetServices<IApiAuthoriser>())

@@ -72,7 +72,7 @@ namespace Blueprint.Configuration
                 return 403;
             }
 
-            if (exceptionType == typeof(SecurityException))
+            if (exceptionType == typeof(UnauthorizedException))
             {
                 return 401;
             }

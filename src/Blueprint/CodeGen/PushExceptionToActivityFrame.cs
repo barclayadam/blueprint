@@ -4,6 +4,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Diagnostics;
+using OpenTelemetry.Trace;
 
 namespace Blueprint.CodeGen
 {
@@ -34,6 +35,14 @@ namespace Blueprint.CodeGen
             var activityVariable = context.GetProperty(nameof(ApiOperationContext.Activity));
 
             writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable}, {this._escaped.ToString().ToLowerInvariant()});");
+
+            writer.If($"{this._exceptionVariable} is {typeof(ApiException).FullNameInCode()} apiException && apiException.{nameof(ApiException.HttpStatus)} < 500");
+            writer.Write(new ActivityStatusFrame(activityVariable, Status.Ok));
+            writer.FinishBlock();
+
+            writer.Else();
+            writer.Write(new ActivityStatusFrame(activityVariable, Status.Error));
+            writer.FinishBlock();
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Security;
 using System.Threading.Tasks;
 using Blueprint.Errors;
 using Blueprint.Http;
@@ -310,7 +309,7 @@ namespace Blueprint.Tests.OpenApi
         /// <exception cref="NotFoundException">When needed (will be 404).</exception>
         /// <exception cref="InvalidOperationException">When needed (will be 400).</exception>
         /// <exception cref="ForbiddenException">When needed (will be 403).</exception>
-        /// <exception cref="SecurityException">When needed (will be 401).</exception>
+        /// <exception cref="UnauthorizedException">When needed (will be 401).</exception>
         /// <exception cref="ApplicationException">When needed (will be 500).</exception>
         /// <exception cref="ApiException" type="some_error_type" status="400">Invalid op (will be 400).</exception>
         /// <exception cref="ApiException" type="another_specific_problem_detail" status="404">Missing data (will be 404).</exception>
