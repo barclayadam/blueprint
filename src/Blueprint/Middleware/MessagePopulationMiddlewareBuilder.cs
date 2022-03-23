@@ -106,7 +106,9 @@ namespace Blueprint.Middleware
                     }
 
                     // Only support, for now, primitive values, strings and GUIDs to avoid pushing complex types as tags
-                    if (!prop.PropertyType.IsPrimitive && prop.PropertyType.GetNonNullableType() != typeof(string) &&
+                    if (!prop.PropertyType.IsPrimitive && 
+                        !prop.PropertyType.IsEnum &&
+                        prop.PropertyType.GetNonNullableType() != typeof(string) &&
                         prop.PropertyType.GetNonNullableType() != typeof(Guid))
                     {
                         continue;

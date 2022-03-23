@@ -15,56 +15,6 @@ namespace Blueprint.Tests.Core
     public class Given_ExceptionHandlers
     {
         [Test]
-        public async Task When_Unhandled_Exception_Then_Populates_Exception_Data_With_Operation_Properties_For_ErrorLogger()
-        {
-            // Arrange
-            var handler = new TestApiOperationHandler<TestApiCommand>(new Exception("Oops"));
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
-
-            // Act
-            var result = await executor.ExecuteWithNoUnwrapAsync(new TestApiCommand
-            {
-                AStringProperty = "the string value",
-                ASensitiveStringProperty = "the sensitive value"
-            });
-
-            // Assert
-            var exceptionResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
-            var exceptionData = exceptionResult.Exception.Data;
-
-            exceptionData.Keys.Should().Contain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.AStringProperty)}");
-
-            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ASensitiveStringProperty)}");
-            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ADoNotAuditProperty)}");
-            exceptionData.Keys.Should().NotContain($"{nameof(TestApiCommand)}.{nameof(TestApiCommand.ANakedPasswordProperty)}");
-        }
-
-        [Test]
-        public async Task When_Unhandled_Exception_Then_Populates_Exception_Data_With_Operation_Properties_When_Generic_Message()
-        {
-            // Arrange
-            var handler = new TestApiOperationHandler<OperationWrapperImpl<TestApiCommand>>(new Exception("Oops"));
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
-
-            // Act
-            var result = await executor.ExecuteWithNoUnwrapAsync(new OperationWrapperImpl<TestApiCommand>
-            {
-                Operation = new TestApiCommand
-                {
-                    AStringProperty = "the string value",
-                    ASensitiveStringProperty = "the sensitive value"
-                }
-            });
-
-            // Assert
-            var exceptionResult = result.Should().BeOfType<UnhandledExceptionOperationResult>().Subject;
-            var exceptionData = exceptionResult.Exception.Data;
-
-            var commandName = $"OperationWrapperImpl<{nameof(TestApiCommand)}>";
-            exceptionData.Keys.Should().Contain($"{commandName}.{nameof(OperationWrapperImpl<TestApiCommand>.Operation)}");
-        }
-
-        [Test]
         public void When_Single_Custom_Exception_Handler_Registered_Then_Compiles()
         {
             // Arrange

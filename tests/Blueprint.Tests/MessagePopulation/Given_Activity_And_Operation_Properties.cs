@@ -56,7 +56,7 @@ namespace Blueprint.Tests.MessagePopulation
                 StringArray = Array.Empty<string>(),
             };
 
-            var handler = new TestApiOperationHandler<SupportedTypesOperation>(null);
+            var handler = new TestApiOperationHandler<NonSupportedTypeOperation>(null);
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             using var activity = Activity.Current = new Activity("PopulationTest").Start();

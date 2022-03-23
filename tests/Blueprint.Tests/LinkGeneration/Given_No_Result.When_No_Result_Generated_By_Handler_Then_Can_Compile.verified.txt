@@ -2,7 +2,6 @@
 // OperationChild2ExecutorPipeline
 
 using Blueprint;
-using Blueprint.Errors;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -15,20 +14,17 @@ namespace Blueprint.Tests.LinkGeneration
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase> _operationBaseIApiOperationHandler;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2> _operationChild2IApiOperationHandler;
-        private readonly Blueprint.Errors.IErrorLogger _errorLogger;
 
-        public OperationChild2ExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase> operationBaseIApiOperationHandler, Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2> operationChild2IApiOperationHandler, Blueprint.Errors.IErrorLogger errorLogger)
+        public OperationChild2ExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase> operationBaseIApiOperationHandler, Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2> operationChild2IApiOperationHandler)
         {
             _logger = loggerFactory.CreateLogger("OperationChild2ExecutorPipeline");
             _operationBaseIApiOperationHandler = operationBaseIApiOperationHandler;
             _operationChild2IApiOperationHandler = operationChild2IApiOperationHandler;
-            _errorLogger = errorLogger;
         }
 
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteAsync(Blueprint.ApiOperationContext context)
         {
             using var activityOfOperationChild2Pipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2Pipeline", System.Diagnostics.ActivityKind.Internal);
-            context.Activity = activityOfOperationChild2Pipeline;
             var operationChild2 = (Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2) context.Operation;
             try
             {
@@ -50,13 +46,6 @@ namespace Blueprint.Tests.LinkGeneration
             }
             catch (System.Exception e)
             {
-                var userAuthorisationContext = context.UserAuthorisationContext;
-                var identifier = new Blueprint.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
-
-                userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
-
-                var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
-
                 Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
@@ -65,7 +54,6 @@ namespace Blueprint.Tests.LinkGeneration
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteNestedAsync(Blueprint.ApiOperationContext context)
         {
             using var activityOfOperationChild2NestedPipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2NestedPipeline", System.Diagnostics.ActivityKind.Internal);
-            context.Activity = activityOfOperationChild2NestedPipeline;
             var operationChild2 = (Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2) context.Operation;
             try
             {
@@ -87,13 +75,6 @@ namespace Blueprint.Tests.LinkGeneration
             }
             catch (System.Exception e)
             {
-                var userAuthorisationContext = context.UserAuthorisationContext;
-                var identifier = new Blueprint.Authorisation.UserExceptionIdentifier(userAuthorisationContext);
-
-                userAuthorisationContext?.PopulateMetadata((k, v) => e.Data[k] = v?.ToString());
-
-                var result_of_LogAsync = await _errorLogger.LogAsync(e, null, identifier);
-
                 Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
