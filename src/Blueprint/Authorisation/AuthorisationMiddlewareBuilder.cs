@@ -91,13 +91,13 @@ namespace Blueprint.Authorisation
                 }
             }
 
+            checkFrames.Add(new SetApmUserDetailsFrame());
+
             // We only run authorisation checks if SkipAuthorisation is false, which it will be by default
             context.AppendFrames(
                 new IfBlock(
                     $"{context.FindVariable<ApiOperationContext>()}.{nameof(ApiOperationContext.SkipAuthorisation)} == false",
                     checkFrames.ToArray()));
-
-            context.RegisterFinallyFrames(new SetApmUserDetailsFrame());
         }
 
         private class SetApmUserDetailsFrame : SyncFrame
@@ -117,6 +117,8 @@ namespace Blueprint.Authorisation
                 writer.If($"userContext != null && userContext.{nameof(IUserAuthorisationContext.IsAnonymous)} == false");
                 writer.WriteLine($"{activityVariable}.SetTag(\"enduser.id\", userContext.{nameof(IUserAuthorisationContext.Id)});");
                 writer.WriteLine($"{activityVariable}.SetTag(\"enduser.account_id\", userContext.{nameof(IUserAuthorisationContext.AccountId)});");
+
+                writer.WriteLine($"userContext.PopulateMetadata((k, v) => {activityVariable}.SetTag(k, v));");
                 writer.FinishBlock();
 
                 writer.FinishBlock();
