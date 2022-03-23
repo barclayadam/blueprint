@@ -67,15 +67,6 @@ namespace Blueprint.Http
                         Title = exception.Message,
                     };
 
-                case InvalidOperationException _:
-                    return new ProblemDetails
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Type = "invalid_request",
-                        Title = this._shouldExposeErrorMessage ? exception.Message : "There was a problem with the request",
-                        Detail = this._shouldExposeErrorMessage ? exception.ToString() : null,
-                    };
-
                 default:
                     return new ProblemDetails
                     {
