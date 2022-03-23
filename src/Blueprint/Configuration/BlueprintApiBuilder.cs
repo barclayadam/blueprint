@@ -47,6 +47,9 @@ namespace Blueprint.Configuration
                 // The default strategy is to build to a DLL to the temp folder
                 this.Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
             }
+
+            // Register core middleware that is safe to have in every pipeline.
+            this.AddValidation();
         }
 
         /// <summary>

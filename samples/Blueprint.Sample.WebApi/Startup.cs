@@ -45,7 +45,6 @@ namespace Blueprint.Sample.WebApi
                 .AddTasksClient(t => t.UseHangfire())
                 .AddOpenApi()
                 .AddLogging()
-                .AddValidation()
                 .AddHateoasLinks()
                 .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
                 .AddAuthorisation()

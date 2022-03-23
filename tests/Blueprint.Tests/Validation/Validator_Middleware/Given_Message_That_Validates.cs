@@ -26,9 +26,7 @@ namespace Blueprint.Tests.Validation.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<EmptyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o
-                .WithHandler(handler)
-                .AddValidation());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new EmptyOperation());
@@ -46,9 +44,7 @@ namespace Blueprint.Tests.Validation.Validator_Middleware
             var toReturn = 12345;
 
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(toReturn);
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o
-                .WithHandler(handler)
-                .AddValidation());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
@@ -68,9 +64,7 @@ namespace Blueprint.Tests.Validation.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o
-                .WithHandler(handler)
-                .AddValidation());
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             // Act
             await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
@@ -87,10 +81,8 @@ namespace Blueprint.Tests.Validation.Validator_Middleware
         {
             // Arrange
             var handler = new TestApiOperationHandler<HasRequiredPropertyOperation>(12345);
-            var executor = TestApiOperationExecutor.CreateStandalone(o => o
-                .WithHandler(handler)
-                .AddValidation());
-
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
+            
             // Act
             var result = await executor.ExecuteWithNewScopeAsync(new HasRequiredPropertyOperation
             {

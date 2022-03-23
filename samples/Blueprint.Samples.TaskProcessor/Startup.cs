@@ -46,8 +46,7 @@ namespace Blueprint.Samples.TaskProcessor
                 .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
                     .Scan(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
-                .AddLogging()
-                .AddValidation());
+                .AddLogging());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
