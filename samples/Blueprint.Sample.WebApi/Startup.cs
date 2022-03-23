@@ -47,6 +47,8 @@ namespace Blueprint.Sample.WebApi
                 .AddLogging()
                 .AddValidation()
                 .AddHateoasLinks()
+                .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+                .AddAuthorisation()
                 .AddResourceEvents<NullResourceEventRepository>());
         }
 

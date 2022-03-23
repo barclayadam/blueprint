@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Blueprint.Authorisation;
 using Blueprint.Sample.WebApi.Tasks;
 using Blueprint.Tasks;
 
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("background-task")]
+    [AllowAnonymous]
     public class AddBackgroundTaskCommand : ICommand
     {
         [Required]

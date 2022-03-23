@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Blueprint.Authorisation;
 using Blueprint.Http;
 using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("forecast-inline")]
+    [AllowAnonymous]
     public class WeatherForecastInlineQuery : IQuery<IEnumerable<WeatherForecast>>
     {
         [Required]

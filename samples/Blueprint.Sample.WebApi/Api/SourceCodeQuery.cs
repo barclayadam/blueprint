@@ -1,8 +1,10 @@
-﻿using Blueprint.Http;
+﻿using Blueprint.Authorisation;
+using Blueprint.Http;
 
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("source")]
+    [AllowAnonymous]
     public class SourceCodeQuery : IQuery<PlainTextResult>
     {
         public PlainTextResult Invoke(IApiOperationExecutor executor)

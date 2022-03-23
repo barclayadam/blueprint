@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Blueprint.Authorisation;
 using Blueprint.Sample.WebApi.Data;
 
 namespace Blueprint.Sample.WebApi.Api
 {
     [RootLink("forecast")]
+    [AllowAnonymous]
     public class WeatherForecastQuery : IQuery<IEnumerable<WeatherForecast>>
     {
         public string City { get; set; }
