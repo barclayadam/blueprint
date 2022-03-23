@@ -30,6 +30,7 @@ namespace Blueprint.Tests.ResourceEvents
             result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
             result.ShouldBeContent<CreatedResourceEvent>().Data.Email.Should().Be("test@email.com");
         }
+        
         [RootLink("/some-static-value")]
         public class CreationOperation : ICommand
         {
