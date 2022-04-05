@@ -26,7 +26,8 @@ namespace Blueprint.Auditing
         {
             return p.HasAttribute<DoNotAuditAttribute>(true) ||
                    p.HasAttribute<SensitiveAttribute>(true) ||
-                   p.Name.Contains("Password", StringComparison.OrdinalIgnoreCase);
+                   p.Name.Contains("Password", StringComparison.OrdinalIgnoreCase) ||
+                   p.Name.Contains("Secret", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
