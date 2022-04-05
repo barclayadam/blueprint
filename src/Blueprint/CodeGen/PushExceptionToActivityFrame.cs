@@ -34,13 +34,12 @@ namespace Blueprint.CodeGen
             var context = variables.FindVariable(typeof(ApiOperationContext));
             var activityVariable = context.GetProperty(nameof(ApiOperationContext.Activity));
 
-            writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable}, {this._escaped.ToString().ToLowerInvariant()});");
-
             writer.If($"{this._exceptionVariable} is {typeof(ApiException).FullNameInCode()} apiException && apiException.{nameof(ApiException.HttpStatus)} < 500");
             writer.Write(new ActivityStatusFrame(activityVariable, Status.Ok));
             writer.FinishBlock();
 
             writer.Else();
+            writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable}, {this._escaped.ToString().ToLowerInvariant()});");
             writer.Write(new ActivityStatusFrame(activityVariable, Status.Error));
             writer.FinishBlock();
         }

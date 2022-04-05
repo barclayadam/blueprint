@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Blueprint.Configuration;
 using Blueprint.Http;
 using Blueprint.Testing;
 using FluentAssertions;
@@ -49,6 +49,24 @@ namespace Blueprint.Tests.Diagnostics
 
             // Assert
             activity.GetStatus().StatusCode.Should().Be(StatusCode.Ok);
+        }
+        
+        [Test]
+        public async Task When_Blueprint_ValidationException_Thrown_Then_No_Exception_Recorded()
+        {
+            // Arrange
+            var expected = new TestOperation();
+
+            var handler = new TestApiOperationHandler<TestOperation>(new Blueprint.Validation.ValidationException("Validation failed"));
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
+
+            using var activity = Activity.Current = new Activity("ExceptionTest").Start();
+
+            // Act
+            await executor.ExecuteWithNoUnwrapAsync(expected);
+
+            // Assert
+            activity.Events.Should().BeEmpty();
         }
         
         [Test]
@@ -107,6 +125,26 @@ namespace Blueprint.Tests.Diagnostics
 
             // Assert
             activity.GetStatus().StatusCode.Should().Be(StatusCode.Error);
+        }
+        
+        [Test]
+        [TestCase(typeof(InvalidOperationException))]
+        [TestCase(typeof(NullReferenceException))]
+        public async Task When_Unhandled_Exception_Activity_Exception_Recorded(Type exceptionType)
+        {
+            // Arrange
+            var handler = new TestApiOperationHandler<TestOperation>((Exception)Activator.CreateInstance(exceptionType));
+            var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
+
+            using var activity = Activity.Current = new Activity("ExceptionTest").Start();
+
+            // Act
+            await executor.ExecuteWithNoUnwrapAsync(new TestOperation());
+
+            // Assert
+            activity.Events.Should().Contain(e => 
+                e.Name == "exception" && 
+                e.Tags.Any(t => t.Key == "exception.type"));
         }
 
         public class TestOperation : IQuery
