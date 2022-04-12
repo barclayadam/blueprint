@@ -10,6 +10,8 @@ namespace Blueprint.Tests.LinkGeneration
     public class OperationChild2ExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
         private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, string, System.Exception> _ApiOperationHandlerExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String, System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(2, "ApiOperationHandlerExecuting"), "Executing API operation {OperationType} with handler {HandlerType}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(825, "A non-critical ApiException has occurred with message {ExceptionMessage}"), "A non-critical ApiException has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(826, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase> _operationBaseIApiOperationHandler;
@@ -66,9 +68,9 @@ namespace Blueprint.Tests.LinkGeneration
             }
             catch (System.Exception e)
             {
-                Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
+                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
                     if (context.Activity != null)
                     {
                         OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
@@ -76,6 +78,8 @@ namespace Blueprint.Tests.LinkGeneration
                 }
                 else
                 {
+                    Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
+                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
                     if (context.Activity != null)
                     {
                         OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);
@@ -129,9 +133,9 @@ namespace Blueprint.Tests.LinkGeneration
             }
             catch (System.Exception e)
             {
-                Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
+                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
                     if (context.Activity != null)
                     {
                         OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
@@ -139,6 +143,8 @@ namespace Blueprint.Tests.LinkGeneration
                 }
                 else
                 {
+                    Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
+                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
                     if (context.Activity != null)
                     {
                         OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);

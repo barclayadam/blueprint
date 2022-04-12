@@ -5,6 +5,7 @@ using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Utilities;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Blueprint.CodeGen
@@ -30,21 +31,24 @@ namespace Blueprint.CodeGen
 
         private static int _eventIdCount = 1;
 
+        [CanBeNull]
+        private readonly Variable _exceptionVariable;
         private readonly LogLevel _level;
         private readonly string _message;
         private readonly object[] _parameters;
 
         private readonly StaticField _actionVariable;
 
-        private LogFrame(LogLevel level, string message, object[] parameters)
-            : this(level, new EventId(_eventIdCount++, message.Replace("\"", "\\\"")), message, parameters)
+        private LogFrame(LogLevel level, string message, [CanBeNull] Variable exceptionVariable, object[] parameters)
+            : this(level, new EventId(_eventIdCount++, message.Replace("\"", "\\\"")), message, exceptionVariable, parameters)
         {
         }
 
-        private LogFrame(LogLevel level, EventId eventId, string message, object[] parameters)
+        private LogFrame(LogLevel level, EventId eventId, string message, [CanBeNull] Variable exceptionVariable, object[] parameters)
         {
             this._level = level;
             this._message = message;
+            this._exceptionVariable = exceptionVariable;
             this._parameters = parameters;
 
             var argTypes = parameters.Select(p => p switch
@@ -96,7 +100,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Trace(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Trace, message, parameters);
+            return new LogFrame(LogLevel.Trace, message, null, parameters);
         }
 
         /// <summary>
@@ -109,7 +113,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Trace(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Trace, eventId, message, parameters);
+            return new LogFrame(LogLevel.Trace, eventId, message, null, parameters);
         }
 
         /// <summary>
@@ -121,7 +125,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Debug(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Debug, message, parameters);
+            return new LogFrame(LogLevel.Debug, message, null, parameters);
         }
 
         /// <summary>
@@ -134,7 +138,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Debug(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Debug, eventId, message, parameters);
+            return new LogFrame(LogLevel.Debug, eventId, message, null, parameters);
         }
 
         /// <summary>
@@ -146,7 +150,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Information(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Information, message, parameters);
+            return new LogFrame(LogLevel.Information, message, null, parameters);
         }
 
         /// <summary>
@@ -159,7 +163,34 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Information(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Information, eventId, message, parameters);
+            return new LogFrame(LogLevel.Information, eventId, message, null, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Information" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Information(Variable exceptionVariable, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Information, message, exceptionVariable, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Information" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="eventId">An event id that should be used to identify this log message.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Information(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Information, eventId, message, exceptionVariable, parameters);
         }
 
         /// <summary>
@@ -171,7 +202,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Warning(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Warning, message, parameters);
+            return new LogFrame(LogLevel.Warning, message, null, parameters);
         }
 
         /// <summary>
@@ -184,7 +215,34 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Warning(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Warning, eventId, message, parameters);
+            return new LogFrame(LogLevel.Warning, eventId, message, null, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Warning(Variable exceptionVariable, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Warning, message, exceptionVariable, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="eventId">An event id that should be used to identify this log message.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Warning(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Warning, eventId, message, exceptionVariable, parameters);
         }
 
         /// <summary>
@@ -196,7 +254,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Error(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Error, message, parameters);
+            return new LogFrame(LogLevel.Error, message, null, parameters);
         }
 
         /// <summary>
@@ -209,7 +267,34 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Error(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Error, eventId, message, parameters);
+            return new LogFrame(LogLevel.Error, eventId, message, null, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Error" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Error(Variable exceptionVariable, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Error, message, exceptionVariable, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Error" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="eventId">An event id that should be used to identify this log message.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Error(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Error, eventId, message, exceptionVariable, parameters);
         }
 
         /// <summary>
@@ -221,7 +306,7 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Critical(string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Critical, message, parameters);
+            return new LogFrame(LogLevel.Critical, message, null, parameters);
         }
 
         /// <summary>
@@ -234,7 +319,34 @@ namespace Blueprint.CodeGen
         /// <returns>A new <see cref="LogFrame"/>.</returns>
         public static LogFrame Critical(EventId eventId, string message, params object[] parameters)
         {
-            return new LogFrame(LogLevel.Critical, eventId, message, parameters);
+            return new LogFrame(LogLevel.Critical, eventId, message, null, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Critical(Variable exceptionVariable, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Critical, message, exceptionVariable, parameters);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
+        /// message.
+        /// </summary>
+        /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
+        /// <param name="eventId">An event id that should be used to identify this log message.</param>
+        /// <param name="message">The message to output.</param>
+        /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
+        /// <returns>A new <see cref="LogFrame"/>.</returns>
+        public static LogFrame Critical(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
+        {
+            return new LogFrame(LogLevel.Critical, eventId, message, exceptionVariable, parameters);
         }
 
         /// <inheritdoc />
