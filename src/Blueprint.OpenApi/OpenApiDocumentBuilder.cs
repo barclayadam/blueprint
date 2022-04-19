@@ -430,16 +430,32 @@ namespace Blueprint.OpenApi
 
             protected override List<MemberInfo> GetSerializableMembers(Type objectType)
             {
+                // We need to also exclude properties that are marked as ignored by System.Text.Json
+                var serializableMembers = base.GetSerializableMembers(objectType)
+                    .Where(m =>
+                    {
+                        // If this property has JsonIgnore AND it's not hiding a property from base class exclude it.
+                        // We perform this check because System.Text.Json would ignore the JsonIgnore on the hiding
+                        // property, outputting the base class property
+                        if (m.HasAttribute(typeof(System.Text.Json.Serialization.JsonIgnoreAttribute), false) &&
+                            !IsHidingProperty(m as PropertyInfo))
+                        {
+                            return false;
+                        }
+
+                        return true;
+                    });
+
                 if (this._apiDataModel.TryFindOperation(objectType, out var descriptor) == false)
                 {
-                    return base.GetSerializableMembers(objectType);
+                    return serializableMembers.ToList();
                 }
 
                 var allOwned = this._messagePopulationSources
                     .SelectMany(s => s.GetOwnedProperties(this._apiDataModel, descriptor))
                     .ToList();
 
-                return base.GetSerializableMembers(objectType)
+                return serializableMembers
                     .Where(p => allOwned.All(o => o.Property != p))
                     .ToList();
             }
@@ -520,6 +536,41 @@ namespace Blueprint.OpenApi
                 }
 
                 return baseProperty;
+            }
+
+            private static bool IsHidingProperty(PropertyInfo prop)
+            {
+                if (prop == null)
+                {
+                    return false;
+                }
+
+                // Cannot hide, no base type (or base type is object)
+                if (prop.DeclaringType!.BaseType == null || prop.DeclaringType.BaseType == typeof(object))
+                {
+                    return false;
+                }
+
+                var baseType = prop.DeclaringType!.BaseType;
+                var baseProperty = baseType?.GetProperty(prop.Name);
+
+                // No property exists in base type that matches the property name, cannot be hiding.
+                if (baseProperty == null)
+                {
+                    return false;
+                }
+
+                // We have a property that has different declaring type, check the get method's base
+                // definition to see if it is hiding.
+                if (baseProperty.DeclaringType != prop.DeclaringType)
+                {
+                    var baseMethodDefinition = baseProperty.GetGetMethod()?.GetBaseDefinition();
+                    var thisMethodDefinition = prop.GetGetMethod()?.GetBaseDefinition();
+
+                    return baseMethodDefinition?.DeclaringType != thisMethodDefinition?.DeclaringType;
+                }
+
+                return false;
             }
         }
 

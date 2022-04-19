@@ -299,6 +299,25 @@ namespace Blueprint.Tests.OpenApi
             openApiDocument.Paths.Should().NotBeEmpty();
             await Verifier.Verify(plaintextResult);
         }
+        
+        [Test]
+        public async Task When_response_has_JsonIgnore_then_not_included()
+        {
+            // Arrange
+            var executor = TestApiOperationExecutor.CreateHttp(o => o
+                .WithOperation<OperationResponseWithSystemTextJsonIgnoreQuery>()
+                .AddOpenApi());
+
+            // Act
+            var result = await executor.ExecuteAsync<OpenApiQuery>();
+
+            // Assert
+            var plaintextResult = result.ShouldBeOperationResultType<PlainTextResult>();
+            var openApiDocument = await OpenApiDocument.FromJsonAsync(plaintextResult.Content);
+
+            openApiDocument.Paths.Should().NotBeEmpty();
+            await Verifier.Verify(plaintextResult);
+        }
 
         /// <summary>
         /// The OpenApiGetQuery summary
@@ -508,9 +527,29 @@ namespace Blueprint.Tests.OpenApi
             }
         }
 
+        [RootLink("/resources/with-excluded")]
+        public class OperationResponseWithSystemTextJsonIgnoreQuery : IQuery<OperationResponseWithSystemTextJsonIgnore>
+        {
+            public OperationResponseWithSystemTextJsonIgnore Invoke()
+            {
+                return new OperationResponseWithSystemTextJsonIgnore();
+            }
+        }
+
         public class OpenApiResource : ApiResource
         {
             public string AProperty { get; set; }
+        }
+
+        public class OperationResponseWithSystemTextJsonIgnore
+        {
+            public string ToBeIncluded { get; set; }
+            
+            [Newtonsoft.Json.JsonIgnore]
+            public string NewtonsoftExcluded { get; set; }
+            
+            [System.Text.Json.Serialization.JsonIgnore]
+            public string SystemTextExcluded { get; set; }
         }
     }
 }
