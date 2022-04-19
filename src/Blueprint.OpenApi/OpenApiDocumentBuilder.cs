@@ -511,6 +511,14 @@ namespace Blueprint.OpenApi
                     }
                 }
 
+                if (member.DeclaringType == typeof(Link))
+                {
+                    if (member.Name == nameof(Link.Type))
+                    {
+                        baseProperty.Required = Required.Default;
+                    }
+                }
+
                 return baseProperty;
             }
         }

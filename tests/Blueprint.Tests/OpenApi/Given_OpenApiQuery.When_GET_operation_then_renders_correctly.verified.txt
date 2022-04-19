@@ -248,8 +248,7 @@
         "description": "A link from one resource to another, that indicates what operations may be available\nfor a given ILinkableResource being returned from the API.",
         "additionalProperties": false,
         "required": [
-          "href",
-          "type"
+          "href"
         ],
         "properties": {
           "href": {
@@ -258,7 +257,8 @@
           },
           "type": {
             "type": "string",
-            "description": "The type of resource this link will return."
+            "description": "The type of resource this link will return.",
+            "nullable": true
           }
         }
       },
