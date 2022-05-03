@@ -48,19 +48,13 @@ namespace Blueprint.Tests.Core
             }
             catch (Blueprint.Validation.ValidationException e)
             {
-                if (context.Activity != null)
-                {
-                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                }
+                context.Activity?.SetTag("otel.status_code", "Ok");
                 var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(e.ValidationResults);
                 return validationFailedOperationResult;
             }
             catch (System.ComponentModel.DataAnnotations.ValidationException e)
             {
-                if (context.Activity != null)
-                {
-                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                }
+                context.Activity?.SetTag("otel.status_code", "Ok");
                 var validationFailedOperationResult = Blueprint.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
                 return validationFailedOperationResult;
             }
@@ -69,19 +63,14 @@ namespace Blueprint.Tests.Core
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
                     _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
-                    if (context.Activity != null)
-                    {
-                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                    }
+                    context.Activity?.SetTag("otel.status_code", "Ok");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                     _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
-                    if (context.Activity != null)
-                    {
-                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);
-                    }
+                    context.Activity?.SetTag("otel.status_code", "Error");
+                    context.Activity?.SetTag("otel.status_description", e.Message);
                 }
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }
@@ -111,19 +100,13 @@ namespace Blueprint.Tests.Core
             }
             catch (Blueprint.Validation.ValidationException e)
             {
-                if (context.Activity != null)
-                {
-                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                }
+                context.Activity?.SetTag("otel.status_code", "Ok");
                 var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(e.ValidationResults);
                 return validationFailedOperationResult;
             }
             catch (System.ComponentModel.DataAnnotations.ValidationException e)
             {
-                if (context.Activity != null)
-                {
-                    OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                }
+                context.Activity?.SetTag("otel.status_code", "Ok");
                 var validationFailedOperationResult = Blueprint.Middleware.ValidationMiddlewareBuilder.ToValidationFailedOperationResult(e);
                 return validationFailedOperationResult;
             }
@@ -132,19 +115,14 @@ namespace Blueprint.Tests.Core
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
                     _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
-                    if (context.Activity != null)
-                    {
-                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Ok);
-                    }
+                    context.Activity?.SetTag("otel.status_code", "Ok");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
                     _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
-                    if (context.Activity != null)
-                    {
-                        OpenTelemetry.Trace.ActivityExtensions.SetStatus(context.Activity, OpenTelemetry.Trace.Status.Error);
-                    }
+                    context.Activity?.SetTag("otel.status_code", "Error");
+                    context.Activity?.SetTag("otel.status_description", e.Message);
                 }
                 return new Blueprint.UnhandledExceptionOperationResult(e);
             }

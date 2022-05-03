@@ -156,7 +156,7 @@ namespace Blueprint.Middleware
                 Parameters = { [0] = validationFailures },
             };
 
-            yield return new ActivityStatusFrame(activityVariable, Status.Ok);
+            yield return new ActivityStatusFrame(activityVariable, StatusCode.Ok);
             yield return createResult;
             yield return new ReturnFrame(createResult.Variable);
         }
@@ -172,7 +172,7 @@ namespace Blueprint.Middleware
                 Arguments = { [0] = exception },
             };
 
-            yield return new ActivityStatusFrame(activityVariable, Status.Ok);
+            yield return new ActivityStatusFrame(activityVariable, StatusCode.Ok);
             yield return createResponse;
             yield return new ReturnFrame(createResponse.ReturnVariable);
         }

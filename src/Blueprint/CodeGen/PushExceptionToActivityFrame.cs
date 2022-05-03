@@ -36,13 +36,13 @@ namespace Blueprint.CodeGen
 
             writer.If($"{this._exceptionVariable} is {typeof(ApiException).FullNameInCode()} apiException && apiException.{nameof(ApiException.HttpStatus)} < 500");
             writer.Write(LogFrame.Information(this._exceptionVariable, "A non-critical ApiException has occurred with message {ExceptionMessage}", this._exceptionVariable.GetProperty(nameof(Exception.Message))));
-            writer.Write(new ActivityStatusFrame(activityVariable, Status.Ok));
+            writer.Write(new ActivityStatusFrame(activityVariable, StatusCode.Ok));
             writer.FinishBlock();
 
             writer.Else();
             writer.WriteLine($"{typeof(BlueprintActivitySource).FullNameInCode()}.{nameof(BlueprintActivitySource.RecordException)}({activityVariable}, {this._exceptionVariable}, {this._escaped.ToString().ToLowerInvariant()});");
             writer.Write(LogFrame.Error(this._exceptionVariable, "An unhandled exception has occurred with message {ExceptionMessage}", this._exceptionVariable.GetProperty(nameof(Exception.Message))));
-            writer.Write(new ActivityStatusFrame(activityVariable, Status.Error));
+            writer.Write(new ActivityStatusFrame(activityVariable, StatusCode.Error, this._exceptionVariable.GetProperty(nameof(Exception.Message))));
             writer.FinishBlock();
         }
     }

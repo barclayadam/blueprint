@@ -115,7 +115,7 @@ namespace Blueprint.Tests.Diagnostics
         public async Task When_Unhandled_Exception_Activity_Status_Set_To_Error(Type exceptionType)
         {
             // Arrange
-            var handler = new TestApiOperationHandler<TestOperation>((Exception)Activator.CreateInstance(exceptionType));
+            var handler = new TestApiOperationHandler<TestOperation>((Exception)Activator.CreateInstance(exceptionType, "The exception message"));
             var executor = TestApiOperationExecutor.CreateStandalone(o => o.WithHandler(handler));
 
             using var activity = Activity.Current = new Activity("ExceptionTest").Start();
@@ -125,6 +125,7 @@ namespace Blueprint.Tests.Diagnostics
 
             // Assert
             activity.GetStatus().StatusCode.Should().Be(StatusCode.Error);
+            activity.GetStatus().Description.Should().Be("The exception message");
         }
         
         [Test]
