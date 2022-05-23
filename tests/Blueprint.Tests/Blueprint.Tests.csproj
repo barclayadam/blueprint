@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\src\Blueprint.StructureMap\Blueprint.StructureMap.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Tasks.Hangfire\Blueprint.Tasks.Hangfire.csproj" />
     <ProjectReference Include="..\..\src\Blueprint.Testing\Blueprint.Testing.csproj" />
+    <ProjectReference Include="..\Blueprint.Compiler.Tests\Blueprint.Compiler.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="BlueprintSqlSchema.sql" />
@@ -32,6 +33,9 @@
   <ItemGroup>
     <None Update="OpenApi\Given_OpenApiQuery.When_ConfigureOperation_provided_then_can_modify_all_operations.verified.txt">
       <DependentUpon>Given_OpenApiQuery.cs</DependentUpon>
+    </None>
+    <None Update="CodeGen\LogFrameTests.*.txt">
+      <DependentUpon>LogFrameTests.cs</DependentUpon>
     </None>
   </ItemGroup>
 </Project>

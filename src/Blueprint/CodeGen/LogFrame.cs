@@ -364,9 +364,11 @@ namespace Blueprint.CodeGen
 
             var safeParameters = this._parameters.Select(SafeValue);
 
+            var exceptionValue = this._exceptionVariable == null ? "null" : this._exceptionVariable.Usage;
+
             writer.WriteLine(this._parameters.Length == 0
-                ? $"{this._actionVariable}({loggerVariable}, null);"
-                : $"{this._actionVariable}({loggerVariable}, {string.Join(", ", safeParameters)}, null);");
+                ? $"{this._actionVariable}({loggerVariable}, {exceptionValue});"
+                : $"{this._actionVariable}({loggerVariable}, {string.Join(", ", safeParameters)}, {exceptionValue});");
 
             next();
         }

@@ -25,9 +25,14 @@ namespace Blueprint.Compiler.Tests.Scenarios
             return ForBaseOf<IAction<T>>(configuration);
         }
 
-        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedType, GeneratedMethod> configuration)
+        public static CodegenResult<IAction<T1, T2>> ForAction<T1, T2>(Action<GeneratedType, GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1>>(configuration);
+            return ForBaseOf<IAction<T1, T2>>(configuration);
+        }
+
+        public static CodegenResult<IReturningAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedType, GeneratedMethod> configuration)
+        {
+            return ForBaseOf<IReturningAction<TResult, T1>>(configuration);
         }
 
         public static CodegenResult<IAction<T>> ForAction<T>(Action<GeneratedMethod> configuration)
@@ -35,19 +40,19 @@ namespace Blueprint.Compiler.Tests.Scenarios
             return ForBaseOf<IAction<T>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedMethod> configuration)
+        public static CodegenResult<IReturningAction<TResult, T1>> ForBuilds<TResult, T1>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1>>((t, m) => configuration(m));
+            return ForBaseOf<IReturningAction<TResult, T1>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedMethod> configuration)
+        public static CodegenResult<IReturningAction<TResult, T1, T2>> ForBuilds<TResult, T1, T2>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2>>((t, m) => configuration(m));
+            return ForBaseOf<IReturningAction<TResult, T1, T2>>((t, m) => configuration(m));
         }
 
-        public static CodegenResult<IAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedMethod> configuration)
+        public static CodegenResult<IReturningAction<TResult, T1, T2, T3>> ForBuilds<TResult, T1, T2, T3>(Action<GeneratedMethod> configuration)
         {
-            return ForBaseOf<IAction<TResult, T1, T2, T3>>((t, m) => configuration(m));
+            return ForBaseOf<IReturningAction<TResult, T1, T2, T3>>((t, m) => configuration(m));
         }
 
         /// <summary>
