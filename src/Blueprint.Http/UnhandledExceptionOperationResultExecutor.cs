@@ -35,7 +35,6 @@ namespace Blueprint.Http
             if (context.Activity != null)
             {
                 problemDetails.AddExtension("traceId", context.Activity?.TraceId.ToString());
-                problemDetails.AddExtension("traceParentId", context.Activity?.ParentId);
             }
 
             return this._okResultOperationExecutor.WriteContentAsync(
