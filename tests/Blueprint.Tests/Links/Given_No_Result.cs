@@ -37,7 +37,9 @@ namespace Blueprint.Tests.LinkGeneration
         }
 
         public class OperationBase {}
+        
         public class OperationChild1 : OperationBase {}
+        
         public class OperationChild2 : OperationBase {}
     }
 }

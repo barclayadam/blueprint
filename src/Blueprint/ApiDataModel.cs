@@ -95,7 +95,8 @@ namespace Blueprint
         {
             var existing = this._allLinks.Where(l =>
                     l.UrlFormat.Equals(link.UrlFormat, StringComparison.CurrentCultureIgnoreCase) &&
-                    l.OperationDescriptor.Name == link.OperationDescriptor.Name)
+                    l.OperationDescriptor.Name == link.OperationDescriptor.Name &&
+                    l.ResourceType == link.ResourceType)
                 .ToList();
 
             if (existing.Any())
@@ -120,8 +121,8 @@ namespace Blueprint
                 {
                     throw new InvalidOperationException(
                         $"Duplicate link found for resource type {link.ResourceType.Name} with rel {link.Rel}. Existing link is for the operation: \n\n" +
-                        $"  {existingLink.OperationDescriptor.OperationType.FullName}: {existingLink.UrlFormat}\n\n" +
-                        "Every link must be a unique pairing of resource type (i.e. UserApiResource) and rel (i.e. \"self\" or \"activate\"");
+                        $" {existingLink.OperationDescriptor.OperationType.FullName}: {existingLink.UrlFormat}\n\n" +
+                        "Every link must be a unique pairing of resource type (i.e. UserApiResource) and rel (i.e. \"self\" or \"activate\")");
                 }
 
                 this._resourceTypeToLinks[link.ResourceType].Add(link);
