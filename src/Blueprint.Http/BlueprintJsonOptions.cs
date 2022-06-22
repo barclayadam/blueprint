@@ -21,7 +21,6 @@ namespace Blueprint.Http
                 // Use camel casing for properties and dictionaries (dictionaries because
                 // we treat them similar to properties from perspective of client consumption)
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
 
                 // Web defaults don't use the relax JSON escaping encoder.
                 //
