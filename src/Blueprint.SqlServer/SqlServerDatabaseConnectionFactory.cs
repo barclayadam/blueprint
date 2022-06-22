@@ -5,11 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Blueprint.SqlServer
 {
+    /// <summary>
+    /// An <see cref="IDatabaseConnectionFactory" /> for SQL Server.
+    /// </summary>
     public class SqlServerDatabaseConnectionFactory : IDatabaseConnectionFactory
     {
         private readonly string _connectionString;
         private readonly ILogger<SqlServerDatabaseConnectionFactory> _logger;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="SqlServerDatabaseConnectionFactory"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string of the database.</param>
+        /// <param name="logger">A logger.</param>
         public SqlServerDatabaseConnectionFactory(string connectionString, ILogger<SqlServerDatabaseConnectionFactory> logger)
         {
             Guard.NotNull(nameof(connectionString), connectionString);
@@ -19,6 +27,7 @@ namespace Blueprint.SqlServer
             this._logger = logger;
         }
 
+        /// <inheritdoc/>
         public IDbConnection Open()
         {
             if (this._logger.IsEnabled(LogLevel.Trace))

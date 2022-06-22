@@ -27,8 +27,10 @@ namespace Blueprint.SqlServer
         private readonly IOptions<SqlServerAuditorConfiguration> _configuration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlServerAuditor"/> class.
+        /// Initialises a new instance of the <see cref="SqlServerAuditor"/> class.
         /// </summary>
+        /// <param name="databaseConnectionFactory">The database connection factory to create connections with.</param>
+        /// <param name="configuration">The configuration.</param>
         public SqlServerAuditor(
             IDatabaseConnectionFactory databaseConnectionFactory,
             IOptions<SqlServerAuditorConfiguration> configuration)
