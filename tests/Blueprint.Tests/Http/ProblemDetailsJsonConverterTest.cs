@@ -195,11 +195,11 @@ namespace Blueprint.Tests.Http
         }
 
         [Test]
-        public void Write_WithNull_DictionaryKeyPolicy_Works()
+        public void Write_With_Null_PropertyNamingPolicy_Works()
         {
             // Arrange
             var options = BlueprintJsonOptions.CreateOptions();
-            options.DictionaryKeyPolicy = null;
+            options.PropertyNamingPolicy = null;
 
             var value = new ProblemDetails
             {
