@@ -10,8 +10,8 @@ namespace Blueprint.Tests.Core
     public class OperationChild2ExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
         private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, string, System.Exception> _ApiOperationHandlerExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String, System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(2, "ApiOperationHandlerExecuting"), "Executing API operation {OperationType} with handler {HandlerType}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(145, "A non-critical ApiException has occurred with message {ExceptionMessage}"), "A non-critical ApiException has occurred with message {ExceptionMessage}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(146, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(166, "A non-critical ApiException has occurred with message {ExceptionMessage}"), "A non-critical ApiException has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(167, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase> _operationBaseIApiOperationHandler;
@@ -62,13 +62,13 @@ namespace Blueprint.Tests.Core
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
+                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "Ok");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
+                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "Error");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }
@@ -114,13 +114,13 @@ namespace Blueprint.Tests.Core
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
+                    _AnoncriticalApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "Ok");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, null);
+                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "Error");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }

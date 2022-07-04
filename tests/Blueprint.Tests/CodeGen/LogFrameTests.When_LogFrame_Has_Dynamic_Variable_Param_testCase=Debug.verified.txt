@@ -7,7 +7,7 @@ namespace Tests
 {
     public class GeneratedType : Blueprint.Compiler.Tests.Scenarios.IAction<Microsoft.Extensions.Logging.ILogger, string>
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AdynamiclogframemessageWithParam = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "A dynamic log frame message {WithParam}"), "A dynamic log frame message {WithParam}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AdynamiclogframemessageWithParam = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(17, "A dynamic log frame message {WithParam}"), "A dynamic log frame message {WithParam}");
 
 
         public void DoStuff(Microsoft.Extensions.Logging.ILogger arg1, string arg2)
