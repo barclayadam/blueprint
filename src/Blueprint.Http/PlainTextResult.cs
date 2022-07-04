@@ -15,10 +15,23 @@ namespace Blueprint.Http
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlainTextResult" /> class with the given string
+        /// content to write to the response stream, using a HTTP status code of 200 (OK).
+        /// </summary>
+        /// <param name="content">The content to write.</param>
+        public PlainTextResult(string content)
+            : base(HttpStatusCode.OK)
+        {
+            this._content = content;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlainTextResult" /> class with the given string
         /// content to write to the response stream.
         /// </summary>
         /// <param name="content">The content to write.</param>
-        public PlainTextResult(string content) : base(HttpStatusCode.OK)
+        /// <param name="statusCode">The status code of this response.</param>
+        public PlainTextResult(string content, HttpStatusCode statusCode)
+            : base(statusCode)
         {
             this._content = content;
         }
