@@ -50,7 +50,7 @@ namespace Blueprint.Diagnostics
         /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            writer.WriteLine($"{this._activityVariable}?.SetTag(\"otel.status_code\", \"{this._status.ToString()}\");");
+            writer.WriteLine($"{this._activityVariable}?.SetTag(\"otel.status_code\", \"{this._status.ToString().ToUpperInvariant()}\");");
 
             if (this._statusDescription != null)
             {
