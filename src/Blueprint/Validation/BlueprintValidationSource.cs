@@ -3,22 +3,21 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Blueprint.Utilities;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+public class BlueprintValidationSource : IAttributeValidationSource
 {
-    public class BlueprintValidationSource : IAttributeValidationSource
+    public async Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results)
     {
-        public async Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results)
+        var attributes = propertyInfo.GetAttributes<BlueprintValidationAttribute>(true);
+
+        foreach (var attribute in attributes)
         {
-            var attributes = propertyInfo.GetAttributes<BlueprintValidationAttribute>(true);
+            var result = await attribute.GetValidationResultAsync(propertyInfo.GetValue(value, null), propertyInfo.Name, apiOperationContext);
 
-            foreach (var attribute in attributes)
+            if (result != ValidationResult.Success)
             {
-                var result = await attribute.GetValidationResultAsync(propertyInfo.GetValue(value, null), propertyInfo.Name, apiOperationContext);
-
-                if (result != ValidationResult.Success)
-                {
-                    results.AddFailure(result);
-                }
+                results.AddFailure(result);
             }
         }
     }

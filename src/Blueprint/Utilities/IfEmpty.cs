@@ -1,8 +1,7 @@
-namespace Blueprint.Utilities
+namespace Blueprint.Utilities;
+
+public enum IfEmpty
 {
-    public enum IfEmpty
-    {
-        DefaultValue,
-        ShouldThrow,
-    }
+    DefaultValue,
+    ShouldThrow,
 }

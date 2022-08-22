@@ -3,23 +3,22 @@ using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Util;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.CodeGen
+namespace Blueprint.CodeGen;
+
+public class LoggerVariable : InjectedField
 {
-    public class LoggerVariable : InjectedField
+    private readonly string _name;
+
+    public LoggerVariable(string name)
+        : base(typeof(ILogger))
     {
-        private readonly string _name;
+        this._name = name;
+    }
 
-        public LoggerVariable(string name)
-            : base(typeof(ILogger))
-        {
-            this._name = name;
-        }
+    public override string CtorArgDeclaration => $"{typeof(ILoggerFactory).FullNameInCode()} {this.ArgumentName}Factory";
 
-        public override string CtorArgDeclaration => $"{typeof(ILoggerFactory).FullNameInCode()} {this.ArgumentName}Factory";
-
-        public override void WriteAssignment(ISourceWriter writer)
-        {
-            writer.WriteLine($"{this.Usage} = {this.ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{this._name}\");");
-        }
+    public override void WriteAssignment(ISourceWriter writer)
+    {
+        writer.WriteLine($"{this.Usage} = {this.ArgumentName}Factory.{nameof(ILoggerFactory.CreateLogger)}(\"{this._name}\");");
     }
 }

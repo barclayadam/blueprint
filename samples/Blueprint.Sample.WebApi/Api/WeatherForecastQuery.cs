@@ -3,27 +3,26 @@ using System.Threading.Tasks;
 using Blueprint.Authorisation;
 using Blueprint.Sample.WebApi.Data;
 
-namespace Blueprint.Sample.WebApi.Api
+namespace Blueprint.Sample.WebApi.Api;
+
+[RootLink("forecast")]
+[AllowAnonymous]
+public class WeatherForecastQuery : IQuery<IEnumerable<WeatherForecast>>
 {
-    [RootLink("forecast")]
-    [AllowAnonymous]
-    public class WeatherForecastQuery : IQuery<IEnumerable<WeatherForecast>>
+    public string City { get; set; }
+}
+
+public class WeatherForecastQueryHandler : IApiOperationHandler<WeatherForecastQuery>
+{
+    private readonly IWeatherDataSource weatherDataSource;
+
+    public WeatherForecastQueryHandler(IWeatherDataSource weatherDataSource)
     {
-        public string City { get; set; }
+        this.weatherDataSource = weatherDataSource;
     }
 
-    public class WeatherForecastQueryHandler : IApiOperationHandler<WeatherForecastQuery>
+    public ValueTask<object> Handle(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
     {
-        private readonly IWeatherDataSource weatherDataSource;
-
-        public WeatherForecastQueryHandler(IWeatherDataSource weatherDataSource)
-        {
-            this.weatherDataSource = weatherDataSource;
-        }
-
-        public ValueTask<object> Handle(WeatherForecastQuery operation, ApiOperationContext apiOperationContext)
-        {
-            return new ValueTask<object>(weatherDataSource.Get(operation.City));
-        }
+        return new ValueTask<object>(weatherDataSource.Get(operation.City));
     }
 }

@@ -7,65 +7,64 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.OperationExecutorBuilders
+namespace Blueprint.Tests.OperationExecutorBuilders;
+
+public class Given_Inline_Operation_Handling_Method_Auth_Dependencies
 {
-    public class Given_Inline_Operation_Handling_Method_Auth_Dependencies
+    [Test]
+    public async Task When_Dependency_From_Operation_Context_And_IoC_Then_Injects()
     {
-        [Test]
-        public async Task When_Dependency_From_Operation_Context_And_IoC_Then_Injects()
-        {
-            // Arrange
-            var operation = new InlineHandle();
-            var executor = TestApiOperationExecutor.CreateStandalone(
-                o => o
-                    .WithOperation<InlineHandle>()
-                    .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
-                    .AddAuthorisation(),
-                s =>
-                {
-                    s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
-                    s.AddTransient<IDependency, Dependency>();
-                });
-
-            // Act
-            await executor.ExecuteWithNewScopeAsync(operation);
-
-            // Assert
-            operation.Context.Should().NotBeNull();
-            operation.Context.Operation.Should().Be(operation);
-
-            operation.Dependency.Should().NotBeNull();
-            operation.User.Should().NotBeNull();
-        }
-
-        public interface IDependency {}
-
-        public class Dependency : IDependency {}
-
-        public class InlineHandle
-        {
-            public ApiOperationContext Context { get; set; }
-
-            public IDependency Dependency { get; set; }
-
-            public IUserAuthorisationContext User { get; set; }
-
-            public OkResult Handle(ApiOperationContext context, IDependency dependency, IUserAuthorisationContext user)
+        // Arrange
+        var operation = new InlineHandle();
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o
+                .WithOperation<InlineHandle>()
+                .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+                .AddAuthorisation(),
+            s =>
             {
-                Context = context;
-                Dependency = dependency;
-                User = user;
+                s.AddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
+                s.AddTransient<IDependency, Dependency>();
+            });
 
-                return new OkResult(nameof(InlineHandle));
-            }
-        }
+        // Act
+        await executor.ExecuteWithNewScopeAsync(operation);
 
-        private class NullClaimsIdentityProvider : IClaimsIdentityProvider
+        // Assert
+        operation.Context.Should().NotBeNull();
+        operation.Context.Operation.Should().Be(operation);
+
+        operation.Dependency.Should().NotBeNull();
+        operation.User.Should().NotBeNull();
+    }
+
+    public interface IDependency {}
+
+    public class Dependency : IDependency {}
+
+    public class InlineHandle
+    {
+        public ApiOperationContext Context { get; set; }
+
+        public IDependency Dependency { get; set; }
+
+        public IUserAuthorisationContext User { get; set; }
+
+        public OkResult Handle(ApiOperationContext context, IDependency dependency, IUserAuthorisationContext user)
         {
-            public ClaimsIdentity Get(ApiOperationContext context)
-            {
-                return new ClaimsIdentity("TestAuthType");
-            }
+            Context = context;
+            Dependency = dependency;
+            User = user;
+
+            return new OkResult(nameof(InlineHandle));
+        }
+    }
+
+    private class NullClaimsIdentityProvider : IClaimsIdentityProvider
+    {
+        public ClaimsIdentity Get(ApiOperationContext context)
+        {
+            return new ClaimsIdentity("TestAuthType");
         }
     }
 }

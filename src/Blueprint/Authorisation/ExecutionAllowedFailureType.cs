@@ -1,9 +1,8 @@
-namespace Blueprint.Authorisation
-{
-    public enum ExecutionAllowedFailureType
-    {
-        Authentication,
+namespace Blueprint.Authorisation;
 
-        Authorisation,
-    }
+public enum ExecutionAllowedFailureType
+{
+    Authentication,
+
+    Authorisation,
 }

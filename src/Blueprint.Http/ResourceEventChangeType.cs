@@ -1,9 +1,8 @@
-﻿namespace Blueprint.Http
+﻿namespace Blueprint.Http;
+
+public enum ResourceEventChangeType
 {
-    public enum ResourceEventChangeType
-    {
-        Created,
-        Updated,
-        Deleted,
-    }
+    Created,
+    Updated,
+    Deleted,
 }

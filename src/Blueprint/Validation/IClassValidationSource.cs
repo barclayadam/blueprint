@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+public interface IClassValidationSource : IValidationSource
 {
-    public interface IClassValidationSource : IValidationSource
-    {
-        Task AddClassValidationResultsAsync(object value, ApiOperationContext apiOperationContext, ValidationFailures results);
-    }
+    Task AddClassValidationResultsAsync(object value, ApiOperationContext apiOperationContext, ValidationFailures results);
 }

@@ -1,26 +1,25 @@
 ﻿using Blueprint.Compiler.Frames;
 
-namespace Blueprint.Http.Middleware
+namespace Blueprint.Http.Middleware;
+
+public class ResourceEventHandlerMiddlewareBuilder : IMiddlewareBuilder
 {
-    public class ResourceEventHandlerMiddlewareBuilder : IMiddlewareBuilder
+    /// <summary>
+    /// Returns <c>true</c>.
+    /// </summary>
+    public bool SupportsNestedExecution => true;
+
+    public bool Matches(ApiOperationDescriptor operation)
     {
-        /// <summary>
-        /// Returns <c>true</c>.
-        /// </summary>
-        public bool SupportsNestedExecution => true;
+        return operation.IsCommand;
+    }
 
-        public bool Matches(ApiOperationDescriptor operation)
-        {
-            return operation.IsCommand;
-        }
+    public void Build(MiddlewareBuilderContext context)
+    {
+        var getResourceEventRepository = context.VariableFromContainer<IResourceEventRepository>();
 
-        public void Build(MiddlewareBuilderContext context)
-        {
-            var getResourceEventRepository = context.VariableFromContainer<IResourceEventRepository>();
-
-            context.AppendFrames(
-                getResourceEventRepository,
-                new MethodCall(typeof(ResourceEventHandler), nameof(ResourceEventHandler.HandleAsync)));
-        }
+        context.AppendFrames(
+            getResourceEventRepository,
+            new MethodCall(typeof(ResourceEventHandler), nameof(ResourceEventHandler.HandleAsync)));
     }
 }

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Blueprint.Authorisation
+namespace Blueprint.Authorisation;
+
+public interface IClaimsHolder
 {
-    public interface IClaimsHolder
-    {
-        IEnumerable<Claim> GetClaimsByValueType(string valueType);
-    }
+    IEnumerable<Claim> GetClaimsByValueType(string valueType);
 }

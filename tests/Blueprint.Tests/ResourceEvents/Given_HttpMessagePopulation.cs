@@ -6,59 +6,58 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.ResourceEvents
+namespace Blueprint.Tests.ResourceEvents;
+
+public class Given_HttpMessagePopulation
 {
-    public class Given_HttpMessagePopulation
+    [RootLink("/some-static-value")]
+    public class CreationOperation : ICommand
     {
-        [RootLink("/some-static-value")]
-        public class CreationOperation : ICommand
+        [Required] public string IdToCreate { get; set; }
+
+        public CreatedResourceEvent Invoke()
         {
-            [Required] public string IdToCreate { get; set; }
-
-            public CreatedResourceEvent Invoke()
-            {
-                return new CreatedResourceEvent(new SelfQuery { Id = IdToCreate });
-            }
+            return new CreatedResourceEvent(new SelfQuery { Id = IdToCreate });
         }
+    }
 
-        // Pick any authorisation that we would not have
-        [SelfLink(typeof(AwesomeApiResource), "/resources/{Id}")]
-        public class SelfQuery : IQuery<AwesomeApiResource>
+    // Pick any authorisation that we would not have
+    [SelfLink(typeof(AwesomeApiResource), "/resources/{Id}")]
+    public class SelfQuery : IQuery<AwesomeApiResource>
+    {
+        [Required] public string Id { get; set; }
+
+        public AwesomeApiResource Invoke()
         {
-            [Required] public string Id { get; set; }
-
-            public AwesomeApiResource Invoke()
-            {
-                return new AwesomeApiResource { Id = Id };
-            }
+            return new AwesomeApiResource { Id = Id };
         }
+    }
 
-        public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
+    public class CreatedResourceEvent : ResourceCreated<AwesomeApiResource>
+    {
+        public CreatedResourceEvent(IQuery<AwesomeApiResource> selfQuery) : base(selfQuery)
         {
-            public CreatedResourceEvent(IQuery<AwesomeApiResource> selfQuery) : base(selfQuery)
-            {
-            }
         }
+    }
 
-        public class AwesomeApiResource : ApiResource
-        {
-            public string Id { get; set; }
-        }
+    public class AwesomeApiResource : ApiResource
+    {
+        public string Id { get; set; }
+    }
 
-        [Test]
-        public async Task When_HttpMessagePopulation_Child_Operation_Then_Properties_Are_Not_Populated()
-        {
-            // Arrange
-            var executor = TestApiOperationExecutor.CreateHttp(o => o
-                .WithOperation<CreationOperation>()
-                .WithOperation<SelfQuery>()
-                .AddResourceEvents<NullResourceEventRepository>());
+    [Test]
+    public async Task When_HttpMessagePopulation_Child_Operation_Then_Properties_Are_Not_Populated()
+    {
+        // Arrange
+        var executor = TestApiOperationExecutor.CreateHttp(o => o
+            .WithOperation<CreationOperation>()
+            .WithOperation<SelfQuery>()
+            .AddResourceEvents<NullResourceEventRepository>());
 
-            // Act
-            var result = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
+        // Act
+        var result = await executor.ExecuteAsync(new CreationOperation { IdToCreate = "1234" });
 
-            // Assert
-            result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
-        }
+        // Assert
+        result.ShouldBeContent<CreatedResourceEvent>().Data.Id.Should().Be("1234");
     }
 }

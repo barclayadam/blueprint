@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Blueprint.Http
-{
-    public interface IResourceEventRepository
-    {
-        Task<object> GetCurrentDataAsync(string href, Type resourceType);
+namespace Blueprint.Http;
 
-        Task AddAsync(ResourceEvent resourceEvent);
-    }
+public interface IResourceEventRepository
+{
+    Task<object> GetCurrentDataAsync(string href, Type resourceType);
+
+    Task AddAsync(ResourceEvent resourceEvent);
 }

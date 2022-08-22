@@ -2,34 +2,33 @@
 using Blueprint.Validation;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Validation.GreaterThanPropertyAttribute_Tests
+namespace Blueprint.Tests.Validation.GreaterThanPropertyAttribute_Tests;
+
+public class Given_A_Different_Type_Value
 {
-    public class Given_A_Different_Type_Value
+    public class NonComparable { }
+
+    public class Validatable
     {
-        public class NonComparable { }
+        public DateTime? PropertyToCheckAgainst { get; set; }
 
-        public class Validatable
+        [GreaterThanProperty("PropertyToCheckAgainst")]
+        public int? MustBeGreaterThanProperty { get; set; }
+    }
+
+    [Test]
+    public void When_Value_Type_Is_Not_Numeric_Then_Exception_Is_Thrown()
+    {
+        // Arrange
+        var validatable = new Validatable
         {
-            public DateTime? PropertyToCheckAgainst { get; set; }
+            PropertyToCheckAgainst = DateTime.Now,
+            MustBeGreaterThanProperty = 1
+        };
 
-            [GreaterThanProperty("PropertyToCheckAgainst")]
-            public int? MustBeGreaterThanProperty { get; set; }
-        }
+        var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
 
-        [Test]
-        public void When_Value_Type_Is_Not_Numeric_Then_Exception_Is_Thrown()
-        {
-            // Arrange
-            var validatable = new Validatable
-            {
-                PropertyToCheckAgainst = DateTime.Now,
-                MustBeGreaterThanProperty = 1
-            };
-
-            var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
-
-            // Assert
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await validator.GetValidationResultsAsync(validatable, null));
-        }
+        // Assert
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await validator.GetValidationResultsAsync(validatable, null));
     }
 }

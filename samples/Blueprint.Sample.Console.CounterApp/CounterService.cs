@@ -6,57 +6,56 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Blueprint.Sample.Console.CounterApp
+namespace Blueprint.Sample.Console.CounterApp;
+
+public class CounterService : IHostedService, IDisposable
 {
-    public class CounterService : IHostedService, IDisposable
+    private readonly IOptionsMonitor<CounterConfiguration> configuration;
+    private readonly IApiOperationExecutor apiOperationExecutor;
+    private readonly ILogger logger;
+
+    private Timer timer;
+
+    public CounterService(
+        IOptionsMonitor<CounterConfiguration> configuration,
+        IApiOperationExecutor apiOperationExecutor,
+        ILogger<CounterService> logger)
     {
-        private readonly IOptionsMonitor<CounterConfiguration> configuration;
-        private readonly IApiOperationExecutor apiOperationExecutor;
-        private readonly ILogger logger;
+        this.configuration = configuration;
+        this.apiOperationExecutor = apiOperationExecutor;
+        this.logger = logger;
+    }
 
-        private Timer timer;
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Starting CounterApp!");
 
-        public CounterService(
-            IOptionsMonitor<CounterConfiguration> configuration,
-            IApiOperationExecutor apiOperationExecutor,
-            ILogger<CounterService> logger)
+        var max = configuration.CurrentValue.Max;
+
+        timer = new Timer(s => OnTimerElapsed((int)s), max, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(1));
+
+        return Task.CompletedTask;
+    }
+
+    public void OnTimerElapsed(int max)
+    {
+        apiOperationExecutor.ExecuteWithNewScopeAsync(new IncrementCountCommand
         {
-            this.configuration = configuration;
-            this.apiOperationExecutor = apiOperationExecutor;
-            this.logger = logger;
-        }
+            Max = max
+        }).Wait();
+    }
 
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            logger.LogInformation("Starting CounterApp!");
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stopping CounterApp!");
 
-            var max = configuration.CurrentValue.Max;
+        timer?.Change(Timeout.Infinite, 0);
 
-            timer = new Timer(s => OnTimerElapsed((int)s), max, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(1));
+        return Task.CompletedTask;
+    }
 
-            return Task.CompletedTask;
-        }
-
-        public void OnTimerElapsed(int max)
-        {
-            apiOperationExecutor.ExecuteWithNewScopeAsync(new IncrementCountCommand
-            {
-                Max = max
-            }).Wait();
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            logger.LogWarning("Stopping CounterApp!");
-
-            timer?.Change(Timeout.Infinite, 0);
-
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            timer?.Dispose();
-        }
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 }

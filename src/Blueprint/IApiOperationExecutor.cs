@@ -1,18 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Blueprint
+namespace Blueprint;
+
+public interface IApiOperationExecutor
 {
-    public interface IApiOperationExecutor
-    {
-        /// <summary>
-        /// Gets the <see cref="ApiDataModel" /> that this operation executor has been configured for. Any operations
-        /// that are not registered with this model <strong>cannot</strong> be executed by this <see cref="IApiOperationExecutor"/>.
-        /// </summary>
-        ApiDataModel DataModel { get; }
+    /// <summary>
+    /// Gets the <see cref="ApiDataModel" /> that this operation executor has been configured for. Any operations
+    /// that are not registered with this model <strong>cannot</strong> be executed by this <see cref="IApiOperationExecutor"/>.
+    /// </summary>
+    ApiDataModel DataModel { get; }
 
-        Task<OperationResult> ExecuteAsync(ApiOperationContext context);
+    Task<OperationResult> ExecuteAsync(ApiOperationContext context);
 
-        Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default);
-    }
+    Task<OperationResult> ExecuteWithNewScopeAsync(object operation, CancellationToken token = default);
 }

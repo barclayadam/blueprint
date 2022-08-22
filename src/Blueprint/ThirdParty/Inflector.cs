@@ -4,128 +4,127 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Blueprint.ThirdParty
+namespace Blueprint.ThirdParty;
+
+[GeneratedCode("Inflector", "18/05/2011")]
+public static class Inflector
 {
-    [GeneratedCode("Inflector", "18/05/2011")]
-    public static class Inflector
+    private static readonly List<Rule> _plurals = new List<Rule>();
+    private static readonly List<string> _uncountables = new List<string>();
+
+    static Inflector()
     {
-        private static readonly List<Rule> _plurals = new List<Rule>();
-        private static readonly List<string> _uncountables = new List<string>();
+        AddPlural("$", "s");
+        AddPlural("s$", "s");
+        AddPlural("(ax|test)is$", "$1es");
+        AddPlural("(octop|vir|alumn|fung)us$", "$1i");
+        AddPlural("(alias|status)$", "$1es");
+        AddPlural("(bu)s$", "$1ses");
+        AddPlural("(buffal|tomat|volcan)o$", "$1oes");
+        AddPlural("([ti])um$", "$1a");
+        AddPlural("sis$", "ses");
+        AddPlural("(?:([^f])fe|([lr])f)$", "$1$2ves");
+        AddPlural("(hive)$", "$1s");
+        AddPlural("([^aeiouy]|qu)y$", "$1ies");
+        AddPlural("(x|ch|ss|sh)$", "$1es");
+        AddPlural("(matr|vert|ind)ix|ex$", "$1ices");
+        AddPlural("([m|l])ouse$", "$1ice");
+        AddPlural("^(ox)$", "$1en");
+        AddPlural("(quiz)$", "$1zes");
 
-        static Inflector()
+        AddIrregular("person", "people");
+        AddIrregular("man", "men");
+        AddIrregular("child", "children");
+        AddIrregular("sex", "sexes");
+        AddIrregular("move", "moves");
+        AddIrregular("goose", "geese");
+        AddIrregular("alumna", "alumnae");
+
+        AddUncountable("equipment");
+        AddUncountable("information");
+        AddUncountable("rice");
+        AddUncountable("money");
+        AddUncountable("species");
+        AddUncountable("series");
+        AddUncountable("fish");
+        AddUncountable("sheep");
+        AddUncountable("deer");
+        AddUncountable("aircraft");
+    }
+
+    public static string Camelize(this string lowercaseAndUnderscoredWord)
+    {
+        return Uncapitalize(Pascalize(lowercaseAndUnderscoredWord));
+    }
+
+    public static string Pascalize(this string lowercaseAndUnderscoredWord)
+    {
+        return Regex.Replace(lowercaseAndUnderscoredWord, "(?:^|_)(.)", match => match.Groups[1].Value.ToUpper());
+    }
+
+    public static string Pluralize(this string word)
+    {
+        return ApplyRules(_plurals, word);
+    }
+
+    public static string Uncapitalize(this string word)
+    {
+        return word.Substring(0, 1).ToLower() + word.Substring(1);
+    }
+
+    private static void AddIrregular(string singular, string plural)
+    {
+        AddPlural("(" + singular[0] + ")" + singular.Substring(1) + "$", "$1" + plural.Substring(1));
+    }
+
+    private static void AddPlural(string rule, string replacement)
+    {
+        _plurals.Add(new Rule(rule, replacement));
+    }
+
+    private static void AddUncountable(string word)
+    {
+        _uncountables.Add(word.ToLower());
+    }
+
+    private static string ApplyRules(List<Rule> rules, string word)
+    {
+        var result = word;
+
+        if (!_uncountables.Contains(word.ToLower()))
         {
-            AddPlural("$", "s");
-            AddPlural("s$", "s");
-            AddPlural("(ax|test)is$", "$1es");
-            AddPlural("(octop|vir|alumn|fung)us$", "$1i");
-            AddPlural("(alias|status)$", "$1es");
-            AddPlural("(bu)s$", "$1ses");
-            AddPlural("(buffal|tomat|volcan)o$", "$1oes");
-            AddPlural("([ti])um$", "$1a");
-            AddPlural("sis$", "ses");
-            AddPlural("(?:([^f])fe|([lr])f)$", "$1$2ves");
-            AddPlural("(hive)$", "$1s");
-            AddPlural("([^aeiouy]|qu)y$", "$1ies");
-            AddPlural("(x|ch|ss|sh)$", "$1es");
-            AddPlural("(matr|vert|ind)ix|ex$", "$1ices");
-            AddPlural("([m|l])ouse$", "$1ice");
-            AddPlural("^(ox)$", "$1en");
-            AddPlural("(quiz)$", "$1zes");
-
-            AddIrregular("person", "people");
-            AddIrregular("man", "men");
-            AddIrregular("child", "children");
-            AddIrregular("sex", "sexes");
-            AddIrregular("move", "moves");
-            AddIrregular("goose", "geese");
-            AddIrregular("alumna", "alumnae");
-
-            AddUncountable("equipment");
-            AddUncountable("information");
-            AddUncountable("rice");
-            AddUncountable("money");
-            AddUncountable("species");
-            AddUncountable("series");
-            AddUncountable("fish");
-            AddUncountable("sheep");
-            AddUncountable("deer");
-            AddUncountable("aircraft");
-        }
-
-        public static string Camelize(this string lowercaseAndUnderscoredWord)
-        {
-            return Uncapitalize(Pascalize(lowercaseAndUnderscoredWord));
-        }
-
-        public static string Pascalize(this string lowercaseAndUnderscoredWord)
-        {
-            return Regex.Replace(lowercaseAndUnderscoredWord, "(?:^|_)(.)", match => match.Groups[1].Value.ToUpper());
-        }
-
-        public static string Pluralize(this string word)
-        {
-            return ApplyRules(_plurals, word);
-        }
-
-        public static string Uncapitalize(this string word)
-        {
-            return word.Substring(0, 1).ToLower() + word.Substring(1);
-        }
-
-        private static void AddIrregular(string singular, string plural)
-        {
-            AddPlural("(" + singular[0] + ")" + singular.Substring(1) + "$", "$1" + plural.Substring(1));
-        }
-
-        private static void AddPlural(string rule, string replacement)
-        {
-            _plurals.Add(new Rule(rule, replacement));
-        }
-
-        private static void AddUncountable(string word)
-        {
-            _uncountables.Add(word.ToLower());
-        }
-
-        private static string ApplyRules(List<Rule> rules, string word)
-        {
-            var result = word;
-
-            if (!_uncountables.Contains(word.ToLower()))
+            for (var i = rules.Count - 1; i >= 0; i--)
             {
-                for (var i = rules.Count - 1; i >= 0; i--)
+                if ((result = rules[i].Apply(word)) != null)
                 {
-                    if ((result = rules[i].Apply(word)) != null)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
-
-            return result;
         }
 
-        private class Rule
+        return result;
+    }
+
+    private class Rule
+    {
+        private readonly Regex _regex;
+
+        private readonly string _replacement;
+
+        public Rule(string pattern, string replacement)
         {
-            private readonly Regex _regex;
+            this._regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            this._replacement = replacement;
+        }
 
-            private readonly string _replacement;
-
-            public Rule(string pattern, string replacement)
+        public string Apply(string word)
+        {
+            if (!this._regex.IsMatch(word))
             {
-                this._regex = new Regex(pattern, RegexOptions.IgnoreCase);
-                this._replacement = replacement;
+                return null;
             }
 
-            public string Apply(string word)
-            {
-                if (!this._regex.IsMatch(word))
-                {
-                    return null;
-                }
-
-                return this._regex.Replace(word, this._replacement);
-            }
+            return this._regex.Replace(word, this._replacement);
         }
     }
 }

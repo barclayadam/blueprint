@@ -3,42 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Caching;
 
-namespace Blueprint.Tests.Fakes
+namespace Blueprint.Tests.Fakes;
+
+public class FakeCacheProvider : ICacheProvider
 {
-    public class FakeCacheProvider : ICacheProvider
+    private readonly IDictionary<string, object> items = new Dictionary<string, object>();
+
+    public IEnumerable CachedValues { get { return items.Values; } }
+
+    public void Add(string key, object value, CacheOptions options)
     {
-        private readonly IDictionary<string, object> items = new Dictionary<string, object>();
+        items.Add(key, value);
+    }
 
-        public IEnumerable CachedValues { get { return items.Values; } }
+    public bool ContainsKey(string key)
+    {
+        return items.ContainsKey(key);
+    }
 
-        public void Add(string key, object value, CacheOptions options)
+    public IEnumerable<T> GetItems<T>()
+    {
+        return items.Values.OfType<T>();
+    }
+
+    public object GetValue(string key)
+    {
+        if (ContainsKey(key))
         {
-            items.Add(key, value);
+            return items[key];
         }
 
-        public bool ContainsKey(string key)
-        {
-            return items.ContainsKey(key);
-        }
+        return null;
+    }
 
-        public IEnumerable<T> GetItems<T>()
-        {
-            return items.Values.OfType<T>();
-        }
-
-        public object GetValue(string key)
-        {
-            if (ContainsKey(key))
-            {
-                return items[key];
-            }
-
-            return null;
-        }
-
-        public void Remove(string key)
-        {
-            items.Remove(key);
-        }
+    public void Remove(string key)
+    {
+        items.Remove(key);
     }
 }

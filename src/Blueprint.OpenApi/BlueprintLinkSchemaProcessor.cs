@@ -3,55 +3,54 @@ using System.Linq;
 using Blueprint.Http;
 using NJsonSchema.Generation;
 
-namespace Blueprint.OpenApi
-{
-    /// <summary>
-    /// A <see cref="ISchemaProcessor" /> that will add a vendor extension of <c>x-links</c> to
-    /// a generated schema to represents <see cref="Link" />s that are registered for that
-    /// API resource type.
-    /// </summary>
-    public class BlueprintLinkSchemaProcessor : ISchemaProcessor
-    {
-        private readonly ApiDataModel _apiDataModel;
+namespace Blueprint.OpenApi;
 
-        /// <summary>
-        /// Initialises a new instance of the <see cref="BlueprintLinkSchemaProcessor" /> class.
-        /// </summary>
-        /// <param name="apiDataModel">The <see cref="ApiDataModel" /> being processed.</param>
-        public BlueprintLinkSchemaProcessor(ApiDataModel apiDataModel)
+/// <summary>
+/// A <see cref="ISchemaProcessor" /> that will add a vendor extension of <c>x-links</c> to
+/// a generated schema to represents <see cref="Link" />s that are registered for that
+/// API resource type.
+/// </summary>
+public class BlueprintLinkSchemaProcessor : ISchemaProcessor
+{
+    private readonly ApiDataModel _apiDataModel;
+
+    /// <summary>
+    /// Initialises a new instance of the <see cref="BlueprintLinkSchemaProcessor" /> class.
+    /// </summary>
+    /// <param name="apiDataModel">The <see cref="ApiDataModel" /> being processed.</param>
+    public BlueprintLinkSchemaProcessor(ApiDataModel apiDataModel)
+    {
+        this._apiDataModel = apiDataModel;
+    }
+
+    /// <inheritdoc />
+    public void Process(SchemaProcessorContext context)
+    {
+        if (!typeof(ApiResource).IsAssignableFrom(context.Type))
         {
-            this._apiDataModel = apiDataModel;
+            return;
         }
 
-        /// <inheritdoc />
-        public void Process(SchemaProcessorContext context)
+        var resourceLinks = this._apiDataModel
+            .GetLinksForResource(context.Type)
+            .Where(l => l.Rel != "self")
+            .ToList();
+
+        if (resourceLinks.Any())
         {
-            if (!typeof(ApiResource).IsAssignableFrom(context.Type))
+            context.Schema.ExtensionData ??= new Dictionary<string, object>();
+
+            context.Schema.ExtensionData["x-links"] = resourceLinks.Select(l =>
             {
-                return;
-            }
+                var descriptor = l.OperationDescriptor;
 
-            var resourceLinks = this._apiDataModel
-                .GetLinksForResource(context.Type)
-                .Where(l => l.Rel != "self")
-                .ToList();
-
-            if (resourceLinks.Any())
-            {
-                context.Schema.ExtensionData ??= new Dictionary<string, object>();
-
-                context.Schema.ExtensionData["x-links"] = resourceLinks.Select(l =>
+                return new
                 {
-                    var descriptor = l.OperationDescriptor;
-
-                    return new
-                    {
-                        rel = l.Rel,
-                        operationId = descriptor.Name,
-                        method = descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
-                    };
-                });
-            }
+                    rel = l.Rel,
+                    operationId = descriptor.Name,
+                    method = descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod,
+                };
+            });
         }
     }
 }

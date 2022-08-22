@@ -6,36 +6,35 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Tasks
+namespace Blueprint.Tests.Tasks;
+
+public class Given_Task_Server
 {
-    public class Given_Task_Server
+    [Test]
+    public async Task When_Executing_BackgroundTask_Can_Omit_Return()
     {
-        [Test]
-        public async Task When_Executing_BackgroundTask_Can_Omit_Return()
+        // Arrange
+        var inMemoryProvider = new InMemoryBackgroundTaskScheduleProvider();
+        var testBackgroundTask = new TestBackgroundTask();
+
+        var executor = TestApiOperationExecutor.Create(
+            o => o.AddBackgroundTasks(p => p.UseInMemory(inMemoryProvider)),
+            o => o.WithOperation<TestBackgroundTask>());
+
+        // Act
+        await executor.ExecuteAsync(testBackgroundTask);
+
+        // Assert
+        testBackgroundTask.HasExecuted.Should().BeTrue();
+    }
+
+    public class TestBackgroundTask : IBackgroundTask
+    {
+        public bool HasExecuted { get; private set; } = false;
+
+        public void Invoke()
         {
-            // Arrange
-            var inMemoryProvider = new InMemoryBackgroundTaskScheduleProvider();
-            var testBackgroundTask = new TestBackgroundTask();
-
-            var executor = TestApiOperationExecutor.Create(
-                o => o.AddBackgroundTasks(p => p.UseInMemory(inMemoryProvider)),
-                o => o.WithOperation<TestBackgroundTask>());
-
-            // Act
-            await executor.ExecuteAsync(testBackgroundTask);
-
-            // Assert
-            testBackgroundTask.HasExecuted.Should().BeTrue();
-        }
-
-        public class TestBackgroundTask : IBackgroundTask
-        {
-            public bool HasExecuted { get; private set; } = false;
-
-            public void Invoke()
-            {
-                HasExecuted = true;
-            }
+            HasExecuted = true;
         }
     }
 }

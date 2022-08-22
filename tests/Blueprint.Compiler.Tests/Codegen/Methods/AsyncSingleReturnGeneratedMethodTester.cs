@@ -5,44 +5,43 @@ using Blueprint.Compiler.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Compiler.Tests.Codegen.Methods
+namespace Blueprint.Compiler.Tests.Codegen.Methods;
+
+public class AsyncSingleReturnGeneratedMethodTester
 {
-    public class AsyncSingleReturnGeneratedMethodTester
+    [Test]
+    public async Task can_generate_method()
     {
-        [Test]
-        public async Task can_generate_method()
-        {
-            var assembly = Builder.Assembly();
+        var assembly = Builder.Assembly();
 
-            var generatedType = assembly.AddType("Tests", "NumberGetter", typeof(INumberGetter));
+        var generatedType = assembly.AddType("Tests", "NumberGetter", typeof(INumberGetter));
 
-            generatedType.MethodFor(nameof(INumberGetter.GetNumber)).Frames.Append(new ReturnFive());
+        generatedType.MethodFor(nameof(INumberGetter.GetNumber)).Frames.Append(new ReturnFive());
 
-            assembly.CompileAll();
+        assembly.CompileAll();
 
-            var getter = generatedType.CreateInstance<INumberGetter>();
+        var getter = generatedType.CreateInstance<INumberGetter>();
 
-            var number = await getter.GetNumber();
+        var number = await getter.GetNumber();
 
-            number.Should().Be(5);
-        }
+        number.Should().Be(5);
+    }
+}
+
+public class ReturnFive : AsyncFrame
+{
+    public override bool CanReturnTask()
+    {
+        return true;
     }
 
-    public class ReturnFive : AsyncFrame
+    protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
     {
-        public override bool CanReturnTask()
-        {
-            return true;
-        }
-
-        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-        {
-            writer.WriteLine("return Task.FromResult(5);");
-        }
+        writer.WriteLine("return Task.FromResult(5);");
     }
+}
 
-    public interface INumberGetter
-    {
-        Task<int> GetNumber();
-    }
+public interface INumberGetter
+{
+    Task<int> GetNumber();
 }

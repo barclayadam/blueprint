@@ -1,6 +1,5 @@
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+public interface IValidationSource
 {
-    public interface IValidationSource
-    {
-    }
 }

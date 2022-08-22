@@ -5,71 +5,70 @@ using Blueprint.Compiler.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Compiler.Tests.Codegen
+namespace Blueprint.Compiler.Tests.Codegen;
+
+public class VariableSourceTests
 {
-    public class VariableSourceTests
+    [Test]
+    public void add_Frame_immediately_before_when_Source_creates_new_Frame()
     {
-        [Test]
-        public void add_Frame_immediately_before_when_Source_creates_new_Frame()
+        var assembly = Builder.Assembly();
+        var type = assembly.AddType("Tests", "MyGuy", typeof(IHandler));
+        var method = type.MethodFor("Go");
+
+        method.Sources.Add(new FrameGeneratingVariableSource());
+
+        method.Frames.Add(new CommentFrame("Start of method"));
+        method.Frames.Add(new CustomFrame());
+
+        assembly.CompileAll();
+
+        type.GeneratedSourceCode.ReadLines().Select(l => l.Trim()).Should().ContainInOrder(
+            "// Start of method",
+            "// SourceFrame",
+            "// CustomFrame");
+    }
+
+    public class FrameGeneratingVariableSource : IVariableSource
+    {
+        public Variable TryFindVariable(IMethodVariables variables, Type type)
         {
-            var assembly = Builder.Assembly();
-            var type = assembly.AddType("Tests", "MyGuy", typeof(IHandler));
-            var method = type.MethodFor("Go");
+            var frameToInject = new SourceFrame();
 
-            method.Sources.Add(new FrameGeneratingVariableSource());
+            return frameToInject.Variable;
+        }
+    }
 
-            method.Frames.Add(new CommentFrame("Start of method"));
-            method.Frames.Add(new CustomFrame());
+    public class CustomFrame : SyncFrame
+    {
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
+        {
+            var handlerFromSource = variables.FindVariable(typeof(IHandler));
+            writer.Comment(nameof(CustomFrame));
 
-            assembly.CompileAll();
+            next();
+        }
+    }
 
-            type.GeneratedSourceCode.ReadLines().Select(l => l.Trim()).Should().ContainInOrder(
-                "// Start of method",
-                "// SourceFrame",
-                "// CustomFrame");
+    public class SourceFrame : SyncFrame
+    {
+        public SourceFrame()
+        {
+            Variable = new Variable(typeof(IHandler), this);
         }
 
-        public class FrameGeneratingVariableSource : IVariableSource
+        public Variable Variable { get; }
+
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            public Variable TryFindVariable(IMethodVariables variables, Type type)
-            {
-                var frameToInject = new SourceFrame();
+            writer.Comment(nameof(SourceFrame));
 
-                return frameToInject.Variable;
-            }
+            next();
         }
+    }
 
-        public class CustomFrame : SyncFrame
-        {
-            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-            {
-                var handlerFromSource = variables.FindVariable(typeof(IHandler));
-                writer.Comment(nameof(CustomFrame));
-
-                next();
-            }
-        }
-
-        public class SourceFrame : SyncFrame
-        {
-            public SourceFrame()
-            {
-                Variable = new Variable(typeof(IHandler), this);
-            }
-
-            public Variable Variable { get; }
-
-            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-            {
-                writer.Comment(nameof(SourceFrame));
-
-                next();
-            }
-        }
-
-        public interface IHandler
-        {
-            void Go();
-        }
+    public interface IHandler
+    {
+        void Go();
     }
 }

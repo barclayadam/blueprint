@@ -1,9 +1,8 @@
 using System;
 
-namespace Blueprint.Configuration
+namespace Blueprint.Configuration;
+
+internal interface IOperationScannerFilter
 {
-    internal interface IOperationScannerFilter
-    {
-        bool ShouldInclude(Type operationType);
-    }
+    bool ShouldInclude(Type operationType);
 }

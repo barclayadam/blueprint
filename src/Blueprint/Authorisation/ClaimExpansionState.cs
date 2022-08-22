@@ -1,8 +1,7 @@
-namespace Blueprint.Authorisation
+namespace Blueprint.Authorisation;
+
+public enum ClaimExpansionState
 {
-    public enum ClaimExpansionState
-    {
-        AlreadyExpanded,
-        RequiresExpansion,
-    }
+    AlreadyExpanded,
+    RequiresExpansion,
 }

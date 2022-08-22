@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 using Blueprint.Authorisation;
 
-namespace Blueprint
+namespace Blueprint;
+
+public interface IApiAuthoriserAggregator
 {
-    public interface IApiAuthoriserAggregator
-    {
-        ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource);
-    }
+    ValueTask<ExecutionAllowed> CanShowLinkAsync(ApiOperationContext operationContext, ApiOperationDescriptor descriptor, object resource);
 }

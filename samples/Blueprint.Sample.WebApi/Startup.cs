@@ -11,66 +11,65 @@ using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Blueprint.Sample.WebApi
+namespace Blueprint.Sample.WebApi;
+
+public class Startup
 {
-    public class Startup
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        services.AddControllers();
+
+        services.AddSingleton<IWeatherDataSource, WeatherDataSource>();
+
+        services.AddHangfire(h =>
         {
-            services.AddControllers();
+            h
+                .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"))
+                .UseRecommendedSerializerSettings();
+        });
 
-            services.AddSingleton<IWeatherDataSource, WeatherDataSource>();
+        services.AddOpenTelemetryTracing(
+            builder => builder
+                .SetResourceBuilder(ResourceBuilder.CreateEmpty().AddService("web-api"))
+                .AddAspNetCoreInstrumentation()
+                .AddBlueprintInstrumentation()
+                .AddJaegerExporter()
+                .AddConsoleExporter()
+        );
 
-            services.AddHangfire(h =>
-            {
-                h
-                    .UseStorage(new SqlServerStorage("Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Initial Catalog=blueprint-examples"))
-                    .UseRecommendedSerializerSettings();
-            });
+        services.AddBlueprintApi(b => b
+            .Http()
+            .Operations(o => o.Scan(typeof(WebApi.Startup).Assembly))
+            .AddTasksClient(t => t.UseHangfire())
+            .AddOpenApi()
+            .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
+            .AddResourceEvents<NullResourceEventRepository>());
+    }
 
-            services.AddOpenTelemetryTracing(
-                builder => builder
-                    .SetResourceBuilder(ResourceBuilder.CreateEmpty().AddService("web-api"))
-                    .AddAspNetCoreInstrumentation()
-                    .AddBlueprintInstrumentation()
-                    .AddJaegerExporter()
-                    .AddConsoleExporter()
-            );
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseForwardedHeaders();
 
-            services.AddBlueprintApi(b => b
-                .Http()
-                .Operations(o => o.Scan(typeof(WebApi.Startup).Assembly))
-                .AddTasksClient(t => t.UseHangfire())
-                .AddOpenApi()
-                .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
-                .AddResourceEvents<NullResourceEventRepository>());
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
         {
-            app.UseForwardedHeaders();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler();
-            }
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapBlueprintApi("api/")
-                    .RequireHost("localhost:49454");
-            });
-        }
+            endpoints.MapControllers();
+            endpoints.MapBlueprintApi("api/")
+                .RequireHost("localhost:49454");
+        });
     }
 }

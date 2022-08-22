@@ -13,102 +13,101 @@ using Microsoft.Extensions.Options;
 
 // Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Extensions to <see cref="BlueprintApiBuilder" /> to register HTTP-specific features.
+/// </summary>
+public static class BlueprintApiBuilderExtensions
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to register HTTP-specific features.
+    /// Registers HTTP-specific functionality and handling to this API instance.
     /// </summary>
-    public static class BlueprintApiBuilderExtensions
+    /// <param name="apiBuilder">The builder to register with.</param>
+    /// <param name="configure">An optional action that can configure <see cref="BlueprintHttpBuilder" />, executed
+    /// <c>after</c> the default configuration has been run.</param>
+    /// <returns>This builder.</returns>
+    public static BlueprintApiBuilder Http(
+        this BlueprintApiBuilder apiBuilder,
+        Action<BlueprintHttpBuilder> configure = null)
     {
-        /// <summary>
-        /// Registers HTTP-specific functionality and handling to this API instance.
-        /// </summary>
-        /// <param name="apiBuilder">The builder to register with.</param>
-        /// <param name="configure">An optional action that can configure <see cref="BlueprintHttpBuilder" />, executed
-        /// <c>after</c> the default configuration has been run.</param>
-        /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder Http(
-            this BlueprintApiBuilder apiBuilder,
-            Action<BlueprintHttpBuilder> configure = null)
-        {
-            apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
-            apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
+        apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
+        apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
-            apiBuilder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        apiBuilder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            apiBuilder.Services.AddOptions<BlueprintHttpOptions>();
-            apiBuilder.Services.AddOptions<BlueprintJsonOptions>();
+        apiBuilder.Services.AddOptions<BlueprintHttpOptions>();
+        apiBuilder.Services.AddOptions<BlueprintJsonOptions>();
 
-            apiBuilder.Services.Add(ServiceDescriptor.Transient<IConfigureOptions<BlueprintHttpOptions>, BlueprintHttpOptionsSetup>());
+        apiBuilder.Services.Add(ServiceDescriptor.Transient<IConfigureOptions<BlueprintHttpOptions>, BlueprintHttpOptionsSetup>());
 
-            apiBuilder.Services.AddSingleton<IOutputFormatterSelector, DefaultOutputFormatterSelector>();
+        apiBuilder.Services.AddSingleton<IOutputFormatterSelector, DefaultOutputFormatterSelector>();
 
-            apiBuilder.Services.AddScoped<IApiLinkGenerator, ApiLinkGenerator>();
+        apiBuilder.Services.AddScoped<IApiLinkGenerator, ApiLinkGenerator>();
 
-            apiBuilder.AddMessageSource<HttpRouteMessagePopulationSource>();
-            apiBuilder.AddMessageSource<HttpBodyMessagePopulationSource>();
+        apiBuilder.AddMessageSource<HttpRouteMessagePopulationSource>();
+        apiBuilder.AddMessageSource<HttpBodyMessagePopulationSource>();
 
-            // "Owned" HTTP part sources
-            apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(
-                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies)),
-                    false));
+        // "Owned" HTTP part sources
+        apiBuilder.AddMessageSource(
+            HttpPartMessagePopulationSource.Owned<FromCookieAttribute>(
+                c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Cookies)),
+                false));
 
-            apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(
-                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers)),
-                    true));
+        apiBuilder.AddMessageSource(
+            HttpPartMessagePopulationSource.Owned<FromHeaderAttribute>(
+                c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Headers)),
+                true));
 
-            apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(
-                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
-                    true));
+        apiBuilder.AddMessageSource(
+            HttpPartMessagePopulationSource.Owned<FromQueryAttribute>(
+                c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
+                true));
 
-            // Catch-all query string population source
-            apiBuilder.AddMessageSource(
-                HttpPartMessagePopulationSource.CatchAll(
-                    "fromQuery",
-                    c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
-                    c => c.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod == "GET",
-                    true));
+        // Catch-all query string population source
+        apiBuilder.AddMessageSource(
+            HttpPartMessagePopulationSource.CatchAll(
+                "fromQuery",
+                c => c.GetProperty("Request").GetProperty(nameof(HttpRequest.Query)),
+                c => c.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpMethod == "GET",
+                true));
 
-            apiBuilder.Services.AddSingleton<IOperationResultExecutor<ValidationFailedOperationResult>, ValidationFailedOperationResultExecutor>();
-            apiBuilder.Services.AddSingleton<IOperationResultExecutor<UnhandledExceptionOperationResult>, UnhandledExceptionOperationResultExecutor>();
-            apiBuilder.Services.AddSingleton<IOperationResultExecutor<OkResult>, OkResultOperationExecutor>();
-            apiBuilder.Services.AddSingleton<OkResultOperationExecutor>();
+        apiBuilder.Services.AddSingleton<IOperationResultExecutor<ValidationFailedOperationResult>, ValidationFailedOperationResultExecutor>();
+        apiBuilder.Services.AddSingleton<IOperationResultExecutor<UnhandledExceptionOperationResult>, UnhandledExceptionOperationResultExecutor>();
+        apiBuilder.Services.AddSingleton<IOperationResultExecutor<OkResult>, OkResultOperationExecutor>();
+        apiBuilder.Services.AddSingleton<OkResultOperationExecutor>();
 
-            apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
+        apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
 
-            apiBuilder.Operations(o => o
-                .AddOperation<RootMetadataOperation>("AddHttp")
-                .AddConvention(new HttpOperationScannerConvention()));
+        apiBuilder.Operations(o => o
+            .AddOperation<RootMetadataOperation>("AddHttp")
+            .AddConvention(new HttpOperationScannerConvention()));
 
-            apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
+        apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
 
-            configure?.Invoke(new BlueprintHttpBuilder(apiBuilder.Services));
+        configure?.Invoke(new BlueprintHttpBuilder(apiBuilder.Services));
 
-            return apiBuilder;
-        }
+        return apiBuilder;
+    }
 
-        public static BlueprintApiBuilder AddHateoasLinks(this BlueprintApiBuilder apiBuilder)
-        {
-            // Resource events needs authoriser services to be registered
-            BuiltinBlueprintMiddlewares.TryAddAuthorisationServices(apiBuilder.Services);
+    public static BlueprintApiBuilder AddHateoasLinks(this BlueprintApiBuilder apiBuilder)
+    {
+        // Resource events needs authoriser services to be registered
+        BuiltinBlueprintMiddlewares.TryAddAuthorisationServices(apiBuilder.Services);
 
-            apiBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
+        apiBuilder.Services.TryAddScoped<IResourceLinkGenerator, EntityOperationResourceLinkGenerator>();
 
-            apiBuilder.Pipeline(p => p.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.PostExecution));
+        apiBuilder.Pipeline(p => p.AddMiddleware<LinkGeneratorMiddlewareBuilder>(MiddlewareStage.PostExecution));
 
-            return apiBuilder;
-        }
+        return apiBuilder;
+    }
 
-        public static BlueprintApiBuilder AddResourceEvents<T>(this BlueprintApiBuilder pipelineBuilder) where T : class, IResourceEventRepository
-        {
-            pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
+    public static BlueprintApiBuilder AddResourceEvents<T>(this BlueprintApiBuilder pipelineBuilder) where T : class, IResourceEventRepository
+    {
+        pipelineBuilder.Services.AddScoped<IResourceEventRepository, T>();
 
-            pipelineBuilder.Pipeline(p => p.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.PostExecution));
+        pipelineBuilder.Pipeline(p => p.AddMiddleware<ResourceEventHandlerMiddlewareBuilder>(MiddlewareStage.PostExecution));
 
-            return pipelineBuilder;
-        }
+        return pipelineBuilder;
     }
 }

@@ -4,53 +4,53 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NSwag;
 
-namespace Blueprint.OpenApi
+namespace Blueprint.OpenApi;
+
+/// <summary>
+/// An <see cref="IQuery{PlainTextResult}" /> that can will return an OpenAPI representation of the
+/// <see cref="ApiDataModel" /> of the current API.
+/// </summary>
+[AllowAnonymous]
+[RootLink("/openapi")]
+[UnexposedOperation]
+public class OpenApiQuery : IQuery<PlainTextResult>
 {
     /// <summary>
-    /// An <see cref="IQuery{PlainTextResult}" /> that can will return an OpenAPI representation of the
-    /// <see cref="ApiDataModel" /> of the current API.
+    /// Returns the OpenAPI representation of the given <see cref="ApiDataModel" />.
     /// </summary>
-    [AllowAnonymous]
-    [RootLink("/openapi")]
-    [UnexposedOperation]
-    public class OpenApiQuery : IQuery<PlainTextResult>
+    /// <param name="httpContext">The <see cref="HttpContext" />.</param>
+    /// <param name="openApiDocument">The <see cref="OpenApiDocument" />, as built by the <see cref="OpenApiDocumentBuilder" />.</param>
+    /// <param name="context">The API operation context.</param>
+    /// <param name="options">The options to configure the OpenAPI document.</param>
+    /// <returns>An OpenAPI representation.</returns>
+    public PlainTextResult Invoke(
+        HttpContext httpContext,
+        OpenApiDocument openApiDocument,
+        ApiOperationContext context,
+        IOptions<OpenApiOptions> options)
     {
-        /// <summary>
-        /// Returns the OpenAPI representation of the given <see cref="ApiDataModel" />.
-        /// </summary>
-        /// <param name="httpContext">The <see cref="HttpContext" />.</param>
-        /// <param name="openApiDocument">The <see cref="OpenApiDocument" />, as built by the <see cref="OpenApiDocumentBuilder" />.</param>
-        /// <param name="context">The API operation context.</param>
-        /// <param name="options">The options to configure the OpenAPI document.</param>
-        /// <returns>An OpenAPI representation.</returns>
-        public PlainTextResult Invoke(
-            HttpContext httpContext,
-            OpenApiDocument openApiDocument,
-            ApiOperationContext context,
-            IOptions<OpenApiOptions> options)
+        var openApiOptions = options.Value;
+
+        // If the document does not have any servers defined explicitly by client application we will push
+        // a default one that is the currently running server
+        if (openApiDocument.Servers.Count == 0)
         {
-            var openApiOptions = options.Value;
+            var baseUri = httpContext.GetBlueprintBaseUri();
 
-            // If the document does not have any servers defined explicitly by client application we will push
-            // a default one that is the currently running server
-            if (openApiDocument.Servers.Count == 0)
+            openApiDocument.Servers.Add(new OpenApiServer
             {
-                var baseUri = httpContext.GetBlueprintBaseUri();
+                Url = baseUri,
+            });
+        }
 
-                openApiDocument.Servers.Add(new OpenApiServer
-                {
-                    Url = baseUri,
-                });
-            }
+        var httpRequest = httpContext.Request;
 
-            var httpRequest = httpContext.Request;
-
-            // If we believe this is a hit from a browser then serve up the documentation using Refit. This can be overriden
-            // by passing a json query string to force the JSON response.
-            if (httpRequest.Headers["Accept"].ToString().Contains("text/html") && httpRequest.Query.ContainsKey("json") == false)
-            {
-                var baseUri = httpContext.GetBlueprintBaseUri();
-                var refitHtmlDocument = @$"<!DOCTYPE html>
+        // If we believe this is a hit from a browser then serve up the documentation using Refit. This can be overriden
+        // by passing a json query string to force the JSON response.
+        if (httpRequest.Headers["Accept"].ToString().Contains("text/html") && httpRequest.Query.ContainsKey("json") == false)
+        {
+            var baseUri = httpContext.GetBlueprintBaseUri();
+            var refitHtmlDocument = @$"<!DOCTYPE html>
 <html>
 <head>
     <title>{openApiDocument.Info.Title}</title>
@@ -71,35 +71,34 @@ namespace Blueprint.OpenApi
 </body>
 </html>";
 
-                return new PlainTextResult(refitHtmlDocument)
-                {
-                    ContentType = "text/html",
-                };
-            }
-
-            // We use the feature data to cache the generated JSON and PlainTextResult, which can shave off ms on
-            // subsequent calls and potentially reduce memory by _a lot_
-            if (!context.Descriptor.TryGetFeatureData(out OpenApiJsonDocumentFeature openApiJson))
+            return new PlainTextResult(refitHtmlDocument)
             {
-                openApiJson = new OpenApiJsonDocumentFeature(new PlainTextResult(openApiDocument.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
-                {
-                    ContentType = "application/json",
-                });
-
-                context.Descriptor.SetFeatureData(openApiJson);
-            }
-
-            return openApiJson.JsonResult;
+                ContentType = "text/html",
+            };
         }
 
-        private class OpenApiJsonDocumentFeature
+        // We use the feature data to cache the generated JSON and PlainTextResult, which can shave off ms on
+        // subsequent calls and potentially reduce memory by _a lot_
+        if (!context.Descriptor.TryGetFeatureData(out OpenApiJsonDocumentFeature openApiJson))
         {
-            public OpenApiJsonDocumentFeature(PlainTextResult jsonResult)
+            openApiJson = new OpenApiJsonDocumentFeature(new PlainTextResult(openApiDocument.ToJson(openApiOptions.SchemaType, openApiOptions.Formatting))
             {
-                this.JsonResult = jsonResult;
-            }
+                ContentType = "application/json",
+            });
 
-            public PlainTextResult JsonResult { get; }
+            context.Descriptor.SetFeatureData(openApiJson);
         }
+
+        return openApiJson.JsonResult;
+    }
+
+    private class OpenApiJsonDocumentFeature
+    {
+        public OpenApiJsonDocumentFeature(PlainTextResult jsonResult)
+        {
+            this.JsonResult = jsonResult;
+        }
+
+        public PlainTextResult JsonResult { get; }
     }
 }

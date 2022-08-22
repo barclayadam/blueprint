@@ -1,24 +1,23 @@
-namespace Blueprint.Caching
+namespace Blueprint.Caching;
+
+/// <summary>
+/// Specifies the relative priority of items stored in an <see cref="ICache"/>.
+/// </summary>
+public enum CacheItemPriority
 {
     /// <summary>
-    /// Specifies the relative priority of items stored in an <see cref="ICache"/>.
+    /// Cache items with this priority level are the most likely to be deleted from the cache as the server frees system memory.
     /// </summary>
-    public enum CacheItemPriority
-    {
-        /// <summary>
-        /// Cache items with this priority level are the most likely to be deleted from the cache as the server frees system memory.
-        /// </summary>
-        Low,
+    Low,
 
-        /// <summary>
-        /// Cache items with this priority level are likely to be deleted from the cache as the server frees system memory only
-        /// after those items with <see cref="Low"/> priority. This is the default.
-        /// </summary>
-        Medium,
+    /// <summary>
+    /// Cache items with this priority level are likely to be deleted from the cache as the server frees system memory only
+    /// after those items with <see cref="Low"/> priority. This is the default.
+    /// </summary>
+    Medium,
 
-        /// <summary>
-        /// Cache items with this priority level are the least likely to be deleted from the cache as the server frees system memory.
-        /// </summary>
-        High,
-    }
+    /// <summary>
+    /// Cache items with this priority level are the least likely to be deleted from the cache as the server frees system memory.
+    /// </summary>
+    High,
 }

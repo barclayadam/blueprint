@@ -6,19 +6,18 @@ using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 
-namespace Blueprint.Http.Infrastructure
+namespace Blueprint.Http.Infrastructure;
+
+/// <summary>
+/// Creates <see cref="TextWriter"/> instances for writing to <see cref="HttpResponse.Body"/>.
+/// </summary>
+internal interface IHttpResponseStreamWriterFactory
 {
     /// <summary>
-    /// Creates <see cref="TextWriter"/> instances for writing to <see cref="HttpResponse.Body"/>.
+    /// Creates a new <see cref="TextWriter"/>.
     /// </summary>
-    internal interface IHttpResponseStreamWriterFactory
-    {
-        /// <summary>
-        /// Creates a new <see cref="TextWriter"/>.
-        /// </summary>
-        /// <param name="stream">The <see cref="Stream"/>, usually <see cref="HttpResponse.Body"/>.</param>
-        /// <param name="encoding">The <see cref="Encoding"/>, usually <see cref="Encoding.UTF8"/>.</param>
-        /// <returns>A <see cref="TextWriter"/>.</returns>
-        TextWriter CreateWriter(Stream stream, Encoding encoding);
-    }
+    /// <param name="stream">The <see cref="Stream"/>, usually <see cref="HttpResponse.Body"/>.</param>
+    /// <param name="encoding">The <see cref="Encoding"/>, usually <see cref="Encoding.UTF8"/>.</param>
+    /// <returns>A <see cref="TextWriter"/>.</returns>
+    TextWriter CreateWriter(Stream stream, Encoding encoding);
 }

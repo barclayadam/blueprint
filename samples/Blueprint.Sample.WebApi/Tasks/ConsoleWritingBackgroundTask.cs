@@ -1,17 +1,16 @@
 using System;
 using Blueprint.Tasks;
 
-namespace Blueprint.Sample.WebApi.Tasks
+namespace Blueprint.Sample.WebApi.Tasks;
+
+public class ConsoleWritingBackgroundTask : IBackgroundTask
 {
-    public class ConsoleWritingBackgroundTask : IBackgroundTask
+    public string Parameter { get; set; }
+
+    public OkResult<object> Invoke()
     {
-        public string Parameter { get; set; }
+        Console.WriteLine("Background task passed " + Parameter);
 
-        public OkResult<object> Invoke()
-        {
-            Console.WriteLine("Background task passed " + Parameter);
-
-            return new OkResult<object>("Done");
-        }
+        return new OkResult<object>("Done");
     }
 }

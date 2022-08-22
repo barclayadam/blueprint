@@ -3,28 +3,27 @@ using Blueprint.Compiler.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Compiler.Tests.Codegen
+namespace Blueprint.Compiler.Tests.Codegen;
+
+public class MethodCallTaskTupleTests
 {
-    public class MethodCallTaskTupleTests
+    private readonly MethodCall theCall= MethodCall.For<MethodTarget>(x => x.AsyncReturnTuple());
+
+    [Test]
+    public void return_variable_usage()
     {
-        private readonly MethodCall theCall= MethodCall.For<MethodTarget>(x => x.AsyncReturnTuple());
+        theCall.ReturnVariable.Usage.Should().Be("(var red, var blue, var green)");
+    }
 
-        [Test]
-        public void return_variable_usage()
-        {
-            theCall.ReturnVariable.Usage.Should().Be("(var red, var blue, var green)");
-        }
+    [Test]
+    public void creates_does_not_contain_the_return_variable()
+    {
+        theCall.Creates.Should().NotContain(theCall.ReturnVariable);
+    }
 
-        [Test]
-        public void creates_does_not_contain_the_return_variable()
-        {
-            theCall.Creates.Should().NotContain(theCall.ReturnVariable);
-        }
-
-        [Test]
-        public void has_creation_variables_for_the_tuple_types()
-        {
-            theCall.Creates.Should().BeSubsetOf(new Variable[] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
-        }
+    [Test]
+    public void has_creation_variables_for_the_tuple_types()
+    {
+        theCall.Creates.Should().BeSubsetOf(new Variable[] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
     }
 }

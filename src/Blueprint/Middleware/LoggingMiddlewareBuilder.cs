@@ -8,75 +8,74 @@ using Blueprint.Compiler.Util;
 using Blueprint.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Blueprint.Middleware
+namespace Blueprint.Middleware;
+
+/// <summary>
+/// A middleware that performs logging of API operation executions.
+/// </summary>
+public class LoggingMiddlewareBuilder : IMiddlewareBuilder
 {
+    private static readonly EventId _operationFinishedLogEvent = new EventId(4, "OperationFinished");
+
     /// <summary>
-    /// A middleware that performs logging of API operation executions.
+    /// Returns <c>true</c>.
     /// </summary>
-    public class LoggingMiddlewareBuilder : IMiddlewareBuilder
+    public bool SupportsNestedExecution => true;
+
+    /// <inheritdoc />
+    /// <returns><see cref="ApiOperationDescriptor.ShouldAudit"/>.</returns>
+    public bool Matches(ApiOperationDescriptor operation)
     {
-        private static readonly EventId _operationFinishedLogEvent = new EventId(4, "OperationFinished");
+        return operation.ShouldAudit;
+    }
 
-        /// <summary>
-        /// Returns <c>true</c>.
-        /// </summary>
-        public bool SupportsNestedExecution => true;
+    /// <inheritdoc />
+    public void Build(MiddlewareBuilderContext context)
+    {
+        // Force the creation of the stopwatch variable to be at the very start of the method, ensures it
+        // starts before _anything_ happens and makes it available to the finally block too
+        context.ExecuteMethod.Frames.Insert(0, new LoggingStartFrame());
+        context.RegisterFinallyFrames(new LoggingEndFrame(context.Descriptor.OperationType));
+    }
 
-        /// <inheritdoc />
-        /// <returns><see cref="ApiOperationDescriptor.ShouldAudit"/>.</returns>
-        public bool Matches(ApiOperationDescriptor operation)
+    private class LoggingStartFrame : SyncFrame
+    {
+        private readonly Variable _stopwatchVariable;
+
+        public LoggingStartFrame()
         {
-            return operation.ShouldAudit;
+            this._stopwatchVariable = new Variable(typeof(Stopwatch), this);
         }
 
-        /// <inheritdoc />
-        public void Build(MiddlewareBuilderContext context)
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            // Force the creation of the stopwatch variable to be at the very start of the method, ensures it
-            // starts before _anything_ happens and makes it available to the finally block too
-            context.ExecuteMethod.Frames.Insert(0, new LoggingStartFrame());
-            context.RegisterFinallyFrames(new LoggingEndFrame(context.Descriptor.OperationType));
+            writer.WriteLine($"var {this._stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
+
+            next();
+        }
+    }
+
+    private class LoggingEndFrame : SyncFrame
+    {
+        private readonly Type _operationType;
+
+        public LoggingEndFrame(Type operationType)
+        {
+            this._operationType = operationType;
         }
 
-        private class LoggingStartFrame : SyncFrame
+        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
-            private readonly Variable _stopwatchVariable;
+            var stopwatchVariable = variables.FindVariable(typeof(Stopwatch));
 
-            public LoggingStartFrame()
-            {
-                this._stopwatchVariable = new Variable(typeof(Stopwatch), this);
-            }
+            writer.WriteLine($"{stopwatchVariable}.Stop();");
 
-            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-            {
-                writer.WriteLine($"var {this._stopwatchVariable} = {typeof(Stopwatch).FullNameInCode()}.{nameof(Stopwatch.StartNew)}();");
-
-                next();
-            }
-        }
-
-        private class LoggingEndFrame : SyncFrame
-        {
-            private readonly Type _operationType;
-
-            public LoggingEndFrame(Type operationType)
-            {
-                this._operationType = operationType;
-            }
-
-            protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-            {
-                var stopwatchVariable = variables.FindVariable(typeof(Stopwatch));
-
-                writer.WriteLine($"{stopwatchVariable}.Stop();");
-
-                writer.Write(
-                    LogFrame.Information(
-                        _operationFinishedLogEvent,
-                        "Operation {OperationName} finished in {TotalMilliseconds}ms",
-                        ReflectionUtilities.PrettyTypeName(this._operationType),
-                        stopwatchVariable.GetProperty(nameof(Stopwatch.Elapsed)).GetProperty(nameof(TimeSpan.TotalMilliseconds))));
-            }
+            writer.Write(
+                LogFrame.Information(
+                    _operationFinishedLogEvent,
+                    "Operation {OperationName} finished in {TotalMilliseconds}ms",
+                    ReflectionUtilities.PrettyTypeName(this._operationType),
+                    stopwatchVariable.GetProperty(nameof(Stopwatch.Elapsed)).GetProperty(nameof(TimeSpan.TotalMilliseconds))));
         }
     }
 }

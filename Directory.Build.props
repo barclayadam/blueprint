@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>10.0</LangVersion>
 
     <Product>Blueprint</Product>
     <Authors>Adam Barclay,Michael Taylor</Authors>

@@ -1,86 +1,85 @@
 using System;
 using System.Reflection;
 
-namespace Blueprint.Middleware
+namespace Blueprint.Middleware;
+
+/// <summary>
+/// Describes an "owned" property as returned from <see cref="IMessagePopulationSource.GetOwnedProperties" />.
+/// </summary>
+public class OwnedPropertyDescriptor : IEquatable<OwnedPropertyDescriptor>
 {
     /// <summary>
-    /// Describes an "owned" property as returned from <see cref="IMessagePopulationSource.GetOwnedProperties" />.
+    /// Initialises a new instance of the <see cref="OwnedPropertyDescriptor" /> class.
     /// </summary>
-    public class OwnedPropertyDescriptor : IEquatable<OwnedPropertyDescriptor>
+    /// <param name="property">The property that is "owned"</param>
+    public OwnedPropertyDescriptor(PropertyInfo property)
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="OwnedPropertyDescriptor" /> class.
-        /// </summary>
-        /// <param name="property">The property that is "owned"</param>
-        public OwnedPropertyDescriptor(PropertyInfo property)
+        this.Property = property;
+        this.PropertyName = property.Name;
+    }
+
+    /// <summary>
+    /// The property that is "owned"
+    /// </summary>
+    public PropertyInfo Property { get; }
+
+    /// <summary>
+    /// The name of the property, which is typically the same as <see cref="PropertyInfo.Name" />
+    /// but may be overriden if the property should be exposed to users as something else.
+    /// </summary>
+    /// <remarks>
+    /// This is useful in particular in HTTP APIs to override the name to be set in a cookie or
+    /// header compared to the C# property name).
+    /// </remarks>
+    public string PropertyName { get; set; }
+
+    /// <summary>
+    /// Whether this property is considered internal, that it would come from internal state
+    /// and should therefore NOT be exposed as a client-settable property (i.e. exclude from
+    /// any OpenApi schemas).
+    /// </summary>
+    public bool IsInternal { get; set; }
+
+    /// <inheritdoc />
+    public bool Equals(OwnedPropertyDescriptor other)
+    {
+        if (ReferenceEquals(null, other))
         {
-            this.Property = property;
-            this.PropertyName = property.Name;
+            return false;
         }
 
-        /// <summary>
-        /// The property that is "owned"
-        /// </summary>
-        public PropertyInfo Property { get; }
-
-        /// <summary>
-        /// The name of the property, which is typically the same as <see cref="PropertyInfo.Name" />
-        /// but may be overriden if the property should be exposed to users as something else.
-        /// </summary>
-        /// <remarks>
-        /// This is useful in particular in HTTP APIs to override the name to be set in a cookie or
-        /// header compared to the C# property name).
-        /// </remarks>
-        public string PropertyName { get; set; }
-
-        /// <summary>
-        /// Whether this property is considered internal, that it would come from internal state
-        /// and should therefore NOT be exposed as a client-settable property (i.e. exclude from
-        /// any OpenApi schemas).
-        /// </summary>
-        public bool IsInternal { get; set; }
-
-        /// <inheritdoc />
-        public bool Equals(OwnedPropertyDescriptor other)
+        if (ReferenceEquals(this, other))
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Equals(this.Property, other.Property);
+            return true;
         }
 
-        /// <inheritdoc />
-        public override bool Equals(object obj)
+        return Equals(this.Property, other.Property);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj))
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-
-            return this.Equals((OwnedPropertyDescriptor)obj);
+            return false;
         }
 
-        /// <inheritdoc />
-        public override int GetHashCode()
+        if (ReferenceEquals(this, obj))
         {
-            return this.Property != null ? this.Property.GetHashCode() : 0;
+            return true;
         }
+
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+
+        return this.Equals((OwnedPropertyDescriptor)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return this.Property != null ? this.Property.GetHashCode() : 0;
     }
 }

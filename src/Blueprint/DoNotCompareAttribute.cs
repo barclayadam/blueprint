@@ -1,9 +1,8 @@
 using System;
 
-namespace Blueprint
+namespace Blueprint;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class DoNotCompareAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class DoNotCompareAttribute : Attribute
-    {
-    }
 }

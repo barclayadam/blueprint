@@ -1,10 +1,9 @@
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+public interface IAttributeValidationSource : IValidationSource
 {
-    public interface IAttributeValidationSource : IValidationSource
-    {
-        Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results);
-    }
+    Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results);
 }

@@ -9,215 +9,214 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Http
+namespace Blueprint.Tests.Http;
+
+public class ValidationProblemDetailsJsonConverterTest
 {
-    public class ValidationProblemDetailsJsonConverterTest
+    private static JsonSerializerOptions JsonSerializerOptions => BlueprintJsonOptions.DefaultSerializerOptions;
+
+    [Test]
+    public void Read_Works()
     {
-        private static JsonSerializerOptions JsonSerializerOptions => BlueprintJsonOptions.DefaultSerializerOptions;
+        // Arrange
+        var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
+        var title = "Not found";
+        var status = 404;
+        var detail = "Product not found";
+        var instance = "http://example.com/products/14";
+        var traceId = "|37dd3dd5-4a9619f953c40a16.";
+        var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"detail\":\"{detail}\", \"instance\":\"{instance}\",\"traceId\":\"{traceId}\"," +
+                   "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
+        var converter = new ValidationProblemDetailsJsonConverter();
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+        reader.Read();
 
-        [Test]
-        public void Read_Works()
+        // Act
+        var problemDetails = converter.Read(ref reader, typeof(ValidationProblemDetails), JsonSerializerOptions);
+
+        problemDetails.Type.Should().Be(type);
+        problemDetails.Title.Should().Be(title);
+        problemDetails.Status.Should().Be(status);
+        problemDetails.Instance.Should().Be(instance);
+        problemDetails.Detail.Should().Be(detail);
+        problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
+        problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
+        problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
+    }
+
+    [Test]
+    public void Read_WithSomeMissingValues_Works()
+    {
+        // Arrange
+        var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
+        var title = "Not found";
+        var status = 404;
+        var traceId = "|37dd3dd5-4a9619f953c40a16.";
+        var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"traceId\":\"{traceId}\"," +
+                   "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
+        var converter = new ValidationProblemDetailsJsonConverter();
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+        reader.Read();
+
+        // Act
+        var problemDetails = converter.Read(ref reader, typeof(ValidationProblemDetails), JsonSerializerOptions);
+
+        problemDetails.Type.Should().Be(type);
+        problemDetails.Title.Should().Be(title);
+        problemDetails.Status.Should().Be(status);
+        problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
+        problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
+        problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
+    }
+
+    [Test]
+    public void Read_ExtensionDetails_Different_Types_Works()
+    {
+        // Arrange
+        var stringExtension = "|37dd3dd5-4a9619f953c40a16.";
+        var boolExtension = false;
+        var numberExtension = 123.456;
+
+        var problemDetailsToSerialize = new ValidationProblemDetails
         {
-            // Arrange
-            var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
-            var title = "Not found";
-            var status = 404;
-            var detail = "Product not found";
-            var instance = "http://example.com/products/14";
-            var traceId = "|37dd3dd5-4a9619f953c40a16.";
-            var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"detail\":\"{detail}\", \"instance\":\"{instance}\",\"traceId\":\"{traceId}\"," +
-                "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
-            var converter = new ValidationProblemDetailsJsonConverter();
-            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-            reader.Read();
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            Title = "Not found",
+            Status = 404,
+            Detail = "Product not found",
+            Instance = "https://example.com/products/14",
 
-            // Act
-            var problemDetails = converter.Read(ref reader, typeof(ValidationProblemDetails), JsonSerializerOptions);
+            Extensions = new Dictionary<string, object>
+            {
+                ["stringExtension"] = stringExtension,
+                ["boolExtension"] = boolExtension,
+                ["numberExtension"] = numberExtension,
+            },
+        };
 
-            problemDetails.Type.Should().Be(type);
-            problemDetails.Title.Should().Be(title);
-            problemDetails.Status.Should().Be(status);
-            problemDetails.Instance.Should().Be(instance);
-            problemDetails.Detail.Should().Be(detail);
-            problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
-            problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
-            problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
+        var writtenJson = Write(problemDetailsToSerialize);
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(writtenJson));
+        reader.Read();
+
+        // Act
+        var problemDetails = new ProblemDetailsJsonConverter().Read(ref reader, typeof(ProblemDetails), JsonSerializerOptions);
+
+        problemDetails.Extensions["stringExtension"].Should().Be(stringExtension);
+        problemDetails.Extensions["boolExtension"].Should().Be(boolExtension);
+        problemDetails.Extensions["numberExtension"].Should().Be(numberExtension);
+    }
+
+    [Test]
+    public void ReadUsingJsonSerializerWorks()
+    {
+        // Arrange
+        var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
+        var title = "Not found";
+        var status = 404;
+        var traceId = "|37dd3dd5-4a9619f953c40a16.";
+        var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"traceId\":\"{traceId}\"," +
+                   "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
+
+        // Act
+        var problemDetails = JsonSerializer.Deserialize<ValidationProblemDetails>(json, JsonSerializerOptions);
+
+        problemDetails.Type.Should().Be(type);
+        problemDetails.Title.Should().Be(title);
+        problemDetails.Status.Should().Be(status);
+        problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
+        problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
+        problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
+    }
+
+    [Test]
+    public void Write_Works()
+    {
+        // Arrange
+        var traceId = "|37dd3dd5-4a9619f953c40a16.";
+        var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
+        {
+            { "Property0", new [] { "error0" } },
+            { "Property1", new [] { "error1", "error2" } }
+        })
+        {
+            Title = "Not found",
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            Status = 404,
+            Detail = "Product not found",
+            Instance = "http://example.com/products/14",
+            Extensions = new Dictionary<string, object>
+            {
+                { "traceId", traceId },
+                { "some-data", new[] { "value1", "value2" } }
+            },
+        };
+        var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"detail\":\"{value.Detail}\",\"instance\":\"{JsonEncodedText.Encode(value.Instance)}\",\"traceId\":\"{traceId}\",\"some-data\":[\"value1\",\"value2\"],\"errors\":{{\"property0\":[\"error0\"],\"property1\":[\"error1\",\"error2\"]}}}}";
+        var converter = new ValidationProblemDetailsJsonConverter();
+        var stream = new MemoryStream();
+
+        // Act
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            converter.Write(writer, value, JsonSerializerOptions);
         }
 
-        [Test]
-        public void Read_WithSomeMissingValues_Works()
+        // Assert
+        var actual = Encoding.UTF8.GetString(stream.ToArray());
+        actual.Should().Be(expected);
+    }
+
+    [Test]
+    public void Write_WithSomeMissingContent_Works()
+    {
+        // Arrange
+        var value = new ValidationProblemDetails
         {
-            // Arrange
-            var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
-            var title = "Not found";
-            var status = 404;
-            var traceId = "|37dd3dd5-4a9619f953c40a16.";
-            var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"traceId\":\"{traceId}\"," +
-                "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
-            var converter = new ValidationProblemDetailsJsonConverter();
-            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-            reader.Read();
+            Title = "Not found",
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            Status = 404,
+        };
+        var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"errors\":{{}}}}";
 
-            // Act
-            var problemDetails = converter.Read(ref reader, typeof(ValidationProblemDetails), JsonSerializerOptions);
+        // Act
+        var actual = Write(value);
 
-            problemDetails.Type.Should().Be(type);
-            problemDetails.Title.Should().Be(title);
-            problemDetails.Status.Should().Be(status);
-            problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
-            problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
-            problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Test]
+    public void Write_WithNull_PropertyNamingPolicy_Works()
+    {
+        // Arrange
+        var options = BlueprintJsonOptions.CreateOptions();
+        options.PropertyNamingPolicy = null;
+
+        var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
+        {
+            ["Property1"] = new [] { "Error 1" },
+        })
+        {
+            Title = "Validation error",
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+            Status = 400,
+        };
+        var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"errors\":{{\"Property1\":[\"Error 1\"]}}}}";
+
+        // Act
+        var actual = Write(value, options);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    private static string Write(ValidationProblemDetails value, [CanBeNull] JsonSerializerOptions options = null)
+    {
+        var stream = new MemoryStream();
+
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            new ValidationProblemDetailsJsonConverter().Write(writer, value, options ?? JsonSerializerOptions);
         }
 
-        [Test]
-        public void Read_ExtensionDetails_Different_Types_Works()
-        {
-            // Arrange
-            var stringExtension = "|37dd3dd5-4a9619f953c40a16.";
-            var boolExtension = false;
-            var numberExtension = 123.456;
-
-            var problemDetailsToSerialize = new ValidationProblemDetails
-            {
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                Title = "Not found",
-                Status = 404,
-                Detail = "Product not found",
-                Instance = "https://example.com/products/14",
-
-                Extensions = new Dictionary<string, object>
-                {
-                    ["stringExtension"] = stringExtension,
-                    ["boolExtension"] = boolExtension,
-                    ["numberExtension"] = numberExtension,
-                },
-            };
-
-            var writtenJson = Write(problemDetailsToSerialize);
-            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(writtenJson));
-            reader.Read();
-
-            // Act
-            var problemDetails = new ProblemDetailsJsonConverter().Read(ref reader, typeof(ProblemDetails), JsonSerializerOptions);
-
-            problemDetails.Extensions["stringExtension"].Should().Be(stringExtension);
-            problemDetails.Extensions["boolExtension"].Should().Be(boolExtension);
-            problemDetails.Extensions["numberExtension"].Should().Be(numberExtension);
-        }
-
-        [Test]
-        public void ReadUsingJsonSerializerWorks()
-        {
-            // Arrange
-            var type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
-            var title = "Not found";
-            var status = 404;
-            var traceId = "|37dd3dd5-4a9619f953c40a16.";
-            var json = $"{{\"type\":\"{type}\",\"title\":\"{title}\",\"status\":{status},\"traceId\":\"{traceId}\"," +
-                "\"errors\":{\"key0\":[\"error0\"],\"key1\":[\"error1\",\"error2\"]}}";
-
-            // Act
-            var problemDetails = JsonSerializer.Deserialize<ValidationProblemDetails>(json, JsonSerializerOptions);
-
-            problemDetails.Type.Should().Be(type);
-            problemDetails.Title.Should().Be(title);
-            problemDetails.Status.Should().Be(status);
-            problemDetails.Extensions["traceId"].ToString().Should().Be(traceId);
-            problemDetails.Errors["key0"].Should().BeEquivalentTo("error0");
-            problemDetails.Errors["key1"].Should().BeEquivalentTo("error1", "error2");
-        }
-
-        [Test]
-        public void Write_Works()
-        {
-            // Arrange
-            var traceId = "|37dd3dd5-4a9619f953c40a16.";
-            var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
-            {
-                { "Property0", new [] { "error0" } },
-                { "Property1", new [] { "error1", "error2" } }
-            })
-            {
-                Title = "Not found",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                Status = 404,
-                Detail = "Product not found",
-                Instance = "http://example.com/products/14",
-                Extensions = new Dictionary<string, object>
-                {
-                    { "traceId", traceId },
-                    { "some-data", new[] { "value1", "value2" } }
-                },
-            };
-            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"detail\":\"{value.Detail}\",\"instance\":\"{JsonEncodedText.Encode(value.Instance)}\",\"traceId\":\"{traceId}\",\"some-data\":[\"value1\",\"value2\"],\"errors\":{{\"property0\":[\"error0\"],\"property1\":[\"error1\",\"error2\"]}}}}";
-            var converter = new ValidationProblemDetailsJsonConverter();
-            var stream = new MemoryStream();
-
-            // Act
-            using (var writer = new Utf8JsonWriter(stream))
-            {
-                converter.Write(writer, value, JsonSerializerOptions);
-            }
-
-            // Assert
-            var actual = Encoding.UTF8.GetString(stream.ToArray());
-            actual.Should().Be(expected);
-        }
-
-        [Test]
-        public void Write_WithSomeMissingContent_Works()
-        {
-            // Arrange
-            var value = new ValidationProblemDetails
-            {
-                Title = "Not found",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                Status = 404,
-            };
-            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"errors\":{{}}}}";
-
-            // Act
-            var actual = Write(value);
-
-            // Assert
-            actual.Should().Be(expected);
-        }
-
-        [Test]
-        public void Write_WithNull_PropertyNamingPolicy_Works()
-        {
-            // Arrange
-            var options = BlueprintJsonOptions.CreateOptions();
-            options.PropertyNamingPolicy = null;
-
-            var value = new ValidationProblemDetails(new Dictionary<string, IEnumerable<string>>
-            {
-                ["Property1"] = new [] { "Error 1" },
-            })
-            {
-                Title = "Validation error",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                Status = 400,
-            };
-            var expected = $"{{\"type\":\"{JsonEncodedText.Encode(value.Type)}\",\"title\":\"{value.Title}\",\"status\":{value.Status},\"errors\":{{\"Property1\":[\"Error 1\"]}}}}";
-
-            // Act
-            var actual = Write(value, options);
-
-            // Assert
-            actual.Should().Be(expected);
-        }
-
-        private static string Write(ValidationProblemDetails value, [CanBeNull] JsonSerializerOptions options = null)
-        {
-            var stream = new MemoryStream();
-
-            using (var writer = new Utf8JsonWriter(stream))
-            {
-                new ValidationProblemDetailsJsonConverter().Write(writer, value, options ?? JsonSerializerOptions);
-            }
-
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
 }

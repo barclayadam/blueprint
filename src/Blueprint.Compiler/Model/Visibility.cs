@@ -1,10 +1,9 @@
-﻿namespace Blueprint.Compiler.Model
+﻿namespace Blueprint.Compiler.Model;
+
+public enum Visibility
 {
-    public enum Visibility
-    {
-        Public,
-        Protected,
-        Private,
-        Internal,
-    }
+    Public,
+    Protected,
+    Private,
+    Internal,
 }

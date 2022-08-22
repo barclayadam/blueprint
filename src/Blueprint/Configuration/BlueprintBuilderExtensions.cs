@@ -1,53 +1,52 @@
 using System;
 
-namespace Blueprint.Configuration
+namespace Blueprint.Configuration;
+
+/// <summary>
+/// Provides extensions to <see cref="BlueprintApiBuilder" /> that can be useful in
+/// building up the pipeline used for an API.
+/// </summary>
+public static class BlueprintBuilderExtensions
 {
     /// <summary>
-    /// Provides extensions to <see cref="BlueprintApiBuilder" /> that can be useful in
-    /// building up the pipeline used for an API.
+    /// Conditionally executes the given child action, which means that for example you could include
+    /// certain middleware builders based on a configuration switch, or your environment.
     /// </summary>
-    public static class BlueprintBuilderExtensions
+    /// <param name="apiBuilder">The Api builder.</param>
+    /// <param name="include">Whether to include/execute the child action.</param>
+    /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
+    /// <returns>This builder.</returns>
+    public static BlueprintApiBuilder Conditionally(
+        this BlueprintApiBuilder apiBuilder,
+        bool include,
+        Action<BlueprintApiBuilder> action)
     {
-        /// <summary>
-        /// Conditionally executes the given child action, which means that for example you could include
-        /// certain middleware builders based on a configuration switch, or your environment.
-        /// </summary>
-        /// <param name="apiBuilder">The Api builder.</param>
-        /// <param name="include">Whether to include/execute the child action.</param>
-        /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <returns>This builder.</returns>
-        public static BlueprintApiBuilder Conditionally(
-            this BlueprintApiBuilder apiBuilder,
-            bool include,
-            Action<BlueprintApiBuilder> action)
+        if (include)
         {
-            if (include)
-            {
-                action(apiBuilder);
-            }
-
-            return apiBuilder;
+            action(apiBuilder);
         }
 
-        /// <summary>
-        /// Conditionally executes the given action, which means that for example you could include
-        /// certain middleware builders based on a configuration switch, or your environment.
-        /// </summary>
-        /// <param name="pipelineBuilder">The middleware builder.</param>
-        /// <param name="include">Whether to include/execute the child action.</param>
-        /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
-        /// <returns>This middleware builder.</returns>
-        public static PipelineBuilder Conditionally(
-            this PipelineBuilder pipelineBuilder,
-            bool include,
-            Action<PipelineBuilder> action)
-        {
-            if (include)
-            {
-                action(pipelineBuilder);
-            }
+        return apiBuilder;
+    }
 
-            return pipelineBuilder;
+    /// <summary>
+    /// Conditionally executes the given action, which means that for example you could include
+    /// certain middleware builders based on a configuration switch, or your environment.
+    /// </summary>
+    /// <param name="pipelineBuilder">The middleware builder.</param>
+    /// <param name="include">Whether to include/execute the child action.</param>
+    /// <param name="action">The action to perform if <paramref name="include"/> is <c>true</c>.</param>
+    /// <returns>This middleware builder.</returns>
+    public static PipelineBuilder Conditionally(
+        this PipelineBuilder pipelineBuilder,
+        bool include,
+        Action<PipelineBuilder> action)
+    {
+        if (include)
+        {
+            action(pipelineBuilder);
         }
+
+        return pipelineBuilder;
     }
 }

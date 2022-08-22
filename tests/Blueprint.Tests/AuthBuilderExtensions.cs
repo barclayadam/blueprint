@@ -2,24 +2,23 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Testing;
 
-namespace Blueprint.Tests
+namespace Blueprint.Tests;
+
+public static class AuthBuilderExtensions
 {
-    public static class AuthBuilderExtensions
+    public static Task<OperationResult> ExecuteWithAuth(this TestApiOperationExecutor executor, object operation, params Claim[] claims)
     {
-        public static Task<OperationResult> ExecuteWithAuth(this TestApiOperationExecutor executor, object operation, params Claim[] claims)
-        {
-            var context = executor.ContextFor(operation);
+        var context = executor.ContextFor(operation);
 
-            context.WithAuth(claims);
+        context.WithAuth(claims);
 
-            return executor.ExecuteAsync(context);
-        }
+        return executor.ExecuteAsync(context);
+    }
 
-        public static ApiOperationContext WithAuth(this ApiOperationContext context, params Claim[] claims)
-        {
-            context.ClaimsIdentity = new ClaimsIdentity(claims, "TestAuth");
+    public static ApiOperationContext WithAuth(this ApiOperationContext context, params Claim[] claims)
+    {
+        context.ClaimsIdentity = new ClaimsIdentity(claims, "TestAuth");
 
-            return context;
-        }
+        return context;
     }
 }

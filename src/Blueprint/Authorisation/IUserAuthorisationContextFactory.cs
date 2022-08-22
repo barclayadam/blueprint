@@ -1,10 +1,9 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Blueprint.Authorisation
+namespace Blueprint.Authorisation;
+
+public interface IUserAuthorisationContextFactory
 {
-    public interface IUserAuthorisationContextFactory
-    {
-        Task<IUserAuthorisationContext> CreateContextAsync(ClaimsIdentity claimsIdentity);
-    }
+    Task<IUserAuthorisationContext> CreateContextAsync(ClaimsIdentity claimsIdentity);
 }

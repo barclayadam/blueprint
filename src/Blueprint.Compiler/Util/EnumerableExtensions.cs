@@ -1,46 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Blueprint.Compiler.Util
+namespace Blueprint.Compiler.Util;
+
+/// <summary>
+/// Taken directly from Marten: https://github.com/JasperFx/marten/blob/2f18d09fa2034cbc647f48a74bbf3bbb8ea51116/src/Marten/Util/EnumerableExtensions.cs.
+/// </summary>
+internal static class EnumerableExtensions
 {
-    /// <summary>
-    /// Taken directly from Marten: https://github.com/JasperFx/marten/blob/2f18d09fa2034cbc647f48a74bbf3bbb8ea51116/src/Marten/Util/EnumerableExtensions.cs.
-    /// </summary>
-    internal static class EnumerableExtensions
+    public static IEnumerable<T> TopologicalSort<T>(this IEnumerable<T> source, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle = true)
     {
-        public static IEnumerable<T> TopologicalSort<T>(this IEnumerable<T> source, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle = true)
+        var sorted = new List<T>();
+        var visited = new HashSet<T>();
+
+        foreach (var item in source)
         {
-            var sorted = new List<T>();
-            var visited = new HashSet<T>();
-
-            foreach (var item in source)
-            {
-                Visit(item, visited, sorted, dependencies, throwOnCycle);
-            }
-
-            return sorted;
+            Visit(item, visited, sorted, dependencies, throwOnCycle);
         }
 
-        private static void Visit<T>(T item, ISet<T> visited, ICollection<T> sorted, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle)
+        return sorted;
+    }
+
+    private static void Visit<T>(T item, ISet<T> visited, ICollection<T> sorted, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle)
+    {
+        if (visited.Contains(item))
         {
-            if (visited.Contains(item))
+            if (throwOnCycle && !sorted.Contains(item))
             {
-                if (throwOnCycle && !sorted.Contains(item))
-                {
-                    throw new Exception("Cyclic dependency found");
-                }
+                throw new Exception("Cyclic dependency found");
             }
-            else
+        }
+        else
+        {
+            visited.Add(item);
+
+            foreach (var dep in dependencies(item))
             {
-                visited.Add(item);
-
-                foreach (var dep in dependencies(item))
-                {
-                    Visit(dep, visited, sorted, dependencies, throwOnCycle);
-                }
-
-                sorted.Add(item);
+                Visit(dep, visited, sorted, dependencies, throwOnCycle);
             }
+
+            sorted.Add(item);
         }
     }
 }

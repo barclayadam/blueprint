@@ -4,76 +4,75 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Blueprint.Tasks.Provider;
 
-namespace Blueprint.Tasks
+namespace Blueprint.Tasks;
+
+/// <summary>
+/// Represents a "root" scheduled / enqeueued task from <see cref="BackgroundTaskScheduler" />, one that has no parent but supports
+/// continuation through <see cref="IScheduledBackgroundTask.ContinueWith" />.
+/// </summary>
+[DebuggerDisplay("ScheduledBackgroundTask: Type {_taskEnvelope.Task.GetType()}")]
+internal class ScheduledBackgroundTask : IScheduledBackgroundTask
 {
-    /// <summary>
-    /// Represents a "root" scheduled / enqeueued task from <see cref="BackgroundTaskScheduler" />, one that has no parent but supports
-    /// continuation through <see cref="IScheduledBackgroundTask.ContinueWith" />.
-    /// </summary>
-    [DebuggerDisplay("ScheduledBackgroundTask: Type {_taskEnvelope.Task.GetType()}")]
-    internal class ScheduledBackgroundTask : IScheduledBackgroundTask
+    private readonly BackgroundTaskScheduler _scheduler;
+
+    private readonly BackgroundTaskEnvelope _taskEnvelope;
+    private readonly TimeSpan? _delay;
+
+    // NB: children is not initialized as in many cases no children will be added so we want to avoid the allocation
+    private List<ChildScheduledBackgroundTask> _children;
+
+    public ScheduledBackgroundTask(BackgroundTaskEnvelope taskEnvelope, TimeSpan? delay, BackgroundTaskScheduler scheduler)
     {
-        private readonly BackgroundTaskScheduler _scheduler;
+        this._taskEnvelope = taskEnvelope;
+        this._delay = delay;
+        this._scheduler = scheduler;
+    }
 
-        private readonly BackgroundTaskEnvelope _taskEnvelope;
-        private readonly TimeSpan? _delay;
-
-        // NB: children is not initialized as in many cases no children will be added so we want to avoid the allocation
-        private List<ChildScheduledBackgroundTask> _children;
-
-        public ScheduledBackgroundTask(BackgroundTaskEnvelope taskEnvelope, TimeSpan? delay, BackgroundTaskScheduler scheduler)
+    /// <inheritdoc />
+    public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
+    {
+        if (this._children == null)
         {
-            this._taskEnvelope = taskEnvelope;
-            this._delay = delay;
-            this._scheduler = scheduler;
+            this._children = new List<ChildScheduledBackgroundTask>();
         }
 
-        /// <inheritdoc />
-        public IScheduledBackgroundTask ContinueWith(IBackgroundTask backgroundTask, BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
+        // Copy over the metadata from this parent task, as we know this must have been executed in the
+        // same context as this one.
+        var backgroundTaskEnvelope = new BackgroundTaskEnvelope(backgroundTask)
         {
-            if (this._children == null)
-            {
-                this._children = new List<ChildScheduledBackgroundTask>();
-            }
+            Headers = this._taskEnvelope.Headers,
+        };
 
-            // Copy over the metadata from this parent task, as we know this must have been executed in the
-            // same context as this one.
-            var backgroundTaskEnvelope = new BackgroundTaskEnvelope(backgroundTask)
-            {
-                Headers = this._taskEnvelope.Headers,
-            };
+        var scheduledBackgroundTask = new ChildScheduledBackgroundTask(backgroundTaskEnvelope, options, this._scheduler);
 
-            var scheduledBackgroundTask = new ChildScheduledBackgroundTask(backgroundTaskEnvelope, options, this._scheduler);
+        this._children.Add(scheduledBackgroundTask);
 
-            this._children.Add(scheduledBackgroundTask);
+        return scheduledBackgroundTask;
+    }
 
-            return scheduledBackgroundTask;
+    public override string ToString()
+    {
+        return this._taskEnvelope.Task.GetType().Name;
+    }
+
+    internal async Task PushToProviderAsync(IBackgroundTaskScheduleProvider provider)
+    {
+        string id;
+
+        if (this._delay == null)
+        {
+            id = await provider.EnqueueAsync(this._taskEnvelope);
+        }
+        else
+        {
+            id = await provider.ScheduleAsync(this._taskEnvelope, this._delay.Value);
         }
 
-        public override string ToString()
+        if (this._children != null)
         {
-            return this._taskEnvelope.Task.GetType().Name;
-        }
-
-        internal async Task PushToProviderAsync(IBackgroundTaskScheduleProvider provider)
-        {
-            string id;
-
-            if (this._delay == null)
+            foreach (var child in this._children)
             {
-                id = await provider.EnqueueAsync(this._taskEnvelope);
-            }
-            else
-            {
-                id = await provider.ScheduleAsync(this._taskEnvelope, this._delay.Value);
-            }
-
-            if (this._children != null)
-            {
-                foreach (var child in this._children)
-                {
-                    await child.PushToProviderAsync(provider, id);
-                }
+                await child.PushToProviderAsync(provider, id);
             }
         }
     }

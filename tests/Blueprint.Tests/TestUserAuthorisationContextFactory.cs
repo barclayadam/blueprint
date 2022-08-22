@@ -3,16 +3,15 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Blueprint.Authorisation;
 
-namespace Blueprint.Tests
+namespace Blueprint.Tests;
+
+public class TestUserAuthorisationContextFactory : IUserAuthorisationContextFactory
 {
-    public class TestUserAuthorisationContextFactory : IUserAuthorisationContextFactory
+    public Task<IUserAuthorisationContext> CreateContextAsync(ClaimsIdentity claimsIdentity)
     {
-        public Task<IUserAuthorisationContext> CreateContextAsync(ClaimsIdentity claimsIdentity)
+        return Task.FromResult((IUserAuthorisationContext) new TestUserAuthorisationContext
         {
-            return Task.FromResult((IUserAuthorisationContext) new TestUserAuthorisationContext
-            {
-                Claims = claimsIdentity.Claims.ToList()
-            });
-        }
+            Claims = claimsIdentity.Claims.ToList()
+        });
     }
 }

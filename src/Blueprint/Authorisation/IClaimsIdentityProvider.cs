@@ -1,9 +1,8 @@
 ﻿using System.Security.Claims;
 
-namespace Blueprint.Authorisation
+namespace Blueprint.Authorisation;
+
+public interface IClaimsIdentityProvider
 {
-    public interface IClaimsIdentityProvider
-    {
-        ClaimsIdentity Get(ApiOperationContext context);
-    }
+    ClaimsIdentity Get(ApiOperationContext context);
 }

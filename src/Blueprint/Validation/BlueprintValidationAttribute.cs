@@ -2,32 +2,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+[AttributeUsage(AttributeTargets.Property)]
+public abstract class BlueprintValidationAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public abstract class BlueprintValidationAttribute : Attribute
+    private const string DefaultErrorMessage = "{0} for {1} failed.";
+
+    public virtual string ErrorMessage { get; set; } = DefaultErrorMessage;
+
+    public virtual async Task<ValidationResult> GetValidationResultAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
     {
-        private const string DefaultErrorMessage = "{0} for {1} failed.";
+        Guard.NotNull(nameof(apiOperationContext), apiOperationContext);
 
-        public virtual string ErrorMessage { get; set; } = DefaultErrorMessage;
+        var validationResult = await this.IsValidAsync(value, propertyName, apiOperationContext);
 
-        public virtual async Task<ValidationResult> GetValidationResultAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
+        if (validationResult == true)
         {
-            Guard.NotNull(nameof(apiOperationContext), apiOperationContext);
-
-            var validationResult = await this.IsValidAsync(value, propertyName, apiOperationContext);
-
-            if (validationResult == true)
-            {
-                return ValidationResult.Success;
-            }
-
-            return new ValidationResult(string.Format(this.ErrorMessage, this.GetType().Name, propertyName));
+            return ValidationResult.Success;
         }
 
-        protected virtual Task<bool> IsValidAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
-        {
-            return Task.FromResult(true);
-        }
+        return new ValidationResult(string.Format(this.ErrorMessage, this.GetType().Name, propertyName));
+    }
+
+    protected virtual Task<bool> IsValidAsync(object value, string propertyName, ApiOperationContext apiOperationContext)
+    {
+        return Task.FromResult(true);
     }
 }

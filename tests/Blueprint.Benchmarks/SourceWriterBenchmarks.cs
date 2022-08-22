@@ -1,12 +1,12 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Blueprint.Compiler;
 
-namespace Blueprint.Benchmarks
+namespace Blueprint.Benchmarks;
+
+[MemoryDiagnoser]
+public class SourceWriterBenchmarks
 {
-    [MemoryDiagnoser]
-    public class SourceWriterBenchmarks
-    {
-        private const string textToWrite = @"using System;
+    private const string textToWrite = @"using System;
 using BenchmarkDotNet;
 using BenchmarkDotNet.Attributes;
 using Blueprint.Compiler;
@@ -25,15 +25,14 @@ namespace Blueprint.Benchmarks
     }
 }";
 
-        [Benchmark]
-        public void BaseWithNewlines()
+    [Benchmark]
+    public void BaseWithNewlines()
+    {
+        var sourceWriter = new SourceWriter
         {
-            var sourceWriter = new SourceWriter
-            {
-                IndentationLevel = 1,
-            };
+            IndentationLevel = 1,
+        };
 
-            sourceWriter.WriteLines(textToWrite);
-        }
+        sourceWriter.WriteLines(textToWrite);
     }
 }

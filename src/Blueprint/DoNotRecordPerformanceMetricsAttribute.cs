@@ -1,9 +1,8 @@
 using System;
 
-namespace Blueprint
+namespace Blueprint;
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class DoNotRecordPerformanceMetricsAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class DoNotRecordPerformanceMetricsAttribute : Attribute
-    {
-    }
 }

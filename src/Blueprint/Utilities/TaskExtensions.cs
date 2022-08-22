@@ -1,31 +1,30 @@
 using System.Threading.Tasks;
 
-namespace Blueprint.Utilities
+namespace Blueprint.Utilities;
+
+public static class TaskExtensions
 {
-    public static class TaskExtensions
+    public static Task<object> ConvertToObject<T>(this Task<T> task)
     {
-        public static Task<object> ConvertToObject<T>(this Task<T> task)
-        {
-            var res = new TaskCompletionSource<object>();
+        var res = new TaskCompletionSource<object>();
 
-            return task.ContinueWith(
-                t =>
+        return task.ContinueWith(
+            t =>
+            {
+                if (t.IsCanceled)
                 {
-                    if (t.IsCanceled)
-                    {
-                        res.TrySetCanceled();
-                    }
-                    else if (t.IsFaulted)
-                    {
-                        res.TrySetException(t.Exception);
-                    }
-                    else
-                    {
-                        res.TrySetResult(t.Result);
-                    }
+                    res.TrySetCanceled();
+                }
+                else if (t.IsFaulted)
+                {
+                    res.TrySetException(t.Exception);
+                }
+                else
+                {
+                    res.TrySetResult(t.Result);
+                }
 
-                    return res.Task;
-                }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-        }
+                return res.Task;
+            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
     }
 }

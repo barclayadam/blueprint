@@ -5,173 +5,172 @@ using System.Security.Claims;
 using System.Threading;
 using Blueprint.Authorisation;
 
-namespace Blueprint
+namespace Blueprint;
+
+/// <summary>
+/// The context of an API operation, the object that is passed to all middleware and final operation handlers
+/// to allow sharing of state, for example the operation being executed, or an authentication context that
+/// gets created.
+/// </summary>
+public class ApiOperationContext
 {
     /// <summary>
-    /// The context of an API operation, the object that is passed to all middleware and final operation handlers
-    /// to allow sharing of state, for example the operation being executed, or an authentication context that
-    /// gets created.
+    /// Initialises a new instance of the <see cref="ApiOperationContext" /> class, using
+    /// <see cref="ApiOperationDescriptor.CreateInstance" /> to construct the operation
+    /// instance.
     /// </summary>
-    public class ApiOperationContext
+    /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
+    /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
+    /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
+    /// <param name="token">A cancellation token to indicate the operation should stop.</param>
+    public ApiOperationContext(
+        IServiceProvider serviceProvider,
+        ApiDataModel dataModel,
+        ApiOperationDescriptor operationDescriptor,
+        CancellationToken token)
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="ApiOperationContext" /> class, using
-        /// <see cref="ApiOperationDescriptor.CreateInstance" /> to construct the operation
-        /// instance.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
-        /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
-        /// <param name="operationDescriptor">A descriptor for the operation that is being executed.</param>
-        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
-        public ApiOperationContext(
-            IServiceProvider serviceProvider,
-            ApiDataModel dataModel,
-            ApiOperationDescriptor operationDescriptor,
-            CancellationToken token)
+        Guard.NotNull(nameof(serviceProvider), serviceProvider);
+        Guard.NotNull(nameof(dataModel), dataModel);
+        Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
+
+        this.Descriptor = operationDescriptor;
+        this.OperationCancelled = token;
+        this.DataModel = dataModel;
+        this.ServiceProvider = serviceProvider;
+        this.Operation = operationDescriptor.CreateInstance();
+        this.Activity = Activity.Current;
+
+        this.Data = new Dictionary<string, object>();
+    }
+
+    /// <summary>
+    /// Initialises a new instance of the <see cref="ApiOperationContext" /> class using the already
+    /// created operation instance.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
+    /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
+    /// <param name="operation">The operation instance.</param>
+    /// <param name="token">A cancellation token to indicate the operation should stop.</param>
+    public ApiOperationContext(
+        IServiceProvider serviceProvider,
+        ApiDataModel dataModel,
+        object operation,
+        CancellationToken token)
+    {
+        Guard.NotNull(nameof(serviceProvider), serviceProvider);
+        Guard.NotNull(nameof(dataModel), dataModel);
+        Guard.NotNull(nameof(operation), operation);
+
+        var operationType = operation.GetType();
+
+        this.Descriptor = dataModel.FindOperation(operationType);
+
+        if (this.Descriptor == null)
         {
-            Guard.NotNull(nameof(serviceProvider), serviceProvider);
-            Guard.NotNull(nameof(dataModel), dataModel);
-            Guard.NotNull(nameof(operationDescriptor), operationDescriptor);
-
-            this.Descriptor = operationDescriptor;
-            this.OperationCancelled = token;
-            this.DataModel = dataModel;
-            this.ServiceProvider = serviceProvider;
-            this.Operation = operationDescriptor.CreateInstance();
-            this.Activity = Activity.Current;
-
-            this.Data = new Dictionary<string, object>();
+            throw new ArgumentException(
+                $"Could not find descriptor for operation of type {operationType}",
+                nameof(operation));
         }
 
-        /// <summary>
-        /// Initialises a new instance of the <see cref="ApiOperationContext" /> class using the already
-        /// created operation instance.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider (typically a nested scope) for this context.</param>
-        /// <param name="dataModel">The data model that represents the API in which this context is being executed.</param>
-        /// <param name="operation">The operation instance.</param>
-        /// <param name="token">A cancellation token to indicate the operation should stop.</param>
-        public ApiOperationContext(
-            IServiceProvider serviceProvider,
-            ApiDataModel dataModel,
-            object operation,
-            CancellationToken token)
-        {
-            Guard.NotNull(nameof(serviceProvider), serviceProvider);
-            Guard.NotNull(nameof(dataModel), dataModel);
-            Guard.NotNull(nameof(operation), operation);
+        this.OperationCancelled = token;
+        this.DataModel = dataModel;
+        this.ServiceProvider = serviceProvider;
+        this.Operation = operation;
+        this.Activity = Activity.Current;
 
-            var operationType = operation.GetType();
+        this.Data = new Dictionary<string, object>();
+    }
 
-            this.Descriptor = dataModel.FindOperation(operationType);
+    /// <summary>
+    /// Gets the data model for this operation.
+    /// </summary>
+    public ApiDataModel DataModel { get; }
 
-            if (this.Descriptor == null)
-            {
-                throw new ArgumentException(
-                    $"Could not find descriptor for operation of type {operationType}",
-                    nameof(operation));
-            }
+    /// <summary>
+    /// Gets the operation descriptor that described the operation that is currently being executed.
+    /// </summary>
+    public ApiOperationDescriptor Descriptor { get; }
 
-            this.OperationCancelled = token;
-            this.DataModel = dataModel;
-            this.ServiceProvider = serviceProvider;
-            this.Operation = operation;
-            this.Activity = Activity.Current;
+    /// <summary>
+    /// Gets the cancellation token that is used to indicate / request cancellation of an operation.
+    /// </summary>
+    public CancellationToken OperationCancelled { get; }
 
-            this.Data = new Dictionary<string, object>();
-        }
+    /// <summary>
+    /// Gets the operation that is currently being executed.
+    /// </summary>
+    public object Operation { get; set; }
 
-        /// <summary>
-        /// Gets the data model for this operation.
-        /// </summary>
-        public ApiDataModel DataModel { get; }
+    /// <summary>
+    /// The <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
+    /// handlers to get runtime dependencies out of the correctly scoped container.
+    /// </summary>
+    public IServiceProvider ServiceProvider { get; set; }
 
-        /// <summary>
-        /// Gets the operation descriptor that described the operation that is currently being executed.
-        /// </summary>
-        public ApiOperationDescriptor Descriptor { get; }
+    /// <summary>
+    /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.
+    /// </summary>
+    public ApiOperationContext Parent { get; set; }
 
-        /// <summary>
-        /// Gets the cancellation token that is used to indicate / request cancellation of an operation.
-        /// </summary>
-        public CancellationToken OperationCancelled { get; }
+    /// <summary>
+    /// Gets or sets the <see cref="Activity" /> for this context, which may be <c>null</c> if the host
+    /// of an operation has not integrated with APM tooling.
+    /// </summary>
+    public Activity? Activity { get; set; }
 
-        /// <summary>
-        /// Gets the operation that is currently being executed.
-        /// </summary>
-        public object Operation { get; set; }
+    /// <summary>
+    /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
+    /// existing context, used to execute another operation in the context of an existing one.
+    /// </summary>
+    public bool IsNested => this.Parent != null;
 
-        /// <summary>
-        /// The <see cref="IServiceProvider" /> associated with this operation execution, allowing middleware and
-        /// handlers to get runtime dependencies out of the correctly scoped container.
-        /// </summary>
-        public IServiceProvider ServiceProvider { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
+    /// which should be used with extreme care.
+    /// </summary>
+    /// <remarks>
+    /// This is typically used when running a child operation where the authorisation of the parent is enough to indicate
+    /// the child can be successfully executed.
+    /// </remarks>
+    public bool SkipAuthorisation { get; set; }
 
-        /// <summary>
-        /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.
-        /// </summary>
-        public ApiOperationContext Parent { get; set; }
+    public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
-        /// <summary>
-        /// Gets or sets the <see cref="Activity" /> for this context, which may be <c>null</c> if the host
-        /// of an operation has not integrated with APM tooling.
-        /// </summary>
-        public Activity? Activity { get; set; }
+    public ClaimsIdentity ClaimsIdentity { get; set; }
 
-        /// <summary>
-        /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
-        /// existing context, used to execute another operation in the context of an existing one.
-        /// </summary>
-        public bool IsNested => this.Parent != null;
+    /// <summary>
+    /// Provides a generic means of middleware components or hosts to store data related to an API operation
+    /// to be used throughout the processing pipeline.
+    /// </summary>
+    public Dictionary<string, object> Data { get; private set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to skip authorisation when executing the operation of this context,
-        /// which should be used with extreme care.
-        /// </summary>
-        /// <remarks>
-        /// This is typically used when running a child operation where the authorisation of the parent is enough to indicate
-        /// the child can be successfully executed.
-        /// </remarks>
-        public bool SkipAuthorisation { get; set; }
+    public ApiOperationContext CreateNested(Type type)
+    {
+        Guard.NotNull(nameof(type), type);
 
-        public IUserAuthorisationContext UserAuthorisationContext { get; set; }
+        var context = this.DataModel.CreateOperationContext(this.ServiceProvider, type, this.OperationCancelled);
 
-        public ClaimsIdentity ClaimsIdentity { get; set; }
+        this.PopulateNested(context);
 
-        /// <summary>
-        /// Provides a generic means of middleware components or hosts to store data related to an API operation
-        /// to be used throughout the processing pipeline.
-        /// </summary>
-        public Dictionary<string, object> Data { get; private set; }
+        return context;
+    }
 
-        public ApiOperationContext CreateNested(Type type)
-        {
-            Guard.NotNull(nameof(type), type);
+    public ApiOperationContext CreateNested(object operation)
+    {
+        Guard.NotNull(nameof(operation), operation);
 
-            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, type, this.OperationCancelled);
+        var context = this.DataModel.CreateOperationContext(this.ServiceProvider, operation, this.OperationCancelled);
 
-            this.PopulateNested(context);
+        this.PopulateNested(context);
 
-            return context;
-        }
+        return context;
+    }
 
-        public ApiOperationContext CreateNested(object operation)
-        {
-            Guard.NotNull(nameof(operation), operation);
-
-            var context = this.DataModel.CreateOperationContext(this.ServiceProvider, operation, this.OperationCancelled);
-
-            this.PopulateNested(context);
-
-            return context;
-        }
-
-        private void PopulateNested(ApiOperationContext childContext)
-        {
-            childContext.Parent = this;
-            childContext.Data = this.Data;
-            childContext.ClaimsIdentity = this.ClaimsIdentity;
-            childContext.UserAuthorisationContext = this.UserAuthorisationContext;
-        }
+    private void PopulateNested(ApiOperationContext childContext)
+    {
+        childContext.Parent = this;
+        childContext.Data = this.Data;
+        childContext.ClaimsIdentity = this.ClaimsIdentity;
+        childContext.UserAuthorisationContext = this.UserAuthorisationContext;
     }
 }

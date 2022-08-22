@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 
-namespace Blueprint.Sample.WebApi.Data
+namespace Blueprint.Sample.WebApi.Data;
+
+public interface IWeatherDataSource
 {
-    public interface IWeatherDataSource
-    {
-        IEnumerable<WeatherForecast> Get(string city);
-    }
+    IEnumerable<WeatherForecast> Get(string city);
 }

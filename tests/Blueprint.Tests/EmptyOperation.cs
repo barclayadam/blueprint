@@ -1,6 +1,5 @@
-namespace Blueprint.Tests
+namespace Blueprint.Tests;
+
+public class EmptyOperation
 {
-    public class EmptyOperation
-    {
-    }
 }

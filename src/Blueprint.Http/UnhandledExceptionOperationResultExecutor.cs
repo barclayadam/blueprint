@@ -3,69 +3,68 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 
-namespace Blueprint.Http
+namespace Blueprint.Http;
+
+/// <summary>
+/// An <see cref="IOperationResultExecutor{TResult}" /> for <see cref="UnhandledExceptionOperationResult" /> that will
+/// interrogate the <see cref="UnhandledExceptionOperationResult.Exception" /> to convert to the most appropriate
+/// HTTP response
+/// </summary>
+public class UnhandledExceptionOperationResultExecutor : IOperationResultExecutor<UnhandledExceptionOperationResult>
 {
+    private readonly OkResultOperationExecutor _okResultOperationExecutor;
+    private readonly bool _shouldExposeErrorMessage;
+
     /// <summary>
-    /// An <see cref="IOperationResultExecutor{TResult}" /> for <see cref="UnhandledExceptionOperationResult" /> that will
-    /// interrogate the <see cref="UnhandledExceptionOperationResult.Exception" /> to convert to the most appropriate
-    /// HTTP response
+    /// Initialises a new instance of the <see cref="UnhandledExceptionOperationResultExecutor" /> class.
     /// </summary>
-    public class UnhandledExceptionOperationResultExecutor : IOperationResultExecutor<UnhandledExceptionOperationResult>
+    /// <param name="configuration">The configuration of the application.</param>
+    /// <param name="okResultOperationExecutor">The <see cref="OkResultOperationExecutor"/> writing is delegated to.</param>
+    public UnhandledExceptionOperationResultExecutor(IOptions<BlueprintHttpOptions> configuration, OkResultOperationExecutor okResultOperationExecutor)
     {
-        private readonly OkResultOperationExecutor _okResultOperationExecutor;
-        private readonly bool _shouldExposeErrorMessage;
+        this._okResultOperationExecutor = okResultOperationExecutor;
+        this._shouldExposeErrorMessage = configuration.Value.ExposeExceptionDetailsInErrorResponses;
+    }
 
-        /// <summary>
-        /// Initialises a new instance of the <see cref="UnhandledExceptionOperationResultExecutor" /> class.
-        /// </summary>
-        /// <param name="configuration">The configuration of the application.</param>
-        /// <param name="okResultOperationExecutor">The <see cref="OkResultOperationExecutor"/> writing is delegated to.</param>
-        public UnhandledExceptionOperationResultExecutor(IOptions<BlueprintHttpOptions> configuration, OkResultOperationExecutor okResultOperationExecutor)
+    /// <inheritdoc />
+    public Task ExecuteAsync(ApiOperationContext context, UnhandledExceptionOperationResult result)
+    {
+        var httpContext = context.GetHttpContext();
+        var problemDetails = this.ToProblemDetails(result.Exception);
+
+        if (context.Activity != null)
         {
-            this._okResultOperationExecutor = okResultOperationExecutor;
-            this._shouldExposeErrorMessage = configuration.Value.ExposeExceptionDetailsInErrorResponses;
+            problemDetails.AddExtension("traceId", context.Activity?.TraceId.ToString());
         }
 
-        /// <inheritdoc />
-        public Task ExecuteAsync(ApiOperationContext context, UnhandledExceptionOperationResult result)
+        return this._okResultOperationExecutor.WriteContentAsync(
+            httpContext,
+            problemDetails.Status,
+            problemDetails);
+    }
+
+    private ProblemDetails ToProblemDetails(Exception exception)
+    {
+        switch (exception)
         {
-            var httpContext = context.GetHttpContext();
-            var problemDetails = this.ToProblemDetails(result.Exception);
+            case ApiException apiException:
+                return new ProblemDetails
+                {
+                    Status = apiException.HttpStatus,
+                    Title = apiException.Title,
+                    Type = apiException.Type,
+                    Detail = apiException.Detail,
+                    Extensions = apiException.Extensions,
+                };
 
-            if (context.Activity != null)
-            {
-                problemDetails.AddExtension("traceId", context.Activity?.TraceId.ToString());
-            }
-
-            return this._okResultOperationExecutor.WriteContentAsync(
-                httpContext,
-                problemDetails.Status,
-                problemDetails);
-        }
-
-        private ProblemDetails ToProblemDetails(Exception exception)
-        {
-            switch (exception)
-            {
-                case ApiException apiException:
-                    return new ProblemDetails
-                    {
-                        Status = apiException.HttpStatus,
-                        Title = apiException.Title,
-                        Type = apiException.Type,
-                        Detail = apiException.Detail,
-                        Extensions = apiException.Extensions,
-                    };
-
-                default:
-                    return new ProblemDetails
-                    {
-                        Status = (int)HttpStatusCode.InternalServerError,
-                        Type = "unknown_error",
-                        Title = this._shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
-                        Detail = this._shouldExposeErrorMessage ? exception.StackTrace : null,
-                    };
-            }
+            default:
+                return new ProblemDetails
+                {
+                    Status = (int)HttpStatusCode.InternalServerError,
+                    Type = "unknown_error",
+                    Title = this._shouldExposeErrorMessage ? exception.Message : "Something has gone wrong, please try again",
+                    Detail = this._shouldExposeErrorMessage ? exception.StackTrace : null,
+                };
         }
     }
 }

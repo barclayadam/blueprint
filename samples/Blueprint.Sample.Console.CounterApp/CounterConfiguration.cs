@@ -1,7 +1,6 @@
-﻿namespace Blueprint.Sample.Console.CounterApp
+﻿namespace Blueprint.Sample.Console.CounterApp;
+
+public class CounterConfiguration
 {
-    public class CounterConfiguration
-    {
-        public int Max { get; set; } = -1;
-    }
+    public int Max { get; set; } = -1;
 }

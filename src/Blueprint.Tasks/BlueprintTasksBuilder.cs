@@ -1,25 +1,24 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.Tasks
+namespace Blueprint.Tasks;
+
+/// <summary>
+/// Base class of the client and server task builders, provided for common builder methods to
+/// be added to if they apply equally to server and client side configurations.
+/// </summary>
+public abstract class BlueprintTasksBuilder
 {
     /// <summary>
-    /// Base class of the client and server task builders, provided for common builder methods to
-    /// be added to if they apply equally to server and client side configurations.
+    /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
     /// </summary>
-    public abstract class BlueprintTasksBuilder
+    /// <param name="serviceCollection">The service collection being configured.</param>
+    protected BlueprintTasksBuilder(IServiceCollection serviceCollection)
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
-        /// </summary>
-        /// <param name="serviceCollection">The service collection being configured.</param>
-        protected BlueprintTasksBuilder(IServiceCollection serviceCollection)
-        {
-            this.Services = serviceCollection;
-        }
-
-        /// <summary>
-        /// The <see cref="IServiceCollection" /> to configure.
-        /// </summary>
-        public IServiceCollection Services { get; }
+        this.Services = serviceCollection;
     }
+
+    /// <summary>
+    /// The <see cref="IServiceCollection" /> to configure.
+    /// </summary>
+    public IServiceCollection Services { get; }
 }

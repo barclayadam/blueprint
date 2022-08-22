@@ -1,10 +1,9 @@
-namespace Blueprint.Compiler.Tests
+namespace Blueprint.Compiler.Tests;
+
+public static class CodegenExtensions
 {
-    public static class CodegenExtensions
+    public static void CompileAll(this GeneratedAssembly assembly)
     {
-        public static void CompileAll(this GeneratedAssembly assembly)
-        {
-            assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));
-        }
+        assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));
     }
 }

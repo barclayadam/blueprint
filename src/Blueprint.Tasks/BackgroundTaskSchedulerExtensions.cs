@@ -1,35 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Blueprint.Tasks
+namespace Blueprint.Tasks;
+
+/// <summary>
+/// Extension methods for <see cref="IBackgroundTaskScheduler" />.
+/// </summary>
+public static class BackgroundTaskSchedulerExtensions
 {
     /// <summary>
-    /// Extension methods for <see cref="IBackgroundTaskScheduler" />.
+    /// Executes a number of task in a sequential fashion, one after the other.
     /// </summary>
-    public static class BackgroundTaskSchedulerExtensions
+    /// <param name="backgroundTaskScheduler">The scheduler on which to enqueue tasks.</param>
+    /// <param name="tasks">The tasks that should be scheduled.</param>
+    /// <param name="options">Options used to determine in what state the task should be considered for execution.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation, returning the <strong>final</strong> scheduled background task.</returns>
+    public static IScheduledBackgroundTask EnqueueSequentially(
+        this IBackgroundTaskScheduler backgroundTaskScheduler,
+        IEnumerable<IBackgroundTask> tasks,
+        BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
     {
-        /// <summary>
-        /// Executes a number of task in a sequential fashion, one after the other.
-        /// </summary>
-        /// <param name="backgroundTaskScheduler">The scheduler on which to enqueue tasks.</param>
-        /// <param name="tasks">The tasks that should be scheduled.</param>
-        /// <param name="options">Options used to determine in what state the task should be considered for execution.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation, returning the <strong>final</strong> scheduled background task.</returns>
-        public static IScheduledBackgroundTask EnqueueSequentially(
-            this IBackgroundTaskScheduler backgroundTaskScheduler,
-            IEnumerable<IBackgroundTask> tasks,
-            BackgroundTaskContinuationOptions options = BackgroundTaskContinuationOptions.OnlyOnSucceededState)
+        IScheduledBackgroundTask scheduledTask = null;
+
+        foreach (var taskToRun in tasks)
         {
-            IScheduledBackgroundTask scheduledTask = null;
-
-            foreach (var taskToRun in tasks)
-            {
-                scheduledTask = scheduledTask == null ?
-                                    backgroundTaskScheduler.Enqueue(taskToRun) :
-                                    scheduledTask.ContinueWith(taskToRun, options);
-            }
-
-            return scheduledTask;
+            scheduledTask = scheduledTask == null ?
+                backgroundTaskScheduler.Enqueue(taskToRun) :
+                scheduledTask.ContinueWith(taskToRun, options);
         }
+
+        return scheduledTask;
     }
 }

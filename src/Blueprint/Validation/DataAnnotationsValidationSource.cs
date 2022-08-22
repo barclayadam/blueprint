@@ -3,54 +3,53 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Blueprint.Utilities;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+public class DataAnnotationsValidationSource : IAttributeValidationSource, IClassValidationSource
 {
-    public class DataAnnotationsValidationSource : IAttributeValidationSource, IClassValidationSource
+    public Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results)
     {
-        public Task AddAttributeValidationResultsAsync(PropertyInfo propertyInfo, object value, ApiOperationContext apiOperationContext, ValidationFailures results)
+        var validationContext = new ValidationContext(value, null, null);
+
+        var validationAttributes = propertyInfo.GetAttributes<ValidationAttribute>(true);
+
+        foreach (var validation in validationAttributes)
         {
-            var validationContext = new ValidationContext(value, null, null);
+            var result = validation.GetValidationResult(
+                propertyInfo.GetValue(value, null),
+                GetValidationContext(validationContext, propertyInfo));
 
-            var validationAttributes = propertyInfo.GetAttributes<ValidationAttribute>(true);
-
-            foreach (var validation in validationAttributes)
+            if (result != ValidationResult.Success)
             {
-                var result = validation.GetValidationResult(
-                    propertyInfo.GetValue(value, null),
-                    GetValidationContext(validationContext, propertyInfo));
-
-                if (result != ValidationResult.Success)
-                {
-                    results.AddFailure(result);
-                }
+                results.AddFailure(result);
             }
-
-            return Task.CompletedTask;
         }
 
-        public Task AddClassValidationResultsAsync(object value, ApiOperationContext apiOperationContext, ValidationFailures results)
-        {
-            var validationContext = new ValidationContext(value, null, null);
+        return Task.CompletedTask;
+    }
 
-            if (value is IValidatableObject validatableObject)
+    public Task AddClassValidationResultsAsync(object value, ApiOperationContext apiOperationContext, ValidationFailures results)
+    {
+        var validationContext = new ValidationContext(value, null, null);
+
+        if (value is IValidatableObject validatableObject)
+        {
+            var validationResults = validatableObject.Validate(validationContext);
+
+            foreach (var validationResult in validationResults)
             {
-                var validationResults = validatableObject.Validate(validationContext);
-
-                foreach (var validationResult in validationResults)
-                {
-                    results.AddFailure(validationResult);
-                }
+                results.AddFailure(validationResult);
             }
-
-            return Task.CompletedTask;
         }
 
-        private static ValidationContext GetValidationContext(ValidationContext validationContext, PropertyInfo propertyInfo)
-        {
-            validationContext.MemberName = propertyInfo.Name;
-            validationContext.DisplayName = propertyInfo.Name;
+        return Task.CompletedTask;
+    }
 
-            return validationContext;
-        }
+    private static ValidationContext GetValidationContext(ValidationContext validationContext, PropertyInfo propertyInfo)
+    {
+        validationContext.MemberName = propertyInfo.Name;
+        validationContext.DisplayName = propertyInfo.Name;
+
+        return validationContext;
     }
 }

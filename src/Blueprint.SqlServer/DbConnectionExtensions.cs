@@ -5,37 +5,36 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Dapper;
 
-namespace Blueprint.SqlServer
+namespace Blueprint.SqlServer;
+
+/// <summary>
+/// Provides simple extension methods to IDbConnection.
+/// </summary>
+public static class DbConnectionExtensions
 {
+    private static readonly Regex _statementSplitter = new Regex(@"\bGO\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     /// <summary>
-    /// Provides simple extension methods to IDbConnection.
+    /// Splits and executes a SQL block that may contain multiple statements.
     /// </summary>
-    public static class DbConnectionExtensions
+    /// <param name="connection">The <strong>open</strong> database connection to use.</param>
+    /// <param name="sql">The SQL that may contain mutliple statements.</param>
+    [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "This is a method to be used only in test projects.")]
+    public static void SplitAndExecuteSql(this IDbConnection connection, string sql)
     {
-        private static readonly Regex _statementSplitter = new Regex(@"\bGO\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        Guard.NotNull(nameof(sql), sql);
 
-        /// <summary>
-        /// Splits and executes a SQL block that may contain multiple statements.
-        /// </summary>
-        /// <param name="connection">The <strong>open</strong> database connection to use.</param>
-        /// <param name="sql">The SQL that may contain mutliple statements.</param>
-        [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "This is a method to be used only in test projects.")]
-        public static void SplitAndExecuteSql(this IDbConnection connection, string sql)
+        var commandTexts = _statementSplitter.Split(sql).Where(s => !string.IsNullOrWhiteSpace(s));
+
+        foreach (var commandText in commandTexts)
         {
-            Guard.NotNull(nameof(sql), sql);
-
-            var commandTexts = _statementSplitter.Split(sql).Where(s => !string.IsNullOrWhiteSpace(s));
-
-            foreach (var commandText in commandTexts)
+            try
             {
-                try
-                {
-                    connection.Execute(commandText);
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Failed to execute command text '{commandText}'.", ex);
-                }
+                connection.Execute(commandText);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to execute command text '{commandText}'.", ex);
             }
         }
     }

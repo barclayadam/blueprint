@@ -3,29 +3,28 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Blueprint.Utilities
+namespace Blueprint.Utilities;
+
+public class PrivateSetterContractResolver : DefaultContractResolver
 {
-    public class PrivateSetterContractResolver : DefaultContractResolver
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
     {
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        var jProperty = base.CreateProperty(member, memberSerialization);
+
+        if (jProperty.Writable)
         {
-            var jProperty = base.CreateProperty(member, memberSerialization);
-
-            if (jProperty.Writable)
-            {
-                return jProperty;
-            }
-
-            jProperty.Writable = IsPropertyWithSetter(member);
-
             return jProperty;
         }
 
-        private static bool IsPropertyWithSetter(MemberInfo member)
-        {
-            var property = member as PropertyInfo;
+        jProperty.Writable = IsPropertyWithSetter(member);
 
-            return property?.GetSetMethod(true) != null;
-        }
+        return jProperty;
+    }
+
+    private static bool IsPropertyWithSetter(MemberInfo member)
+    {
+        var property = member as PropertyInfo;
+
+        return property?.GetSetMethod(true) != null;
     }
 }

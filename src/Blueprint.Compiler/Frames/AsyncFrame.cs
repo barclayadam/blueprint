@@ -1,16 +1,15 @@
-namespace Blueprint.Compiler.Frames
+namespace Blueprint.Compiler.Frames;
+
+/// <summary>
+/// A <see cref="Frame" /> that has async code.
+/// </summary>
+public abstract class AsyncFrame : Frame
 {
     /// <summary>
-    /// A <see cref="Frame" /> that has async code.
+    /// Initialises a new instance of the <see cref="AsyncFrame" /> class.
     /// </summary>
-    public abstract class AsyncFrame : Frame
+    protected AsyncFrame()
+        : base(true)
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="AsyncFrame" /> class.
-        /// </summary>
-        protected AsyncFrame()
-            : base(true)
-        {
-        }
     }
 }

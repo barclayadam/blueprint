@@ -6,8 +6,8 @@
       "usingDirectivesPlacement": "outsideNamespace"
     },
     "documentationRules": {
-      "documentExposedElements": true,
-      "documentInterfaces": true,
+      "documentExposedElements": false,
+      "documentInterfaces": false,
       "documentInternalElements": false,
       "documentPrivateElements": false,
       "documentPrivateFields": false,

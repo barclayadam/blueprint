@@ -4,74 +4,73 @@ using Blueprint.Compiler.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Compiler.Tests.Codegen
+namespace Blueprint.Compiler.Tests.Codegen;
+
+public class WriteReturnStatementTests
 {
-    public class WriteReturnStatementTests
+    private GeneratedMethod theMethod;
+    private SourceWriter theWriter;
+    private Variable aVariable;
+
+    private AsyncMode IfTheAsyncMode
     {
-        private GeneratedMethod theMethod;
-        private SourceWriter theWriter;
-        private Variable aVariable;
+        set => theMethod.AsyncMode = value;
+    }
 
-        private AsyncMode IfTheAsyncMode
-        {
-            set => theMethod.AsyncMode = value;
-        }
+    [SetUp]
+    public void SetUp()
+    {
+        theMethod = GeneratedMethod.ForNoArg(Builder.NewType(), "Foo");
+        theWriter = new SourceWriter();
+        aVariable = new Variable(typeof(string), "name");
+    }
 
-        [SetUp]
-        public void SetUp()
-        {
-            theMethod = GeneratedMethod.ForNoArg(Builder.NewType(), "Foo");
-            theWriter = new SourceWriter();
-            aVariable = new Variable(typeof(string), "name");
-        }
+    [Test]
+    public void write_for_async_task_method()
+    {
+        IfTheAsyncMode = AsyncMode.AsyncTask;
 
-        [Test]
-        public void write_for_async_task_method()
-        {
-            IfTheAsyncMode = AsyncMode.AsyncTask;
+        theWriter.Return(theMethod);
 
-            theWriter.Return(theMethod);
+        theWriter.Code().ReadLines().Single()
+            .Should().Be("return;");
+    }
 
-            theWriter.Code().ReadLines().Single()
-                .Should().Be("return;");
-        }
+    [Test]
+    public void write_for_return_from_last_node()
+    {
+        var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
 
-        [Test]
-        public void write_for_return_from_last_node()
-        {
-            var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
+        IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
-            IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
+        theWriter.Return(theMethod);
 
-            theWriter.Return(theMethod);
-
-            theWriter.Code().ReadLines().Single()
-                .Should().Be(expected);
-        }
+        theWriter.Code().ReadLines().Single()
+            .Should().Be(expected);
+    }
 
 
-        [Test]
-        public void write_for_variable_and_async_task_method()
-        {
-            IfTheAsyncMode = AsyncMode.AsyncTask;
+    [Test]
+    public void write_for_variable_and_async_task_method()
+    {
+        IfTheAsyncMode = AsyncMode.AsyncTask;
 
-            theWriter.Return(theMethod, aVariable);
+        theWriter.Return(theMethod, aVariable);
 
-            theWriter.Code().ReadLines().Single()
-                .Should().Be("return name;");
-        }
+        theWriter.Code().ReadLines().Single()
+            .Should().Be("return name;");
+    }
 
-        [Test]
-        public void write_for_variable_return_from_last_node()
-        {
-            var expected = $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}(name);";
+    [Test]
+    public void write_for_variable_return_from_last_node()
+    {
+        var expected = $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}(name);";
 
-            IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
+        IfTheAsyncMode = AsyncMode.ReturnFromLastNode;
 
-            theWriter.Return(theMethod, aVariable);
+        theWriter.Return(theMethod, aVariable);
 
-            theWriter.Code().ReadLines().Single()
-                .Should().Be(expected);
-        }
+        theWriter.Code().ReadLines().Single()
+            .Should().Be(expected);
     }
 }

@@ -8,55 +8,54 @@ using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Blueprint.Http.Infrastructure
+namespace Blueprint.Http.Infrastructure;
+
+/// <summary>
+/// An <see cref="IHttpRequestStreamReaderFactory"/> that uses pooled buffers.
+/// </summary>
+internal class MemoryPoolHttpRequestStreamReaderFactory : IHttpRequestStreamReaderFactory
 {
     /// <summary>
-    /// An <see cref="IHttpRequestStreamReaderFactory"/> that uses pooled buffers.
+    /// The default size of created char buffers.
     /// </summary>
-    internal class MemoryPoolHttpRequestStreamReaderFactory : IHttpRequestStreamReaderFactory
+    private const int DefaultBufferSize = 1024; // 1KB - results in a 4KB byte array for UTF8.
+
+    private readonly ArrayPool<byte> _bytePool;
+    private readonly ArrayPool<char> _charPool;
+
+    /// <summary>
+    /// Creates a new <see cref="MemoryPoolHttpRequestStreamReaderFactory"/>.
+    /// </summary>
+    /// <param name="bytePool">
+    /// The <see cref="ArrayPool{Byte}"/> for creating <see cref="T:byte[]"/> buffers.
+    /// </param>
+    /// <param name="charPool">
+    /// The <see cref="ArrayPool{Char}"/> for creating <see cref="T:char[]"/> buffers.
+    /// </param>
+    public MemoryPoolHttpRequestStreamReaderFactory(
+        ArrayPool<byte> bytePool,
+        ArrayPool<char> charPool)
     {
-        /// <summary>
-        /// The default size of created char buffers.
-        /// </summary>
-        private const int DefaultBufferSize = 1024; // 1KB - results in a 4KB byte array for UTF8.
+        Guard.NotNull(nameof(bytePool), bytePool);
+        Guard.NotNull(nameof(charPool), charPool);
 
-        private readonly ArrayPool<byte> _bytePool;
-        private readonly ArrayPool<char> _charPool;
+        this._bytePool = bytePool;
+        this._charPool = charPool;
+    }
 
-        /// <summary>
-        /// Creates a new <see cref="MemoryPoolHttpRequestStreamReaderFactory"/>.
-        /// </summary>
-        /// <param name="bytePool">
-        /// The <see cref="ArrayPool{Byte}"/> for creating <see cref="T:byte[]"/> buffers.
-        /// </param>
-        /// <param name="charPool">
-        /// The <see cref="ArrayPool{Char}"/> for creating <see cref="T:char[]"/> buffers.
-        /// </param>
-        public MemoryPoolHttpRequestStreamReaderFactory(
-            ArrayPool<byte> bytePool,
-            ArrayPool<char> charPool)
+    /// <inheritdoc />
+    public TextReader CreateReader(Stream stream, Encoding encoding)
+    {
+        if (stream == null)
         {
-            Guard.NotNull(nameof(bytePool), bytePool);
-            Guard.NotNull(nameof(charPool), charPool);
-
-            this._bytePool = bytePool;
-            this._charPool = charPool;
+            throw new ArgumentNullException(nameof(stream));
         }
 
-        /// <inheritdoc />
-        public TextReader CreateReader(Stream stream, Encoding encoding)
+        if (encoding == null)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            if (encoding == null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
-
-            return new HttpRequestStreamReader(stream, encoding, DefaultBufferSize, this._bytePool, this._charPool);
+            throw new ArgumentNullException(nameof(encoding));
         }
+
+        return new HttpRequestStreamReader(stream, encoding, DefaultBufferSize, this._bytePool, this._charPool);
     }
 }

@@ -2,49 +2,48 @@
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Blueprint.Validation
+namespace Blueprint.Validation;
+
+/// <summary>
+/// An implementation of <see cref="IValidator"/> that uses the .NET DataAnnotations framework
+/// to validate the public properties of the object being validated.
+/// </summary>
+public class BlueprintValidator : IValidator
 {
-    /// <summary>
-    /// An implementation of <see cref="IValidator"/> that uses the .NET DataAnnotations framework
-    /// to validate the public properties of the object being validated.
-    /// </summary>
-    public class BlueprintValidator : IValidator
+    private readonly IEnumerable<IValidationSource> _validationSources;
+
+    public BlueprintValidator(IEnumerable<IValidationSource> validationSources)
     {
-        private readonly IEnumerable<IValidationSource> _validationSources;
+        this._validationSources = validationSources;
+    }
 
-        public BlueprintValidator(IEnumerable<IValidationSource> validationSources)
+    /// <inheritdoc />
+    public async Task<ValidationFailures> GetValidationResultsAsync(object value, ApiOperationContext apiOperationContext)
+    {
+        var results = new ValidationFailures();
+        PropertyInfo[] propertyInfos = null;
+
+        foreach (var validationSource in this._validationSources)
         {
-            this._validationSources = validationSources;
-        }
-
-        /// <inheritdoc />
-        public async Task<ValidationFailures> GetValidationResultsAsync(object value, ApiOperationContext apiOperationContext)
-        {
-            var results = new ValidationFailures();
-            PropertyInfo[] propertyInfos = null;
-
-            foreach (var validationSource in this._validationSources)
+            if (validationSource is IAttributeValidationSource attributeValidationSource)
             {
-                if (validationSource is IAttributeValidationSource attributeValidationSource)
+                if (propertyInfos == null)
                 {
-                    if (propertyInfos == null)
-                    {
-                        propertyInfos = value.GetType().GetProperties();
-                    }
-
-                    foreach (var propertyInfo in propertyInfos)
-                    {
-                        await attributeValidationSource.AddAttributeValidationResultsAsync(propertyInfo, value, apiOperationContext, results);
-                    }
+                    propertyInfos = value.GetType().GetProperties();
                 }
 
-                if (validationSource is IClassValidationSource classValidationSource)
+                foreach (var propertyInfo in propertyInfos)
                 {
-                    await classValidationSource.AddClassValidationResultsAsync(value, apiOperationContext, results);
+                    await attributeValidationSource.AddAttributeValidationResultsAsync(propertyInfo, value, apiOperationContext, results);
                 }
             }
 
-            return results;
+            if (validationSource is IClassValidationSource classValidationSource)
+            {
+                await classValidationSource.AddClassValidationResultsAsync(value, apiOperationContext, results);
+            }
         }
+
+        return results;
     }
 }

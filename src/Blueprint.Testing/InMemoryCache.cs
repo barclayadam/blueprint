@@ -3,57 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using Blueprint.Caching;
 
-namespace Blueprint.Testing
+namespace Blueprint.Testing;
+
+/// <summary>
+/// Implements an <see cref="ICache" /> by storing objects in an in-memory only concurrent dictionary.
+/// </summary>
+public class InMemoryCache : ICache
 {
-    /// <summary>
-    /// Implements an <see cref="ICache" /> by storing objects in an in-memory only concurrent dictionary.
-    /// </summary>
-    public class InMemoryCache : ICache
+    private readonly ConcurrentDictionary<string, object> _items = new ConcurrentDictionary<string, object>();
+
+    /// <inheritdoc />
+    public void Add<T>(string category, object key, T value)
     {
-        private readonly ConcurrentDictionary<string, object> _items = new ConcurrentDictionary<string, object>();
+        this._items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, _) => value);
+    }
 
-        /// <inheritdoc />
-        public void Add<T>(string category, object key, T value)
+    /// <inheritdoc />
+    public bool ContainsKey<T>(object key)
+    {
+        return this._items.ContainsKey(GenerateStorageKey<T>(key));
+    }
+
+    /// <summary>
+    /// Gets all cached values of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of value that has been cached.</typeparam>
+    /// <returns>All cached items of the given type.</returns>
+    public IEnumerable<T> GetItems<T>()
+    {
+        return this._items.Values.OfType<T>();
+    }
+
+    /// <inheritdoc />
+    public T GetValue<T>(object key)
+    {
+        if (this.ContainsKey<T>(key))
         {
-            this._items.AddOrUpdate(GenerateStorageKey<T>(key), _ => value, (_, _) => value);
+            return (T)this._items[GenerateStorageKey<T>(key)];
         }
 
-        /// <inheritdoc />
-        public bool ContainsKey<T>(object key)
-        {
-            return this._items.ContainsKey(GenerateStorageKey<T>(key));
-        }
+        return default;
+    }
 
-        /// <summary>
-        /// Gets all cached values of the specified type.
-        /// </summary>
-        /// <typeparam name="T">The type of value that has been cached.</typeparam>
-        /// <returns>All cached items of the given type.</returns>
-        public IEnumerable<T> GetItems<T>()
-        {
-            return this._items.Values.OfType<T>();
-        }
+    /// <inheritdoc />
+    public void Remove<T>(object key)
+    {
+        this._items.TryRemove(GenerateStorageKey<T>(key), out _);
+    }
 
-        /// <inheritdoc />
-        public T GetValue<T>(object key)
-        {
-            if (this.ContainsKey<T>(key))
-            {
-                return (T)this._items[GenerateStorageKey<T>(key)];
-            }
-
-            return default;
-        }
-
-        /// <inheritdoc />
-        public void Remove<T>(object key)
-        {
-            this._items.TryRemove(GenerateStorageKey<T>(key), out _);
-        }
-
-        private static string GenerateStorageKey<T>(object key)
-        {
-            return typeof(T).Name + key;
-        }
+    private static string GenerateStorageKey<T>(object key)
+    {
+        return typeof(T).Name + key;
     }
 }

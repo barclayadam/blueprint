@@ -1,55 +1,59 @@
 using System;
 
-namespace Blueprint.Http
+namespace Blueprint.Http;
+
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public class HttpMethodAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public class HttpMethodAttribute : Attribute
+    public HttpMethodAttribute(string httpMethod)
     {
-        public HttpMethodAttribute(string httpMethod)
-        {
-            this.HttpMethod = httpMethod;
-        }
-
-        public string HttpMethod { get; }
+        this.HttpMethod = httpMethod;
     }
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class HttpGetAttribute : HttpMethodAttribute
-    {
-        public HttpGetAttribute() : base("GET")
-        {
-        }
-    }
+    public string HttpMethod { get; }
+}
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class HttpPostAttribute : HttpMethodAttribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class HttpGetAttribute : HttpMethodAttribute
+{
+    public HttpGetAttribute()
+        : base("GET")
     {
-        public HttpPostAttribute() : base("POST")
-        {
-        }
     }
+}
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class HttpPutAttribute : HttpMethodAttribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class HttpPostAttribute : HttpMethodAttribute
+{
+    public HttpPostAttribute()
+        : base("POST")
     {
-        public HttpPutAttribute() : base("PUT")
-        {
-        }
     }
+}
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class HttpPatchAttribute : HttpMethodAttribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class HttpPutAttribute : HttpMethodAttribute
+{
+    public HttpPutAttribute()
+        : base("PUT")
     {
-        public HttpPatchAttribute() : base("PATCH")
-        {
-        }
     }
+}
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class HttpDeleteAttribute : HttpMethodAttribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class HttpPatchAttribute : HttpMethodAttribute
+{
+    public HttpPatchAttribute()
+        : base("PATCH")
     {
-        public HttpDeleteAttribute() : base("DELETE")
-        {
-        }
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class HttpDeleteAttribute : HttpMethodAttribute
+{
+    public HttpDeleteAttribute()
+        : base("DELETE")
+    {
     }
 }

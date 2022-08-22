@@ -5,60 +5,59 @@ using NSwag;
 
 // Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
+/// </summary>
+public static class BlueprintApiBuilderExtensions
 {
     /// <summary>
-    /// Extensions to <see cref="BlueprintApiBuilder" /> to add Application Insights integration.
+    /// Adds an OpenAPI query that will return an OpenAPI specification at /openapi.
     /// </summary>
-    public static class BlueprintApiBuilderExtensions
+    /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
+    /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
+    public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder)
     {
-        /// <summary>
-        /// Adds an OpenAPI query that will return an OpenAPI specification at /openapi.
-        /// </summary>
-        /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder)
+        pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
         {
-            pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
+            o.PostConfigure = d =>
             {
-                o.PostConfigure = d =>
+                d.Info = new OpenApiInfo
                 {
-                    d.Info = new OpenApiInfo
-                    {
-                        Title = "Auto-generated API specification",
-                    };
+                    Title = "Auto-generated API specification",
                 };
+            };
 
-                o.AddSchemaProcessor<BlueprintLinkSchemaProcessor>();
-            });
+            o.AddSchemaProcessor<BlueprintLinkSchemaProcessor>();
+        });
 
-            pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
+        pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
 
-            pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
+        pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
 
-            return pipelineBuilder;
-        }
+        return pipelineBuilder;
+    }
 
-        /// <summary>
-        /// Adds an OpenAPI query that will return an OpenAPI specification at /openapi.
-        /// </summary>
-        /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
-        /// <param name="configure">An action to configure the <see cref="OpenApiOptions"/>.</param>
-        /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
-        public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder, Action<OpenApiOptions> configure)
+    /// <summary>
+    /// Adds an OpenAPI query that will return an OpenAPI specification at /openapi.
+    /// </summary>
+    /// <param name="pipelineBuilder">The pipeline builder to configure.</param>
+    /// <param name="configure">An action to configure the <see cref="OpenApiOptions"/>.</param>
+    /// <returns>This <see cref="BlueprintApiBuilder" /> for further configuration.</returns>
+    public static BlueprintApiBuilder AddOpenApi(this BlueprintApiBuilder pipelineBuilder, Action<OpenApiOptions> configure)
+    {
+        pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
         {
-            pipelineBuilder.Services.AddOptions<OpenApiOptions>().Configure(o =>
-            {
-                o.AddSchemaProcessor<BlueprintLinkSchemaProcessor>();
+            o.AddSchemaProcessor<BlueprintLinkSchemaProcessor>();
 
-                configure(o);
-            });
+            configure(o);
+        });
 
-            pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
+        pipelineBuilder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<OpenApiDocumentBuilder>(s).Build());
 
-            pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
+        pipelineBuilder.Operations(o => o.AddOperation<OpenApiQuery>("AddOpenApi"));
 
-            return pipelineBuilder;
-        }
+        return pipelineBuilder;
     }
 }

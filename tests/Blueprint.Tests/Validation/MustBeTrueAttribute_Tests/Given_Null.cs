@@ -2,21 +2,20 @@ using Blueprint.Validation;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Validation.MustBeTrueAttribute_Tests
+namespace Blueprint.Tests.Validation.MustBeTrueAttribute_Tests;
+
+public class Given_Null
 {
-    public class Given_Null
+    [TestCase]
+    public void When_Null_Then_Valid()
     {
-        [TestCase]
-        public void When_Null_Then_Valid()
-        {
-            // ARRANGE
-            var attribute = new MustBeTrueAttribute();
+        // ARRANGE
+        var attribute = new MustBeTrueAttribute();
 
-            // ACT
-            var result = attribute.IsValid(null);
+        // ACT
+        var result = attribute.IsValid(null);
 
-            // ASSERT
-            result.Should().BeTrue();
-        }
+        // ASSERT
+        result.Should().BeTrue();
     }
 }

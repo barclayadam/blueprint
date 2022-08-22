@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Blueprint
+namespace Blueprint;
+
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+public sealed class UnexposedOperationAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public sealed class UnexposedOperationAttribute : Attribute
-    {
-    }
 }

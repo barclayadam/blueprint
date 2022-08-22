@@ -3,77 +3,76 @@ using System.Threading.Tasks;
 using Blueprint.Validation;
 using NUnit.Framework;
 
-namespace Blueprint.Tests.Validation.GreaterThanPropertyAttribute_Tests
+namespace Blueprint.Tests.Validation.GreaterThanPropertyAttribute_Tests;
+
+public class Given_DateTime_Value
 {
-    public class Given_DateTime_Value
+    public class Validatable
     {
-        public class Validatable
+        public DateTime? PropertyToCheckAgainst { get; set; }
+
+        [GreaterThanProperty("PropertyToCheckAgainst")]
+        public DateTime? MustBeGreaterThanProperty { get; set; }
+    }
+
+    [Test]
+    public async Task When_Value_Is_Equal_To_PropertyToCheck_Value_Then_InValid()
+    {
+        var date = DateTime.Now;
+
+        // Arrange
+        var validatable = new Validatable
         {
-            public DateTime? PropertyToCheckAgainst { get; set; }
+            PropertyToCheckAgainst = date,
+            MustBeGreaterThanProperty = date
+        };
 
-            [GreaterThanProperty("PropertyToCheckAgainst")]
-            public DateTime? MustBeGreaterThanProperty { get; set; }
-        }
+        var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
 
-        [Test]
-        public async Task When_Value_Is_Equal_To_PropertyToCheck_Value_Then_InValid()
+        // Act
+        var failures = await validator.GetValidationResultsAsync(validatable, null);
+        var failedProperties = failures.AsDictionary().Keys;
+
+        // Assert
+        CollectionAssert.Contains(failedProperties, "MustBeGreaterThanProperty");
+    }
+
+    [Test]
+    public async Task When_Value_Is_Greater_Than_PropertyToCheck_Value_Then_Valid()
+    {
+        // Arrange
+        var validatable = new Validatable
         {
-            var date = DateTime.Now;
+            PropertyToCheckAgainst = DateTime.Now,
+            MustBeGreaterThanProperty = DateTime.Now.AddDays(1)
+        };
 
-            // Arrange
-            var validatable = new Validatable
-            {
-                PropertyToCheckAgainst = date,
-                MustBeGreaterThanProperty = date
-            };
+        var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
 
-            var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
+        // Act
+        var failures = await validator.GetValidationResultsAsync(validatable, null);
+        var failedProperties = failures.AsDictionary().Keys;
 
-            // Act
-            var failures = await validator.GetValidationResultsAsync(validatable, null);
-            var failedProperties = failures.AsDictionary().Keys;
+        // Assert
+        CollectionAssert.DoesNotContain(failedProperties, "MustBeGreaterThanProperty");
+    }
 
-            // Assert
-            CollectionAssert.Contains(failedProperties, "MustBeGreaterThanProperty");
-        }
-
-        [Test]
-        public async Task When_Value_Is_Greater_Than_PropertyToCheck_Value_Then_Valid()
+    public async Task When_Value_Is_Less_Than_PropertyToCheck_Value_Then_InValid()
+    {
+        // Arrange
+        var validatable = new Validatable
         {
-            // Arrange
-            var validatable = new Validatable
-            {
-                PropertyToCheckAgainst = DateTime.Now,
-                MustBeGreaterThanProperty = DateTime.Now.AddDays(1)
-            };
+            PropertyToCheckAgainst = DateTime.Now,
+            MustBeGreaterThanProperty = DateTime.Now.AddDays(-1)
+        };
 
-            var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
+        var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
 
-            // Act
-            var failures = await validator.GetValidationResultsAsync(validatable, null);
-            var failedProperties = failures.AsDictionary().Keys;
+        // Act
+        var failures = await validator.GetValidationResultsAsync(validatable, null);
+        var failedProperties = failures.AsDictionary().Keys;
 
-            // Assert
-            CollectionAssert.DoesNotContain(failedProperties, "MustBeGreaterThanProperty");
-        }
-
-        public async Task When_Value_Is_Less_Than_PropertyToCheck_Value_Then_InValid()
-        {
-            // Arrange
-            var validatable = new Validatable
-            {
-                PropertyToCheckAgainst = DateTime.Now,
-                MustBeGreaterThanProperty = DateTime.Now.AddDays(-1)
-            };
-
-            var validator = new BlueprintValidator(new IValidationSource[] { new DataAnnotationsValidationSource() });
-
-            // Act
-            var failures = await validator.GetValidationResultsAsync(validatable, null);
-            var failedProperties = failures.AsDictionary().Keys;
-
-            // Assert
-            CollectionAssert.Contains(failedProperties, "MustBeGreaterThanProperty");
-        }
+        // Assert
+        CollectionAssert.Contains(failedProperties, "MustBeGreaterThanProperty");
     }
 }

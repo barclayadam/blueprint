@@ -1,19 +1,19 @@
 ﻿using Blueprint.Authorisation;
 using Blueprint.Http;
 
-namespace Blueprint.Sample.WebApi.Api
-{
-    [RootLink("source")]
-    [AllowAnonymous]
-    public class SourceCodeQuery : IQuery<PlainTextResult>
-    {
-        public PlainTextResult Invoke(IApiOperationExecutor executor)
-        {
-            var codeDidIGenerate = ((CodeGennedExecutor)executor).WhatCodeDidIGenerate()
-                .Replace("<", "&lt;")
-                .Replace(">", "&gt;");
+namespace Blueprint.Sample.WebApi.Api;
 
-            var template = $@"
+[RootLink("source")]
+[AllowAnonymous]
+public class SourceCodeQuery : IQuery<PlainTextResult>
+{
+    public PlainTextResult Invoke(IApiOperationExecutor executor)
+    {
+        var codeDidIGenerate = ((CodeGennedExecutor)executor).WhatCodeDidIGenerate()
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+
+        var template = $@"
 <!DOCTYPE html>
 <html>
 <body>
@@ -25,10 +25,9 @@ namespace Blueprint.Sample.WebApi.Api
 </body>
 </html>";
 
-            return new PlainTextResult(template)
-            {
-                ContentType = "text/html"
-            };
-        }
+        return new PlainTextResult(template)
+        {
+            ContentType = "text/html"
+        };
     }
 }

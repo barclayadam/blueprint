@@ -1,19 +1,18 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Blueprint.Tasks
+namespace Blueprint.Tasks;
+
+/// <summary>
+/// A builder that is used to configure the client-side of tasks feature.
+/// </summary>
+public class BlueprintTasksClientBuilder : BlueprintTasksBuilder
 {
     /// <summary>
-    /// A builder that is used to configure the client-side of tasks feature.
+    /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
     /// </summary>
-    public class BlueprintTasksClientBuilder : BlueprintTasksBuilder
+    /// <param name="serviceCollection">The service collection being configured.</param>
+    public BlueprintTasksClientBuilder(IServiceCollection serviceCollection)
+        : base(serviceCollection)
     {
-        /// <summary>
-        /// Initialises a new instance of the <see cref="BlueprintTasksClientBuilder" /> class.
-        /// </summary>
-        /// <param name="serviceCollection">The service collection being configured.</param>
-        public BlueprintTasksClientBuilder(IServiceCollection serviceCollection)
-            : base(serviceCollection)
-        {
-        }
     }
 }
