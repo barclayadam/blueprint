@@ -75,7 +75,7 @@ public class Variable
     /// How this variable should be used throughout the code, typically it's name but can also be a derived code
     /// snippet (i.e. may be <code>$"{anotherVariable}.nameof(AnotherVariableType.Property)"</code>);
     /// </summary>
-    public string Usage { get; protected set; }
+    public virtual string Usage { get; protected set; }
 
     /// <summary>
     /// The creating <see cref="Frame" />.
@@ -258,12 +258,7 @@ public class Variable
             return true;
         }
 
-        if (obj.GetType() != this.GetType())
-        {
-            return false;
-        }
-
-        return this.Equals((Variable)obj);
+        return obj is Variable v && this.Equals(v);
     }
 
     /// <inheritdoc/>
