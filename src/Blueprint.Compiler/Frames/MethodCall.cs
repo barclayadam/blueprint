@@ -20,11 +20,30 @@ namespace Blueprint.Compiler.Frames
 
         private Variable _target;
 
-        public MethodCall(Type handlerType, string methodName) : this(handlerType, handlerType.GetMethod(methodName))
+        /// <summary>
+        /// Initialises a new instance of the <see cref="MethodCall" /> class
+        /// representing a call to a method on the type <paramref name="handlerType" />
+        /// with the given name.
+        /// </summary>
+        /// <remarks>
+        /// A method must exist with exactly the given name, that is a public
+        /// instance method.
+        /// </remarks>
+        /// <param name="handlerType">The class the method belongs to.</param>
+        /// <param name="methodName">The exact name of the method to call.</param>
+        public MethodCall(Type handlerType, string methodName)
+            : this(handlerType, handlerType.GetMethod(methodName))
         {
         }
 
-        public MethodCall(Type handlerType, MethodInfo methodInfo) : base(methodInfo.IsAsync())
+        /// <summary>
+        /// Initialises a new instance of the <see cref="MethodCall" /> class
+        /// representing a call to a method on the type <paramref name="handlerType" />.
+        /// </summary>
+        /// <param name="handlerType">The class the method belongs to.</param>
+        /// <param name="methodInfo">The method to call.</param>
+        public MethodCall(Type handlerType, MethodInfo methodInfo)
+            : base(methodInfo.IsAsync())
         {
             this._handlerType = handlerType;
             this._methodInfo = methodInfo;
@@ -43,7 +62,7 @@ namespace Blueprint.Compiler.Frames
                 {
                     var name = returnType.IsSimple() || returnType == typeof(object) || returnType == typeof(object[])
                         ? "result_of_" + methodInfo.Name
-                        : Variable.DefaultArgName(returnType);
+                        : Variable.DefaultName(returnType);
 
                     this.ReturnVariable = new Variable(returnType, name, this);
                 }
@@ -99,10 +118,29 @@ namespace Blueprint.Compiler.Frames
             }
         }
 
+        /// <summary>
+        /// The variable arguments to this method call, positioned in the same
+        /// as the source of the method being called.
+        /// </summary>
         public Variable[] Arguments { get; }
 
+        /// <summary>
+        /// Determines how the return variable of this method call should be disposed,
+        /// if applicable.
+        /// </summary>
         public DisposalMode DisposalMode { get; set; } = DisposalMode.UsingBlock;
 
+        /// <summary>
+        /// Creates a new <see cref="MethodCall" /> frame that is represented in
+        /// the given <see cref="Expression{T}" />
+        /// </summary>
+        /// <remarks>
+        /// The arguments to the method are completely ignored.
+        /// </remarks>
+        /// <typeparam name="T">The type from which an instance method will be called.</typeparam>
+        /// <param name="expression">An expression (with default arguments filled) that
+        /// represents a call to the method to use.</param>
+        /// <returns>A new <see cref="MethodCall" />.</returns>
         public static MethodCall For<T>(Expression<Action<T>> expression)
         {
             var method = ReflectionHelper.GetMethod(expression);
@@ -110,6 +148,13 @@ namespace Blueprint.Compiler.Frames
             return new MethodCall(typeof(T), method);
         }
 
+        /// <summary>
+        /// Tries to set an argument of this method call, finding the single
+        /// argument that matches the given variable's type.
+        /// </summary>
+        /// <param name="variable">The variable to set as an argument.</param>
+        /// <returns>Whether the call succeeded, meaning there was exactly one argument
+        /// with a matching type.</returns>
         public bool TrySetArgument(Variable variable)
         {
             var parameterTypes = this._parameters.Select(x => x.ParameterType).ToArray();
@@ -125,6 +170,14 @@ namespace Blueprint.Compiler.Frames
             return true;
         }
 
+        /// <summary>
+        /// Tries to set an argument of this method call, finding the single
+        /// argument that matches the given variable's type and name (case sensitive).
+        /// </summary>
+        /// <param name="parameterName">The case-sensitive name of the parameter.</param>
+        /// <param name="variable">The variable to set as an argument.</param>
+        /// <returns>Whether the call succeeded, meaning there was exactly one argument
+        /// with a matching type and name.</returns>
         public bool TrySetArgument(string parameterName, Variable variable)
         {
             var matching = this._parameters.FirstOrDefault(x =>

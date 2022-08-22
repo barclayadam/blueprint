@@ -89,7 +89,7 @@ namespace Blueprint.Compiler.Tests.Scenarios
 
             assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));
 
-            return new CodegenResult<TObject>(generatedType.CreateInstance<TObject>(), generatedType.SourceCode);
+            return new CodegenResult<TObject>(generatedType.CreateInstance<TObject>(), generatedType.GeneratedSourceCode);
         }
     }
 }

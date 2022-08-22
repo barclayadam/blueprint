@@ -18,7 +18,7 @@ namespace Blueprint.Compiler.Frames
         /// <param name="variableType">The type of the variable to be created.</param>
         /// <param name="rhs">The right hand side of the statement.</param>
         public VariableCreationFrame(Type variableType, string rhs)
-            : this(variableType, Variable.DefaultArgName(variableType), rhs)
+            : this(variableType, Variable.DefaultName(variableType), rhs)
         {
         }
 

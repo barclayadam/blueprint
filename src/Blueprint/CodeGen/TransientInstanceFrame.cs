@@ -2,6 +2,7 @@
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.CodeGen
@@ -40,7 +41,7 @@ namespace Blueprint.CodeGen
 
             // We import this namespace to allow using extension method invocation, which cleans up the
             // generated code quite a bit for this use case.
-            method.GeneratedType.Namespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
+            method.GeneratedType.UsingNamespaces.Add(typeof(ServiceProviderServiceExtensions).Namespace);
 
             writer.WriteLine(
                 $"var {this.InstanceVariable} = {serviceProviderVariable}.{nameof(ServiceProviderServiceExtensions.GetRequiredService)}<{this._constructedType.FullNameInCode()}>();");

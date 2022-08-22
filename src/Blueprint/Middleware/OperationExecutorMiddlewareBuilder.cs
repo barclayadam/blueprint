@@ -4,6 +4,7 @@ using System.Linq;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Blueprint.Diagnostics;
 
 namespace Blueprint.Middleware

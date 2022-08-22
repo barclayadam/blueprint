@@ -8,11 +8,17 @@ using Microsoft.Extensions.Logging;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Extensions to <see cref="BlueprintAuditBuilder" /> to add SQL server integration.
+    /// </summary>
     public static class BlueprintAuditBuilderExtensions
     {
         /// <summary>
         /// Configures Blueprint to use SQL Server to store audit information, using the tables specified to store data.
         /// </summary>
+        /// <param name="builder">The builder to configure.</param>
+        /// <param name="connectionString">A connection string to use to connect to the SQL server instance.</param>
+        /// <param name="tableName">The name of the table to store the audit trail in.</param>
         public static void StoreInSqlServer(
             this BlueprintAuditBuilder builder,
             string connectionString,
@@ -37,6 +43,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// and <see cref="SqlServerAuditorConfiguration" />, but relies on a <see cref="IDatabaseConnectionFactory" /> registration being made
         /// elsewhere.
         /// </summary>
+        /// <param name="builder">The builder to configure.</param>
+        /// <param name="tableName">The name of the table to store the audit trail in.</param>
         public static void StoreInSqlServer(
             this BlueprintAuditBuilder builder,
             string tableName)

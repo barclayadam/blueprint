@@ -8,9 +8,18 @@ using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A collection of <see cref="Frame" />s.
+    /// </summary>
     public class FramesCollection : IReadOnlyList<Frame>
     {
         private readonly List<Frame> _frames = new List<Frame>();
+
+        /// <inheritdoc />
+        public int Count => this._frames.Count;
+
+        /// <inheritdoc />
+        public Frame this[int index] => this._frames[index];
 
         /// <summary>
         /// Adds the specified <see cref="Frame" /> to this collection.
@@ -114,11 +123,10 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Adds a ConstructorFrame{T} to the method frames.
         /// </summary>
-        /// <param name="constructor"></param>
+        /// <param name="constructor">An expression representing the call to a constructor.</param>
         /// <param name="configure">Optional, any additional configuration for the constructor frame.</param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type that will be constructed, inferred from the given expression.</typeparam>
         /// <returns>This frame collection.</returns>
-        /// <exception cref="NotImplementedException"></exception>
         public FramesCollection CallConstructor<T>(Expression<Func<T>> constructor, Action<ConstructorFrame<T>> configure = null)
         {
             var frame = new ConstructorFrame<T>(constructor);
@@ -131,7 +139,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Add a frame to the end by its type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of frame to add.</typeparam>
         /// <returns>This frame collection.</returns>
         public FramesCollection Append<T>() where T : Frame, new()
         {
@@ -141,7 +149,7 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Append one or more frames to the end.
         /// </summary>
-        /// <param name="frames"></param>
+        /// <param name="frames">The <see cref="Frame" />s to add.</param>
         /// <returns>This frame collection.</returns>
         public FramesCollection Append(params Frame[] frames)
         {
@@ -153,9 +161,9 @@ namespace Blueprint.Compiler
         /// Convenience method to add a method call to the GeneratedMethod Frames
         /// collection.
         /// </summary>
-        /// <param name="expression"></param>
+        /// <param name="expression">An expression representing a method call.</param>
         /// <param name="configure">Optional configuration of the MethodCall.</param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type from which to call a method.</typeparam>
         /// <returns>This frame collection.</returns>
         public FramesCollection Call<T>(Expression<Action<T>> expression, Action<MethodCall> configure = null)
         {
@@ -166,6 +174,12 @@ namespace Blueprint.Compiler
             return this;
         }
 
+        /// <summary>
+        /// Writes this frame collection to the given writer, looping around all children and calling <see cref="Frame.GenerateCode" />.
+        /// </summary>
+        /// <param name="variables">The variable source.</param>
+        /// <param name="method">The method being written.</param>
+        /// <param name="writer">The source writer.</param>
         public void Write(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer)
         {
             foreach (var frame in this)
@@ -185,11 +199,5 @@ namespace Blueprint.Compiler
         {
             return ((IEnumerable)this._frames).GetEnumerator();
         }
-
-        /// <inheritdoc />
-        public int Count => this._frames.Count;
-
-        /// <inheritdoc />
-        public Frame this[int index] => this._frames[index];
     }
 }

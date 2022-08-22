@@ -37,19 +37,6 @@ namespace Blueprint.Compiler.Tests.Codegen
         }
 
         [Test]
-        public void write_for_return_task()
-        {
-            var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
-
-            IfTheAsyncMode = AsyncMode.ReturnCompletedTask;
-
-            theWriter.Return(theMethod);
-
-            theWriter.Code().ReadLines().Single()
-                .Should().Be(expected);
-        }
-
-        [Test]
         public void write_for_return_from_last_node()
         {
             var expected = $"return {typeof(Task).FullName}.{nameof(Task.CompletedTask)};";
@@ -72,19 +59,6 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             theWriter.Code().ReadLines().Single()
                 .Should().Be("return name;");
-        }
-
-        [Test]
-        public void write_for_variable_and_return_task()
-        {
-            var expected = $"return {typeof(Task).FullName}.{nameof(Task.FromResult)}(name);";
-
-            IfTheAsyncMode = AsyncMode.ReturnCompletedTask;
-
-            theWriter.Return(theMethod, aVariable);
-
-            theWriter.Code().ReadLines().Single()
-                .Should().Be(expected);
         }
 
         [Test]

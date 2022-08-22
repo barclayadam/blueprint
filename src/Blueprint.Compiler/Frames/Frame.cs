@@ -4,6 +4,10 @@ using Blueprint.Compiler.Model;
 
 namespace Blueprint.Compiler.Frames
 {
+    /// <summary>
+    /// Represents a single piece of code (not necessarily a single line) that,
+    /// when combined with other can create the body of a <see cref="GeneratedMethod" />.
+    /// </summary>
     public abstract class Frame
     {
         private readonly List<Variable> _creates = new List<Variable>();
@@ -71,6 +75,10 @@ namespace Blueprint.Compiler.Frames
             this.Generate(new MethodVariableUsageRecorder(variables, this._uses), method, writer, this.Next);
         }
 
+        /// <summary>
+        /// Determines whether this frame can return a <see cref="Task" />.
+        /// </summary>
+        /// <returns>Whether this Frame can return a <see cref="Task" /></returns>
         public virtual bool CanReturnTask()
         {
             return false;

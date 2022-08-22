@@ -23,7 +23,7 @@ namespace Blueprint.Compiler.Tests.Codegen
 
             assembly.CompileAll();
 
-            type.SourceCode.ReadLines().Select(l => l.Trim()).Should().ContainInOrder(
+            type.GeneratedSourceCode.ReadLines().Select(l => l.Trim()).Should().ContainInOrder(
                 "// Start of method",
                 "// SourceFrame",
                 "// CustomFrame");

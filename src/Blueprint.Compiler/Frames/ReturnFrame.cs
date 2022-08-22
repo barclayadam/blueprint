@@ -1,29 +1,55 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler.Frames
 {
+    /// <summary>
+    /// A simple <see cref="Frame" /> that represents a <c>return</c> expression.
+    /// </summary>
     public class ReturnFrame : SyncFrame
     {
         private readonly Type _returnType;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ReturnFrame" /> that
+        /// has no return type / variable (i.e. a  <c>void</c> method).
+        /// </summary>
         public ReturnFrame()
         {
         }
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ReturnFrame" /> that
+        /// has the specified return type.
+        /// </summary>
+        /// <param name="returnType">The type of return for this frame, which should
+        /// match that of the parent <see cref="GeneratedMethod" />.</param>
         public ReturnFrame(Type returnType)
         {
             this._returnType = returnType;
         }
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ReturnFrame" /> that
+        /// returns the given <see cref="Variable" />.
+        /// </summary>
+        /// <param name="returnVariable">The variable to return, which should
+        /// have a type matcing that of the parent <see cref="GeneratedMethod" />.
+        /// </param>
         public ReturnFrame(Variable returnVariable)
         {
             this.ReturnedVariable = returnVariable;
         }
 
+        /// <summary>
+        /// The returned <see cref="Variable" />, if any (i.e. if not a <c>void</c>
+        /// method).
+        /// </summary>
         public Variable ReturnedVariable { get; private set; }
 
+        /// <inheritdoc />
         protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
         {
             if (this.ReturnedVariable == null && this._returnType != null)

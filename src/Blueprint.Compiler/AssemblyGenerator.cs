@@ -203,11 +203,7 @@ namespace Blueprint.Compiler
 
                         var allCode = string.Join("\n\n", this._files.Select(f => f.Code));
 
-                        throw new CompilationException(exceptionMessage.ToString())
-                        {
-                            Failures = failures,
-                            Code = allCode,
-                        };
+                        throw new CompilationException(exceptionMessage.ToString(), failures, allCode);
                     }
                 });
 

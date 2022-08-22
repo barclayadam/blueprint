@@ -22,7 +22,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [TestCase(typeof(AGenericClass<AGenericClass<IBall>>), "ballAGenericClassAGenericClass")]
         public void determine_return_value_of_simple_type(Type argType, string expected)
         {
-            Variable.DefaultArgName(argType).Should().Be(expected);
+            Variable.DefaultName(argType).Should().Be(expected);
         }
 
         interface IBall {}

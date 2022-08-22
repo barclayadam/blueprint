@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Blueprint.Authorisation;
-using Blueprint.Middleware;
 using Blueprint.Utilities;
 
 namespace Blueprint.Configuration

@@ -14,7 +14,8 @@ namespace Blueprint.Compiler.Frames
         /// </summary>
         /// <param name="variable">The variable to check.</param>
         /// <param name="inner">The inner frames that will be executed in the case the variable is not null.</param>
-        public IfNotNullBlock(Variable variable, params Frame[] inner) : base($"{variable} != null", inner)
+        public IfNotNullBlock(Variable variable, params Frame[] inner)
+            : base($"{variable} != null", inner)
         {
         }
     }

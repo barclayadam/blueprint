@@ -24,7 +24,7 @@ namespace Blueprint.Compiler.Tests.Codegen
         [Test]
         public void has_creation_variables_for_the_tuple_types()
         {
-            theCall.Creates.Should().BeSubsetOf(new [] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
+            theCall.Creates.Should().BeSubsetOf(new Variable[] { Variable.For<Red>(), Variable.For<Blue>(), Variable.For<Green>() });
         }
     }
 }

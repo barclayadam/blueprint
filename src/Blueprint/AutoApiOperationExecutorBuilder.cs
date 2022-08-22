@@ -76,7 +76,7 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
 
             sourceCodeMappings.Add(
                 operation,
-                () => pipelineExecutorType.SourceCode);
+                () => pipelineExecutorType.GeneratedSourceCode);
         }
 
         assembly.CompileAll(new IncrementalAssemblyGenerator(preloadedTypes, this._folder, this._inner));

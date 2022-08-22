@@ -20,6 +20,7 @@ namespace Blueprint.OpenApi
         /// </summary>
         /// <param name="httpContext">The <see cref="HttpContext" />.</param>
         /// <param name="openApiDocument">The <see cref="OpenApiDocument" />, as built by the <see cref="OpenApiDocumentBuilder" />.</param>
+        /// <param name="context">The API operation context.</param>
         /// <param name="options">The options to configure the OpenAPI document.</param>
         /// <returns>An OpenAPI representation.</returns>
         public PlainTextResult Invoke(

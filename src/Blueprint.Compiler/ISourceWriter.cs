@@ -1,7 +1,21 @@
-﻿namespace Blueprint.Compiler
+﻿using System.Text;
+
+namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A source writer provides a means of generating C# source code, working very much like a <see cref="StringBuilder" />
+    /// but with some code-specific methods, and automatic indentation handling.
+    /// </summary>
     public interface ISourceWriter
     {
+        /// <summary>
+        /// Gets the current indentation level of this writer (i.e. increased within an if/try/while/* scope, decreased
+        /// outside).
+        /// </summary>
+        /// <see cref="Block" />
+        /// <see cref="FinishBlock" />
+        int IndentationLevel { get; }
+
         /// <summary>
         /// Writes a blank line into the code being generated.
         /// </summary>
@@ -64,13 +78,5 @@
         /// <param name="extra">The (optional) text to write.</param>
         /// <returns>This source writer.</returns>
         ISourceWriter FinishBlock(string extra = null);
-
-        /// <summary>
-        /// Gets the current indentation level of this writer (i.e. increased within an if/try/while/* scope, decreased
-        /// outside).
-        /// </summary>
-        /// <see cref="Block" />
-        /// <see cref="FinishBlock" />
-        int IndentationLevel { get; }
     }
 }

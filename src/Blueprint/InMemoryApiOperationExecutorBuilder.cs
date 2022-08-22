@@ -32,7 +32,7 @@ public class InMemoryApiOperationExecutorBuilder : IApiOperationExecutorBuilder
 
             sourceCodeMappings.Add(
                 operation,
-                () => pipelineExecutorType.SourceCode);
+                () => pipelineExecutorType.GeneratedSourceCode);
         }
 
         assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));

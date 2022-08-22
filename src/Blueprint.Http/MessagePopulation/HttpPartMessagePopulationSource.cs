@@ -6,6 +6,7 @@ using System.Reflection;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
+using Blueprint.Compiler.Util;
 using Blueprint.Middleware;
 using Blueprint.ThirdParty;
 using Blueprint.Utilities;

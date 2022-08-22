@@ -41,7 +41,6 @@ namespace Blueprint.Utilities
             return date.Date > SystemTime.UtcNow.Date;
         }
 
-
         /// <summary>
         /// Returns a value indicating whether of not this date is in the future, based on the
         /// value of <see cref="SystemTime.UtcNow"/>.

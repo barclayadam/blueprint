@@ -9,6 +9,9 @@ using Blueprint.Compiler.Util;
 
 namespace Blueprint.Compiler
 {
+    /// <summary>
+    /// A method, declared on a <see cref="GeneratedType" />.
+    /// </summary>
     public class GeneratedMethod : IMethodVariables
     {
         // The variables that are used / created within the body of this GeneratedMethod. Keeps track of
@@ -211,8 +214,8 @@ namespace Blueprint.Compiler
                         this.GeneratedType.AllInjectedFields.Add(field);
                         break;
 
-                    case Setter setter:
-                        this.GeneratedType.Setters.Add(setter);
+                    case Property setter:
+                        this.GeneratedType.Properties.Add(setter);
                         break;
 
                     case StaticField staticField:
@@ -281,7 +284,7 @@ namespace Blueprint.Compiler
 
         private void WriteReturnStatement(ISourceWriter writer)
         {
-            if ((this.AsyncMode == AsyncMode.ReturnCompletedTask || this.AsyncMode == AsyncMode.None) && this.ReturnType == typeof(Task))
+            if (this.AsyncMode == AsyncMode.None && this.ReturnType == typeof(Task))
             {
                 writer.WriteLine("return Task.CompletedTask;");
             }
@@ -401,6 +404,11 @@ namespace Blueprint.Compiler
             }
 
             return null;
+        }
+
+        internal void RegisterFrame(Frame frame)
+        {
+            this._allRegisteredFrames.Add(frame);
         }
 
         private class MethodSourceWriter : IMethodSourceWriter
@@ -579,11 +587,6 @@ namespace Blueprint.Compiler
 
                 return variable;
             }
-        }
-
-        internal void RegisterFrame(Frame frame)
-        {
-            this._allRegisteredFrames.Add(frame);
         }
     }
 }
