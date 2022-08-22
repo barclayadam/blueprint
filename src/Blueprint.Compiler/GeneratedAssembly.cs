@@ -70,10 +70,8 @@ namespace Blueprint.Compiler
             return generatedType;
         }
 
-        public void CompileAll(ICompileStrategy compileStrategy)
+        public void CompileAll(IAssemblyGenerator generator)
         {
-            var generator = new AssemblyGenerator(compileStrategy);
-
             foreach (var assemblyReference in this._assemblies)
             {
                 generator.ReferenceAssembly(assemblyReference);
@@ -122,16 +120,14 @@ namespace Blueprint.Compiler
                 var code = writer.Code();
 
                 generatedType.SourceCode = code;
-                generator.AddFile($"{generatedType.Namespace.Replace(".", "/")}/{generatedType.TypeName}.cs", code);
+                generator.AddFile(generatedType, code);
             }
 
-            var assembly = generator.Generate(this._generationRules);
-
-            var generated = assembly.GetExportedTypes().ToArray();
+            var generatedTypes = generator.Generate(this._generationRules);
 
             foreach (var generatedType in this.GeneratedTypes)
             {
-                generatedType.FindType(generated);
+                generatedType.FindType(generatedTypes);
             }
         }
     }

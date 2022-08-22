@@ -1,9 +1,10 @@
-using System;
+using System.Reflection;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
-using Microsoft.CodeAnalysis;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Blueprint.Configuration
 {
@@ -14,70 +15,70 @@ namespace Blueprint.Configuration
         internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder)
         {
             this._blueprintApiBuilder = blueprintApiBuilder;
+
+            // By default we will apply a "smart" system where we use the auto strategy in development and
+            // static in production.
+            this._blueprintApiBuilder.Services.AddSingleton<IApiOperationExecutorBuilder>(s =>
+            {
+                var hostingEnvironment = s.GetRequiredService<IHostEnvironment>();
+
+                var isDevelopment = hostingEnvironment.IsDevelopment();
+
+                if (isDevelopment)
+                {
+                    return new AutoApiOperationExecutorBuilder(blueprintApiBuilder.Options.PipelineAssembly, blueprintApiBuilder.Options.GeneratedCodeFolder);
+                }
+
+                return new StaticApiOperationExecutorBuilder(blueprintApiBuilder.Options.PipelineAssembly);
+            });
         }
 
         /// <summary>
         /// Registers the <see cref="InMemoryOnlyCompileStrategy" /> as compilation strategy
         /// to use.
         /// </summary>
+        /// <param name="assemblyName">The name of the assembly to use for the generated code. If this is <c>null</c>
+        /// then the assembly name will be auto picked.</param>
         /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder UseInMemoryCompileStrategy()
+        public BlueprintCompilationBuilder UseInMemoryStrategy([CanBeNull] string assemblyName = null)
         {
-            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy, InMemoryOnlyCompileStrategy>();
+            this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder, InMemoryApiOperationExecutorBuilder>());
+
+            if (assemblyName != null)
+            {
+                this._blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
+            }
 
             return this;
         }
 
         /// <summary>
-        /// Registers the <see cref="UseFileCompileStrategy" /> as compilation strategy, compiling to the
-        /// given output folder.
+        /// Uses a <see cref="AutoApiOperationExecutorBuilder" /> that means the pipelines could have been been built
+        /// previously and compiled in to the given assembly, but if not will be compiled in-memory and source written
+        /// to the given folder for subsequent compilation into the assembly.
+        /// </summary>
+        /// <param name="pipelineAssembly">The assembly to load pre-existing pipeline handlers from.</param>
+        /// <param name="generatedCodeFolder">The folder into which we should write the pipeline handler source files.</param>
+        /// <returns>This builder.</returns>
+        public BlueprintCompilationBuilder UseAutoStrategy(Assembly pipelineAssembly, string generatedCodeFolder)
+        {
+            this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder>(
+                c => new AutoApiOperationExecutorBuilder(pipelineAssembly, generatedCodeFolder)));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Uses a <see cref="StaticApiOperationExecutorBuilder" /> that means the pipelines must have all been built
+        /// previously and compiled in to the given assembly.
         /// to use.
         /// </summary>
-        /// <param name="path">The output folder to store the compiled DLL in.</param>
+        /// <param name="pipelineAssembly">The assembly to load pre-existing pipeline handlers from.</param>
         /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder UseFileCompileStrategy(string path)
+        public BlueprintCompilationBuilder UseStaticStrategy(Assembly pipelineAssembly)
         {
-            this._blueprintApiBuilder.Services.AddSingleton<ICompileStrategy>(
-                c => new ToFileCompileStrategy(c.GetRequiredService<ILogger<ToFileCompileStrategy>>(), path));
-
-            return this;
-        }
-
-        /// <summary>
-        /// Uses the specified optimization level when compiling the pipelines.
-        /// </summary>
-        /// <param name="optimizationLevel">Optimization level to use.</param>
-        /// <returns>This builder.</returns>
-        public BlueprintCompilationBuilder UseOptimizationLevel(OptimizationLevel optimizationLevel)
-        {
-            this._blueprintApiBuilder.Options.GenerationRules.OptimizationLevel = optimizationLevel;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the name of the assembly that is generated when compiling the executor pipelines.
-        /// </summary>
-        /// <param name="assemblyName">The name of the assembly to use.</param>
-        /// <returns>This builder</returns>
-        public BlueprintCompilationBuilder AssemblyName(string assemblyName)
-        {
-            Guard.NotNullOrEmpty(nameof(assemblyName), assemblyName);
-
-            this._blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Customise the <see cref="GenerationRules" /> further, rules that are used when
-        /// compiling the pipelines.
-        /// </summary>
-        /// <param name="editor">The action to run with the <see cref="GenerationRules"/> to modify.</param>
-        /// <returns>This builder</returns>
-        public BlueprintCompilationBuilder ConfigureRules(Action<GenerationRules> editor)
-        {
-            editor(this._blueprintApiBuilder.Options.GenerationRules);
+            this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder>(
+                c => new StaticApiOperationExecutorBuilder(pipelineAssembly)));
 
             return this;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using Blueprint.Compiler;
 using Microsoft.CodeAnalysis;
 
@@ -39,9 +40,16 @@ namespace Blueprint.Configuration
         public List<IMiddlewareBuilder> MiddlewareBuilders { get; } = new List<IMiddlewareBuilder>();
 
         /// <summary>
-        /// Gets the name of the application, which is used when generating the DLL for the pipeline
-        /// executors.
+        /// The pipeline assembly, which is the entry assembly for this application and where precompiled
+        /// pipeline types can be expected to be loaded from.
         /// </summary>
-        public string ApplicationName { get; set; }
+        public Assembly PipelineAssembly { get; set; }
+
+        /// <summary>
+        /// The folder into which generated pipeline code should be placed. This should be a folder that will
+        /// be included in the <see cref="PipelineAssembly" /> on compilation to ensure the auto strategy can
+        /// work.
+        /// </summary>
+        public string GeneratedCodeFolder { get; set; }
     }
 }

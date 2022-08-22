@@ -40,14 +40,10 @@ namespace Blueprint.Sample.WebApi
 
             services.AddBlueprintApi(b => b
                 .Http()
-                .SetApplicationName("SampleWebApi")
                 .Operations(o => o.Scan(typeof(WebApi.Startup).Assembly))
                 .AddTasksClient(t => t.UseHangfire())
                 .AddOpenApi()
-                .AddLogging()
-                .AddHateoasLinks()
                 .AddAuthentication(a => a.UseContextLoader<AnonymousUserAuthorisationContextFactory>())
-                .AddAuthorisation()
                 .AddResourceEvents<NullResourceEventRepository>());
         }
 

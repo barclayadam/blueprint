@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -11,17 +10,42 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Blueprint.Compiler
 {
+    public interface IAssemblyGenerator
+    {
+        /// <summary>
+        /// Tells Roslyn to reference the given assembly and any of its dependencies
+        /// when compiling code.
+        /// </summary>
+        /// <param name="assembly">The assembly to reference.</param>
+        void ReferenceAssembly(Assembly assembly);
+
+        /// <summary>
+        /// Adds a file to this assembly with the specified name and code.
+        /// </summary>
+        /// <param name="fileName">The name of the file, which may contain</param>
+        /// <param name="code">The code of the file.</param>
+        /// <exception cref="ArgumentException">If a file of the same name already exists.</exception>
+        void AddFile(GeneratedType fileName, string code);
+
+        /// <summary>
+        /// Compile the code passed into this method to a new assembly which is loaded in to the current application.
+        /// </summary>
+        /// <param name="rules">Rules that are used to control the generation of the <see cref="Assembly"/>.</param>
+        /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
+        Type[] Generate(GenerationRules rules);
+    }
+
     /// <summary>
     /// Used to compile C# code to in memory assemblies using the Roslyn compiler.
     /// </summary>
-    public class AssemblyGenerator
+    public class AssemblyGenerator : IAssemblyGenerator
     {
         private readonly ICompileStrategy _compileStrategy;
 
-        private readonly List<Assembly> _referencedAssemblies = new List<Assembly>();
+        private readonly List<Assembly> _referencedAssemblies = new();
 
-        private readonly List<(string Reference, Exception Exception)> _referenceErrors = new List<(string Reference, Exception Exception)>();
-        private readonly List<SourceFile> _files = new List<SourceFile>();
+        private readonly List<(string Reference, Exception Exception)> _referenceErrors = new();
+        private readonly List<SourceFile> _files = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssemblyGenerator" /> class.
@@ -59,11 +83,13 @@ namespace Blueprint.Compiler
         /// <summary>
         /// Adds a file to this assembly with the specified name and code.
         /// </summary>
-        /// <param name="fileName">The name of the file, which may contain</param>
+        /// <param name="generatedType">The type this file represents.</param>
         /// <param name="code">The code of the file.</param>
         /// <exception cref="ArgumentException">If a file of the same name already exists.</exception>
-        public void AddFile(string fileName, string code)
+        public void AddFile(GeneratedType generatedType, string code)
         {
+            var fileName = $"{generatedType.Namespace.Replace(".", "/")}/{generatedType.TypeName}.cs";
+            
             if (this._files.Any(f => f.FileName == fileName))
             {
                 throw new ArgumentException($"A source file with the name {fileName} has already been added", nameof(fileName));
@@ -77,7 +103,7 @@ namespace Blueprint.Compiler
         /// </summary>
         /// <param name="rules">Rules that are used to control the generation of the <see cref="Assembly"/>.</param>
         /// <returns>A newly constructed (and loaded) Assembly based on registered source files and given generation rules.</returns>
-        public Assembly Generate(GenerationRules rules)
+        public Type[] Generate(GenerationRules rules)
         {
             if (string.IsNullOrEmpty(rules.AssemblyName))
             {
@@ -85,15 +111,7 @@ namespace Blueprint.Compiler
             }
 
             var encoding = Encoding.UTF8;
-            var sourceTextHash = this.CreateSourceHash(encoding);
             var assemblyName = rules.AssemblyName + ".dll";
-
-            var existingAssembly = this._compileStrategy.TryLoadExisting(sourceTextHash, assemblyName);
-
-            if (existingAssembly != null)
-            {
-                return existingAssembly;
-            }
 
             var syntaxTrees = new List<SyntaxTree>();
             var parseOptions = new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.None);
@@ -119,9 +137,7 @@ namespace Blueprint.Compiler
                     .WithConcurrentBuild(false)
                     .WithOptimizationLevel(rules.OptimizationLevel));
 
-            return this._compileStrategy.Compile(
-                sourceTextHash,
-                compilation,
+            var assembly = this._compileStrategy.Compile(compilation,
                 (result) =>
                 {
                     if (!result.Success)
@@ -194,6 +210,8 @@ namespace Blueprint.Compiler
                         };
                     }
                 });
+
+            return assembly.GetExportedTypes().ToArray();
         }
 
         private static void TryOutputLine(IReadOnlyList<string> fileLines, int line, StringBuilder exceptionMessage)
@@ -261,24 +279,6 @@ namespace Blueprint.Compiler
             }
 
             return references;
-        }
-
-        private string CreateSourceHash(Encoding encoding)
-        {
-            HashAlgorithm hasher = MD5.Create();
-            hasher.Initialize();
-
-            foreach (var f in this._files)
-            {
-                var fileBytes = encoding.GetBytes(f.Code);
-
-                hasher.TransformBlock(fileBytes, 0, fileBytes.Length, null, 0);
-            }
-
-            hasher.TransformFinalBlock(new byte[0], 0, 0);
-            var hash = hasher.Hash;
-
-            return BitConverter.ToString(hash);
         }
 
         private void ReferenceAssemblyContainingType<T>()

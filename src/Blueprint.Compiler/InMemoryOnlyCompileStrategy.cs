@@ -2,11 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Microsoft.Extensions.Logging;
-using System.Runtime.Loader;
 
 namespace Blueprint.Compiler
 {
@@ -16,29 +15,9 @@ namespace Blueprint.Compiler
     /// </summary>
     public class InMemoryOnlyCompileStrategy : ICompileStrategy
     {
-        private readonly ILogger<InMemoryOnlyCompileStrategy> _logger;
-
-        /// <summary>
-        /// Initialises a new instance of the <see cref="InMemoryOnlyCompileStrategy" /> class.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        public InMemoryOnlyCompileStrategy(ILogger<InMemoryOnlyCompileStrategy> logger)
-        {
-            this._logger = logger;
-        }
-
         /// <inheritdoc />
-        public Assembly TryLoadExisting(string sourceTextHash, string assemblyName)
+        public Assembly Compile(CSharpCompilation compilation, Action<EmitResult> check)
         {
-            // We never try to load an existing in-memory DLL.
-            return null;
-        }
-
-        /// <inheritdoc />
-        public Assembly Compile(string sourceTextHash, CSharpCompilation compilation, Action<EmitResult> check)
-        {
-            this._logger.LogInformation("Compiling source to an in-memory DLL with embedded source");
-
             using var assemblyStream = new MemoryStream();
             using var symbolsStream = new MemoryStream();
 

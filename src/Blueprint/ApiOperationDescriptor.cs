@@ -6,6 +6,7 @@ using System.Reflection;
 using Blueprint.Authorisation;
 using Blueprint.Middleware;
 using Blueprint.Utilities;
+using JetBrains.Annotations;
 
 namespace Blueprint
 {
@@ -151,6 +152,22 @@ namespace Blueprint
         public bool RequiresReturnValue { get; set; }
 
         /// <summary>
+        /// The namespace that should be used for the generated pipeline type.
+        /// </summary>
+        public string PipelineNamespace { get; } = "Blueprint.Generated";
+
+        /// <summary>
+        /// Returns the pipeline class name to use for this ApiOperation.
+        /// </summary>
+        public string PipelineClassName => ReflectionUtilities
+            .PrettyTypeName(this.OperationType)
+            .Replace("+", "_")
+            .Replace(",", "_")
+            .Replace("<", "Of")
+            .Replace(">", string.Empty)
+            + "ExecutorPipeline";
+
+        /// <summary>
         /// Registers the given handler with this operation, identifying what could possible handle and execute
         /// this operation.
         /// </summary>
@@ -253,6 +270,18 @@ The handlers found are:
             var key = newFeatureData.GetType().FullName;
 
             this._featureData[key] = newFeatureData;
+        }
+
+        /// <summary>
+        /// Given an <see cref="Assembly" /> tries to find a <see cref="Type" /> that represents the
+        /// <see cref="IOperationExecutorPipeline" /> of this operation.
+        /// </summary>
+        /// <param name="pipelineAssembly">The assembly to search.</param>
+        /// <returns>A <see cref="Type" /> if one exists, <c>null</c> otherwise/</returns>
+        [CanBeNull]
+        public Type TryFindPipelineHandler(Assembly pipelineAssembly)
+        {
+            return Type.GetType($"{this.PipelineNamespace}.{this.PipelineClassName}, {pipelineAssembly.GetName().Name}");
         }
 
         /// <summary>

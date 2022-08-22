@@ -1,41 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Blueprint.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint
 {
+    /// <summary>
+    /// An <see cref="IApiOperationExecutor"/> that is built by an <see cref="IApiOperationExecutorBuilder" /> using
+    /// code generation (or previously-stored and compiled types loaded at runtime).
+    /// </summary>
     public class CodeGennedExecutor : IApiOperationExecutor
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly Dictionary<Type, Func<Type>> _operationTypeToPipelineType;
-        private readonly Dictionary<Type, string> _sourceCodeMappings;
+        private readonly Dictionary<ApiOperationDescriptor, Func<Type>> _operationTypeToPipelineType;
+        private readonly Dictionary<ApiOperationDescriptor, Func<string>> _sourceCodeMappings;
 
         internal CodeGennedExecutor(
             IServiceProvider serviceProvider,
             ApiDataModel dataModel,
-            GeneratedAssembly assembly,
-            Dictionary<Type, Func<Type>> operationTypeToPipelineType)
+            Dictionary<ApiOperationDescriptor, Func<Type>> operationTypeToPipelineType,
+            Dictionary<ApiOperationDescriptor, Func<string>> sourceCodeMappings)
         {
             this.DataModel = dataModel;
 
             this._serviceProvider = serviceProvider;
             this._operationTypeToPipelineType = operationTypeToPipelineType;
-
-            if (assembly != null)
-            {
-                // We only need to store the source code for each type. We need to discard the GeneratedAssembly otherwise
-                // it holds on to a lot of memory
-                this._sourceCodeMappings = new Dictionary<Type, string>();
-
-                foreach (var t in assembly.GeneratedTypes)
-                {
-                    this._sourceCodeMappings[t.CompiledType] = t.SourceCode;
-                }
-            }
+            this._sourceCodeMappings = sourceCodeMappings;
         }
 
         /// <summary>
@@ -59,7 +52,7 @@ namespace Blueprint
 
             foreach (var type in this._sourceCodeMappings)
             {
-                builder.AppendLine(type.Value);
+                builder.AppendLine(type.Value());
             }
 
             return builder.ToString();
@@ -77,8 +70,14 @@ namespace Blueprint
                 throw new InvalidOperationException("Cannot get source code if the pipelines were precompiled");
             }
 
-            var generatedExecutorType = this._operationTypeToPipelineType[operationType]();
-            return this._sourceCodeMappings[generatedExecutorType];
+            var descriptor = this._sourceCodeMappings.Keys.SingleOrDefault(d => d.OperationType == operationType);
+
+            if (descriptor == null)
+            {
+                throw new InvalidOperationException($"Cannot get source code of type {operationType} because it is not a supported operation");
+            }
+
+            return this._sourceCodeMappings[descriptor]();
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace Blueprint
         /// <inheritdoc />
         public Task<OperationResult> ExecuteAsync(ApiOperationContext context)
         {
-            var pipelineType = this._operationTypeToPipelineType[context.Descriptor.OperationType]();
+            var pipelineType = this._operationTypeToPipelineType[context.Descriptor]();
             var pipeline = (IOperationExecutorPipeline)ActivatorUtilities.CreateInstance(context.ServiceProvider, pipelineType);
 
             return context.IsNested ?

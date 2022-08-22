@@ -213,7 +213,7 @@ namespace Blueprint.Compiler
 
         internal void FindType(Type[] generated)
         {
-            this.CompiledType = generated.SingleOrDefault(x => x.Name == this.TypeName && x.Namespace == this.Namespace);
+            this.CompiledType = generated.FirstOrDefault(x => x.Name == this.TypeName && x.Namespace == this.Namespace);
 
             if (this.CompiledType == null)
             {

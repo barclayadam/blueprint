@@ -12,7 +12,7 @@ namespace Blueprint.Configuration
     /// </summary>
     public class ExecutorScanner
     {
-        private readonly List<IOperationExecutorBuilderScanner> _scanners = new List<IOperationExecutorBuilderScanner>();
+        private readonly List<IOperationExecutorBuilderScanner> _scanners = new ();
 
         /// <summary>
         /// Initialises a new instance of the <see cref="OperationScanner" /> class.
@@ -30,9 +30,7 @@ namespace Blueprint.Configuration
         /// <returns>This scanner.</returns>
         public ExecutorScanner AddScanner<T>() where T : IOperationExecutorBuilderScanner, new()
         {
-            this._scanners.Add(new T());
-
-            return this;
+            return this.AddScanner(new T());
         }
 
         /// <summary>

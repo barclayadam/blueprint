@@ -43,7 +43,6 @@ namespace Blueprint.Samples.TaskProcessor
 
             services.AddBlueprintApi(a => a
                 .AddBackgroundTasks(b => b.UseHangfire())
-                .SetApplicationName("SampleTaskProcessor")
                 .Operations(o => o
                     .Scan(typeof(Blueprint.Sample.WebApi.Startup).Assembly))
                 .AddLogging());

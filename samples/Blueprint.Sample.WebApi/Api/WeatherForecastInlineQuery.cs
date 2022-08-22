@@ -24,6 +24,9 @@ namespace Blueprint.Sample.WebApi.Api
         [FromCookie("a-different-cookie-name")]
         public int MyCookieNumber { get; set; }
 
+        [FromCookie("a-different-cookie-name-two")]
+        public int MyCookieNumberTwo { get; set; }
+
         public IEnumerable<WeatherForecast> Invoke(IWeatherDataSource weatherDataSource)
         {
             return weatherDataSource.Get(City);

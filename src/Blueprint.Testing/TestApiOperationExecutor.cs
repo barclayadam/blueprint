@@ -88,13 +88,10 @@ namespace Blueprint.Testing
                 var builder = createHost(b);
 
                 builder
-                    .SetApplicationName("Blueprint.Tests")
                     .Compilation(r => r
                         /* We want a unique DLL name every time, avoids clashes and ensures we always do
                            an actual build and compilation so we can get the generated code */
-                        .AssemblyName("Blueprint.Tests." + Guid.NewGuid().ToString("N"))
-                        .UseOptimizationLevel(OptimizationLevel.Debug)
-                        .UseInMemoryCompileStrategy());
+                        .UseInMemoryStrategy(Guid.NewGuid().ToString()));
 
                 configure(builder);
             });

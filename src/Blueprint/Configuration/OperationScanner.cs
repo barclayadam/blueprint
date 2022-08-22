@@ -59,7 +59,7 @@ namespace Blueprint.Configuration
         }
 
         /// <summary>
-        /// Scans the calling assembly (<see cref="Assembly.GetCallingAssembly"/> for operations and handlers to
+        /// Scans the calling assembly (<see cref="Assembly.GetCallingAssembly"/>) for operations and handlers to
         /// register, with an optional filter function to exclude found types.
         /// </summary>
         /// <param name="filter">The optional filter over found operations.</param>

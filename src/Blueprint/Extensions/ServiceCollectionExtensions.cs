@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Blueprint;
 using Blueprint.Configuration;
+using JetBrains.Annotations;
 
 // Match the DI container namespace so that Blueprint is immediately discoverable
 // ReSharper disable once CheckNamespace
@@ -11,13 +14,14 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddBlueprintApi(
             this IServiceCollection services,
-            Action<BlueprintApiBuilder> configureApi)
+            Action<BlueprintApiBuilder> configureApi,
+            [CallerFilePath] string callerFilePath = "")
         {
             Guard.NotNull(nameof(configureApi), configureApi);
 
-            EnsureNotAlreadySetup(services, typeof(IApiOperationExecutor));
+            EnsureNotAlreadySetup(services);
 
-            var apiBuilder = new BlueprintApiBuilder(services);
+            var apiBuilder = new BlueprintApiBuilder(services, Assembly.GetCallingAssembly(), callerFilePath);
 
             configureApi(apiBuilder);
 
@@ -26,9 +30,9 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static void EnsureNotAlreadySetup(IServiceCollection services, Type type)
+        private static void EnsureNotAlreadySetup(IServiceCollection services)
         {
-            if (services.FirstOrDefault(d => d.ServiceType == type) != null)
+            if (services.FirstOrDefault(d => d.ServiceType == typeof(IApiOperationExecutor)) != null)
             {
                 throw new InvalidOperationException("Blueprint has already been configured.");
             }

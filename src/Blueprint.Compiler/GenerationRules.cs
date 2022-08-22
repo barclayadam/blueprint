@@ -8,7 +8,7 @@ namespace Blueprint.Compiler
     {
         public OptimizationLevel OptimizationLevel { get; set; } = OptimizationLevel.Release;
 
-        public string AssemblyName { get; set; }
+        public string AssemblyName { get; set; } = "Blueprint.Compiler";
 
         /// <summary>
         /// Variable sources that are added to the default list of variable sources, for example

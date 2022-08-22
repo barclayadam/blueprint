@@ -87,7 +87,7 @@ namespace Blueprint.Compiler.Tests.Scenarios
                 }
             }
 
-            assembly.CompileAll(new InMemoryOnlyCompileStrategy(new NullLogger<InMemoryOnlyCompileStrategy>()));
+            assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));
 
             return new CodegenResult<TObject>(generatedType.CreateInstance<TObject>(), generatedType.SourceCode);
         }

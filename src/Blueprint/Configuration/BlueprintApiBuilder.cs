@@ -2,13 +2,12 @@
 using System.Buffers;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Caching;
 using Blueprint.Caching;
-using Blueprint.Errors;
 using Blueprint.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Configuration
 {
@@ -22,31 +21,43 @@ namespace Blueprint.Configuration
         private readonly PipelineBuilder _pipelineBuilder;
         private readonly OperationScanner _operationScanner;
         private readonly ExecutorScanner _executionScanner;
+        private readonly BlueprintCompilationBuilder _blueprintCompilationBuilder;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="BlueprintApiBuilder" /> class with the given
         /// <see cref="IServiceCollection" /> in to which all DI registrations will be made.
         /// </summary>
         /// <param name="services">The service collection to configure.</param>
-        public BlueprintApiBuilder(IServiceCollection services)
+        /// <param name="callingAssembly">The assembly that was the "calling assembly" of <see cref="ServiceCollectionExtensions.AddBlueprintApi" />, used as
+        ///     a default for <see cref="BlueprintApiOptions.PipelineAssembly" />.</param>
+        /// <param name="callerFilePath">The caller's file path of the AddBlueprint method, used to determine project path to determine where to
+        /// place generated files.</param>
+        internal BlueprintApiBuilder(IServiceCollection services, Assembly callingAssembly, string callerFilePath)
         {
             this.Services = services;
 
-            this._options = new BlueprintApiOptions();
+            // Given the caller path search up until we hit a directory that has a "bin" child folder, which we can
+            // take to mean the root of the project (which in most setups will be the case).
+            //
+            // This does assume that the calling assembly is the one that was used to call AddBlueprintApi, and means
+            // it cannot be pushed to a common / shared project
+            var directory = Path.GetDirectoryName(callerFilePath);
+
+            while (directory != null && Directory.Exists(Path.Combine(directory, "bin")) == false)
+            {
+                directory = Directory.GetParent(directory)?.FullName;
+            }
+
+            this._options = new BlueprintApiOptions
+            {
+                PipelineAssembly = callingAssembly,
+                GeneratedCodeFolder = directory == null ? null : Path.Combine(directory, "Internal", "Generated", "Blueprint"),
+            };
+
             this._pipelineBuilder = new PipelineBuilder(this);
             this._operationScanner = new OperationScanner();
             this._executionScanner = new ExecutorScanner();
-
-            if (BlueprintEnvironment.IsPrecompiling)
-            {
-                // The default strategy is to build to a DLL to the temp folder
-                this.Compilation(c => c.UseFileCompileStrategy(Path.GetDirectoryName(typeof(BlueprintApiBuilder).Assembly.Location)));
-            }
-            else
-            {
-                // The default strategy is to build to a DLL to the temp folder
-                this.Compilation(c => c.UseFileCompileStrategy(Path.Combine(Path.GetTempPath(), "Blueprint.Compiler")));
-            }
+            this._blueprintCompilationBuilder = new BlueprintCompilationBuilder(this);
 
             // Register core middleware that is safe to have in every pipeline.
             this.AddValidation();
@@ -58,21 +69,6 @@ namespace Blueprint.Configuration
         public IServiceCollection Services { get; }
 
         internal BlueprintApiOptions Options => this._options;
-
-        /// <summary>
-        /// Sets the name of this application, which can be used for naming of the output DLL to avoid
-        /// any clashes if multiple APIs exist within a single domain.
-        /// </summary>
-        /// <param name="applicationName">The name of the application.</param>
-        /// <returns>This builder.</returns>
-        public BlueprintApiBuilder SetApplicationName(string applicationName)
-        {
-            Guard.NotNullOrEmpty(nameof(applicationName), applicationName);
-
-            this._options.ApplicationName = applicationName;
-
-            return this;
-        }
 
         /// <summary>
         /// Configures the scanner that will search for operations and handlers that make the <see cref="ApiDataModel" />
@@ -139,7 +135,7 @@ namespace Blueprint.Configuration
         {
             Guard.NotNull(nameof(compilationAction), compilationAction);
 
-            compilationAction(new BlueprintCompilationBuilder(this));
+            compilationAction(this._blueprintCompilationBuilder);
 
             return this;
         }
@@ -188,17 +184,10 @@ namespace Blueprint.Configuration
             return this;
         }
 
-        public void Build()
+        internal void Build()
         {
-            if (string.IsNullOrEmpty(this._options.ApplicationName))
-            {
-                throw new InvalidOperationException("An app name MUST be set");
-            }
-
             this._pipelineBuilder.Register();
             this._operationScanner.FindOperations(this._options.Model);
-
-            this._options.GenerationRules.AssemblyName ??= this._options.ApplicationName.Replace(" ", string.Empty) + ".Pipelines";
 
             this.Services.AddLogging();
 
@@ -207,7 +196,7 @@ namespace Blueprint.Configuration
             this.Services.AddSingleton(this.Services);
 
             // Compilation
-            this.Services.AddSingleton<IApiOperationExecutor>(s => new ApiOperationExecutorBuilder(s.GetRequiredService<ILogger<ApiOperationExecutorBuilder>>()).Build(this._options, s));
+            this.Services.AddSingleton(s => s.GetRequiredService<IApiOperationExecutorBuilder>().Build(this._options, s));
 
             // Model / Links / Options
             this.Services.AddSingleton(this._options);
