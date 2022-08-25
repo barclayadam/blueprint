@@ -66,59 +66,5 @@ public class MessagePopulationMiddlewareBuilder : IMiddlewareBuilder
         {
             s.Build(allOwned, ownedBySources[s], context);
         }
-
-        context.AppendFrames(new SetTagsFromMessageDataFrame(context));
-    }
-
-    /// <summary>
-    /// A frame that will, for every non-sensitive property, add a tag to the current Activity.
-    /// </summary>
-    private class SetTagsFromMessageDataFrame : SyncFrame
-    {
-        private readonly MiddlewareBuilderContext _context;
-
-        /// <summary>
-        /// Initialises a new instance of the <see cref="SetTagsFromMessageDataFrame" /> class.
-        /// </summary>
-        /// <param name="context">The builder context this frame belongs to.</param>
-        public SetTagsFromMessageDataFrame(MiddlewareBuilderContext context)
-        {
-            this._context = context;
-        }
-
-        /// <inheritdoc />
-        protected override void Generate(IMethodVariables variables, GeneratedMethod method, IMethodSourceWriter writer, Action next)
-        {
-            var apiOperationContextVariable = variables.FindVariable(typeof(ApiOperationContext));
-            var activityVariable = apiOperationContextVariable.GetProperty(nameof(ApiOperationContext.Activity));
-
-            var operationTypeKey = ReflectionUtilities.PrettyTypeName(this._context.Descriptor.OperationType);
-
-            writer.BlankLine();
-
-            // 2. For every property of the operation output a value to the exception.Data dictionary. All properties that are
-            // not considered sensitive
-            foreach (var prop in this._context.Descriptor.Properties)
-            {
-                if (SensitiveProperties.IsSensitive(prop))
-                {
-                    continue;
-                }
-
-                // Only support, for now, primitive values, strings and GUIDs to avoid pushing complex types as tags
-                if (!prop.PropertyType.IsPrimitive &&
-                    !prop.PropertyType.IsEnum &&
-                    prop.PropertyType.GetNonNullableType() != typeof(string) &&
-                    prop.PropertyType.GetNonNullableType() != typeof(Guid))
-                {
-                    continue;
-                }
-
-                writer.WriteLine(
-                    $"{activityVariable}?.{nameof(Activity.SetTag)}(\"{operationTypeKey}.{prop.Name}\", {variables.FindVariable(this._context.Descriptor.OperationType)}.{prop.Name});");
-            }
-
-            next();
-        }
     }
 }
