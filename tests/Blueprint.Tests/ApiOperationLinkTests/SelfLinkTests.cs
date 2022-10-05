@@ -21,22 +21,22 @@ public class SelfLinkTests
         public string AnotherProperty { get; set; }
     }
 
-    private BlueprintApiOptions options;
+    private ApiDataModel dataModel;
     private ApiLinkGenerator linkGenerator;
 
     [SetUp]
     public void CreateGenerator()
     {
-        options = new BlueprintApiOptions();
+        dataModel = new ApiDataModel();
 
         new OperationScanner()
             .AddOperation<SelfLinkGeneratorTestsOperation>()
-            .FindOperations(options.Model);
+            .FindOperations(dataModel);
 
         var httpContext = new DefaultHttpContext();
         httpContext.SetBaseUri("http://api.example.com/api/");
 
-        linkGenerator = new ApiLinkGenerator(options.Model, new HttpContextAccessor { HttpContext = httpContext });
+        linkGenerator = new ApiLinkGenerator(dataModel, new HttpContextAccessor { HttpContext = httpContext });
     }
 
     [Test]

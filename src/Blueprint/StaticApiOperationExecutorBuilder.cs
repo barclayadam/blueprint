@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Blueprint.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint;
 
@@ -11,25 +12,38 @@ namespace Blueprint;
 /// </summary>
 public class StaticApiOperationExecutorBuilder : IApiOperationExecutorBuilder
 {
-    private readonly Assembly _pipelineAssembly;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IOptions<BlueprintApiOptions> _options;
+    private readonly ApiDataModel _dataModel;
+    private readonly ILogger<StaticApiOperationExecutorBuilder> _logger;
 
     /// <summary>
     /// Initialises a new instance of the <see cref="StaticApiOperationExecutorBuilder"/> class.
     /// </summary>
-    /// <param name="pipelineAssembly">The assembly that contains the pre-built types.</param>
-    public StaticApiOperationExecutorBuilder(Assembly pipelineAssembly)
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="options">The configured <see cref="BlueprintApiOptions" />.</param>
+    /// <param name="dataModel">The configured <see cref="ApiDataModel" />.</param>
+    /// <param name="logger">A logger to indicate when pipeline types are being compiled.</param>
+    public StaticApiOperationExecutorBuilder(
+        IServiceProvider serviceProvider,
+        IOptions<BlueprintApiOptions> options,
+        ApiDataModel dataModel,
+        ILogger<StaticApiOperationExecutorBuilder> logger)
     {
-        this._pipelineAssembly = pipelineAssembly;
+        this._serviceProvider = serviceProvider;
+        this._options = options;
+        this._dataModel = dataModel;
+        this._logger = logger;
     }
 
     /// <inheritdoc/>
-    public IApiOperationExecutor Build(BlueprintApiOptions blueprintApiOptions, IServiceProvider serviceProvider)
+    public IApiOperationExecutor Build()
     {
         var typeToCreationMappings = new Dictionary<ApiOperationDescriptor, Func<Type>>();
 
-        foreach (var operation in blueprintApiOptions.Model.Operations)
+        foreach (var operation in this._dataModel.Operations)
         {
-            var operationType = operation.TryFindPipelineHandler(this._pipelineAssembly);
+            var operationType = operation.TryFindPipelineHandler(this._options.Value.PipelineAssembly);
 
             if (operationType == null)
             {
@@ -44,9 +58,11 @@ public class StaticApiOperationExecutorBuilder : IApiOperationExecutorBuilder
             typeToCreationMappings.Add(operation, () => operationType);
         }
 
+        this._logger.LogInformation("Successfully loaded {OperationCount} operations", typeToCreationMappings.Count);
+
         return new CodeGennedExecutor(
-            serviceProvider,
-            blueprintApiOptions.Model,
+            this._serviceProvider,
+            this._dataModel,
             typeToCreationMappings,
             null);
     }

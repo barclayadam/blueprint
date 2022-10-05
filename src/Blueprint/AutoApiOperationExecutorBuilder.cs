@@ -6,6 +6,8 @@ using System.Reflection;
 using Blueprint.Compiler;
 using Blueprint.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint;
 
@@ -21,38 +23,46 @@ namespace Blueprint;
 /// </remarks>
 public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
 {
-    private readonly Assembly _pipelineAssembly;
-    private readonly string _folder;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IOptions<BlueprintApiOptions> _options;
+    private readonly ApiDataModel _dataModel;
+    private readonly ILogger<AutoApiOperationExecutorBuilder> _logger;
 
-    private readonly IAssemblyGenerator _inner;
+    private readonly IAssemblyGenerator _assemblyGenerator;
 
     /// <summary>
     /// Initialises a new instance of the <see cref="AutoApiOperationExecutorBuilder"/> class.
     /// </summary>
-    /// <param name="pipelineAssembly">The assembly from which to load previously generated pipeline types.</param>
-    /// <param name="folder">The folder to write the generated code to.</param>
-    public AutoApiOperationExecutorBuilder(Assembly pipelineAssembly, string folder)
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="options">The configured <see cref="BlueprintApiOptions" />.</param>
+    /// <param name="dataModel">The configured <see cref="ApiDataModel" />.</param>
+    /// <param name="logger">A logger to indicate when pipeline types are being compiled.</param>
+    public AutoApiOperationExecutorBuilder(
+        IServiceProvider serviceProvider,
+        IOptions<BlueprintApiOptions> options,
+        ApiDataModel dataModel,
+        ILogger<AutoApiOperationExecutorBuilder> logger)
     {
-        this._pipelineAssembly = pipelineAssembly;
-        this._folder = folder;
-        this._inner = new AssemblyGenerator(new InMemoryOnlyCompileStrategy());
+        this._serviceProvider = serviceProvider;
+        this._options = options;
+        this._dataModel = dataModel;
+        this._logger = logger;
+        this._assemblyGenerator = new AssemblyGenerator(new InMemoryOnlyCompileStrategy());
     }
 
     /// <inheritdoc/>
-    public IApiOperationExecutor Build(BlueprintApiOptions options, IServiceProvider serviceProvider)
+    public IApiOperationExecutor Build()
     {
-        var model = options.Model;
-
         // Upfront check to ensure the folder exists before trying to write any code files
-        Directory.CreateDirectory(this._folder);
+        Directory.CreateDirectory(this._options.Value.GeneratedCodeFolder);
 
         var preloadedTypes = new List<Type>();
         var typeToCreationMappings = new Dictionary<ApiOperationDescriptor, Func<Type>>();
         var sourceCodeMappings = new Dictionary<ApiOperationDescriptor, Func<string>>();
 
-        foreach (var operation in options.Model.Operations)
+        foreach (var operation in this._dataModel.Operations)
         {
-            var operationType = operation.TryFindPipelineHandler(this._pipelineAssembly);
+            var operationType = operation.TryFindPipelineHandler(this._options.Value.PipelineAssembly);
 
             if (operationType == null)
             {
@@ -62,13 +72,13 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
             preloadedTypes.Add(operationType);
         }
 
-        var assembly = ApiOperationExecutorBuilderHelper.StartAssembly(options);
+        var assembly = ApiOperationExecutorBuilderHelper.StartAssembly(this._options.Value);
 
-        using var serviceScope = serviceProvider.CreateScope();
+        using var serviceScope = this._serviceProvider.CreateScope();
 
-        foreach (var operation in model.Operations)
+        foreach (var operation in this._dataModel.Operations)
         {
-            var pipelineExecutorType = ApiOperationExecutorBuilderHelper.BuildPipeline(model, options, operation, assembly, serviceScope.ServiceProvider);
+            var pipelineExecutorType = ApiOperationExecutorBuilderHelper.BuildPipeline(this._dataModel, this._options.Value, operation, assembly, serviceScope.ServiceProvider);
 
             typeToCreationMappings.Add(
                 operation,
@@ -79,22 +89,26 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
                 () => pipelineExecutorType.GeneratedSourceCode);
         }
 
-        assembly.CompileAll(new IncrementalAssemblyGenerator(preloadedTypes, this._folder, this._inner));
+        assembly.CompileAll(new IncrementalAssemblyGenerator(preloadedTypes, this._options.Value, this._assemblyGenerator, this._logger));
 
-        return new CodeGennedExecutor(serviceProvider, model, typeToCreationMappings, sourceCodeMappings);
+        this._logger.LogInformation("Completed incremental compilation for {OperationCount} operations", typeToCreationMappings.Count);
+
+        return new CodeGennedExecutor(this._serviceProvider, this._dataModel, typeToCreationMappings, sourceCodeMappings);
     }
 
     private class IncrementalAssemblyGenerator : IAssemblyGenerator
     {
         private readonly IEnumerable<Type> _preexistingTypes;
-        private readonly string _folder;
+        private readonly BlueprintApiOptions _options;
         private readonly IAssemblyGenerator _inner;
+        private readonly ILogger _logger;
 
-        public IncrementalAssemblyGenerator(IEnumerable<Type> preexistingTypes, string folder, IAssemblyGenerator inner)
+        public IncrementalAssemblyGenerator(IEnumerable<Type> preexistingTypes, BlueprintApiOptions options, IAssemblyGenerator inner, ILogger logger)
         {
             this._preexistingTypes = preexistingTypes;
-            this._folder = folder;
+            this._options = options;
             this._inner = inner;
+            this._logger = logger;
         }
 
         public void ReferenceAssembly(Assembly assembly)
@@ -105,7 +119,7 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
         public void AddFile(GeneratedType generatedType, string code)
         {
             var fileName = $"{generatedType.TypeName}.cs";
-            var sourceFilePath = Path.Combine(this._folder, fileName);
+            var sourceFilePath = Path.Combine(this._options.GeneratedCodeFolder, fileName);
 
             if (File.Exists(sourceFilePath))
             {
@@ -115,15 +129,30 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
                 {
                     if (this._preexistingTypes.Any(t => t.Namespace == generatedType.Namespace && t.Name == generatedType.TypeName) == false)
                     {
-                        throw new InvalidOperationException("The generated code is the same as the existing code, but the type could not be found in the loaded assembly.\n\n" +
-                                                            "This means that the output code folder is NOT contained in the compilation unit for the configured types assembly.");
+                        throw new InvalidOperationException($"The generated code for {generatedType.Namespace}.{generatedType.TypeName} is the same as the existing code, but the type could not be found in the loaded assembly.\n\n" +
+                                                            $"Ensure the output code folder {this._options.GeneratedCodeFolder} is contained in the configured types assembly {this._options.PipelineAssembly.GetName().Name}.");
                     }
+
+                    this._logger.LogTrace(
+                        "Existing pipeline {GeneratedTypeNamespace}.{GeneratedTypeName} is up to date",
+                        generatedType.Namespace,
+                        generatedType.TypeName);
 
                     // This type has already been loaded, so will NOT be added to the
                     // compilation
                     return;
                 }
             }
+
+            if (this._options.ThrowOnSourceChange)
+            {
+                throw new InvalidOperationException($"The generated code for {generatedType.Namespace}.{generatedType.TypeName} is outdated and must be recreated.");
+            }
+
+            this._logger.LogInformation(
+                "Adding compilation unit for {GeneratedTypeNamespace}.{GeneratedTypeName}",
+                generatedType.Namespace,
+                generatedType.TypeName);
 
             File.WriteAllText(sourceFilePath, code);
 

@@ -24,20 +24,15 @@ public class BlueprintApiOptions
     }
 
     /// <summary>
-    /// The data model that describes the structure of the API.
+    /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
+    /// order that they will be configured.
     /// </summary>
-    public ApiDataModel Model { get; } = new ApiDataModel();
+    public List<IMiddlewareBuilder> MiddlewareBuilders { get; } = new List<IMiddlewareBuilder>();
 
     /// <summary>
     /// The <see cref="Compiler.GenerationRules" /> that are used when compiling the pipelines of this API.
     /// </summary>
     public GenerationRules GenerationRules { get; }
-
-    /// <summary>
-    /// Gets the list of middleware builder that will be used by the pipeline generation, added in the
-    /// order that they will be configured.
-    /// </summary>
-    public List<IMiddlewareBuilder> MiddlewareBuilders { get; } = new List<IMiddlewareBuilder>();
 
     /// <summary>
     /// The pipeline assembly, which is the entry assembly for this application and where precompiled
@@ -51,4 +46,10 @@ public class BlueprintApiOptions
     /// work.
     /// </summary>
     public string GeneratedCodeFolder { get; set; }
+
+    /// <summary>
+    /// Whether an exception should be thrown at startup when compiling pipeline if the source has changed, used
+    /// primarily in CI environments to ensure that the pipeline is up to date.
+    /// </summary>
+    public bool ThrowOnSourceChange { get; set; }
 }

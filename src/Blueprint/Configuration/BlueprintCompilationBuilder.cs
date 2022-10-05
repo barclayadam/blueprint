@@ -1,6 +1,8 @@
+using System.IO;
 using System.Reflection;
 using Blueprint.Compiler;
 using Blueprint.Compiler.Model;
+using Blueprint.Utilities;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,9 +14,28 @@ public class BlueprintCompilationBuilder
 {
     private readonly BlueprintApiBuilder _blueprintApiBuilder;
 
-    internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder)
+    internal BlueprintCompilationBuilder(BlueprintApiBuilder blueprintApiBuilder, Assembly callingAssembly, string callerFilePath)
     {
         this._blueprintApiBuilder = blueprintApiBuilder;
+
+        // Given the caller path search up until we hit a directory that has a "bin" child folder, which we can
+        // take to mean the root of the project (which in most setups will be the case).
+        //
+        // This does assume that the calling assembly is the one that was used to call AddBlueprintApi, and means
+        // it cannot be pushed to a common / shared project
+        var directory = Path.GetDirectoryName(callerFilePath);
+
+        while (directory != null && Directory.Exists(Path.Combine(directory, "bin")) == false)
+        {
+            directory = Directory.GetParent(directory)?.FullName;
+        }
+
+        this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
+        {
+            o.PipelineAssembly = callingAssembly;
+            o.GeneratedCodeFolder = directory == null ? null : Path.Combine(directory, "Internal", "Generated", "Blueprint");
+            o.ThrowOnSourceChange = CiDetector.IsRunningOnCiServer;
+        });
 
         // By default we will apply a "smart" system where we use the auto strategy in development and
         // static in production.
@@ -22,14 +43,15 @@ public class BlueprintCompilationBuilder
         {
             var hostingEnvironment = s.GetRequiredService<IHostEnvironment>();
 
-            var isDevelopment = hostingEnvironment.IsDevelopment();
-
-            if (isDevelopment)
+            // If in development we want to use Auto so that we can always generate up to date code. In a CI
+            // environment we wish to also use Auto, but with ThrowOnSourceChange true so that we can detect
+            // outdated / missing generated pipelines
+            if (hostingEnvironment.IsDevelopment() || CiDetector.IsRunningOnCiServer)
             {
-                return new AutoApiOperationExecutorBuilder(blueprintApiBuilder.Options.PipelineAssembly, blueprintApiBuilder.Options.GeneratedCodeFolder);
+                return ActivatorUtilities.CreateInstance<AutoApiOperationExecutorBuilder>(s);
             }
 
-            return new StaticApiOperationExecutorBuilder(blueprintApiBuilder.Options.PipelineAssembly);
+            return ActivatorUtilities.CreateInstance<StaticApiOperationExecutorBuilder>(s);
         });
     }
 
@@ -46,7 +68,10 @@ public class BlueprintCompilationBuilder
 
         if (assemblyName != null)
         {
-            this._blueprintApiBuilder.Options.GenerationRules.AssemblyName = assemblyName;
+            this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
+            {
+                o.GenerationRules.AssemblyName = assemblyName;
+            });
         }
 
         return this;
@@ -62,8 +87,13 @@ public class BlueprintCompilationBuilder
     /// <returns>This builder.</returns>
     public BlueprintCompilationBuilder UseAutoStrategy(Assembly pipelineAssembly, string generatedCodeFolder)
     {
-        this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder>(
-            c => new AutoApiOperationExecutorBuilder(pipelineAssembly, generatedCodeFolder)));
+        this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
+        {
+            o.PipelineAssembly = pipelineAssembly;
+            o.GeneratedCodeFolder = generatedCodeFolder;
+        });
+
+        this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder, AutoApiOperationExecutorBuilder>());
 
         return this;
     }
@@ -77,8 +107,12 @@ public class BlueprintCompilationBuilder
     /// <returns>This builder.</returns>
     public BlueprintCompilationBuilder UseStaticStrategy(Assembly pipelineAssembly)
     {
-        this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder>(
-            c => new StaticApiOperationExecutorBuilder(pipelineAssembly)));
+        this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
+        {
+            o.PipelineAssembly = pipelineAssembly;
+        });
+
+        this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder, StaticApiOperationExecutorBuilder>());
 
         return this;
     }
@@ -92,7 +126,10 @@ public class BlueprintCompilationBuilder
     {
         Guard.NotNull(nameof(variableSource), variableSource);
 
-        this._blueprintApiBuilder.Options.GenerationRules.VariableSources.Add(variableSource);
+        this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
+        {
+            o.GenerationRules.VariableSources.Add(variableSource);
+        });
 
         return this;
     }

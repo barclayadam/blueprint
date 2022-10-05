@@ -24,23 +24,23 @@ public class ApiLinkGeneratorTests
     }
 
     private ApiOperationDescriptor descriptor;
-    private BlueprintApiOptions options;
+    private ApiDataModel dataModel;
     private ApiLinkGenerator linkGenerator;
 
     [SetUp]
     public void CreateGenerator()
     {
-        options = new BlueprintApiOptions();
+        dataModel = new ApiDataModel();
 
         new OperationScanner()
             .AddOperation<LinkGeneratorTestsOperation>()
-            .FindOperations(options.Model);
+            .FindOperations(dataModel);
 
         var httpContext = new DefaultHttpContext();
         httpContext.SetBaseUri("http://api.example.com/api/");
 
-        linkGenerator = new ApiLinkGenerator(options.Model, new HttpContextAccessor { HttpContext = httpContext });
-        descriptor = options.Model.FindOperation(typeof(LinkGeneratorTestsOperation));
+        linkGenerator = new ApiLinkGenerator(dataModel, new HttpContextAccessor { HttpContext = httpContext });
+        descriptor = dataModel.FindOperation(typeof(LinkGeneratorTestsOperation));
     }
 
     public class CreateUrlFromLink : ApiLinkGeneratorTests

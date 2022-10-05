@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
@@ -17,7 +16,7 @@ namespace Blueprint.Configuration;
 /// </summary>
 public class BlueprintApiBuilder
 {
-    private readonly BlueprintApiOptions _options;
+    private readonly ApiDataModel _model;
     private readonly PipelineBuilder _pipelineBuilder;
     private readonly OperationScanner _operationScanner;
     private readonly ExecutorScanner _executionScanner;
@@ -36,28 +35,12 @@ public class BlueprintApiBuilder
     {
         this.Services = services;
 
-        // Given the caller path search up until we hit a directory that has a "bin" child folder, which we can
-        // take to mean the root of the project (which in most setups will be the case).
-        //
-        // This does assume that the calling assembly is the one that was used to call AddBlueprintApi, and means
-        // it cannot be pushed to a common / shared project
-        var directory = Path.GetDirectoryName(callerFilePath);
-
-        while (directory != null && Directory.Exists(Path.Combine(directory, "bin")) == false)
-        {
-            directory = Directory.GetParent(directory)?.FullName;
-        }
-
-        this._options = new BlueprintApiOptions
-        {
-            PipelineAssembly = callingAssembly,
-            GeneratedCodeFolder = directory == null ? null : Path.Combine(directory, "Internal", "Generated", "Blueprint"),
-        };
+        this._model = new ApiDataModel();
 
         this._pipelineBuilder = new PipelineBuilder(this);
         this._operationScanner = new OperationScanner();
         this._executionScanner = new ExecutorScanner();
-        this._blueprintCompilationBuilder = new BlueprintCompilationBuilder(this);
+        this._blueprintCompilationBuilder = new BlueprintCompilationBuilder(this, callingAssembly, callerFilePath);
 
         // Register core middleware that is safe to have in every pipeline.
         this.AddValidation();
@@ -67,8 +50,6 @@ public class BlueprintApiBuilder
     /// Gets the <see cref="IServiceCollection" /> that dependencies should be registered with.
     /// </summary>
     public IServiceCollection Services { get; }
-
-    internal BlueprintApiOptions Options => this._options;
 
     /// <summary>
     /// Configures the scanner that will search for operations and handlers that make the <see cref="ApiDataModel" />
@@ -187,7 +168,7 @@ public class BlueprintApiBuilder
     internal void Build()
     {
         this._pipelineBuilder.Register();
-        this._operationScanner.FindOperations(this._options.Model);
+        this._operationScanner.FindOperations(this._model);
 
         this.Services.AddLogging();
 
@@ -196,11 +177,10 @@ public class BlueprintApiBuilder
         this.Services.AddSingleton(this.Services);
 
         // Compilation
-        this.Services.AddSingleton(s => s.GetRequiredService<IApiOperationExecutorBuilder>().Build(this._options, s));
+        this.Services.AddSingleton(s => s.GetRequiredService<IApiOperationExecutorBuilder>().Build());
 
         // Model / Links / Options
-        this.Services.AddSingleton(this._options);
-        this.Services.AddSingleton(this._options.Model);
+        this.Services.AddSingleton(this._model);
 
         // Cache
         this.Services.TryAddSingleton<ICache, Cache>();
@@ -216,6 +196,6 @@ public class BlueprintApiBuilder
         this._executionScanner.FindAndRegister(
             this._operationScanner,
             this.Services,
-            this._options.Model.Operations.ToList());
+            this._model.Operations.ToList());
     }
 }

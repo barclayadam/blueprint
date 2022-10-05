@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Blueprint.Compiler;
 using Blueprint.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blueprint;
 
@@ -12,19 +15,43 @@ namespace Blueprint;
 /// </summary>
 public class InMemoryApiOperationExecutorBuilder : IApiOperationExecutorBuilder
 {
-    /// <inheritdoc/>
-    public IApiOperationExecutor Build(BlueprintApiOptions options, IServiceProvider serviceProvider)
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IOptions<BlueprintApiOptions> _options;
+    private readonly ApiDataModel _dataModel;
+    private readonly ILogger<InMemoryApiOperationExecutorBuilder> _logger;
+
+    /// <summary>
+    /// Initialises a new instance of the <see cref="InMemoryApiOperationExecutorBuilder"/> class.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="options">The configured <see cref="BlueprintApiOptions" />.</param>
+    /// <param name="dataModel">The configured <see cref="ApiDataModel" />.</param>
+    /// <param name="logger">A logger to indicate when pipeline types are being compiled.</param>
+    public InMemoryApiOperationExecutorBuilder(
+        IServiceProvider serviceProvider,
+        IOptions<BlueprintApiOptions> options,
+        ApiDataModel dataModel,
+        ILogger<InMemoryApiOperationExecutorBuilder> logger)
     {
-        var model = options.Model;
-        var assembly = ApiOperationExecutorBuilderHelper.StartAssembly(options);
+        this._serviceProvider = serviceProvider;
+        this._options = options;
+        this._dataModel = dataModel;
+        this._logger = logger;
+    }
+
+    /// <inheritdoc/>
+    public IApiOperationExecutor Build()
+    {
+        var model = this._dataModel;
+        var assembly = ApiOperationExecutorBuilderHelper.StartAssembly(this._options.Value);
         var typeToCreationMappings = new Dictionary<ApiOperationDescriptor, Func<Type>>();
         var sourceCodeMappings = new Dictionary<ApiOperationDescriptor, Func<string>>();
 
-        using var serviceScope = serviceProvider.CreateScope();
+        using var serviceScope = this._serviceProvider.CreateScope();
 
         foreach (var operation in model.Operations)
         {
-            var pipelineExecutorType = ApiOperationExecutorBuilderHelper.BuildPipeline(model, options, operation, assembly, serviceScope.ServiceProvider);
+            var pipelineExecutorType = ApiOperationExecutorBuilderHelper.BuildPipeline(model, this._options.Value, operation, assembly, serviceScope.ServiceProvider);
 
             typeToCreationMappings.Add(
                 operation,
@@ -35,8 +62,10 @@ public class InMemoryApiOperationExecutorBuilder : IApiOperationExecutorBuilder
                 () => pipelineExecutorType.GeneratedSourceCode);
         }
 
+        this._logger.LogInformation("Compiling {OperationCount} operations into in-memory assembly", typeToCreationMappings.Count);
+
         assembly.CompileAll(new AssemblyGenerator(new InMemoryOnlyCompileStrategy()));
 
-        return new CodeGennedExecutor(serviceProvider, model, typeToCreationMappings, sourceCodeMappings);
+        return new CodeGennedExecutor(this._serviceProvider, model, typeToCreationMappings, sourceCodeMappings);
     }
 }

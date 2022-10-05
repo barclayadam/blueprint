@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Blueprint.Middleware;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Configuration;
 
@@ -74,20 +75,25 @@ public class PipelineBuilder
             return 1;
         });
 
-        foreach (var registration in this._middlewareStages)
+        this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
         {
-            this._blueprintApiBuilder.Options.MiddlewareBuilders.Add(registration.MiddlewareBuilder);
-        }
+            foreach (var registration in this._middlewareStages)
+            {
+                o.MiddlewareBuilders.Add(registration.MiddlewareBuilder);
+            }
+        });
     }
 
     private void Add(IMiddlewareBuilder middleware, MiddlewareStage middlewareStage, int priority)
     {
-        this._middlewareStages.Add(new MiddlewareRegistration(middleware, middlewareStage, priority, this._middlewareStages.Count));
+        this._middlewareStages.Add(new MiddlewareRegistration(middleware, middlewareStage, priority,
+            this._middlewareStages.Count));
     }
 
     private class MiddlewareRegistration
     {
-        public MiddlewareRegistration(IMiddlewareBuilder middlewareBuilder, MiddlewareStage stage, int priority, int index)
+        public MiddlewareRegistration(IMiddlewareBuilder middlewareBuilder, MiddlewareStage stage, int priority,
+            int index)
         {
             this.MiddlewareBuilder = middlewareBuilder;
             this.Stage = stage;
