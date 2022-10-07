@@ -16,13 +16,13 @@ internal static class CiDetector
             Environment.GetEnvironmentVariable("BITRISE_IO") != null ||
             Environment.GetEnvironmentVariable("BUILD_CI") != null ||
             Environment.GetEnvironmentVariable("BUILD_ID") != null ||
-            Environment.GetEnvironmentVariable("BUILDKITE") == "true" ||
+            Environment.GetEnvironmentVariable("BUILDKITE") != null ||
             Environment.GetEnvironmentVariable("CI") != null ||
-            Environment.GetEnvironmentVariable("CIRCLECI") == "true" ||
-            Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true" ||
+            Environment.GetEnvironmentVariable("CIRCLECI") != null ||
+            Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != null ||
             Environment.GetEnvironmentVariable("GITLAB_CI") != null ||
             Environment.GetEnvironmentVariable("HEROKU_TEST_RUN_ID ") != null ||
             Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null ||
-            Environment.GetEnvironmentVariable("TF_BUILD") == "true" ||
-            Environment.GetEnvironmentVariable("TRAVIS") == "true";
+            Environment.GetEnvironmentVariable("TF_BUILD") != null ||
+            Environment.GetEnvironmentVariable("TRAVIS") != null;
 }
