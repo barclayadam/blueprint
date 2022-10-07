@@ -32,6 +32,7 @@ public class BlueprintCompilationBuilder
 
         this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
         {
+            o.GenerationRules.AssemblyName = $"{callingAssembly.GetName().Name ?? "Blueprint"}.GeneratedPipelines";
             o.PipelineAssembly = callingAssembly;
             o.GeneratedCodeFolder = directory == null ? null : Path.Combine(directory, "Internal", "Generated", "Blueprint");
             o.ThrowOnSourceChange = CiDetector.IsRunningOnCiServer;
@@ -84,13 +85,16 @@ public class BlueprintCompilationBuilder
     /// </summary>
     /// <param name="pipelineAssembly">The assembly to load pre-existing pipeline handlers from.</param>
     /// <param name="generatedCodeFolder">The folder into which we should write the pipeline handler source files.</param>
+    /// <param name="throwOnSourceChange">Whether an exception should be thrown at startup when compiling pipeline if the source has changed.</param>
     /// <returns>This builder.</returns>
-    public BlueprintCompilationBuilder UseAutoStrategy(Assembly pipelineAssembly, string generatedCodeFolder)
+    public BlueprintCompilationBuilder UseAutoStrategy(Assembly pipelineAssembly, string generatedCodeFolder, bool throwOnSourceChange = false)
     {
         this._blueprintApiBuilder.Services.Configure<BlueprintApiOptions>(o =>
         {
+            o.GenerationRules.AssemblyName = $"{pipelineAssembly.GetName().Name ?? "Blueprint"}.GeneratedPipelines";
             o.PipelineAssembly = pipelineAssembly;
             o.GeneratedCodeFolder = generatedCodeFolder;
+            o.ThrowOnSourceChange = throwOnSourceChange;
         });
 
         this._blueprintApiBuilder.Services.Replace(ServiceDescriptor.Singleton<IApiOperationExecutorBuilder, AutoApiOperationExecutorBuilder>());
