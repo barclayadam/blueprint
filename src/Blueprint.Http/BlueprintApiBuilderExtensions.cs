@@ -79,9 +79,15 @@ public static class BlueprintApiBuilderExtensions
 
         apiBuilder.Services.AddSingleton<IContextMetadataProvider, HttpContextMetadataProvider>();
 
-        apiBuilder.Operations(o => o
-            .AddOperation<RootMetadataOperation>("AddHttp")
-            .AddConvention(new HttpOperationScannerConvention()));
+        apiBuilder.Operations(o =>
+        {
+            var httpHost = new HttpHost();
+
+            o
+                .AddOperation<RootMetadataOperation>("AddHttp")
+                .AddConvention(httpHost)
+                .AddHost(httpHost);
+        });
 
         apiBuilder.Compilation(c => c.AddVariableSource(new HttpVariableSource()));
 

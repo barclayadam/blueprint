@@ -20,6 +20,7 @@ public class OperationScanner
     // i.e. scanOperations.Add(addType => addType(theTypeToRegisterFromMethodCall).
     private readonly List<Action<RegisterOperation>> _scanOperations = new List<Action<RegisterOperation>>();
 
+    private readonly List<IBlueprintHost> _hosts = new List<IBlueprintHost>();
     private readonly List<IOperationScannerConvention> _conventions = new List<IOperationScannerConvention>();
     private readonly List<Assembly> _scannedAssemblies = new List<Assembly>();
 
@@ -30,7 +31,8 @@ public class OperationScanner
     {
         this._conventions.Add(new XmlDocResponseConvention());
         this._conventions.Add(new ApiExceptionFactoryResponseConvention());
-        this._conventions.Add(new CommandOrQueryIsSupportedConvention());
+
+        this._hosts.Add(new CommandOrQueryHost());
     }
 
     private delegate void RegisterOperation(Type operationType, string source, Action<ApiOperationDescriptor> configure);
@@ -53,6 +55,22 @@ public class OperationScanner
         Guard.NotNull(nameof(contributor), contributor);
 
         this._conventions.Add(contributor);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an <see cref="IBlueprintHost" /> that will be invoked for every
+    /// operation that has been registered with this scanner to enable checks to determine if the
+    /// operation is supported.
+    /// </summary>
+    /// <param name="host">The host.</param>
+    /// <returns>This <see cref="OperationScanner"/> for further configuration.</returns>
+    public OperationScanner AddHost(IBlueprintHost host)
+    {
+        Guard.NotNull(nameof(host), host);
+
+        this._hosts.Add(host);
 
         return this;
     }
@@ -241,7 +259,7 @@ public class OperationScanner
             // By default types are NOT included. It's only if a convention is positive
             // that a type will be included (note that only ONE convention needs to include the
             // message).
-            foreach (var globalFilters in this._conventions)
+            foreach (var globalFilters in this._hosts)
             {
                 if (globalFilters.IsSupported(type))
                 {

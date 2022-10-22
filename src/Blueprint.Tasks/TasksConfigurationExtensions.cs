@@ -48,7 +48,10 @@ public static class TasksConfigurationExtensions
     {
         RegisterClient(apiBuilder);
 
-        apiBuilder.Operations(o => o.AddConvention(new TasksOperationScannerConvention()));
+        apiBuilder.Operations(o =>
+        {
+            o.AddHost(new TasksHost());
+        });
 
         apiBuilder.Services.AddScoped<TaskExecutor>();
 

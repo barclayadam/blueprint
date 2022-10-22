@@ -12,7 +12,7 @@ namespace Blueprint.Http;
 /// details to <see cref="ApiOperationDescriptor" />s and excludes any operations that
 /// have no <see cref="LinkAttribute" />.
 /// </summary>
-public class HttpOperationScannerConvention : IOperationScannerConvention
+public class HttpHost : IOperationScannerConvention, IBlueprintHost
 {
     /// <inheritdoc />
     public void Apply(ApiOperationDescriptor descriptor)
