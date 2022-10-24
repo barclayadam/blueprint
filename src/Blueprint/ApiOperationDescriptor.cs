@@ -18,7 +18,6 @@ namespace Blueprint;
 public class ApiOperationDescriptor
 {
     private readonly Dictionary<string, object> _featureData = new Dictionary<string, object>();
-    private readonly List<ApiOperationLink> _links = new List<ApiOperationLink>();
     private readonly List<ResponseDescriptor> _responses = new List<ResponseDescriptor>();
     private readonly List<IOperationExecutorBuilder> _handlers = new List<IOperationExecutorBuilder>();
 
@@ -124,11 +123,6 @@ public class ApiOperationDescriptor
     public bool IsCommand => typeof(ICommand).IsAssignableFrom(this.OperationType);
 
     /// <summary>
-    /// Gets all registered <see cref="ApiOperationLink" />s for this descriptor.
-    /// </summary>
-    public IReadOnlyList<ApiOperationLink> Links => this._links;
-
-    /// <summary>
     /// Gets the list of response types this operation could generate, which should typically only
     /// be a single Type to avoid clients having to deal with multiple possible responses
     /// </summary>
@@ -191,21 +185,6 @@ The handlers found are:
         }
 
         this._handlers.Add(builder);
-    }
-
-    /// <summary>
-    /// Adds a link for this descriptor.
-    /// </summary>
-    /// <param name="apiOperationLink">The link to add.</param>
-    /// <exception cref="NotImplementedException">If the link has not been created for this descriptor.</exception>
-    public void AddLink(ApiOperationLink apiOperationLink)
-    {
-        if (apiOperationLink.OperationDescriptor != this)
-        {
-            throw new InvalidOperationException($"The ApiOperationLink MUST have been created for this ApiOperationDescriptor, but was instead created for the description {apiOperationLink.OperationDescriptor}");
-        }
-
-        this._links.Add(apiOperationLink);
     }
 
     /// <summary>

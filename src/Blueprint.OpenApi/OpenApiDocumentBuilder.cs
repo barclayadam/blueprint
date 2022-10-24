@@ -69,7 +69,7 @@ internal class OpenApiDocumentBuilder
         foreach (var processor in openApiOptions.SchemaProcessors)
         {
             jsonSchemaGeneratorSettings.SchemaProcessors.Add(
-                (ISchemaProcessor)ActivatorUtilities.CreateInstance(this._serviceProvider, processor, this._apiDataModel));
+                (ISchemaProcessor)ActivatorUtilities.CreateInstance(this._serviceProvider, processor));
         }
 
         openApiOptions.ConfigureSettings?.Invoke(jsonSchemaGeneratorSettings);
@@ -87,9 +87,12 @@ internal class OpenApiDocumentBuilder
                 continue;
             }
 
-            var httpData = operation.GetFeatureData<HttpOperationFeatureData>();
+            if (!operation.TryGetFeatureData<HttpOperationFeatureData>(out var httpData))
+            {
+                continue;
+            }
 
-            foreach (var route in operation.Links)
+            foreach (var route in httpData.Links)
             {
                 var pathUrl = "/" + route.RoutingUrl;
 

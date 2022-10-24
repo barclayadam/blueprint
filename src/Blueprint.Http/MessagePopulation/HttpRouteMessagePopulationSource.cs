@@ -28,16 +28,19 @@ public class HttpRouteMessagePopulationSource : IMessagePopulationSource
     /// <returns>The properties owned by this source, which are from links on the operation.</returns>
     public IEnumerable<OwnedPropertyDescriptor> GetOwnedProperties(ApiDataModel apiDataModel, ApiOperationDescriptor operationDescriptor)
     {
-        var allLinks = apiDataModel.GetLinksForOperation(operationDescriptor.OperationType).ToList();
+        if (operationDescriptor.TryGetFeatureData<HttpOperationFeatureData>(out var httpOperationFeatureData) == false)
+        {
+            return Enumerable.Empty<OwnedPropertyDescriptor>();
+        }
 
         // Grab all placeholder properties that are in ALL of the links for this operation. If it is in ALL links
         // we know we always "own" the property, otherwise we do not and therefore allow it to be filled by other
         // sources
-        var placeholderProperties = allLinks
+        var placeholderProperties = httpOperationFeatureData.Links
             .SelectMany(l => l.Placeholders)
             .Select(l => l.Property)
             .Distinct()
-            .Where(routeProperty => allLinks.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty)))
+            .Where(routeProperty => httpOperationFeatureData.Links.All(l => l.Placeholders.Any(ip => ip.Property == routeProperty)))
             .Select(p => new OwnedPropertyDescriptor(p))
             .ToList();
 
@@ -50,14 +53,12 @@ public class HttpRouteMessagePopulationSource : IMessagePopulationSource
         IReadOnlyCollection<OwnedPropertyDescriptor> ownedBySource,
         MiddlewareBuilderContext context)
     {
-        if (context.Descriptor.TryGetFeatureData<HttpOperationFeatureData>(out var _) == false)
+        if (context.Descriptor.TryGetFeatureData<HttpOperationFeatureData>(out var httpOperationFeatureData) == false)
         {
             return;
         }
 
-        var allLinks = context.Model.GetLinksForOperation(context.Descriptor.OperationType).ToList();
-
-        var placeholderProperties = allLinks
+        var placeholderProperties = httpOperationFeatureData.Links
             .SelectMany(l => l.Placeholders)
             .Select(p => p.Property)
             .Distinct()

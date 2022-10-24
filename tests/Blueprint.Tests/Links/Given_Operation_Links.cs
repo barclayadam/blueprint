@@ -24,11 +24,13 @@ public class Given_Operation_Links
 
         // Assert
         executor.DataModel
-            .GetLinksForOperation(typeof(OperationWithDuplicateDifferentResourceType))
+            .FindOperation(typeof(OperationWithDuplicateDifferentResourceType))
+            .GetFeatureData<HttpOperationFeatureData>()
+            .Links
             .Should()
             .HaveCount(2);
     }
-        
+
     [Test]
     public void When_Duplicate_Link_Then_Exception()
     {
@@ -47,7 +49,7 @@ public class Given_Operation_Links
                          "\n\n" +
                          " Root#rel1 => OperationWithDuplicate sourced from WithHandler(TestApiOperationHandler`1)");
     }
-        
+
     [Test]
     public void When_Duplicate_Rel_And_Resource_Type_Different_Url_Then_Fails()
     {
@@ -72,16 +74,16 @@ public class Given_Operation_Links
     [Link(typeof(ApiResource1), "/the-same-link/", Rel = "rel1")]
     [Link(typeof(ApiResource1), "/the-same-link/", Rel = "rel1")]
     public class OperationWithDuplicate {}
-        
+
     [Link(typeof(ApiResource1), "/the-same-link/", Rel = "rel1")]
     [Link(typeof(ApiResource1), "/a-different-link/", Rel = "rel1")]
     public class OperationWithDuplicateResourceAndRel {}
-        
+
     [Link(typeof(ApiResource1), "/the-same-link/", Rel = "self")]
     [Link(typeof(ApiResource2), "/the-same-link/", Rel = "self")]
     public class OperationWithDuplicateDifferentResourceType {}
-        
+
     public class ApiResource1 : ApiResource {}
-        
+
     public class ApiResource2 : ApiResource {}
 }

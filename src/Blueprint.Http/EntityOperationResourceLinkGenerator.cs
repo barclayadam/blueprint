@@ -8,6 +8,7 @@ public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     private readonly IApiAuthoriserAggregator _apiAuthoriserAggregator;
     private readonly IApiLinkGenerator _linkGenerator;
     private readonly ILogger<EntityOperationResourceLinkGenerator> _logger;
+    private readonly HttpHost _httpHost;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EntityOperationResourceLinkGenerator"/> class.
@@ -15,18 +16,22 @@ public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
     /// <param name="apiAuthoriserAggregator">An authorisor aggregrator to check if links are allowed to be shown to a user.</param>
     /// <param name="linkGenerator">A link generator to create the URLs of generated links.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="httpHost">The <see cref="HttpHost" />.</param>
     public EntityOperationResourceLinkGenerator(
         IApiAuthoriserAggregator apiAuthoriserAggregator,
         IApiLinkGenerator linkGenerator,
-        ILogger<EntityOperationResourceLinkGenerator> logger)
+        ILogger<EntityOperationResourceLinkGenerator> logger,
+        HttpHost httpHost)
     {
         Guard.NotNull(nameof(apiAuthoriserAggregator), apiAuthoriserAggregator);
         Guard.NotNull(nameof(linkGenerator), linkGenerator);
         Guard.NotNull(nameof(logger), logger);
+        Guard.NotNull(nameof(httpHost), httpHost);
 
         this._apiAuthoriserAggregator = apiAuthoriserAggregator;
         this._linkGenerator = linkGenerator;
         this._logger = logger;
+        this._httpHost = httpHost;
     }
 
     /// <inheritdoc/>
@@ -36,7 +41,7 @@ public class EntityOperationResourceLinkGenerator : IResourceLinkGenerator
         Guard.NotNull(nameof(linkableResource), linkableResource);
 
         var traceLogEnabled = this._logger.IsEnabled(LogLevel.Trace);
-        var links = context.DataModel.GetLinksForResource(linkableResource.GetType());
+        var links = this._httpHost.GetLinksForResource(linkableResource.GetType());
 
         if (links.Count == 0)
         {

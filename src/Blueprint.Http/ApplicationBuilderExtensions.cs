@@ -88,9 +88,21 @@ public static class EndpointRouteBuilderExtensions
 
         var builders = new List<IEndpointConventionBuilder>();
 
+        var allLinks = new List<ApiOperationLink>();
+
+        foreach (var descriptor in apiDataModel.Operations)
+        {
+            if (!descriptor.TryGetFeatureData<HttpOperationFeatureData>(out var httpOperationFeatureData))
+            {
+                continue;
+            }
+
+            allLinks.AddRange(httpOperationFeatureData.Links);
+        }
+
         // Ordering by 'indexOf {' means we put those URLs which are not placeholders
         // first (e.g. /users/{id} and /users/me will put /users/me first) because those without would return -1
-        foreach (var link in apiDataModel.Links.OrderBy(l => l.UrlFormat.IndexOf('{')))
+        foreach (var link in allLinks.OrderBy(l => l.UrlFormat.IndexOf('{')))
         {
             var httpFeatureData = link.OperationDescriptor.GetFeatureData<HttpOperationFeatureData>();
 

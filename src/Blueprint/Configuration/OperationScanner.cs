@@ -290,12 +290,6 @@ public class OperationScanner
             RecordPerformanceMetrics = !type.HasAttribute<DoNotRecordPerformanceMetricsAttribute>(true),
         };
 
-        foreach (var linkAttribute in type.GetCustomAttributes<LinkAttribute>())
-        {
-            descriptor.AddLink(
-                new ApiOperationLink(descriptor, linkAttribute.RoutePattern, linkAttribute.Rel ?? descriptor.Name, linkAttribute.ResourceType));
-        }
-
         foreach (var c in this._conventions)
         {
             c.Apply(descriptor);

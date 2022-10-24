@@ -23,14 +23,27 @@ public class RootMetadataOperation : IQuery<RootResource>
     {
         var systemResource = new RootResource();
 
-        foreach (var link in dataModel.GetRootLinks())
+        foreach (var operation in dataModel.Operations)
         {
-            if (link.OperationDescriptor.IsExposed)
+            if (operation.IsExposed == false)
             {
-                systemResource.AddLink(link.Rel, new Link
+                continue;
+            }
+
+            if (operation.TryGetFeatureData<HttpOperationFeatureData>(out var httpOperationFeatureData) == false)
+            {
+                continue;
+            }
+
+            foreach (var link in httpOperationFeatureData.Links)
+            {
+                if (link.IsRootLink)
                 {
-                    Href = linkGenerator.CreateUrl(link),
-                });
+                    systemResource.AddLink(link.Rel, new Link
+                    {
+                        Href = linkGenerator.CreateUrl(link),
+                    });
+                }
             }
         }
 

@@ -48,7 +48,8 @@ public static class ResourceEventHandler
                     await TryPopulateResourceEventDataAsync(context, resourceEvent);
                 }
 
-                var selfLink = context.DataModel.GetLinkFor(resourceEvent.ResourceType, "self");
+                var httpHost = context.Descriptor.GetFeatureData<HttpOperationFeatureData>().HttpHost;
+                var selfLink = httpHost.GetLinkFor(resourceEvent.ResourceType, "self");
 
                 if (selfLink == null)
                 {

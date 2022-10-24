@@ -21,14 +21,16 @@ namespace Blueprint.Testing;
 /// </remarks>
 public class TestApiOperationExecutor : IApiOperationExecutor
 {
-    private readonly ServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     private readonly CodeGennedExecutor _executor;
 
-    private TestApiOperationExecutor(ServiceProvider serviceProvider, CodeGennedExecutor executor)
+    private TestApiOperationExecutor(IServiceProvider serviceProvider, CodeGennedExecutor executor)
     {
         this._serviceProvider = serviceProvider;
         this._executor = executor;
     }
+
+    public IServiceProvider Services => this._serviceProvider;
 
     /// <inheritdoc />
     public ApiDataModel DataModel => this._executor.DataModel;

@@ -31,6 +31,10 @@ public static class BlueprintApiBuilderExtensions
         this BlueprintApiBuilder apiBuilder,
         Action<BlueprintHttpBuilder> configure = null)
     {
+        var httpHost = new HttpHost();
+
+        apiBuilder.Services.AddSingleton(httpHost);
+
         apiBuilder.Services.AddSingleton<IHttpRequestStreamReaderFactory, MemoryPoolHttpRequestStreamReaderFactory>();
         apiBuilder.Services.AddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
 
@@ -81,8 +85,6 @@ public static class BlueprintApiBuilderExtensions
 
         apiBuilder.Operations(o =>
         {
-            var httpHost = new HttpHost();
-
             o
                 .AddOperation<RootMetadataOperation>("AddHttp")
                 .AddConvention(httpHost)
