@@ -64,7 +64,10 @@ public abstract class CompositeFrame : Frame, IEnumerable<Frame>
             }
         }
 
-        this.GenerateCode(variables, method, writer, this._inner[0]);
+        if (this._inner.Count > 0)
+        {
+            this.GenerateCode(variables, method, writer, this._inner[0]);
+        }
 
         next();
     }
