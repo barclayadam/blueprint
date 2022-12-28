@@ -9,6 +9,11 @@ namespace Blueprint.Compiler;
 /// </summary>
 public class SourceWriter : ISourceWriter
 {
+    // We will always use this as a new line so that no matter what OS we are running on the generated code
+    // has the same newlines, meaning when we compare (i.e. AutoApiOperationExecutorBuilder) we do not need to
+    // consider this
+    private const string NewLine = "\r\n";
+
     private static readonly string[] _indentationLevels =
     {
         string.Empty,
@@ -48,7 +53,7 @@ public class SourceWriter : ISourceWriter
     /// <inheritdoc />
     public ISourceWriter BlankLine()
     {
-        this._writer.Append("\r\n");
+        this._writer.Append(NewLine);
 
         return this;
     }
@@ -96,8 +101,9 @@ public class SourceWriter : ISourceWriter
             else
             {
                 this._writer.Append(this._leadingSpaces);
-                this._writer.Append(line.ToString());
-                this._writer.AppendLine();
+                this._writer.Append(line);
+
+                this.BlankLine();
             }
         }
 
@@ -109,13 +115,14 @@ public class SourceWriter : ISourceWriter
     {
         if (string.IsNullOrEmpty(text))
         {
-            this._writer.AppendLine();
+            this.BlankLine();
         }
         else
         {
             this._writer.Append(this._leadingSpaces);
             this._writer.Append(text);
-            this._writer.AppendLine();
+
+            this.BlankLine();
         }
 
         return this;

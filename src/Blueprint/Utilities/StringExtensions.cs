@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 
 namespace Blueprint.Utilities;
@@ -8,28 +7,6 @@ namespace Blueprint.Utilities;
 /// </summary>
 public static class StringExtensions
 {
-    public static string Truncate(this string value, int maxLength)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return value;
-        }
-
-        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
-    }
-
-    public static TEnumType AsEnum<TEnumType>(this string value) where TEnumType : struct
-    {
-        Guard.NotNullOrEmpty(nameof(value), value);
-
-        return (TEnumType)Enum.Parse(typeof(TEnumType), value);
-    }
-
-    public static TEnumType? AsNullableEnum<TEnumType>(this string value) where TEnumType : struct
-    {
-        return value?.AsEnum<TEnumType>();
-    }
-
     public static string ToPascalCase(this string s)
     {
         var sb = new StringBuilder(s.Length);
