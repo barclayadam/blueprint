@@ -142,11 +142,18 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
                     // compilation
                     return;
                 }
+
+                // We cannot recreate existing files
+                if (this._options.ThrowOnSourceChange)
+                {
+                    throw new InvalidOperationException($"The generated code for {generatedType.Namespace}.{generatedType.TypeName} is outdated and must be recreated.\n\nExpected:\n\n{code}");
+                }
             }
 
+            // We cannot add new files
             if (this._options.ThrowOnSourceChange)
             {
-                throw new InvalidOperationException($"The generated code for {generatedType.Namespace}.{generatedType.TypeName} is outdated and must be recreated.");
+                throw new InvalidOperationException($"The generated code for {generatedType.Namespace}.{generatedType.TypeName} cannot be found at {sourceFilePath}.");
             }
 
             this._logger.LogInformation(
