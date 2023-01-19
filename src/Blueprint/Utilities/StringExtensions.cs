@@ -7,6 +7,56 @@ namespace Blueprint.Utilities;
 /// </summary>
 public static class StringExtensions
 {
+    /// <summary>
+    /// Determines whether two strings are equal or not, ignoring any new line characters.
+    /// </summary>
+    /// <param name="a">First string to compare.</param>
+    /// <param name="b">Seconds string to compare.</param>
+    /// <returns>Whether the two strings can be considered equal.</returns>
+    public static bool EqualsIgnoringNewlines(string a, string b)
+    {
+        if (a.Length == 0 && b.Length == 0)
+        {
+            return true;
+        }
+
+        var i = 0;
+        var j = 0;
+
+        while (true)
+        {
+            // Skip any new line characters in both a and b strings
+            while (i < a.Length && (a[i] == '\n' || a[i] == '\r'))
+            {
+                i++;
+            }
+
+            while (j < b.Length && (b[j] == '\n' || b[j] == '\r'))
+            {
+                j++;
+            }
+
+            // We have reached the end of a string, break out and check for length after while loop
+            if (i >= a.Length || j >= b.Length)
+            {
+                break;
+            }
+
+            // We have found a difference, immediately return false
+            if (a[i] != b[j])
+            {
+                return false;
+            }
+
+            i++;
+            j++;
+        }
+
+        // We must have reached the end of BOTH strings. If that is not the case it means, ignoring new lines
+        // one of the strings is larger and therefore not equal
+        return i == a.Length && j == b.Length;
+    }
+
     public static string ToPascalCase(this string s)
     {
         var sb = new StringBuilder(s.Length);

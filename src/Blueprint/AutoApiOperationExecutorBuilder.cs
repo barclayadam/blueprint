@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Blueprint.Compiler;
 using Blueprint.Configuration;
+using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -125,7 +126,7 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
             {
                 var existingCode = File.ReadAllText(sourceFilePath);
 
-                if (existingCode.Equals(code))
+                if (StringExtensions.EqualsIgnoringNewlines(existingCode, code))
                 {
                     if (this._preexistingTypes.Any(t => t.Namespace == generatedType.Namespace && t.Name == generatedType.TypeName) == false)
                     {
