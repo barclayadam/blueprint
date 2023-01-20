@@ -41,29 +41,42 @@ public class MicrosoftDependencyInjectionInstanceFrameProvider : InstanceFramePr
         foreach (var r in registrations)
         {
             // First, obvious check for exact type matching
-            var isMatch = r.ServiceType == type;
+            var isExactMatch = r.ServiceType == type;
 
             // Handle small subset of open-generic registrations. This can be made more robust, but
             // is, for now, very basic to handle in particular the common IOptions registration pattern
             //
             // - if service type == interface [TypeX]<> and type is interface of [TypeX]<T> then match
             //   (i.e. IOptions<any> registration would match IOptions<MyOptions> type
-            if (r.ServiceType.IsGenericTypeDefinition && r.ServiceType.IsInterface)
+            var isGenericMatch = r.ServiceType is { IsGenericTypeDefinition: true, IsInterface: true } &&
+                                    type.IsGenericType && type.GetGenericTypeDefinition() == r.ServiceType;
+
+            if (!isExactMatch && !isGenericMatch)
             {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == r.ServiceType)
-                {
-                    isMatch = true;
-                }
+                continue;
             }
 
-            if (isMatch)
+            var ioCRegistration = new IoCRegistration
             {
-                registrationsForType.Add(new IoCRegistration
+                ServiceType = r.ServiceType,
+                IsSingleton = r.Lifetime == ServiceLifetime.Singleton,
+            };
+
+            // Now we have found an exact match that is all we will return. We do this to avoid returning
+            // multiple registrations if a non-exact generic registration AND a concrete registration exists
+            // (i.e. IOptions<> and IOptions<MyOptions>).
+            //
+            // This is in particular useful when we try to optimise variable injection (i.e. singleton vs transient),
+            // as with multiple registrations we will NOT be able to determine the lifecycle and make that optimisation.
+            if (isExactMatch)
+            {
+                return new List<IoCRegistration>
                 {
-                    ServiceType = r.ServiceType,
-                    IsSingleton = r.Lifetime == ServiceLifetime.Singleton,
-                });
+                    ioCRegistration,
+                };
             }
+
+            registrationsForType.Add(ioCRegistration);
         }
 
         return registrationsForType;
