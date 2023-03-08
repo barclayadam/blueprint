@@ -104,6 +104,8 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
         private readonly IAssemblyGenerator _inner;
         private readonly ILogger _logger;
 
+        private bool _requiresCompilation = false;
+
         public IncrementalAssemblyGenerator(IEnumerable<Type> preexistingTypes, BlueprintApiOptions options, IAssemblyGenerator inner, ILogger logger)
         {
             this._preexistingTypes = preexistingTypes;
@@ -165,10 +167,18 @@ public class AutoApiOperationExecutorBuilder : IApiOperationExecutorBuilder
             File.WriteAllText(sourceFilePath, code);
 
             this._inner.AddFile(generatedType, code);
+            this._requiresCompilation = true;
         }
 
         public Type[] Generate(GenerationRules rules)
         {
+            // Completely skip compilation if we don't need to as even though no files exist in the compilation unit
+            // there still exists a cost of calling in to Roslyn.
+            if (!this._requiresCompilation)
+            {
+                return this._preexistingTypes.ToArray();
+            }
+
             var newlyCompiled = this._inner.Generate(rules);
 
             // It is important we return the newly compiled types first, so that the existing types are always
