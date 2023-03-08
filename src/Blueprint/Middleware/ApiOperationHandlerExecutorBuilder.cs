@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
 using Blueprint.CodeGen;
-using Blueprint.Compiler;
 using Blueprint.Compiler.Frames;
 using Blueprint.Compiler.Model;
 using Blueprint.Compiler.Util;
 using Blueprint.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Blueprint.Middleware;
 
@@ -16,8 +14,6 @@ namespace Blueprint.Middleware;
 /// </summary>
 public class ApiOperationHandlerExecutorBuilder : IOperationExecutorBuilder
 {
-    private static readonly EventId _apiOperationExecutorLogEvent = new EventId(2, "ApiOperationHandlerExecuting");
-
     private readonly Type _operationType;
     private readonly Type _iocServiceType;
     private readonly Type _apiOperationHandlerType;
@@ -80,8 +76,7 @@ public class ApiOperationHandlerExecutorBuilder : IOperationExecutorBuilder
         var invocationFrames = new Frame[]
         {
             getInstanceFrame,
-            LogFrame.Debug(
-                _apiOperationExecutorLogEvent,
+            LogFrame.Debug(BlueprintLoggingEventIds.ApiOperationExecuting,
                 "Executing API operation {OperationType} with handler {HandlerType}",
                 ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType),
                 new Variable(typeof(string), $"{getInstanceFrame.InstanceVariable}.GetType().Name")),

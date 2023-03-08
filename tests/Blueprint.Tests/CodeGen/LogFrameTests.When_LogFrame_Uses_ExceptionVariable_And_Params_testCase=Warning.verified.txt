@@ -7,12 +7,12 @@ namespace Tests
 {
     public class GeneratedType : Blueprint.Compiler.Tests.Scenarios.IAction<Blueprint.ApiException, Microsoft.Extensions.Logging.ILogger>
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _UnhandledexceptionwithmessageMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Warning, new Microsoft.Extensions.Logging.EventId(35, "Unhandled exception with message {Message}"), "Unhandled exception with message {Message}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _ExampleEventId = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Warning, new Microsoft.Extensions.Logging.EventId(1, "Example Event Id"), "Unhandled exception with message {Message}");
 
 
         public void DoStuff(Blueprint.ApiException arg1, Microsoft.Extensions.Logging.ILogger arg2)
         {
-            _UnhandledexceptionwithmessageMessage(arg2, "The static string message", arg1);
+            _ExampleEventId(arg2, "The static string message", arg1);
         }
     }
 }

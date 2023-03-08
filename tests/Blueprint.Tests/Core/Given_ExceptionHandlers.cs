@@ -8,6 +8,7 @@ using Blueprint.Configuration;
 using Blueprint.Errors;
 using Blueprint.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Blueprint.Tests.Core;
@@ -26,7 +27,7 @@ public class Given_ExceptionHandlers
             {
                 return new Frame[]
                 {
-                    LogFrame.Critical("Exception happened, oops"),
+                    LogFrame.Critical(new EventId(1, "BadException"), "Exception happened, oops"),
                     new ReturnFrame(new Variable(typeof(object), "null")),
                 };
             });
@@ -53,7 +54,7 @@ public class Given_ExceptionHandlers
             {
                 return new Frame[]
                 {
-                    LogFrame.Critical("Exception happened, oops"),
+                    LogFrame.Critical(new EventId(1, "BadException"), "Exception happened, oops"),
                 };
             });
 

@@ -16,8 +16,6 @@ namespace Blueprint.Middleware;
 /// </summary>
 public class ValidationMiddlewareBuilder : IMiddlewareBuilder
 {
-    private static readonly EventId _validationFailedLogEvent = new EventId(1, "ValidationFailed");
-
     /// <summary>
     /// Returns <c>true</c>.
     /// </summary>
@@ -125,8 +123,7 @@ public class ValidationMiddlewareBuilder : IMiddlewareBuilder
             context.AppendFrames(
                 new IfBlock($"{failureCount} > 0")
                 {
-                    LogFrame.Debug(
-                        _validationFailedLogEvent,
+                    LogFrame.Debug(BlueprintLoggingEventIds.ValidatedFailed,
                         "Validation failed with {ValidationFailureCount} failures, returning ValidationFailedOperationResult",
                         new Variable<int>(failureCount)),
                     createResult,

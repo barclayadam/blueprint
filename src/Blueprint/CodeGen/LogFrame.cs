@@ -30,8 +30,6 @@ public class LogFrame : SyncFrame
 {
     private static readonly Regex _invalidVariableCharacters = new Regex("[^a-zA-Z]", RegexOptions.Compiled);
 
-    private static int _eventIdCount = 1;
-
     [CanBeNull]
     private readonly Variable _exceptionVariable;
     private readonly LogLevel _level;
@@ -39,11 +37,6 @@ public class LogFrame : SyncFrame
     private readonly object[] _parameters;
 
     private readonly StaticField _actionVariable;
-
-    private LogFrame(LogLevel level, string message, [CanBeNull] Variable exceptionVariable, object[] parameters)
-        : this(level, new EventId(_eventIdCount++, message.Replace("\"", "\\\"")), message, exceptionVariable, parameters)
-    {
-    }
 
     private LogFrame(LogLevel level, EventId eventId, string message, [CanBeNull] Variable exceptionVariable, object[] parameters)
     {
@@ -96,18 +89,6 @@ public class LogFrame : SyncFrame
     /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Trace" /> level and given
     /// message.
     /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Trace(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Trace, message, null, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Trace" /> level and given
-    /// message.
-    /// </summary>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -121,18 +102,6 @@ public class LogFrame : SyncFrame
     /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" /> level and given
     /// message.
     /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Debug(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Debug, message, null, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Debug" /> level and given
-    /// message.
-    /// </summary>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -140,18 +109,6 @@ public class LogFrame : SyncFrame
     public static LogFrame Debug(EventId eventId, string message, params object[] parameters)
     {
         return new LogFrame(LogLevel.Debug, eventId, message, null, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Information" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Information(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Information, message, null, parameters);
     }
 
     /// <summary>
@@ -172,19 +129,6 @@ public class LogFrame : SyncFrame
     /// message.
     /// </summary>
     /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Information(Variable exceptionVariable, string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Information, message, exceptionVariable, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Information" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -192,18 +136,6 @@ public class LogFrame : SyncFrame
     public static LogFrame Information(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
     {
         return new LogFrame(LogLevel.Information, eventId, message, exceptionVariable, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Warning(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Warning, message, null, parameters);
     }
 
     /// <summary>
@@ -224,19 +156,6 @@ public class LogFrame : SyncFrame
     /// message.
     /// </summary>
     /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Warning(Variable exceptionVariable, string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Warning, message, exceptionVariable, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Warning" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -244,18 +163,6 @@ public class LogFrame : SyncFrame
     public static LogFrame Warning(Variable exceptionVariable, EventId eventId, string message, params object[] parameters)
     {
         return new LogFrame(LogLevel.Warning, eventId, message, exceptionVariable, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Error" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Error(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Error, message, null, parameters);
     }
 
     /// <summary>
@@ -276,19 +183,6 @@ public class LogFrame : SyncFrame
     /// message.
     /// </summary>
     /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Error(Variable exceptionVariable, string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Error, message, exceptionVariable, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Error" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -302,18 +196,6 @@ public class LogFrame : SyncFrame
     /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
     /// message.
     /// </summary>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Critical(string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Critical, message, null, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
-    /// message.
-    /// </summary>
     /// <param name="eventId">An event id that should be used to identify this log message.</param>
     /// <param name="message">The message to output.</param>
     /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
@@ -321,19 +203,6 @@ public class LogFrame : SyncFrame
     public static LogFrame Critical(EventId eventId, string message, params object[] parameters)
     {
         return new LogFrame(LogLevel.Critical, eventId, message, null, parameters);
-    }
-
-    /// <summary>
-    /// Constructs a new <see cref="LogFrame" /> with the <see cref="Microsoft.Extensions.Logging.LogLevel.Critical" /> level and given
-    /// message.
-    /// </summary>
-    /// <param name="exceptionVariable">A variable pointing to an exception to record.</param>
-    /// <param name="message">The message to output.</param>
-    /// <param name="parameters">The (optional) parameter to place in to the message (as code snippets, NOT necessarily values).</param>
-    /// <returns>A new <see cref="LogFrame"/>.</returns>
-    public static LogFrame Critical(Variable exceptionVariable, string message, params object[] parameters)
-    {
-        return new LogFrame(LogLevel.Critical, message, exceptionVariable, parameters);
     }
 
     /// <summary>

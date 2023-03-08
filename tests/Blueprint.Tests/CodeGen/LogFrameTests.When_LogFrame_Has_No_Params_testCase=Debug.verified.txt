@@ -7,12 +7,12 @@ namespace Tests
 {
     public class GeneratedType : Blueprint.Compiler.Tests.Scenarios.IAction<Microsoft.Extensions.Logging.ILogger>
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, System.Exception> _Astaticlogframemessage = Microsoft.Extensions.Logging.LoggerMessage.Define(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(22, "A static log frame message"), "A static log frame message");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, System.Exception> _ExampleEventId = Microsoft.Extensions.Logging.LoggerMessage.Define(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "Example Event Id"), "A static log frame message");
 
 
         public void DoStuff(Microsoft.Extensions.Logging.ILogger arg1)
         {
-            _Astaticlogframemessage(arg1, null);
+            _ExampleEventId(arg1, null);
         }
     }
 }

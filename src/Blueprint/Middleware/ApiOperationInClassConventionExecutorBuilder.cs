@@ -17,8 +17,6 @@ namespace Blueprint.Middleware;
 /// </summary>
 public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBuilder
 {
-    private static readonly EventId _apiOperationExecutorLogEvent = new EventId(3, "OperationExecuting");
-
     private readonly Type _operationType;
     private readonly MethodInfo _method;
 
@@ -51,7 +49,7 @@ public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBu
         // invocations)
         context.AppendFrames(
             LogFrame.Debug(
-                _apiOperationExecutorLogEvent,
+                BlueprintLoggingEventIds.ApiOperationExecuting,
                 "Executing API operation {OperationType} with inline handler",
                 ReflectionUtilities.PrettyTypeName(context.Descriptor.OperationType)),
             handlerInvokeCall);
@@ -61,7 +59,7 @@ public class ApiOperationInClassConventionExecutorBuilder : IOperationExecutorBu
         {
             var emptyResultCreation = new VariableCreationFrame(
                 typeof(NoResultOperationResult),
-                $"{typeof(NoResultOperationResult).FullNameInCode()}.{nameof(NoResultOperationResult.Instance)};");
+                $"{typeof(NoResultOperationResult).FullNameInCode()}.{nameof(NoResultOperationResult.Instance)}");
 
             context.AppendFrames(emptyResultCreation);
 

@@ -15,8 +15,6 @@ namespace Blueprint.Middleware;
 /// </summary>
 public class LoggingMiddlewareBuilder : IMiddlewareBuilder
 {
-    private static readonly EventId _operationFinishedLogEvent = new EventId(4, "OperationFinished");
-
     /// <summary>
     /// Returns <c>true</c>.
     /// </summary>
@@ -71,8 +69,7 @@ public class LoggingMiddlewareBuilder : IMiddlewareBuilder
             writer.WriteLine($"{stopwatchVariable}.Stop();");
 
             writer.Write(
-                LogFrame.Information(
-                    _operationFinishedLogEvent,
+                LogFrame.Information(BlueprintLoggingEventIds.ApiOperationFinished,
                     "Operation {OperationName} finished in {TotalMilliseconds}ms",
                     ReflectionUtilities.PrettyTypeName(this._operationType),
                     stopwatchVariable.GetProperty(nameof(Stopwatch.Elapsed)).GetProperty(nameof(TimeSpan.TotalMilliseconds))));
