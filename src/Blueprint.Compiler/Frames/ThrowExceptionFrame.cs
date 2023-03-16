@@ -42,6 +42,6 @@ public class ThrowExceptionFrame<T> : SyncFrame
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"throw new {typeof(T).FullNameInCode()}(\"{this._exceptionMessage.Replace("\"", "\\\"")}\"); ";
+        return $"throw new {typeof(T).FullNameInCode()}(\"{this._exceptionMessage.Replace("\"", "\\\"")}\");";
     }
 }
