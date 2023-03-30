@@ -10,10 +10,10 @@ namespace Blueprint.Generated
 {
     public class WeatherForecastInlineQueryExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, int, System.Exception> _ValidationFailed = Microsoft.Extensions.Logging.LoggerMessage.Define<System.Int32>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "ValidationFailed"), "Validation failed with {ValidationFailureCount} failures, returning ValidationFailedOperationResult");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _OperationExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(3, "OperationExecuting"), "Executing API operation {OperationType} with inline handler");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(41, "A non-5xx ApiException has occurred with message {ExceptionMessage}"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(42, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, int, System.Exception> _ValidatedFailed = Microsoft.Extensions.Logging.LoggerMessage.Define<System.Int32>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(3, "ValidatedFailed"), "Validation failed with {ValidationFailureCount} failures, returning ValidationFailedOperationResult");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _ApiOperationExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "ApiOperationExecuting"), "Executing API operation {OperationType} with inline handler");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _NonException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(4, "Non500Exception"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _UnhandledException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(5, "UnhandledException"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly Blueprint.Sample.WebApi.Data.IWeatherDataSource _weatherDataSource;
@@ -52,8 +52,15 @@ namespace Blueprint.Generated
                 weatherForecastInlineQuery.Days = fromQueryDays != Microsoft.Extensions.Primitives.StringValues.Empty ? (System.String[]) Blueprint.Http.MessagePopulation.HttpPartMessagePopulationSource.ConvertValuesToArray<string>(fromQueryDays) : weatherForecastInlineQuery.Days;
 
 
+                // AuthenticationMiddlewareBuilder
+
                 // UserContextLoaderMiddlewareBuilder
-                context.UserAuthorisationContext = Blueprint.AnonymousUserAuthorisationContext.Instance;
+                if (context.ClaimsIdentity?.IsAuthenticated == true)
+                {
+                    var userAuthorisationContextFactory = context.ServiceProvider.GetRequiredService<Blueprint.Authorisation.IUserAuthorisationContextFactory>();
+                    var userAuthorisationContext = await userAuthorisationContextFactory.CreateContextAsync(context.ClaimsIdentity);
+                    context.UserAuthorisationContext = userAuthorisationContext;
+                }
 
                 // ValidationMiddlewareBuilder
                 var validationFailures = new Blueprint.Validation.ValidationFailures();
@@ -75,14 +82,14 @@ namespace Blueprint.Generated
                 }
                 if (validationFailures.Count > 0)
                 {
-                    _ValidationFailed(_logger, validationFailures.Count, null);
+                    _ValidatedFailed(_logger, validationFailures.Count, null);
                     var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(validationFailures);
                     return validationFailedOperationResult;
                 }
 
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfWeatherForecastInlineQuery = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("WeatherForecastInlineQuery", System.Diagnostics.ActivityKind.Internal);
-                _OperationExecuting(_logger, "WeatherForecastInlineQuery", null);
+                _ApiOperationExecuting(_logger, "WeatherForecastInlineQuery", null);
                 var handlerResult = weatherForecastInlineQuery.Invoke(_weatherDataSource);
                 Blueprint.OperationResult operationResult = new Blueprint.OkResult(handlerResult);
                 activityOfWeatherForecastInlineQuery?.Dispose();
@@ -110,13 +117,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }
@@ -151,14 +158,14 @@ namespace Blueprint.Generated
                 }
                 if (validationFailures.Count > 0)
                 {
-                    _ValidationFailed(_logger, validationFailures.Count, null);
+                    _ValidatedFailed(_logger, validationFailures.Count, null);
                     var validationFailedOperationResult = new Blueprint.Middleware.ValidationFailedOperationResult(validationFailures);
                     return Task.FromResult((Blueprint.OperationResult)validationFailedOperationResult);
                 }
 
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfWeatherForecastInlineQuery = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("WeatherForecastInlineQuery", System.Diagnostics.ActivityKind.Internal);
-                _OperationExecuting(_logger, "WeatherForecastInlineQuery", null);
+                _ApiOperationExecuting(_logger, "WeatherForecastInlineQuery", null);
                 var handlerResult = weatherForecastInlineQuery.Invoke(_weatherDataSource);
                 Blueprint.OperationResult operationResult = new Blueprint.OkResult(handlerResult);
                 activityOfWeatherForecastInlineQuery?.Dispose();
@@ -182,13 +189,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }

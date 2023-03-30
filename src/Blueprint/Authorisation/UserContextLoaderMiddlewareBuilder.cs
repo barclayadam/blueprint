@@ -18,43 +18,25 @@ public class UserContextLoaderMiddlewareBuilder : IMiddlewareBuilder
 
     public void Build(MiddlewareBuilderContext context)
     {
-        if (context.Descriptor.AnonymousAccessAllowed)
-        {
-            // TODO: Should we be loading user auth context even if anon access allowed as some may still use if available?
+        // Generates:
+        //
+        // if (context.ClaimsIdentity?.IsAuthenticated == true)
+        // {
+        //     var userSecurityContext = await this.userSecurityContextFactory.CreateContextAsync(context.ClaimsIdentity);
+        //     context.UserAuthorisationContext = userSecurityContext;
+        // }
+        var claimsIdentityVariable = context.FindVariable<ClaimsIdentity>();
 
-            // Generates
-            //
-            // context.UserAuthorisationContext = AnonymousUserAuthorisationContext.Instance;
+        var userSecurityContextFactoryCreator = context.VariableFromContainer<IUserAuthorisationContextFactory>();
+        var createContextCall = userSecurityContextFactoryCreator.Method(f => f.CreateContextAsync(null));
+        createContextCall.TrySetArgument(claimsIdentityVariable);
 
-            // When we allow anonymous just inject the AnonymousUserAuthorisationContext at all times (is this right?)
-
-            context.AppendFrames(
-                new VariableSetterFrame(
-                    context.FindVariable<IUserAuthorisationContext>(),
-                    Variable.StaticFrom<AnonymousUserAuthorisationContext>(nameof(AnonymousUserAuthorisationContext.Instance))));
-        }
-        else
-        {
-            // Generates:
-            //
-            // if (context.ClaimsIdentity != null && context.ClaimsIdentity.IsAuthenticated == true)
-            // {
-            //     var userSecurityContext = await this.userSecurityContextFactory.CreateContextAsync(context.ClaimsIdentity);
-            //     context.UserAuthorisationContext = userSecurityContext;
-            // }
-            var claimsIdentityVariable = context.FindVariable<ClaimsIdentity>();
-
-            var userSecurityContextFactoryCreator = context.VariableFromContainer<IUserAuthorisationContextFactory>();
-            var createContextCall = userSecurityContextFactoryCreator.Method(f => f.CreateContextAsync(null));
-            createContextCall.TrySetArgument(claimsIdentityVariable);
-
-            context.AppendFrames(
-                new IfBlock($"{claimsIdentityVariable} != null && {claimsIdentityVariable.GetProperty(nameof(ClaimsIdentity.IsAuthenticated))} == true")
-                {
-                    userSecurityContextFactoryCreator,
-                    createContextCall,
-                    new VariableSetterFrame(context.FindVariable<IUserAuthorisationContext>(), createContextCall.ReturnVariable),
-                });
-        }
+        context.AppendFrames(
+            new IfBlock($"{claimsIdentityVariable}?.{nameof(ClaimsIdentity.IsAuthenticated)} == true")
+            {
+                userSecurityContextFactoryCreator,
+                createContextCall,
+                new VariableSetterFrame(context.FindVariable<IUserAuthorisationContext>(), createContextCall.ReturnVariable),
+            });
     }
 }

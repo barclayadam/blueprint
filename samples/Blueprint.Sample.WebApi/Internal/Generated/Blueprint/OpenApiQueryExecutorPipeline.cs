@@ -11,9 +11,9 @@ namespace Blueprint.Generated
 {
     public class OpenApiQueryExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _OperationExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(3, "OperationExecuting"), "Executing API operation {OperationType} with inline handler");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(57, "A non-5xx ApiException has occurred with message {ExceptionMessage}"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(58, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _ApiOperationExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "ApiOperationExecuting"), "Executing API operation {OperationType} with inline handler");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _NonException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(4, "Non500Exception"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _UnhandledException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(5, "UnhandledException"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly NSwag.OpenApiDocument _openApiDocument;
@@ -33,14 +33,21 @@ namespace Blueprint.Generated
             try
             {
 
+                // AuthenticationMiddlewareBuilder
+
                 // UserContextLoaderMiddlewareBuilder
-                context.UserAuthorisationContext = Blueprint.AnonymousUserAuthorisationContext.Instance;
+                if (context.ClaimsIdentity?.IsAuthenticated == true)
+                {
+                    var userAuthorisationContextFactory = context.ServiceProvider.GetRequiredService<Blueprint.Authorisation.IUserAuthorisationContextFactory>();
+                    var userAuthorisationContext = await userAuthorisationContextFactory.CreateContextAsync(context.ClaimsIdentity);
+                    context.UserAuthorisationContext = userAuthorisationContext;
+                }
 
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfOpenApiQuery = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OpenApiQuery", System.Diagnostics.ActivityKind.Internal);
-                _OperationExecuting(_logger, "OpenApiQuery", null);
+                _ApiOperationExecuting(_logger, "OpenApiQuery", null);
                 var httpContext = Blueprint.Http.ApiOperationContextHttpExtensions.GetHttpContext(context);
                 var handlerResult = openApiQuery.Invoke(httpContext, _openApiDocument, context, _openApiOptionsIOptions);
                 Blueprint.OperationResult operationResult = handlerResult;
@@ -69,13 +76,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }
@@ -94,7 +101,7 @@ namespace Blueprint.Generated
 
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfOpenApiQuery = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OpenApiQuery", System.Diagnostics.ActivityKind.Internal);
-                _OperationExecuting(_logger, "OpenApiQuery", null);
+                _ApiOperationExecuting(_logger, "OpenApiQuery", null);
                 var httpContext = Blueprint.Http.ApiOperationContextHttpExtensions.GetHttpContext(context);
                 var handlerResult = openApiQuery.Invoke(httpContext, _openApiDocument, context, _openApiOptionsIOptions);
                 Blueprint.OperationResult operationResult = handlerResult;
@@ -119,13 +126,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }

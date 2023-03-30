@@ -18,8 +18,7 @@ public class AuthenticationMiddlewareBuilder : IMiddlewareBuilder
     /// <returns>Whether this middleware matches.</returns>
     public bool Matches(ApiOperationDescriptor operation)
     {
-        // TODO: Should we be loading user auth context even if anon access allowed as some may still use if available?
-        return operation.AnonymousAccessAllowed == false;
+        return true;
     }
 
     /// <inheritdoc />

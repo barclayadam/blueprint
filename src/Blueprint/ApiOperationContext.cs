@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Threading;
 using Blueprint.Authorisation;
+using JetBrains.Annotations;
 
 namespace Blueprint;
 
@@ -110,13 +111,15 @@ public class ApiOperationContext
     /// <summary>
     /// Gets the parent <see cref="ApiOperationContext" /> of this context, which may be null.
     /// </summary>
+    [CanBeNull]
     public ApiOperationContext Parent { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="Activity" /> for this context, which may be <c>null</c> if the host
     /// of an operation has not integrated with APM tooling.
     /// </summary>
-    public Activity? Activity { get; set; }
+    [CanBeNull]
+    public Activity Activity { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this is a nested context, meaning it has been created as a child of an
@@ -134,8 +137,10 @@ public class ApiOperationContext
     /// </remarks>
     public bool SkipAuthorisation { get; set; }
 
+    [CanBeNull]
     public IUserAuthorisationContext UserAuthorisationContext { get; set; }
 
+    [CanBeNull]
     public ClaimsIdentity ClaimsIdentity { get; set; }
 
     /// <summary>

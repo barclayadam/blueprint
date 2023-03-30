@@ -86,8 +86,6 @@ public static class BuiltinBlueprintMiddlewares
     /// <returns>The builder.</returns>
     public static BlueprintApiBuilder AddAuthentication(this BlueprintApiBuilder apiBuilder, Action<BlueprintAuthenticationBuilder> configure)
     {
-        TryAddAuthenticationServices(apiBuilder);
-
         apiBuilder.Pipeline(p =>
         {
             p.AddMiddleware<AuthenticationMiddlewareBuilder>(MiddlewareStage.Authentication);
@@ -133,9 +131,6 @@ public static class BuiltinBlueprintMiddlewares
         services.TryAddScoped<IApiAuthoriserAggregator, ApiAuthoriserAggregator>();
         services.TryAddScoped<IClaimInspector, ClaimInspector>();
 
-        // It is expected that this is overriden, for example by AddHttp
-        services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
-
         // We add the authoriser to the enumerable of `IApiAuthoriser`, as well as registering itself as a concrete type so that it can
         // be grabbed from default DI container by it's type (as is required by the code gen)
         void AddAuthoriser<T>() where T : class, IApiAuthoriser
@@ -146,11 +141,5 @@ public static class BuiltinBlueprintMiddlewares
 
         AddAuthoriser<ClaimsRequiredApiAuthoriser>();
         AddAuthoriser<MustBeAuthenticatedApiAuthoriser>();
-    }
-
-    private static void TryAddAuthenticationServices(BlueprintApiBuilder apiBuilder)
-    {
-        // It is expected that this is overriden, for example by AddHttp
-        apiBuilder.Services.TryAddSingleton<IClaimsIdentityProvider, NullClaimsIdentityProvider>();
     }
 }

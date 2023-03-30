@@ -9,9 +9,9 @@ namespace Blueprint.Generated
 {
     public class WeatherForecastQueryExecutorPipeline : Blueprint.IOperationExecutorPipeline
     {
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, string, System.Exception> _ApiOperationHandlerExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String, System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(2, "ApiOperationHandlerExecuting"), "Executing API operation {OperationType} with handler {HandlerType}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(49, "A non-5xx ApiException has occurred with message {ExceptionMessage}"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
-        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _AnunhandledexceptionhasoccurredwithmessageExceptionMessage = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(50, "An unhandled exception has occurred with message {ExceptionMessage}"), "An unhandled exception has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, string, System.Exception> _ApiOperationExecuting = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String, System.String>(Microsoft.Extensions.Logging.LogLevel.Debug, new Microsoft.Extensions.Logging.EventId(1, "ApiOperationExecuting"), "Executing API operation {OperationType} with handler {HandlerType}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _NonException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Information, new Microsoft.Extensions.Logging.EventId(4, "Non500Exception"), "A non-5xx ApiException has occurred with message {ExceptionMessage}");
+        private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _UnhandledException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(5, "UnhandledException"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
 
@@ -33,15 +33,22 @@ namespace Blueprint.Generated
                 weatherForecastQuery.City = fromQueryCity != Microsoft.Extensions.Primitives.StringValues.Empty ? fromQueryCity.ToString() : weatherForecastQuery.City;
 
 
+                // AuthenticationMiddlewareBuilder
+
                 // UserContextLoaderMiddlewareBuilder
-                context.UserAuthorisationContext = Blueprint.AnonymousUserAuthorisationContext.Instance;
+                if (context.ClaimsIdentity?.IsAuthenticated == true)
+                {
+                    var userAuthorisationContextFactory = context.ServiceProvider.GetRequiredService<Blueprint.Authorisation.IUserAuthorisationContextFactory>();
+                    var userAuthorisationContext = await userAuthorisationContextFactory.CreateContextAsync(context.ClaimsIdentity);
+                    context.UserAuthorisationContext = userAuthorisationContext;
+                }
 
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfWeatherForecastQueryHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("WeatherForecastQueryHandler", System.Diagnostics.ActivityKind.Internal);
                 var weatherForecastQueryHandler = context.ServiceProvider.GetRequiredService<Blueprint.Sample.WebApi.Api.WeatherForecastQueryHandler>();
-                _ApiOperationHandlerExecuting(_logger, "WeatherForecastQuery", weatherForecastQueryHandler.GetType().Name, null);
+                _ApiOperationExecuting(_logger, "WeatherForecastQuery", weatherForecastQueryHandler.GetType().Name, null);
                 var handlerResult = await weatherForecastQueryHandler.Handle(weatherForecastQuery, context);
                 Blueprint.OperationResult operationResult = handlerResult is Blueprint.OperationResult r ? r : new Blueprint.OkResult(handlerResult);
                 activityOfWeatherForecastQueryHandler?.Dispose();
@@ -69,13 +76,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }
@@ -95,7 +102,7 @@ namespace Blueprint.Generated
                 // OperationExecutorMiddlewareBuilder
                 using var activityOfWeatherForecastQueryHandler = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("WeatherForecastQueryHandler", System.Diagnostics.ActivityKind.Internal);
                 var weatherForecastQueryHandler = context.ServiceProvider.GetRequiredService<Blueprint.Sample.WebApi.Api.WeatherForecastQueryHandler>();
-                _ApiOperationHandlerExecuting(_logger, "WeatherForecastQuery", weatherForecastQueryHandler.GetType().Name, null);
+                _ApiOperationExecuting(_logger, "WeatherForecastQuery", weatherForecastQueryHandler.GetType().Name, null);
                 var handlerResult = await weatherForecastQueryHandler.Handle(weatherForecastQuery, context);
                 Blueprint.OperationResult operationResult = handlerResult is Blueprint.OperationResult r ? r : new Blueprint.OkResult(handlerResult);
                 activityOfWeatherForecastQueryHandler?.Dispose();
@@ -119,13 +126,13 @@ namespace Blueprint.Generated
             {
                 if (e is Blueprint.ApiException apiException && apiException.HttpStatus < 500)
                 {
-                    _AnonxxApiExceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _NonException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "OK");
                 }
                 else
                 {
                     Blueprint.Diagnostics.BlueprintActivitySource.RecordException(context.Activity, e, false);
-                    _AnunhandledexceptionhasoccurredwithmessageExceptionMessage(_logger, e.Message, e);
+                    _UnhandledException(_logger, e.Message, e);
                     context.Activity?.SetTag("otel.status_code", "ERROR");
                     context.Activity?.SetTag("otel.status_description", e.Message);
                 }
