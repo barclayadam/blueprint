@@ -83,6 +83,10 @@ public class TestApiOperationExecutor : IApiOperationExecutor
             .AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
+        collection.AddSingleton<IHostEnvironment>(new HostingEnvironment());
+
+        configureServices?.Invoke(collection);
+
         collection.AddBlueprintApi(b =>
         {
             var builder = createHost(b);
@@ -95,10 +99,6 @@ public class TestApiOperationExecutor : IApiOperationExecutor
 
             configure(builder);
         });
-
-        collection.AddSingleton<IHostEnvironment>(new HostingEnvironment());
-
-        configureServices?.Invoke(collection);
 
         var serviceProvider = collection.BuildServiceProvider();
         var executor = (CodeGennedExecutor)serviceProvider.GetRequiredService<IApiOperationExecutor>();

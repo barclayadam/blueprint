@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Blueprint.Middleware;
 using Blueprint.Testing;
 using FluentAssertions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -12,96 +13,98 @@ namespace Blueprint.Tests.OperationExecutorBuilders;
 public class Given_Multiple_ApiOperationHandlers_Same_Class
 {
     [Test]
-    public void When_Handler_Exists_In_Same_Assembly_Can_Find()
+    public async Task When_Handler_Exists_In_Same_Assembly_Can_Find()
     {
         // Arrange
-        var scanner = new ApiOperationHandlerExecutorBuilderScanner();
-
-        var handlers = scanner.FindHandlers(
-            new ServiceCollection(),
-            typeof(OperationA),
-            Enumerable.Empty<Assembly>());
-
-        handlers.Should().NotBeEmpty();
-    }
-
-    [Test]
-    public void When_Handler_Exists_In_Same_Assembly_And_Implements_Multiple_Interfaces_Can_Find_For_All()
-    {
-        // Arrange
-        var scanner = new ApiOperationHandlerExecutorBuilderScanner();
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o
+                .WithOperation<OperationA>());
 
         // Act
-        var operationAHandlers = scanner.FindHandlers(
-            new ServiceCollection(),
-            typeof(OperationA),
-            Enumerable.Empty<Assembly>());
-
-        var operationBHandlers = scanner.FindHandlers(
-            new ServiceCollection(),
-            typeof(OperationB),
-            Enumerable.Empty<Assembly>());
+        var resultA = await executor.ExecuteWithNewScopeAsync(new OperationA());
 
         // Assert
-        operationAHandlers.Should().NotBeEmpty();
-        operationBHandlers.Should().NotBeEmpty();
+        var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
+        okResultA.Content.Should().Be(ScanOperationHandler.OperationADefaultResult);
     }
 
     [Test]
-    public void When_Handler_Exists_In_Assembly_And_IoC_Single_Returned()
+    public async Task When_Handler_Exists_In_Same_Assembly_And_Implements_Multiple_Interfaces_Can_Find_For_All()
     {
         // Arrange
-        var scanner = new ApiOperationHandlerExecutorBuilderScanner();
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o
+                .WithOperation<OperationA>()
+                .WithOperation<OperationB>());
 
         // Act
-        var services = new ServiceCollection();
-        services.AddSingleton<IApiOperationHandler<OperationA>, ScanOperationHandler>();
-
-        var operationAHandlers = scanner.FindHandlers(
-            services,
-            typeof(OperationA),
-            Enumerable.Empty<Assembly>());
+        var resultA = await executor.ExecuteWithNewScopeAsync(new OperationA());
+        var resultB = await executor.ExecuteWithNewScopeAsync(new OperationB());
 
         // Assert
-        operationAHandlers.Should().NotBeEmpty();
-        operationAHandlers.Should().HaveCount(1);
+        var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
+        okResultA.Content.Should().Be(ScanOperationHandler.OperationADefaultResult);
+
+        var okResultB = resultB.ShouldBeOperationResultType<OkResult>();
+        okResultB.Content.Should().Be(ScanOperationHandler.OperationBDefaultResult);
     }
 
     [Test]
-    public void When_Handler_Exists_In_IoC_Finds()
+    public async Task When_Handler_Exists_In_IoC_And_Implements_Multiple_Interfaces_Can_Find_For_All()
     {
         // Arrange
-        var scanner = new ApiOperationHandlerExecutorBuilderScanner();
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o
+                .WithOperation<OperationA>()
+                .WithOperation<OperationB>(),
+            s =>
+            {
+                s.AddSingleton<IApiOperationHandler<OperationA>, ScanOperationHandler>(_ => new ScanOperationHandler(operationAResult: "IoCAResult"));
+                s.AddSingleton<IApiOperationHandler<OperationB>, ScanOperationHandler>(_ => new ScanOperationHandler(operationBResult: "IoCBResult"));
+            });
 
-        var services = new ServiceCollection();
-        services.AddSingleton<ScanOperationHandler, ScanOperationHandler>();
+        // Act
+        var resultA = await executor.ExecuteWithNewScopeAsync(new OperationA());
+        var resultB = await executor.ExecuteWithNewScopeAsync(new OperationB());
 
-        var handlers = scanner.FindHandlers(
-            services,
-            typeof(OperationA),
-            Enumerable.Empty<Assembly>());
+        // Assert
+        var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
+        okResultA.Content.Should().Be("IoCAResult");
 
-        handlers.Should().NotBeEmpty();
+        var okResultB = resultB.ShouldBeOperationResultType<OkResult>();
+        okResultB.Content.Should().Be("IoCBResult");
     }
 
     [Test]
-    public void When_Handler_Registered_As_Interface_Exists_In_IoC_Finds()
+    public async Task When_Handler_Exists_In_IoC_Finds()
     {
         // Arrange
-        var scanner = new ApiOperationHandlerExecutorBuilderScanner();
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o.WithOperation<OperationA>(),
+            s => s.AddSingleton<IApiOperationHandler<OperationA>, ScanOperationHandler>(_ => new ScanOperationHandler(operationAResult: "IoCAResult")));
 
-        var services = new ServiceCollection();
-        services.AddSingleton<IApiOperationHandler<OperationA>, ScanOperationHandler>();
+        // Act
+        var resultA = await executor.ExecuteWithNewScopeAsync(new OperationA());
 
-        var handlers = scanner.FindHandlers(
-            services,
-            typeof(OperationA),
-            Enumerable.Empty<Assembly>());
+        // Assert
+        var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
+        okResultA.Content.Should().Be("IoCAResult");
+    }
 
-        handlers.Should().NotBeEmpty();
-        handlers.OfType<ApiOperationHandlerExecutorBuilder>().Should().Contain(b =>
-            b.ApiOperationHandlerType == typeof(ScanOperationHandler) &&
-            b.ToString().StartsWith("IoC"));
+    [Test]
+    public async Task When_Handler_Registered_As_Interface_Exists_In_IoC_Finds()
+    {
+        // Arrange
+        var executor = TestApiOperationExecutor.CreateStandalone(
+            o => o.WithOperation<OperationA>(),
+            s => s.AddSingleton<IApiOperationHandler<OperationA>, ScanOperationHandler>(_ => new ScanOperationHandler(operationAResult: "IoCAResult")));
+
+        // Act
+        var resultA = await executor.ExecuteWithNewScopeAsync(new OperationA());
+
+        // Assert
+        var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
+        okResultA.Content.Should().Be("IoCAResult");
     }
 
     [Test]
@@ -118,10 +121,10 @@ public class Given_Multiple_ApiOperationHandlers_Same_Class
 
         // Assert
         var okResultA = resultA.ShouldBeOperationResultType<OkResult>();
-        okResultA.Content.Should().Be("OperationA");
+        okResultA.Content.Should().Be(ScanOperationHandler.OperationADefaultResult);
 
         var okResultB = resultB.ShouldBeOperationResultType<OkResult>();
-        okResultB.Content.Should().Be("OperationB");
+        okResultB.Content.Should().Be(ScanOperationHandler.OperationBDefaultResult);
     }
 
     public class OperationA
@@ -134,14 +137,28 @@ public class Given_Multiple_ApiOperationHandlers_Same_Class
 
     public class ScanOperationHandler : IApiOperationHandler<OperationA>, IApiOperationHandler<OperationB>
     {
+        public const string OperationADefaultResult = "OperationA";
+        public const string OperationBDefaultResult = "OperationB";
+
+        [CanBeNull] private readonly string operationAResult;
+        [CanBeNull] private readonly string operationBResult;
+
+        public ScanOperationHandler(
+            [CanBeNull] string operationAResult = OperationADefaultResult,
+            [CanBeNull] string operationBResult = OperationBDefaultResult)
+        {
+            this.operationAResult = operationAResult;
+            this.operationBResult = operationBResult;
+        }
+
         public ValueTask<object> Handle(OperationA operation, ApiOperationContext apiOperationContext)
         {
-            return new ValueTask<object>("OperationA");
+            return new ValueTask<object>(this.operationAResult);
         }
 
         public ValueTask<object> Handle(OperationB operation, ApiOperationContext apiOperationContext)
         {
-            return new ValueTask<object>("OperationB");
+            return new ValueTask<object>(this.operationBResult);
         }
     }
 }

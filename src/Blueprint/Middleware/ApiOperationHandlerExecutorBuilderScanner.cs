@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Blueprint.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public class ApiOperationHandlerExecutorBuilderScanner : IOperationExecutorBuild
         // collection
         foreach (var s in services)
         {
-            var implementationType = s.ImplementationType ?? s.ImplementationInstance?.GetType();
+            var implementationType = s.ServiceType;
 
             if (ImplementsHandler(operationType, implementationType, out var handledType))
             {
@@ -37,6 +38,11 @@ public class ApiOperationHandlerExecutorBuilderScanner : IOperationExecutorBuild
             }
         }
 
+        if (found.Any())
+        {
+            return found;
+        }
+
         // If not, we try to manually find and register the handler, looking for an implementation of
         // IApiOperationHandler<{OperationType}> alongside the operation (i.e. in the same assembly)
         var foundTypes = FindApiOperationHandlers(operationType, scannedAssemblies);
@@ -44,6 +50,7 @@ public class ApiOperationHandlerExecutorBuilderScanner : IOperationExecutorBuild
         foreach (var (foundType, handledType) in foundTypes)
         {
             services.AddScoped(foundType, foundType);
+
             found.Add(new ApiOperationHandlerExecutorBuilder(
                 operationType,
                 foundType,
