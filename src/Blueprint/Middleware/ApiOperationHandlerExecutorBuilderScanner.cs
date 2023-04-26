@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Blueprint.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware;
 
@@ -14,119 +10,69 @@ namespace Blueprint.Middleware;
 public class ApiOperationHandlerExecutorBuilderScanner : IOperationExecutorBuilderScanner
 {
     /// <inheritdoc />
-    public IEnumerable<IOperationExecutorBuilder> FindHandlers(
-        IServiceCollection services,
-        Type operationType,
-        IEnumerable<Assembly> scannedAssemblies)
+    public void FindHandlers(ScannerContext scannerContext)
     {
-        var found = new HashSet<IOperationExecutorBuilder>();
+        var implementationsInIoC = new List<(Type OpType, Type ServiceType)>();
 
-        // First, check if there has already been a handler registered for this operation in the service
-        // collection
-        foreach (var s in services)
+        // First, loop around service collection to find any handlers that have been registered. This should quickly
+        // eliminate most services, and avoids any sort of double-looping trying to find specific handlers for
+        // each operation individually.
+        foreach (var s in scannerContext.Services)
         {
-            var implementationType = s.ServiceType;
+            var serviceType = s.ServiceType;
 
-            if (ImplementsHandler(operationType, implementationType, out var handledType))
+            // Registered directly as an IApiOperationHandler (i.e. services.AddScoped<IApiOperationHandler<SomeOperation>, SomeHandler>())
+            if (serviceType.IsInterface &&
+                serviceType.IsGenericType &&
+                serviceType.GetGenericTypeDefinition() == typeof(IApiOperationHandler<>))
             {
-                found.Add(new ApiOperationHandlerExecutorBuilder(
-                    operationType,
-                    s.ServiceType,
-                    implementationType,
-                    handledType,
-                    $"IoC as {implementationType}"));
+                implementationsInIoC.Add((serviceType.GetGenericArguments()[0], serviceType));
             }
-        }
 
-        if (found.Any())
-        {
-            return found;
-        }
-
-        // If not, we try to manually find and register the handler, looking for an implementation of
-        // IApiOperationHandler<{OperationType}> alongside the operation (i.e. in the same assembly)
-        var foundTypes = FindApiOperationHandlers(operationType, scannedAssemblies);
-
-        foreach (var (foundType, handledType) in foundTypes)
-        {
-            services.AddScoped(foundType, foundType);
-
-            found.Add(new ApiOperationHandlerExecutorBuilder(
-                operationType,
-                foundType,
-                foundType,
-                handledType,
-                $"Scanned {foundType}"));
-        }
-
-        return found;
-    }
-
-    private static IEnumerable<(Type HandlerType, Type OperationType)> FindApiOperationHandlers(
-        Type operationType,
-        IEnumerable<Assembly> scannedAssemblies)
-    {
-        // Most likely is the handler lives beside the operation, check that assembly first.
-        foreach (var t in operationType.Assembly.GetExportedTypes())
-        {
-            if (ImplementsHandler(operationType, t, out var handledType))
+            // Registered as a concrete type that implements one or more IApiOperationHandler interfaces
+            // (i.e. services.AddScoped<SomeHandler>() where SomeHandler implements IApiOperationHandler<SomeOperation>)
+            if (serviceType.IsAssignableTo(typeof(IApiOperationHandler<>)))
             {
-                yield return (t, handledType);
-            }
-        }
-
-        // We also check other scanned assemblies.
-        foreach (var a in scannedAssemblies)
-        {
-            foreach (var t in a.GetExportedTypes())
-            {
-                if (ImplementsHandler(operationType, t, out var handledType))
+                foreach (var i in serviceType.GetInterfaces())
                 {
-                    yield return (t, handledType);
+                    if (i.IsGenericType &&
+                        i.GetGenericTypeDefinition() == typeof(IApiOperationHandler<>))
+                    {
+                        implementationsInIoC.Add((i.GetGenericArguments()[0], serviceType));
+                    }
                 }
             }
         }
-    }
 
-    private static bool ImplementsHandler(Type operationType, Type toCheck, out Type handledType)
-    {
-        if (toCheck == null)
+        foreach (var op in scannerContext.Operations)
         {
-            handledType = null;
-            return false;
-        }
+            var operationType = op.OperationType;
 
-        if (toCheck.IsInterface && toCheck.IsOfGenericType(typeof(IApiOperationHandler<>), out var impl))
-        {
-            // Given:
-            //   IOperation
-            //   ConcreteOperation1 : IOperation
-            //   ConcreteOperation2 : IOperation
-            //
-            // and a build for ConcreteOperation1 we want handlers that implement IApiOperationHandler<IOperation> OR
-            // IApiOperationHandler<ConcreteOperation1> (i.e. any where <> is assignable to type).
-            //
-            // for a build for IOperation we want handlers that implement IApiOperationHandler<IOperation> OR
-            // IApiOperationHandler<ConcreteOperation1> OR IApiOperationHandler<ConcreteOperation1> because any
-            // one of them COULD, given runtime type, be executed (i.e. any where type assignable from <>)
-            var implementationHandles = impl.GetGenericArguments()[0];
-
-            if (operationType.IsAssignableFrom(implementationHandles) || implementationHandles.IsAssignableFrom(operationType))
+            foreach (var impl in implementationsInIoC)
             {
-                handledType = implementationHandles;
-                return true;
+                // Given:
+                //   IOperation
+                //   ConcreteOperation1 : IOperation
+                //   ConcreteOperation2 : IOperation
+                //
+                // and a build for ConcreteOperation1 we want handlers that implement IApiOperationHandler<IOperation> OR
+                // IApiOperationHandler<ConcreteOperation1> (i.e. any where <> is assignable to type).
+                //
+                // for a build for IOperation we want handlers that implement IApiOperationHandler<IOperation> OR
+                // IApiOperationHandler<ConcreteOperation1> OR IApiOperationHandler<ConcreteOperation1> because any
+                // one of them COULD, given runtime type, be executed (i.e. any where type assignable from <>)
+                if (impl.OpType == operationType || impl.OpType.IsAssignableTo(operationType) || impl.OpType.IsAssignableFrom(operationType) )
+                {
+                    scannerContext.RegisterHandler(
+                        op,
+                        new ApiOperationHandlerExecutorBuilder(
+                            operationType,
+                            impl.ServiceType,
+                            impl.ServiceType,
+                            impl.OpType,
+                            $"IoC as {impl.ServiceType}"));
+                }
             }
         }
-
-        foreach (var i in toCheck.GetInterfaces())
-        {
-            if (ImplementsHandler(operationType, i, out handledType))
-            {
-                return true;
-            }
-        }
-
-        handledType = null;
-        return false;
     }
 }

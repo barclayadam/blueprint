@@ -82,7 +82,8 @@ public class Given_Inline_Operation_Handling_Method
             .WithOperation<WrongDeclaredAsyncReturnType>());
 
         // Assert
-        create.Should().ThrowExactly<InvalidReturnTypeException>();
+        create.Should().ThrowExactly<InvalidReturnTypeException>()
+            .WithMessage("Operation WrongDeclaredAsyncReturnType declares a return type of Blueprint.Tests.OperationExecutorBuilders.Given_Inline_Operation_Handling_Method+AnotherApiResource, but the method ExecuteAsync has an incompatible return type of AnApiResource");
     }
 
     [Test]
@@ -93,7 +94,8 @@ public class Given_Inline_Operation_Handling_Method
             .WithOperation<WrongDeclaredReturnType>());
 
         // Assert
-        create.Should().ThrowExactly<InvalidReturnTypeException>();
+        create.Should().ThrowExactly<InvalidReturnTypeException>()
+            .WithMessage("Operation WrongDeclaredReturnType declares a return type of Blueprint.Tests.OperationExecutorBuilders.Given_Inline_Operation_Handling_Method+AnotherApiResource, but the method Execute has an incompatible return type of AnApiResource");
     }
 
     private Task ShouldCallInlineMethod<T>() where T : new()

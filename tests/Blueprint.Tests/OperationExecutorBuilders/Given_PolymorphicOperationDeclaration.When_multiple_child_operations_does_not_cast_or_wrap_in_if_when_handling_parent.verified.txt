@@ -14,10 +14,10 @@ namespace Blueprint.Generated
         private static readonly System.Action<Microsoft.Extensions.Logging.ILogger, string, System.Exception> _UnhandledException = Microsoft.Extensions.Logging.LoggerMessage.Define<System.String>(Microsoft.Extensions.Logging.LogLevel.Error, new Microsoft.Extensions.Logging.EventId(5, "UnhandledException"), "An unhandled exception has occurred with message {ExceptionMessage}");
 
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
-        private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase> _operationBaseIApiOperationHandler;
-        private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2> _operationChild2IApiOperationHandler;
+        private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationBase> _operationBaseIApiOperationHandler;
+        private readonly Blueprint.IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2> _operationChild2IApiOperationHandler;
 
-        public OperationChild2ExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase> operationBaseIApiOperationHandler, Blueprint.IApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2> operationChild2IApiOperationHandler)
+        public OperationChild2ExecutorPipeline(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Blueprint.IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationBase> operationBaseIApiOperationHandler, Blueprint.IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2> operationChild2IApiOperationHandler)
         {
             _logger = loggerFactory.CreateLogger("OperationChild2ExecutorPipeline");
             _operationBaseIApiOperationHandler = operationBaseIApiOperationHandler;
@@ -27,21 +27,21 @@ namespace Blueprint.Generated
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteAsync(Blueprint.ApiOperationContext context)
         {
             using var activityOfOperationChild2Pipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2Pipeline", System.Diagnostics.ActivityKind.Internal);
-            var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
+            var operationChild2 = (Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
             try
             {
 
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
-                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
+                activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
+                using var activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
+                activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;
@@ -79,21 +79,21 @@ namespace Blueprint.Generated
         public async System.Threading.Tasks.Task<Blueprint.OperationResult> ExecuteNestedAsync(Blueprint.ApiOperationContext context)
         {
             using var activityOfOperationChild2NestedPipeline = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("OperationChild2NestedPipeline", System.Diagnostics.ActivityKind.Internal);
-            var operationChild2 = (Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
+            var operationChild2 = (Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2) context.Operation;
             try
             {
 
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
-                using var activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
+                activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationBase?.Dispose();
+                using var activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsCoreGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
+                activityOfIApiOperationHandlerBlueprintTestsOperationExecutorBuildersGiven_PolymorphicOperationDeclarationOperationChild2?.Dispose();
 
                 // ReturnFrameMiddlewareBuilder
                 return Blueprint.NoResultOperationResult.Instance;

@@ -1,9 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware;
+
+/// <param name="Operations">The operations to scan for builders for.</param>
+/// <param name="Services">The service collection that services can be registered for use at pipeline runtime.</param>
+/// <param name="RegisterHandler">The action to call to register a handler.</param>
+public record ScannerContext(
+    List<ApiOperationDescriptor> Operations,
+    IServiceCollection Services,
+    Action<ApiOperationDescriptor, IOperationExecutorBuilder> RegisterHandler);
 
 /// <summary>
 /// A scanner that can be used to search for a way of handling operations that have been registered
@@ -17,12 +24,6 @@ public interface IOperationExecutorBuilderScanner
     /// Finds as many handlers for the given set of operations, returning any that match as corresponding <see cref="IOperationExecutorBuilder"/>s, optionally
     /// registering any required instances with the <see cref="IServiceCollection" />.
     /// </summary>
-    /// <param name="services">The service collection that services can be registered for use at pipeline runtime.</param>
-    /// <param name="operationType">The operation type to scan for builders for.</param>
-    /// <param name="scannedAssemblies">A list of assemblies added for scanning operations.</param>
-    /// <returns>The list of found builders.</returns>
-    IEnumerable<IOperationExecutorBuilder> FindHandlers(
-        IServiceCollection services,
-        Type operationType,
-        IEnumerable<Assembly> scannedAssemblies);
+    /// <param name="scannerContext">The context of this scan.</param>
+    void FindHandlers(ScannerContext scannerContext);
 }

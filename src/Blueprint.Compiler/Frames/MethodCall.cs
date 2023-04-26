@@ -286,13 +286,15 @@ public class MethodCall : Frame
             return null;
         }
 
-        if (type.CanBeCastTo<Task>())
+        if (!type.IsGenericType)
         {
-            return type.GetGenericArguments()[0];
+            return type;
         }
 
-        // have to do a manual check for ValueTask<T> as it doesn't inherit from ValueTask
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueTask<>))
+        // Unwrap Task-like returns to have the return type be the _inner_ type
+        var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+        if (genericTypeDefinition == typeof(ValueTask<>) || genericTypeDefinition == typeof(Task<>))
         {
             return type.GetGenericArguments()[0];
         }

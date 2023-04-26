@@ -52,9 +52,7 @@ public static class TypeExtensions
             return false;
         }
 
-        var typeInfo = type.GetTypeInfo();
-
-        if (typeInfo.IsGenericType && type.GetGenericTypeDefinition() == openType)
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == openType)
         {
             return true;
         }
@@ -67,21 +65,19 @@ public static class TypeExtensions
             }
         }
 
-        var baseType = typeInfo.BaseType;
+        var baseType = type.BaseType;
         if (baseType == null)
         {
             return false;
         }
 
-        var baseTypeInfo = baseType.GetTypeInfo();
-
-        var closes = baseTypeInfo.IsGenericType && baseType.GetGenericTypeDefinition() == openType;
+        var closes = baseType.IsGenericType && baseType.GetGenericTypeDefinition() == openType;
         if (closes)
         {
             return true;
         }
 
-        return typeInfo.BaseType?.Closes(openType) ?? false;
+        return baseType.BaseType?.Closes(openType) ?? false;
     }
 
     public static bool IsSimple(this Type type)

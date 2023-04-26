@@ -5,7 +5,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using VerifyNUnit;
 
-namespace Blueprint.Tests.Core;
+namespace Blueprint.Tests.OperationExecutorBuilders;
 
 public class Given_PolymorphicOperationDeclaration
 {
@@ -36,7 +36,7 @@ public class Given_PolymorphicOperationDeclaration
 
         // Act
         tryBuildExecutor.Should().ThrowExactly<InvalidOperationException>()
-            .WithMessage(@"Unable to build an executor for the operation Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration+IOperationInterface because the single handler registered, IoC as Blueprint.Tests.TestApiOperationHandler`1[Blueprint.Tests.Core.Given_PolymorphicOperationDeclaration+OperationImpl], did not return a variable but the operation has RequiresReturnValue set to true. 
+            .WithMessage(@"Unable to build an executor for the operation Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration+IOperationInterface because the single handler registered, IoC as Blueprint.IApiOperationHandler`1[Blueprint.Tests.OperationExecutorBuilders.Given_PolymorphicOperationDeclaration+OperationImpl], did not return a variable but the operation has RequiresReturnValue set to true. 
 
 This can happen if an the only registered handler for an operation is one that is NOT of the same type (for example a handler IApiOperationHandler<ConcreteClass> for the operation IOperationInterface) where it cannot be guaranteed that the handler will be executed.");
     }

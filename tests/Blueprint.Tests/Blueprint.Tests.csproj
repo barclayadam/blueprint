@@ -37,5 +37,10 @@
     <None Update="CodeGen\LogFrameTests.*.txt">
       <DependentUpon>LogFrameTests.cs</DependentUpon>
     </None>
+    <None Update="OperationExecutorBuilders\Given_PolymorphicOperationDeclaration.When_multiple_child_operations_does_not_cast_or_wrap_in_if_when_handling_parent.verified.txt">
+      <ParentExtension>.cs</ParentExtension>
+      <ParentFile>Given_PolymorphicOperationDeclaration</ParentFile>
+      <DependentUpon>Given_PolymorphicOperationDeclaration.cs</DependentUpon>
+    </None>
   </ItemGroup>
 </Project>

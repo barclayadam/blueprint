@@ -52,26 +52,27 @@ public class ExecutorScanner
     {
         var problems = new List<string>();
 
+        void RegisterHandler(ApiOperationDescriptor operation, IOperationExecutorBuilder handler)
+        {
+            // Not ideal using exceptions here, done to avoid duplicating the exception messaging around multiple operations
+            try
+            {
+                operation.RegisterHandler(handler);
+            }
+            catch (Exception e)
+            {
+                problems.Add(e.Message);
+            }
+        }
+
+        foreach (var scanner in this._scanners)
+        {
+            scanner.FindHandlers(new ScannerContext(operations, services, RegisterHandler));
+        }
+
+        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator Avoid LINQ allocations
         foreach (var operation in operations)
         {
-            foreach (var scanner in this._scanners)
-            {
-                var handlers = scanner.FindHandlers(services, operation.OperationType, operationScanner.ScannedAssemblies);
-
-                foreach (var handler in handlers)
-                {
-                    // Not ideal using exceptions here, done to avoid duplicating the exception messaging around multiple operations
-                    try
-                    {
-                        operation.RegisterHandler(handler);
-                    }
-                    catch (Exception e)
-                    {
-                        problems.Add(e.Message);
-                    }
-                }
-            }
-
             if (operation.Handlers.Count == 0)
             {
                 problems.Add($"Could not find any handlers for the operation {operation}");

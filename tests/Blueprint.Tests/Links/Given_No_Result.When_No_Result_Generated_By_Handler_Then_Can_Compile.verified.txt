@@ -34,14 +34,14 @@ namespace Blueprint.Generated
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase?.Dispose();
-                using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
+                activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase?.Dispose();
+                using var activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2?.Dispose();
+                activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2?.Dispose();
 
                 // LinkGeneratorMiddlewareBuilder
 
@@ -88,14 +88,14 @@ namespace Blueprint.Generated
                 // ValidationMiddlewareBuilder
 
                 // OperationExecutorMiddlewareBuilder
-                using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
+                using var activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationBase>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationBaseIApiOperationHandler.GetType().Name, null);
                 await _operationBaseIApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase?.Dispose();
-                using var activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("TestApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
+                activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationBase?.Dispose();
+                using var activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2 = Blueprint.Diagnostics.BlueprintActivitySource.ActivitySource.StartActivity("IApiOperationHandler<Blueprint.Tests.LinkGeneration.Given_No_Result.OperationChild2>", System.Diagnostics.ActivityKind.Internal);
                 _ApiOperationExecuting(_logger, "OperationChild2", _operationChild2IApiOperationHandler.GetType().Name, null);
                 await _operationChild2IApiOperationHandler.Handle(operationChild2, context);
-                activityOfTestApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2?.Dispose();
+                activityOfIApiOperationHandlerBlueprintTestsLinkGenerationGiven_No_ResultOperationChild2?.Dispose();
 
                 // LinkGeneratorMiddlewareBuilder
 
