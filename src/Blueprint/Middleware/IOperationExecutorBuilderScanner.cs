@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blueprint.Middleware;
 
 /// <param name="Operations">The operations to scan for builders for.</param>
 /// <param name="Services">The service collection that services can be registered for use at pipeline runtime.</param>
+/// <param name="ScannedAssemblies">The assemblies that have been scanned to find operations.</param>
 /// <param name="RegisterHandler">The action to call to register a handler.</param>
 public record ScannerContext(
     List<ApiOperationDescriptor> Operations,
     IServiceCollection Services,
+    IReadOnlyList<Assembly> ScannedAssemblies,
     Action<ApiOperationDescriptor, IOperationExecutorBuilder> RegisterHandler);
 
 /// <summary>

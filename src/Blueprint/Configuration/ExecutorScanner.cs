@@ -67,7 +67,7 @@ public class ExecutorScanner
 
         foreach (var scanner in this._scanners)
         {
-            scanner.FindHandlers(new ScannerContext(operations, services, RegisterHandler));
+            scanner.FindHandlers(new ScannerContext(operations, services, operationScanner.ScannedAssemblies, RegisterHandler));
         }
 
         // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator Avoid LINQ allocations
