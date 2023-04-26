@@ -22,16 +22,6 @@
         "operationId": "OpenApiPost",
         "parameters": [
           {
-            "name": "AnId",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
             "name": "ACookieValue",
             "in": "cookie",
             "description": "With some more documentation.",
@@ -44,6 +34,16 @@
             "name": "AHeaderValue",
             "in": "header",
             "description": "With some documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
             "schema": {
               "title": "String",
               "type": "string"
