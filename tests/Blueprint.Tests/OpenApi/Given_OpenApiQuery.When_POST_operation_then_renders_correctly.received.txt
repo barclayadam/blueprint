@@ -1,0 +1,353 @@
+﻿{
+  Content:
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Auto-generated API specification",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.blueprint-testing.com/api/"
+    }
+  ],
+  "paths": {
+    "/resources/{AnId}": {
+      "post": {
+        "tags": [
+          "OpenApi"
+        ],
+        "summary": "The OpenApiPostCommand summary",
+        "description": "",
+        "operationId": "OpenApiPost",
+        "parameters": [
+          {
+            "name": "ACookieValue",
+            "in": "cookie",
+            "description": "With some more documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AHeaderValue",
+            "in": "header",
+            "description": "With some documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AnId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenApiPostCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceCreatedOfOpen"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OpenApiPostCommand": {
+        "id": "OpenApiPostCommand",
+        "type": "object",
+        "description": "The OpenApiPostCommand summary",
+        "additionalProperties": false,
+        "required": [
+          "anotherBodyParameter"
+        ],
+        "properties": {
+          "aBodyParameter": {
+            "type": "string",
+            "nullable": true
+          },
+          "anotherBodyParameter": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "ResourceCreatedOfOpen": {
+        "id": "ResourceCreatedOfOpen",
+        "type": "object",
+        "description": "A specific implementation of ResourceEvent`1 for events of change type Created.",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "$object",
+          "eventId",
+          "changeType",
+          "created",
+          "resourceObject"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Open"
+          },
+          "$object": {
+            "type": "string",
+            "description": "Gets the object of this 'resource', which is \"event\"."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Gets the id of this event, for example 'timeEntry.updated' or 'account.approvals.enabled'."
+          },
+          "changeType": {
+            "description": "Gets a the change type of this event, which is a higher-level version of the Type property,\nindicating whether the resource was updated, created or deleted.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResourceEventChangeType"
+              }
+            ]
+          },
+          "created": {
+            "type": "string",
+            "description": "Gets the created date of this event.",
+            "format": "date-time"
+          },
+          "resourceObject": {
+            "type": "string",
+            "description": "Gets the type of resource represented."
+          },
+          "href": {
+            "type": "string",
+            "description": "Gets or sets the href of the resource this event represents, to be populated by the ResourceEventMiddleware\ncomponent from the resource type and id definition object.",
+            "nullable": true
+          },
+          "changedValues": {
+            "type": "object",
+            "description": "Gets or sets a dictionary of previous values, used to identify what has actually changed\nbetween two resources, keyed on the property name with the previous value of the resource\nbeing the value.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Gets the metadata dictionary of this resource event, a simple bag of key value pairs\nof useful information that can be stored free-form against an event.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "secureData": {
+            "type": "object",
+            "description": "Gets a dictionary of security-related data that will NOT be persisted anywhere.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "correlationId": {
+            "type": "string",
+            "description": "Gets or sets the correlation id for this event, which can be used to tie it back to\nthe initial request that resulted in an event.",
+            "nullable": true
+          }
+        }
+      },
+      "Open": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$object",
+          "$links",
+          "$partial"
+        ],
+        "properties": {
+          "$object": {
+            "type": "string",
+            "description": "The object type of this resource, used to indicate to clients what they\nare dealing with (i.e. 'user', 'account', 'group')."
+          },
+          "$links": {
+            "type": "object",
+            "description": "The links for this resource, other endpoints that apply to this resource\nin it's current state.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "$partial": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether or not this resource is 'partial', an indication that not all properties have been\npopulated for performance reasons and a client should reload from the 'self' link to retrieve all values."
+          },
+          "aProperty": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "description": "A link from one resource to another, that indicates what operations may be available\nfor a given ILinkableResource being returned from the API.",
+        "additionalProperties": false,
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "The URL of this link."
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of resource this link will return.",
+            "nullable": true
+          }
+        }
+      },
+      "ResourceEventChangeType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ],
+        "enum": [
+          "Created",
+          "Updated",
+          "Deleted"
+        ]
+      },
+      "ProblemDetails": {
+        "id": "ProblemDetails",
+        "type": "object",
+        "description": "A machine-readable format for specifying errors in HTTP API responses based on https://tools.ietf.org/html/rfc7807.",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference [RFC3986] that identifies the problem type. This specification encourages that, when\ndereferenced, it provide human-readable documentation for the problem type\n(e.g., using HTML [W3C.REC-html5-20141028]).  When this member is not present, its value is assumed to be\n\"about:blank\".",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence\nof the problem, except for purposes of localization (e.g. using proactive content negotiation;\nsee [RFC7231], Section 3.4).",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.",
+            "nullable": true
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Extension data that MAY contain additional, problem type specific details. Extension members appear in the same\nnamespace as other members of a problem type.",
+            "nullable": true,
+            "additionalProperties": {}
+          }
+        }
+      },
+      "ValidationProblemDetails": {
+        "id": "ValidationProblemDetails",
+        "type": "object",
+        "description": "A ProblemDetails for validation errors.",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference [RFC3986] that identifies the problem type. This specification encourages that, when\ndereferenced, it provide human-readable documentation for the problem type\n(e.g., using HTML [W3C.REC-html5-20141028]).  When this member is not present, its value is assumed to be\n\"about:blank\".",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence\nof the problem, except for purposes of localization (e.g. using proactive content negotiation;\nsee [RFC7231], Section 3.4).",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.",
+            "nullable": true
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Extension data that MAY contain additional, problem type specific details. Extension members appear in the same\nnamespace as other members of a problem type.",
+            "nullable": true,
+            "additionalProperties": {}
+          },
+          "errors": {
+            "type": "object",
+            "description": "Gets the validation errors associated with this instance of ValidationProblemDetails.",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+  ContentType: application/json,
+  StatusCode: OK
+}
