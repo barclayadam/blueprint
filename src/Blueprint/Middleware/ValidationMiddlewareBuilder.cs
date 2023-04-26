@@ -123,7 +123,7 @@ public class ValidationMiddlewareBuilder : IMiddlewareBuilder
             context.AppendFrames(
                 new IfBlock($"{failureCount} > 0")
                 {
-                    LogFrame.Debug(BlueprintLoggingEventIds.ValidatedFailed,
+                    LogFrame.Debug(BlueprintLoggingEventIds.ValidationFailed,
                         "Validation failed with {ValidationFailureCount} failures, returning ValidationFailedOperationResult",
                         new Variable<int>(failureCount)),
                     createResult,

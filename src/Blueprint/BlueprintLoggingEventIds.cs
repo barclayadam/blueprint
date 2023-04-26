@@ -20,7 +20,7 @@ internal static class BlueprintLoggingEventIds
     /// <summary>
     /// When operation validation fails.
     /// </summary>
-    public static readonly EventId ValidatedFailed = new(3, nameof(ValidatedFailed));
+    public static readonly EventId ValidationFailed = new(3, nameof(ValidationFailed));
 
     /// <summary>
     /// When a non-500 exception is caught in a pipeline.
