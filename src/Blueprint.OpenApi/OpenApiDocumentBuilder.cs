@@ -121,7 +121,7 @@ internal class OpenApiDocumentBuilder
 
                 // First, add the explicit "owned" properties, those that we know come from a particular
                 // place and are therefore _not_ part of the body
-                foreach (var property in operation.Properties.OrderBy(p => p.Name))
+                foreach (var property in operation.Properties)
                 {
                     var ownedPropertyDescriptor = allOwned.SingleOrDefault(o => o.Property == property);
 

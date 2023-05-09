@@ -22,27 +22,18 @@
         "operationId": "OpenApiGet",
         "parameters": [
           {
-            "name": "ACookieValue",
-            "in": "cookie",
-            "description": "With some more documentation.",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
-            "name": "AHeaderValue",
-            "in": "header",
-            "description": "With some documentation.",
-            "schema": {
-              "title": "String",
-              "type": "string"
-            }
-          },
-          {
             "name": "AnId",
             "in": "path",
             "required": true,
+            "description": "",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ImplicitlyFromQuery",
+            "in": "query",
             "description": "",
             "schema": {
               "title": "String",
@@ -59,9 +50,18 @@
             }
           },
           {
-            "name": "ImplicitlyFromQuery",
-            "in": "query",
-            "description": "",
+            "name": "ACookieValue",
+            "in": "cookie",
+            "description": "With some more documentation.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          },
+          {
+            "name": "AHeaderValue",
+            "in": "header",
+            "description": "With some documentation.",
             "schema": {
               "title": "String",
               "type": "string"
