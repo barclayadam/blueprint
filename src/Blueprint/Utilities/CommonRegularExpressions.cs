@@ -120,5 +120,5 @@ public static class CommonRegularExpressions
 
     private const string UrlProtocolPattern = @"((([Hh][Tt]|[Ff])[Tt][Pp]([Ss]?))\://)";
     private const string UrlWithProtocolPattern = UrlProtocolPattern + UrlDomainPattern;
-    private const string UrlDomainPattern = @"([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}|localhost)(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%\$#\=~_\-]+))*";
+    private const string UrlDomainPattern = @"([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,63}|localhost)(\:[0-9]{1,5})*([/?]($|[a-zA-Z0-9\.\,\;\'\\\+&amp;()%@\$#\=~_\-]+))*";
 }

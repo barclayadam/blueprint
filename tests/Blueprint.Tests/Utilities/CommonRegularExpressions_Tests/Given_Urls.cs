@@ -35,6 +35,7 @@ public class Given_Urls
     [TestCase("www.google.co.uk/search(advanced)")]
     [TestCase("www.google.com:80")]
     [TestCase("localhost:5000")]
+    [TestCase("www.youtube.com/@michaeldtaylor")]
     public void When_Valid_Url_Then_Match(string url)
     {
         Assert.IsTrue(CommonRegularExpressions.UrlOnly.IsMatch(url), "Failed to match " + url);
